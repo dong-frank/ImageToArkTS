@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from typing import Any, TypedDict
 
-from state import ProjectState
+from agents.architect.architect_state import ProjectState
 
 
 IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}

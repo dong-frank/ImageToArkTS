@@ -11,8 +11,8 @@ from langchain_openai import ChatOpenAI
 from langgraph.types import Send
 from langgraph.graph import END, START, StateGraph
 
-from input_processor import build_initial_project_state
-from state import PageExtractionResult, ProjectState, VisionTaskState
+from agents.architect.input_processor import build_initial_project_state
+from agents.architect.architect_state import PageExtractionResult, ProjectState, VisionTaskState
 from dotenv import load_dotenv
 load_dotenv()
 DEFAULT_INPUT_ROOT = (Path(__file__).resolve().parent / "Memo").resolve()

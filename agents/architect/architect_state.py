@@ -5,6 +5,11 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langgraph.graph import StateGraph, START, END
 from langgraph.constants import Send
+from langchain.agents import AgentState
+
+## TODO 抽离出一个state给全局agent
+class ArchitectNodeState(AgentState):
+    pass
 
 # ================= 1. Pydantic 结构化输出模型 =================、
 # 请忽略，暂不需要
