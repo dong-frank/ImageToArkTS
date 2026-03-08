@@ -5,6 +5,7 @@ from typing import Annotated
 
 # 导入子 Agent 的状态定义
 from agents.architect.architect_state import ArchitectNodeState
+from agents.coder.coder_state import CoderNodeState
 
 class CustomAgentState(TypedDict):
     """
@@ -15,4 +16,7 @@ class CustomAgentState(TypedDict):
     
     # 将 Architect Agent 的状态作为一个字段包含进来
     architect_state: Optional[ArchitectNodeState]
+    
+    # Update: 添加 Coder Agent 的状态
+    coder_state: Optional[CoderNodeState]
 
