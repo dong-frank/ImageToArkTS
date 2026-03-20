@@ -1,0 +1,13 @@
+[project]
+name = "imagetoarkts-deepagents"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "agentscope-runtime>=1.1.1",
+    "deepagents>=0.4.11",
+    "dotenv>=0.9.9",
+    "langchain[openai]>=1.2.12",
+    "pexpect>=4.9.0",
+]
