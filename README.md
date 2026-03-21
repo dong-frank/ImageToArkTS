@@ -19,13 +19,17 @@
 
 - Python `3.11+`
 - [uv](https://docs.astral.sh/uv/)
-- 本地可用的 HarmonyOS/Hvigor/ACE 工具链
+- 本地可用的 HarmonyOS/Hvigor/ohpm 工具链
 
 如果下面这些命令在你的机器上不可用，项目编译和创建工程会失败：
 
-- `ace`
 - `ohpm`
 - `hvigorw`
+
+说明：
+
+- `create_project` 会复制仓库内的标准 HarmonyOS 模板工程，再执行依赖安装
+- 模板目录位于 [template/MyApplication](/Users/dong/2026/ImageToArkTS-DeepAgents/template/MyApplication)
 
 ## `.env` 配置
 
@@ -79,6 +83,26 @@ uv run python main.py
 4. 保留 `agent_workspace/user_input`
 5. 然后运行 agent 流程
 
+## 当前的创建项目方式
+
+`coder` 在调用 `create_project(project_name)` 时，会基于仓库内模板创建标准 HarmonyOS 单平台工程。
+
+现在的行为是：
+
+1. 从 [template/MyApplication](/Users/dong/2026/ImageToArkTS-DeepAgents/template/MyApplication) 复制一份标准 HarmonyOS 单平台模板工程
+2. 复制到 `agent_workspace/projects/{project_name}`
+3. 自动清理不该进入新项目的本地产物，比如 `.idea`、`.hvigor`、`oh_modules`、`local.properties`
+4. 更新基础项目配置，例如 `AppScope/app.json5` 中的 `bundleName`
+5. 在新项目目录中执行依赖安装
+
+依赖安装脚本位于 [install_dependencies.sh](/Users/dong/2026/ImageToArkTS-DeepAgents/scripts/install_dependencies.sh)，核心命令是：
+
+```bash
+ohpm install --all --registry https://ohpm.openharmony.cn/ohpm/ --strict_ssl true
+```
+
+这样做的目的，是让 agent 始终基于标准鸿蒙模板生成原型。
+
 ## 推荐启动步骤
 
 1. 把用户输入放到 `agent_workspace/user_input`
@@ -124,6 +148,12 @@ uv run python main.py
 
 ```bash
 ./scripts/reset_agent_workspace.sh
+```
+
+只安装某个已生成项目的依赖：
+
+```bash
+./scripts/install_dependencies.sh agent_workspace/projects/your_project_name
 ```
 
 ## 说明
