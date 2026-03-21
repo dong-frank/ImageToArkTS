@@ -12,6 +12,5 @@ wheels/
 # Agent workspace
 agent_workspace/
 
-skills/
 
 .env
