@@ -1,237 +1,72 @@
 # ImageToArkTS-DeepAgents
 
-一个面向 HarmonyOS/ArkTS 快速原型生成的多 Agent 项目。
+## 环境配置
 
-目标流程是：
-
-1. 产品经理把草图、截图、需求说明放进 `agent_workspace/user_input`
-2. `architect` 负责提炼页面结构、视觉风格和跳转关系
-3. `coder` 负责生成一个可编译、可展示的 HarmonyOS 原型
-
-当前策略偏向快速原型：
-
-- 优先做出可用 UI
-- 允许 mock 数据和简化交互
-- 不强调工程规范化优先
-- 默认优先硬编码字符串和颜色，减少资源系统复杂度
-
-## 环境要求
+### 1. 安装基础依赖
 
 - Python `3.11+`
 - [uv](https://docs.astral.sh/uv/)
-- 本地可用的 HarmonyOS/Hvigor/ohpm 工具链
+- Node.js / npm
+- HarmonyOS 工具链：`ohpm`、`hvigorw`
 
-如果下面这些命令在你的机器上不可用，项目编译和创建工程会失败：
+### 2. 配置环境变量
 
-- `ohpm`
-- `hvigorw`
-
-说明：
-
-- `create_project` 会复制仓库内的标准 HarmonyOS 模板工程，再执行依赖安装
-- 模板目录位于 [template/MyApplication](/Users/dong/2026/ImageToArkTS-DeepAgents/template/MyApplication)
-
-## `.env` 配置
-
-项目使用 `dotenv` 读取根目录下的 `.env`。
-
-最少需要配置：
+项目会读取根目录下的 `.env`，至少需要：
 
 ```env
 DASHSCOPE_API_KEY=your_dashscope_api_key
 DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com/compatible-mode/v1
 ```
 
-当前代码里：
-
-- `vision_model` 使用 `qwen3-vl-plus`
-- `base_model` 使用 `qwen3.5-plus`
-
-如果你想接 LangSmith，建议再补上：
+如果要启用 LangSmith，再补充：
 
 ```env
 LANGSMITH_TRACING=true
 LANGSMITH_API_KEY=your_langsmith_api_key
-LANGSMITH_PROJECT=ImageToArkTS-DeepAgents
+LANGSMITH_PROJECT=ImageToArkTS
 ```
 
-## 用 `uv` 快速配置环境
+### 3. 安装依赖
 
-第一次进入项目：
+安装 Python 依赖：
 
 ```bash
 uv sync
 ```
 
-如果你想显式使用虚拟环境中的 Python：
+安装前端依赖：
 
 ```bash
-uv run python --version
+cd frontend
+npm install
 ```
 
-运行主流程：
+## 如何运行
 
-```bash
-uv run python main.py
-```
+### 方式一：运行主流程
 
-这条命令会先：
-
-1. 清空 `agent_workspace/projects`
-2. 清空 `agent_workspace/designs`
-3. 保留 `agent_workspace/skills`
-4. 保留 `agent_workspace/user_input`
-5. 然后运行 agent 流程
-
-## 当前的创建项目方式
-
-`coder` 在调用 `create_project(project_name)` 时，会基于仓库内模板创建标准 HarmonyOS 单平台工程。
-
-现在的行为是：
-
-1. 从 [template/MyApplication](/Users/dong/2026/ImageToArkTS-DeepAgents/template/MyApplication) 复制一份标准 HarmonyOS 单平台模板工程
-2. 复制到 `agent_workspace/projects/{project_name}`
-3. 自动清理不该进入新项目的本地产物，比如 `.idea`、`.hvigor`、`oh_modules`、`local.properties`
-4. 更新基础项目配置，例如 `AppScope/app.json5` 中的 `bundleName`
-5. 在新项目目录中执行依赖安装
-
-依赖安装脚本位于 [install_dependencies.sh](/Users/dong/2026/ImageToArkTS-DeepAgents/scripts/install_dependencies.sh)，核心命令是：
-
-```bash
-ohpm install --all --registry https://ohpm.openharmony.cn/ohpm/ --strict_ssl true
-```
-
-这样做的目的，是让 agent 始终基于标准鸿蒙模板生成原型。
-
-## 推荐启动步骤
-
-1. 把用户输入放到 `agent_workspace/user_input`
-2. 确认 `.env` 已配置
-3. 执行：
+先把输入资料放到 `agent_workspace/user_input`，然后在项目根目录执行：
 
 ```bash
 uv run python main.py
 ```
 
-## `agent_workspace` 目录说明
+### 方式二：启动对话页面
 
-```text
-agent_workspace/
-  user_input/   # 用户输入：草图、截图、需求文本
-  skills/       # 供 agent 使用的 skills
-  designs/      # architect 输出的结构化设计
-  projects/     # coder 生成的 HarmonyOS 项目
-```
-
-其中：
-
-- `user_input` 视为用户材料
-- `skills` 视为系统能力
-- `designs` 是中间产物
-- `projects` 是生成结果
-
-## 常用命令
-
-同步依赖：
-
-```bash
-uv sync
-```
-
-运行主流程：
-
-```bash
-uv run python main.py
-```
-
-只重置测试输出：
-
-```bash
-./scripts/reset_agent_workspace.sh
-```
-
-只安装某个已生成项目的依赖：
-
-```bash
-./scripts/install_dependencies.sh agent_workspace/projects/your_project_name
-```
-
-## 对话页面
-
-项目现在使用 [runtime.py](/Users/dong/2026/ImageToArkTS-DeepAgents/runtime.py) 作为后端运行时，并提供一个自定义前端页面 [frontend](/Users/dong/2026/ImageToArkTS-DeepAgents/frontend)。
-
-相关文件：
-
-- [agent.py](/Users/dong/2026/ImageToArkTS-DeepAgents/agent.py) 保留 deep agent 定义和本地调用入口
-- [runtime.py](/Users/dong/2026/ImageToArkTS-DeepAgents/runtime.py) 提供 `agentscope-runtime` 服务入口
-- [frontend](/Users/dong/2026/ImageToArkTS-DeepAgents/frontend) 提供文件上传和对话 UI
-
-启动方式：
+在项目根目录启动后端：
 
 ```bash
 uv run python runtime.py
 ```
 
-这条命令会启动后端服务，默认端口是 `8080`。
-
-然后单独启动前端：
+再在 `frontend` 目录启动前端：
 
 ```bash
 cd frontend
-npm install
 npm run dev
 ```
 
-默认地址：
+默认访问地址：
 
-- Runtime API：`http://127.0.0.1:8080/process`
-- Frontend UI：`http://127.0.0.1:5173`
-
-### 图片与文件上传
-
-为了避免把图片直接塞进聊天消息体，runtime 现在提供了单独的用户输入上传接口。
-
-推荐流程：
-
-1. 先把图片或需求文件上传到 `agent_workspace/user_input`
-2. 再在聊天页面里发起任务
-3. 主 agent 统一从 `/user_input` 读取这些资料
-
-接口：
-
-- `POST /user-input/upload`
-- `GET /user-input/files`
-
-上传接口会把文件保存到 [agent_workspace/user_input](/Users/dong/2026/ImageToArkTS-DeepAgents/agent_workspace/user_input)。
-
-示例：
-
-```bash
-curl -X POST http://localhost:8080/user-input/upload \
-  -F "files=@/absolute/path/to/sketch.png" \
-  -F "files=@/absolute/path/to/notes.txt"
-```
-
-如果你希望上传前先清空旧文件，可以加：
-
-```bash
--F "clear_existing=true"
-```
-
-如果你不想把 trace 发到 LangSmith，可以在 `.env` 里设置：
-
-```env
-LANGSMITH_TRACING=false
-```
-
-## 说明
-
-这个项目当前更适合做“产品原型快速落地”，而不是严格工程化生成器。
-
-如果模型生成了不符合 ArkTS 语法的代码，当前系统会依赖：
-
-- `compile_project` 的编译摘要
-- `arkts-syntax-assistant` skill
-- `harmony-project-layout` skill
-
-来逐步修正并继续迭代。
+- 后端：`http://127.0.0.1:8080`
+- 前端：`http://127.0.0.1:5173`

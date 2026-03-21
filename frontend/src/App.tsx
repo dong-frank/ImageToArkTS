@@ -20,6 +20,14 @@ type ActivityItem = {
   text: string;
 };
 
+type WorkspaceNode = {
+  name: string;
+  path: string;
+  type: "directory" | "file";
+  size?: number;
+  children?: WorkspaceNode[];
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8080";
 
 function formatBytes(size: number): string {
@@ -46,16 +54,19 @@ export default function App() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [workspaceTree, setWorkspaceTree] = useState<WorkspaceNode | null>(null);
   const [input, setInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [clearExisting, setClearExisting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     void refreshFiles();
+    void refreshWorkspaceTree();
   }, []);
 
   useEffect(() => {
@@ -72,6 +83,15 @@ export default function App() {
     }
     const data = (await response.json()) as { files: UploadedFile[] };
     setFiles(data.files ?? []);
+  }
+
+  async function refreshWorkspaceTree() {
+    const response = await fetch(`${API_BASE}/workspace/tree`);
+    if (!response.ok) {
+      throw new Error(`Failed to load workspace tree: ${response.status}`);
+    }
+    const data = (await response.json()) as { root?: WorkspaceNode };
+    setWorkspaceTree(data.root ?? null);
   }
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
@@ -98,6 +118,7 @@ export default function App() {
       }
 
       await refreshFiles();
+      await refreshWorkspaceTree();
       setSelectedFiles(null);
       setClearExisting(false);
       setActivities((current) => [
@@ -116,6 +137,53 @@ export default function App() {
       if (fileInput) {
         fileInput.value = "";
       }
+    }
+  }
+
+  async function handleReset() {
+    if (isResetting) {
+      return;
+    }
+
+    setIsResetting(true);
+    setError(null);
+    try {
+      const response = await fetch(`${API_BASE}/reset`, {
+        method: "POST",
+      });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        stdout?: string;
+        stderr?: string;
+      };
+
+      if (!response.ok || !data.ok) {
+        throw new Error(data.stderr || data.stdout || `Reset failed: ${response.status}`);
+      }
+
+      await refreshFiles();
+      await refreshWorkspaceTree();
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "status",
+          text: data.stdout || "agent_workspace 已重置。",
+        },
+      ]);
+    } catch (resetError) {
+      const message = resetError instanceof Error ? resetError.message : "Reset failed";
+      setError(message);
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "error",
+          text: message,
+        },
+      ]);
+    } finally {
+      setIsResetting(false);
     }
   }
 
@@ -313,6 +381,36 @@ export default function App() {
     }
   }
 
+  function renderWorkspaceNode(node: WorkspaceNode, depth = 0): JSX.Element {
+    if (node.type === "directory") {
+      return (
+        <details className="tree-node tree-directory" key={node.path} open={depth < 2}>
+          <summary>
+            <span className="tree-icon">D</span>
+            <span className="tree-name">{node.name}</span>
+            <span className="tree-path">{node.path}</span>
+          </summary>
+          <div className="tree-children">
+            {node.children && node.children.length > 0 ? (
+              node.children.map((child) => renderWorkspaceNode(child, depth + 1))
+            ) : (
+              <div className="tree-empty">空目录</div>
+            )}
+          </div>
+        </details>
+      );
+    }
+
+    return (
+      <div className="tree-node tree-file" key={node.path}>
+        <span className="tree-icon">F</span>
+        <span className="tree-name">{node.name}</span>
+        <span className="tree-path">{node.path}</span>
+        <span className="tree-size">{typeof node.size === "number" ? formatBytes(node.size) : ""}</span>
+      </div>
+    );
+  }
+
   return (
     <main className="app-shell">
       <aside className="left-panel">
@@ -354,6 +452,19 @@ export default function App() {
                 <span className="file-size">{formatBytes(file.size)}</span>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="panel-card">
+          <div className="panel-row">
+            <div className="panel-label">Agent Workspace</div>
+            <button className="secondary-button" disabled={isResetting} type="button" onClick={handleReset}>
+              {isResetting ? "Resetting..." : "Reset"}
+            </button>
+          </div>
+          <p className="muted">像本地文件夹一样查看当前 `agent_workspace` 的目录结构。</p>
+          <div className="workspace-tree">
+            {workspaceTree ? renderWorkspaceNode(workspaceTree) : <p className="muted">正在加载目录结构...</p>}
           </div>
         </section>
 

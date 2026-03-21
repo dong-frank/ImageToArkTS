@@ -107,8 +107,19 @@ input {
   cursor: pointer;
 }
 
+.secondary-button {
+  border: 1px solid rgba(19, 34, 56, 0.12);
+  border-radius: 999px;
+  padding: 9px 14px;
+  background: #f4f8fd;
+  color: #132238;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .upload-form button:disabled,
-.composer button:disabled {
+.composer button:disabled,
+.secondary-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
@@ -119,6 +130,13 @@ input {
   flex-direction: column;
   gap: 10px;
   margin-top: 14px;
+}
+
+.panel-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .file-item,
@@ -159,6 +177,86 @@ input {
 
 .activity-error {
   border-left: 4px solid #db3f34;
+}
+
+.workspace-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  max-height: 320px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.tree-node {
+  border-radius: 16px;
+  background: #f6f9fc;
+  color: #203247;
+}
+
+.tree-directory summary,
+.tree-file {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+}
+
+.tree-directory summary {
+  cursor: pointer;
+  list-style: none;
+}
+
+.tree-directory summary::-webkit-details-marker {
+  display: none;
+}
+
+.tree-file {
+  grid-template-columns: 24px minmax(0, 1fr) minmax(0, 1fr) auto;
+}
+
+.tree-children {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 10px 10px 18px;
+}
+
+.tree-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  background: #dceafe;
+  color: #1d70ea;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.tree-name {
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.tree-path,
+.tree-size,
+.tree-empty {
+  color: #66788f;
+  font-size: 12px;
+}
+
+.tree-file .tree-path {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-empty {
+  padding: 4px 12px;
 }
 
 .chat-panel {
