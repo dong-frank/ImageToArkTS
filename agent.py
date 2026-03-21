@@ -1,8 +1,8 @@
 from deepagents import create_deep_agent
+from deepagents.backends import FilesystemBackend
 from utils.utils import load_prompt
 from schemas import ArchitectOutput
-from deepagents.backends import FilesystemBackend
-from tools import create_project, compile_project
+from tools import compile_project, create_project, save_architect_design
 from models import vision_model, base_model
 
 architect_subagent = {
@@ -39,8 +39,9 @@ agent = create_deep_agent(
     system_prompt=load_prompt("system_prompt.md"),
     subagents=subagents,
     backend=FilesystemBackend(root_dir="/Users/dong/2026/ImageToArkTS-DeepAgents/agent_workspace", virtual_mode=True),
-    tools=[],
+    tools=[save_architect_design],
 )
+
 
 def run_agent():
     return agent.invoke({

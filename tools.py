@@ -1,10 +1,14 @@
 from langchain.tools import tool
+import json
+from pathlib import Path
 import pexpect
 import re
 import subprocess
 import sys
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
+PROJECT_ROOT = Path(__file__).resolve().parent
+ARCHITECT_DESIGN_PATH = PROJECT_ROOT / "agent_workspace" / "designs" / "architect.json"
 
 
 def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
@@ -113,3 +117,24 @@ def compile_project(project_name: str) -> str:
         output=combined_output,
         exit_code=result.returncode,
     )
+
+
+@tool
+def save_architect_design(content: str) -> str:
+    """
+    将 architect 子Agent的结构化输出保存到固定路径 /designs/architect.json。
+    Args:
+        content (str): architect 输出的 JSON 字符串
+    """
+
+    try:
+        parsed = json.loads(content)
+    except json.JSONDecodeError as exc:
+        return f"保存失败：architect 输出不是合法 JSON。错误：{exc}"
+
+    ARCHITECT_DESIGN_PATH.parent.mkdir(parents=True, exist_ok=True)
+    ARCHITECT_DESIGN_PATH.write_text(
+        json.dumps(parsed, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return "architect 设计已保存到 /designs/architect.json"
