@@ -1,6 +1,62 @@
 from langchain.tools import tool
 import pexpect
+import re
+import subprocess
 import sys
+
+
+def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
+    lines = [line.rstrip() for line in output.splitlines() if line.strip()]
+
+    failed_step = None
+    for line in lines:
+        if line.startswith("[compile] FAIL "):
+            failed_step = line[len("[compile] FAIL "):]
+            break
+
+    error_pattern = re.compile(
+        r"(error|fail|exception|arkts|typescript|module not found|cannot find|syntax)", re.IGNORECASE
+    )
+    error_lines = []
+    seen = set()
+    for line in lines:
+        if error_pattern.search(line):
+            normalized = line.strip()
+            if normalized not in seen:
+                seen.add(normalized)
+                error_lines.append(normalized)
+        if len(error_lines) >= 12:
+            break
+
+    tail_lines = lines[-40:] if lines else []
+    status = "SUCCESS" if exit_code == 0 else "FAILED"
+
+    parts = [
+        f"compile_status: {status}",
+        f"project_name: {project_name}",
+        f"project_path: /projects/{project_name}",
+        f"exit_code: {exit_code}",
+    ]
+
+    if failed_step:
+        parts.append(f"failed_step: {failed_step}")
+
+    if error_lines:
+        parts.append("key_errors:")
+        parts.extend(f"- {line}" for line in error_lines)
+    else:
+        parts.append("key_errors:")
+        parts.append("- No concise error line was extracted. Check the recent log tail below.")
+
+    parts.append("recent_log_tail:")
+    if tail_lines:
+        parts.extend(tail_lines)
+    else:
+        parts.append("(no output)")
+
+    return "\n".join(parts)
+
+
 @tool
 def create_project(project_name: str) -> str:
     """
@@ -35,7 +91,17 @@ def compile_project(project_name: str) -> str:
     """
 
     project_path = f"agent_workspace/projects/{project_name}"
-    child = pexpect.spawn(f'bash scripts/compile.sh {project_path}')
-    child.expect(pexpect.EOF)
-    output = child.before.decode('utf-8', errors='ignore') if isinstance(child.before, bytes) else str(child.before)
-    return output
+    result = subprocess.run(
+        ["bash", "scripts/compile.sh", project_path],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="ignore",
+    )
+    combined_output = "\n".join(part for part in [result.stdout, result.stderr] if part)
+    return _summarize_compile_output(
+        project_name=project_name,
+        project_path=project_path,
+        output=combined_output,
+        exit_code=result.returncode,
+    )

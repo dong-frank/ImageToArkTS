@@ -1,19 +1,38 @@
 #!/bin/bash
-function ohpm_install() {     
-    cd $1              # $1：函数第一个参数, 必须是路径     
-    ohpm install --all # 安装所有依赖
+
+PROJECT_PATH=${1:-output}
+
+log_step() {
+    echo "[compile] $1"
 }
 
-npm config set registry https://repo.huaweicloud.com/repository/npm/
-npm config set "@ohos:registry" https://repo.harmonyos.com/npm/
+run_step() {
+    local step_name="$1"
+    shift
 
-PROJECT_PATH=${1:-output}  # 接收第一个参数作为工程路径，未传递则默认为 output
+    log_step "START ${step_name}"
+    "$@"
+    local exit_code=$?
+    if [ $exit_code -ne 0 ]; then
+        log_step "FAIL ${step_name} (exit=${exit_code})"
+        exit $exit_code
+    fi
+    log_step "DONE ${step_name}"
+}
 
-ohpm_install "${PROJECT_PATH}"
+if [ ! -d "${PROJECT_PATH}" ]; then
+    echo "[compile] FAIL project directory not found: ${PROJECT_PATH}"
+    exit 1
+fi
 
+cd "${PROJECT_PATH}" || exit 1
 
-# 根据业务情况，执行相应的构建命令, 示例如下
-# clean工程
-hvigorw clean --no-daemon
-# 构建Hap, 生成产物：${PROJECT_PATH}/{moduleName}/build/{productName}/outputs/{targetName}/xxx.hap
-hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon
+log_step "PROJECT $(pwd)"
+
+run_step "npm-registry" npm config set registry https://repo.huaweicloud.com/repository/npm/
+run_step "ohos-registry" npm config set "@ohos:registry" https://repo.harmonyos.com/npm/
+run_step "ohpm-install" ohpm install --all
+run_step "hvigor-clean" hvigorw clean --no-daemon
+run_step "hvigor-assemble" hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon
+
+log_step "SUCCESS build completed"
