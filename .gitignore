@@ -16,7 +16,7 @@ frontend/*.tsbuildinfo
 
 # Agent workspace
 agent_workspace/
-agent_workspace copy
+agent_workspace_copy
 !agent_workspace/
 agent_workspace/*
 !agent_workspace/skills/
