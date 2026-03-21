@@ -12,7 +12,8 @@ vision_model = ChatOpenAI(
 )
 
 base_model = ChatOpenAI(
-        model="qwen3-max",
+        model="qwen3.5-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
+        extra_body={"enable_thinking": False},
 )
