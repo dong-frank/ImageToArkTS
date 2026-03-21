@@ -42,6 +42,8 @@ agent = create_deep_agent(
     tools=[save_architect_design],
 )
 
+graph = agent
+
 
 def run_agent():
     return agent.invoke({
