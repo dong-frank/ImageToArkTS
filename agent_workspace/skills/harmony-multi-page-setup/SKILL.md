@@ -39,6 +39,7 @@ description: |-
 3. 在 `main_pages.json` 中注册所有会直接进入或跳转到的页面
 4. 页面文件名、注册名、路由字符串保持完全一致
 5. 不要为了“结构更规范”再额外创建一个跳板页 `Index`
+6. 如果模板里自带 `pages/Index`，要么把它改造成真实首页，要么同步替换入口，不要保留默认 Hello World
 
 ## 开始编码前必须统一的三处
 
@@ -57,6 +58,17 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 ```
 
 不要先加载 `pages/Index` 再在 `Index.ets` 里跳转。
+
+如果模板初始值还是：
+
+```ts
+windowStage.loadContent('pages/Index', ...)
+```
+
+那 coder 必须主动决定下面两种方案之一：
+
+1. 直接改成真实首页，例如 `pages/CalcPage`
+2. 保留 `Index`，但把 `Index.ets` 改成真实首页内容，并在 `main_pages.json` 中注册 `pages/Index`
 
 ### 2. `main_pages.json`
 
@@ -103,6 +115,27 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 
 - 删除这层跳板
 - 让 `EntryAbility` 直接加载真实首页
+
+### A1. 模板默认首页残留
+
+高风险写法：
+
+- 新建了 `CalcPage.ets`、`ConvertPage.ets`
+- 但 `EntryAbility` 仍然加载 `pages/Index`
+- `Index.ets` 还是模板默认 Hello World
+- `main_pages.json` 里甚至没有注册 `pages/Index`
+
+为什么危险：
+
+- 首屏仍然被模板默认入口控制
+- coder 虽然生成了真实页面，但应用启动不会进入这些页面
+- 容易出现白屏、加载失败，或启动后还是默认示例页面
+
+更稳做法：
+
+- 新建真实页面后，立刻同步处理入口
+- `EntryAbility.loadContent(...)`、`main_pages.json`、真实首页文件三处同时更新
+- 不要让模板默认 `Index` 残留在主链路里
 
 ### B. 注册名、文件名、跳转名不一致
 
@@ -182,6 +215,23 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 
 只有这三处一致以后，再实现按钮点击、Tab 切换或页面返回。
 
+### 5. 模板入口文件必须被接管
+
+很多标准 HarmonyOS 模板初始自带：
+
+- `entry/src/main/ets/pages/Index.ets`
+- `EntryAbility.loadContent('pages/Index')`
+
+这只是模板初始状态，不代表项目必须以 `Index` 为入口。
+
+规则是：
+
+- HarmonyOS 入口不必须叫 `Index`
+- 真正入口由 `EntryAbility.loadContent(...)` 决定
+- 只要 `loadContent`、`main_pages.json` 和页面文件一致，首页可以是 `CalcPage`、`HomePage`、`MainPage`
+
+所以 coder 在基于模板开始编码时，必须显式处理模板入口，而不是默认保留。
+
 ## 给 coder 的硬规则
 
 1. 只要是多页面应用，先确定真实首页，再写页面代码。
@@ -190,6 +240,7 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 4. 不要先写跳转，再补页面注册；注册和页面文件要同步完成。
 5. 不要把 `replaceUrl` 当作默认首屏跳转方案。
 6. 如果导航链路复杂，先收缩成最短可运行版本。
+7. 基于模板创建项目后，必须检查模板默认 `Index.ets` 是否仍在控制首屏；如果真实首页不是 `Index`，就同步替换入口配置。
 
 ## 最小组织模板
 
@@ -215,6 +266,7 @@ main_pages.json:
 2. main_pages.json 里有没有这个页面
 3. pages/ 目录里有没有对应 .ets 文件
 4. 路由字符串是否和文件名一致
+5. 模板默认 Index 是否还残留在首屏链路里
 ```
 
 ### 模板 3：发现跳板页时
@@ -222,6 +274,17 @@ main_pages.json:
 ```text
 根因: 使用了 Index 作为中转页，再通过 replaceUrl/pushUrl 跳真实首页
 建议改法: 删除这层中转，让 EntryAbility 直接加载真实首页
+```
+
+### 模板 4：发现模板默认入口残留时
+
+```text
+根因: 新页面已经生成，但 EntryAbility 仍加载模板默认 Index，且 Index 还是 Hello World 或未注册
+建议改法:
+1. 确认真实首页文件名
+2. 把 EntryAbility.loadContent 改到真实首页
+3. 更新 main_pages.json 注册
+4. 删除或重写默认 Index，避免继续干扰首屏
 ```
 
 ## 输出风格
