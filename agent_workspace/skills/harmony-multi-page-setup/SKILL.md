@@ -2,8 +2,8 @@
 name: harmony-multi-page-setup
 description: |-
   HarmonyOS 多页面组织助手。用于在开始编码前规划多页面 app 的入口页、页面注册、
-  main_pages.json、EntryAbility.loadContent、页面跳转方式和导航链路，避免使用
-  crossplatform 不支持的 replaceUrl、避免跳板页设计、避免页面已生成但未注册。
+  main_pages.json、EntryAbility.loadContent、页面跳转方式和导航链路，避免跳板页设计、
+  避免页面已生成但未注册、避免入口页和路由配置不一致。
   适合在 coder 开始写多页面应用时使用。
 ---
 
@@ -28,7 +28,7 @@ description: |-
 1. 选定一个真实首页
 2. 统一入口页加载、页面注册和路由名
 3. 规划最短且稳定的多页面导航链路
-4. 避免使用当前项目/跨平台场景下高风险的导航 API
+4. 避免使用高风险的首屏跳转组织方式
 
 ## 多页面原型的默认组织方式
 
@@ -96,7 +96,8 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 
 - 跳板页本身也需要注册
 - 多一层跳转，多一层失败点
-- 当前跨平台场景下，`replaceUrl` 还可能直接不支持
+- 入口页和真实首页容易失配
+- 更容易出现“编译通过但启动白屏”或“首页没有显示预期页面”
 
 更稳做法：
 
@@ -143,9 +144,9 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 
 ## 关于导航 API 的规则
 
-### 1. 不要默认使用 `replaceUrl`
+### 1. 不要把 `replaceUrl` 当成默认首屏组织方式
 
-如果当前项目是 crossplatform application，`replaceUrl` 可能直接不支持。
+在标准 HarmonyOS 单平台项目里，页面跳转 API 可以使用，但首页组织仍然应当更直接。
 
 所以默认规则是：
 
@@ -154,7 +155,7 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 
 ### 2. `pushUrl` / `back` 先作为次优方案看待
 
-它们在当前日志里虽然更多是 warning/deprecated，但也说明这套路由方案并不稳定。
+它们可以用于真实的页面切换，但不应该拿来补救入口页设计问题。
 
 快速原型阶段更稳的策略是：
 
@@ -170,6 +171,16 @@ windowStage.loadContent('pages/CalculatorPage', ...)
 3. 页面名一致
 4. 跳转链路最短
 5. 再考虑替换成更合适的导航 API
+
+### 4. 入口配置优先于页面内部导航
+
+在标准 HarmonyOS 项目里，首先要保证：
+
+- `EntryAbility.loadContent(...)` 指向真实首页
+- `main_pages.json` 已注册所有目标页面
+- 文件名、路由名、注册名完全一致
+
+只有这三处一致以后，再实现按钮点击、Tab 切换或页面返回。
 
 ## 给 coder 的硬规则
 
