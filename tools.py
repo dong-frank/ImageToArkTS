@@ -1,14 +1,28 @@
 from langchain.tools import tool
 import json
 from pathlib import Path
-import pexpect
 import re
+import shutil
 import subprocess
-import sys
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
 PROJECT_ROOT = Path(__file__).resolve().parent
 ARCHITECT_DESIGN_PATH = PROJECT_ROOT / "agent_workspace" / "designs" / "architect.json"
+PROJECTS_ROOT = PROJECT_ROOT / "agent_workspace" / "projects"
+TEMPLATE_ROOT = PROJECT_ROOT / "template"
+TEMPLATE_PROJECT_DIR = TEMPLATE_ROOT / "MyApplication"
+INSTALL_DEPENDENCIES_SCRIPT = PROJECT_ROOT / "scripts" / "install_dependencies.sh"
+TEMPLATE_IGNORE_PATTERNS = shutil.ignore_patterns(
+    ".git",
+    ".idea",
+    ".hvigor",
+    "oh_modules",
+    "build",
+    "node_modules",
+    "local.properties",
+    "oh-package-lock.json5",
+    "*.log",
+)
 
 
 def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
@@ -63,10 +77,40 @@ def _summarize_compile_output(project_name: str, project_path: str, output: str,
     return "\n".join(parts)
 
 
+def _load_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _write_json(path: Path, data: dict) -> None:
+    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _configure_project_metadata(project_name: str, target_dir: Path) -> None:
+    app_json_path = target_dir / "AppScope" / "app.json5"
+    if app_json_path.exists():
+        app_json = _load_json(app_json_path)
+        app_config = app_json.setdefault("app", {})
+        app_config["bundleName"] = f"com.example.{project_name}"
+        _write_json(app_json_path, app_json)
+
+
+def _install_project_dependencies(target_dir: Path) -> tuple[int, str]:
+    result = subprocess.run(
+        ["bash", str(INSTALL_DEPENDENCIES_SCRIPT), str(target_dir)],
+        cwd=target_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="ignore",
+    )
+    output = "\n".join(part for part in [result.stdout, result.stderr] if part).strip()
+    return result.returncode, output
+
+
 @tool
 def create_project(project_name: str) -> str:
     """
-    调用ACE工具创建鸿蒙项目。
+    基于本地模板复制创建标准 HarmonyOS 项目。
     项目名称必须以字母开头，只能包含小写字母、数字和下划线(_)，长度1-200。
     Args:
         project_name (str): 项目名称
@@ -78,20 +122,36 @@ def create_project(project_name: str) -> str:
             "长度1-200。合法示例：calculator_app。非法示例：calc-app、my app、计算器、CalculatorApp。"
         )
 
-    target_dir = f"agent_workspace/projects/{project_name}"
-    child = pexpect.spawn(f'ace create {target_dir} --template app')
-    child.expect('Enter')
-    child.sendline('')
-    child.expect('Enter')
-    child.sendline('')
-    child.expect('Enter')
-    child.sendline('2')
-    child.expect('Please')
-    child.sendline('11')
-    child.expect('Please')
-    child.sendline('1')
-    child.expect(pexpect.EOF)
-    return f"项目创建完成，路径为: /projects/{project_name}"
+    if not TEMPLATE_PROJECT_DIR.exists():
+        return (
+            "项目创建失败：未找到模板工程。"
+            "请确认模板目录存在：/template/MyApplication"
+        )
+
+    target_dir = PROJECTS_ROOT / project_name
+    if target_dir.exists():
+        return f"项目创建失败：目标目录已存在 /projects/{project_name}。请更换项目名或先清理目录。"
+
+    PROJECTS_ROOT.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(TEMPLATE_PROJECT_DIR, target_dir, ignore=TEMPLATE_IGNORE_PATTERNS)
+    _configure_project_metadata(project_name, target_dir)
+
+    install_exit_code, install_output = _install_project_dependencies(target_dir)
+    if install_exit_code != 0:
+        install_tail = "\n".join(install_output.splitlines()[-20:]) if install_output else "(no output)"
+        return (
+            f"项目模板已复制到 /projects/{project_name}，但依赖安装失败。\n"
+            f"install_exit_code: {install_exit_code}\n"
+            "recent_install_log_tail:\n"
+            f"{install_tail}"
+        )
+
+    return (
+        f"项目创建完成，路径为: /projects/{project_name}\n"
+        "create_mode: template-copy\n"
+        "template_source: /template/MyApplication\n"
+        "dependencies: installed with ohpm install --all"
+    )
 
 
 @tool

@@ -4,7 +4,6 @@ description: |-
   HarmonyOS/ArkTS 项目结构助手。用于在 ace create 创建项目后快速定位应该修改的
   目录和文件，判断页面代码、资源文件、应用名称、图标、模块配置分别放在哪里。
   遇到鸿蒙项目骨架理解、页面落位、资源落位、工程入口定位时激活。
-license: MIT
 ---
 
 # Harmony Project Layout

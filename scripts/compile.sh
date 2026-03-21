@@ -1,6 +1,7 @@
 #!/bin/bash
 
 PROJECT_PATH=${1:-output}
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
 
 log_step() {
     echo "[compile] $1"
@@ -29,9 +30,15 @@ cd "${PROJECT_PATH}" || exit 1
 
 log_step "PROJECT $(pwd)"
 
-run_step "npm-registry" npm config set registry https://repo.huaweicloud.com/repository/npm/
-run_step "ohos-registry" npm config set "@ohos:registry" https://repo.harmonyos.com/npm/
-run_step "ohpm-install" ohpm install --all
+log_step "START install-dependencies"
+bash "${SCRIPT_DIR}/install_dependencies.sh" "$(pwd)"
+install_exit_code=$?
+if [ $install_exit_code -ne 0 ]; then
+    log_step "FAIL install-dependencies (exit=${install_exit_code})"
+    exit $install_exit_code
+fi
+log_step "DONE install-dependencies"
+
 run_step "hvigor-clean" hvigorw clean --no-daemon
 run_step "hvigor-assemble" hvigorw assembleHap --mode module -p product=default -p buildMode=debug --no-daemon
 
