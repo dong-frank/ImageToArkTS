@@ -11,6 +11,10 @@ wheels/
 
 # Agent workspace
 agent_workspace/
+!agent_workspace/
+agent_workspace/*
+!agent_workspace/skills/
+!agent_workspace/skills/**
 
 
 .env

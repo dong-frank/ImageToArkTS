@@ -1,11 +1,7 @@
 from deepagents import create_deep_agent
-from langchain_openai import ChatOpenAI
-import dotenv
-import os
 from utils.utils import load_prompt
 from schemas import ArchitectOutput
 from deepagents.backends import FilesystemBackend
-from deepagents.middleware.subagents import SubAgentMiddleware
 from tools import create_project, compile_project
 from models import vision_model, base_model
 
@@ -46,11 +42,16 @@ agent = create_deep_agent(
     tools=[],
 )
 
-agent.invoke({
-    "messages": [
-        {
-            "role": "user",
-            "content": "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作"
-        }
-    ]
-})
+def run_agent():
+    return agent.invoke({
+        "messages": [
+            {
+                "role": "user",
+                "content": "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作"
+            }
+        ]
+    })
+
+
+if __name__ == "__main__":
+    run_agent()
