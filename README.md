@@ -156,6 +156,74 @@ uv run python main.py
 ./scripts/install_dependencies.sh agent_workspace/projects/your_project_name
 ```
 
+## 对话页面
+
+项目现在使用 [runtime.py](/Users/dong/2026/ImageToArkTS-DeepAgents/runtime.py) 作为后端运行时，并提供一个自定义前端页面 [frontend](/Users/dong/2026/ImageToArkTS-DeepAgents/frontend)。
+
+相关文件：
+
+- [agent.py](/Users/dong/2026/ImageToArkTS-DeepAgents/agent.py) 保留 deep agent 定义和本地调用入口
+- [runtime.py](/Users/dong/2026/ImageToArkTS-DeepAgents/runtime.py) 提供 `agentscope-runtime` 服务入口
+- [frontend](/Users/dong/2026/ImageToArkTS-DeepAgents/frontend) 提供文件上传和对话 UI
+
+启动方式：
+
+```bash
+uv run python runtime.py
+```
+
+这条命令会启动后端服务，默认端口是 `8080`。
+
+然后单独启动前端：
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+默认地址：
+
+- Runtime API：`http://127.0.0.1:8080/process`
+- Frontend UI：`http://127.0.0.1:5173`
+
+### 图片与文件上传
+
+为了避免把图片直接塞进聊天消息体，runtime 现在提供了单独的用户输入上传接口。
+
+推荐流程：
+
+1. 先把图片或需求文件上传到 `agent_workspace/user_input`
+2. 再在聊天页面里发起任务
+3. 主 agent 统一从 `/user_input` 读取这些资料
+
+接口：
+
+- `POST /user-input/upload`
+- `GET /user-input/files`
+
+上传接口会把文件保存到 [agent_workspace/user_input](/Users/dong/2026/ImageToArkTS-DeepAgents/agent_workspace/user_input)。
+
+示例：
+
+```bash
+curl -X POST http://localhost:8080/user-input/upload \
+  -F "files=@/absolute/path/to/sketch.png" \
+  -F "files=@/absolute/path/to/notes.txt"
+```
+
+如果你希望上传前先清空旧文件，可以加：
+
+```bash
+-F "clear_existing=true"
+```
+
+如果你不想把 trace 发到 LangSmith，可以在 `.env` 里设置：
+
+```env
+LANGSMITH_TRACING=false
+```
+
 ## 说明
 
 这个项目当前更适合做“产品原型快速落地”，而不是严格工程化生成器。

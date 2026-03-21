@@ -1,0 +1,269 @@
+:root {
+  font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  color: #132238;
+  background:
+    radial-gradient(circle at top left, rgba(30, 115, 255, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(0, 170, 140, 0.16), transparent 22%),
+    linear-gradient(180deg, #f4f8fd 0%, #ecf2f8 100%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+button,
+textarea,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-columns: 360px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.68);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(19, 34, 56, 0.08);
+}
+
+.panel-card,
+.message-card,
+.composer,
+.chat-header,
+.empty-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  box-shadow: 0 20px 44px rgba(31, 52, 84, 0.08);
+}
+
+.panel-card {
+  border-radius: 22px;
+  padding: 18px;
+}
+
+.hero-card h1,
+.chat-header h2,
+.empty-card h3 {
+  margin: 8px 0;
+}
+
+.hero-card h1 {
+  font-size: 30px;
+}
+
+.panel-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1d70ea;
+}
+
+.muted,
+.file-path,
+.message-meta,
+.composer-footer {
+  color: #66788f;
+}
+
+.upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.upload-form button,
+.composer button {
+  border: 0;
+  border-radius: 999px;
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #1d70ea 0%, #11b59a 100%);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.upload-form button:disabled,
+.composer button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.file-list,
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.file-item,
+.activity-item {
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: #f6f9fc;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.file-name {
+  font-weight: 700;
+}
+
+.file-path {
+  font-size: 12px;
+  word-break: break-word;
+}
+
+.file-size {
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.activity-tool {
+  border-left: 4px solid #1d70ea;
+}
+
+.activity-status {
+  border-left: 4px solid #11b59a;
+}
+
+.activity-error {
+  border-left: 4px solid #db3f34;
+}
+
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 22px;
+}
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 22px;
+  padding: 18px 20px;
+}
+
+.header-chip {
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #eaf2ff;
+  color: #1d70ea;
+  font-weight: 700;
+}
+
+.chat-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-right: 6px;
+}
+
+.empty-card {
+  border-radius: 24px;
+  padding: 24px;
+}
+
+.message-row {
+  display: flex;
+}
+
+.message-user {
+  justify-content: flex-end;
+}
+
+.message-assistant {
+  justify-content: flex-start;
+}
+
+.message-card {
+  width: min(820px, 100%);
+  border-radius: 22px;
+  padding: 16px 18px;
+}
+
+.message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.message-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.65;
+}
+
+.composer {
+  border-radius: 24px;
+  padding: 16px;
+}
+
+.composer textarea {
+  width: 100%;
+  min-height: 120px;
+  resize: vertical;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: #132238;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+@media (max-width: 960px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .left-panel {
+    border-right: 0;
+    border-bottom: 1px solid rgba(19, 34, 56, 0.08);
+  }
+}
