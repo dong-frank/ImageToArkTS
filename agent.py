@@ -24,7 +24,7 @@ coding_subagent = {
     "description": "编码Agent，负责将架构师Agent提供的设计方案转化为可执行的代码实现。",
     "model": base_model,
     "system_prompt": load_prompt("coder_system_prompt.md"),
-    "skills": ["/Users/dong/2026/ImageToArkTS-DeepAgents/skills"],
+    "skills": ["/skills"],
     "tools": [create_project, compile_project]
 }
 
