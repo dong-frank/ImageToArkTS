@@ -8,8 +8,18 @@
 请根据用户输入，直接生成 ArchitectOutput 结构化内容。
 
 结构化内容需包含以下信息：
-1. project_name：项目文件夹名称，短ASCII字符串。
+1. project_name：项目文件夹名称，必须以小写字母开头，只能包含小写字母、数字和下划线(_)。
 2. app_display_name：用户可见的应用名称（可为中文）。
-3. pages：页面列表及职责描述。
-4. data_model（可选）：数据模型字段及说明。
-5. interactions（可选）：用户交互事件及说明。
+3. visual_style（可选）：整体视觉风格、主色、背景色、字体和间距倾向。
+4. pages：页面列表及职责描述。
+5. navigation（可选）：多页面之间的跳转、Tab切换、弹层打开关闭关系。
+6. data_model（可选）：数据模型字段及说明。
+7. interactions（可选）：用户交互事件及说明。
+
+输出要求：
+0. project_name 必须严格合法。合法示例：`calculator_app`、`unit_converter`。非法示例：`calc-app`、`my app`、`计算器`、`CalculatorApp`。
+1. pages 不能只写页面名称和一句职责，必须尽量补充页面角色、整体布局摘要、关键区块、主要操作和状态说明。
+2. 如果是单页面应用，也要清楚描述页面内部的区块层级与核心组件。
+3. 如果存在多页面或明显会有后续扩展，必须输出 navigation，明确 from_page、trigger、to_page、transition。
+4. 如果用户给的是草图、截图或视觉参考，优先把 UI 层级、布局结构、组件类型、视觉风格说清楚，而不是只总结业务功能。
+5. 对 coder 最有价值的是“页面长什么样、由哪些区块组成、区块里放什么组件、页面之间怎么跳”，请优先输出这些信息。

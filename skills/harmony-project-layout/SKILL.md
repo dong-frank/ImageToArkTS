@@ -55,6 +55,7 @@ license: MIT
 - 图片、颜色、字符串、页面资源优先考虑放这里
 - 常见子目录包括 `base/element`、`base/media`、`base/profile`
 - 如果 UI 需要图标、插图、字符串资源，可优先在这里补
+- 但在快速原型阶段，不必为了规范化把所有文本和颜色都搬进资源文件；能直接硬编码时，优先直接硬编码
 
 ### 4. `/projects/<project_name>/AppScope/`
 
@@ -111,6 +112,12 @@ license: MIT
 - `/projects/<project_name>/entry/src/main/resources/base/element/`
 - `/projects/<project_name>/entry/src/main/resources/base/media/`
 
+快速原型模式下：
+
+- 页面文本优先直接写普通字符串
+- 页面颜色优先直接写十六进制值
+- 只有确实要复用、或组件/API 明确适合资源时，再引入资源文件
+
 ## 针对 coder 的工作规则
 
 1. 创建项目后，先读 `Index.ets`，确认当前首屏结构。
@@ -119,6 +126,7 @@ license: MIT
 4. 改应用名称、图标、全局信息时，再进入 `AppScope`。
 5. 除非编译错误明确指向配置问题，否则先改页面文件，再改配置文件。
 6. 如果某个目录看起来像构建缓存或依赖目录，不要在那里写业务实现。
+7. 快速原型阶段优先把 UI 写出来并通过编译，不要为了资源规范化提前创建大量 `string/color/media` 资源。
 
 ## 最小落地流程
 

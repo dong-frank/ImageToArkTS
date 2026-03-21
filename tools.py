@@ -4,6 +4,8 @@ import re
 import subprocess
 import sys
 
+PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
+
 
 def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
     lines = [line.rstrip() for line in output.splitlines() if line.strip()]
@@ -65,6 +67,12 @@ def create_project(project_name: str) -> str:
     Args:
         project_name (str): 项目名称
     """
+
+    if not PROJECT_NAME_PATTERN.fullmatch(project_name):
+        return (
+            "项目名不合法。必须以小写字母开头，只能包含小写字母、数字和下划线(_)，"
+            "长度1-200。合法示例：calculator_app。非法示例：calc-app、my app、计算器、CalculatorApp。"
+        )
 
     target_dir = f"agent_workspace/projects/{project_name}"
     child = pexpect.spawn(f'ace create {target_dir} --template app')
