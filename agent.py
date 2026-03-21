@@ -50,7 +50,7 @@ agent.invoke({
     "messages": [
         {
             "role": "user",
-            "content": "用户的所有信息都在工作目录下，请开始工作"
+            "content": "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作"
         }
     ]
 })

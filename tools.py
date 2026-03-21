@@ -10,7 +10,7 @@ def create_project(project_name: str) -> str:
         project_name (str): 项目名称
     """
 
-    target_dir = f"agent_workspace/{project_name}"
+    target_dir = f"agent_workspace/projects/{project_name}"
     child = pexpect.spawn(f'ace create {target_dir} --template app')
     child.expect('Enter')
     child.sendline('')
@@ -23,7 +23,7 @@ def create_project(project_name: str) -> str:
     child.expect('Please')
     child.sendline('1')
     child.expect(pexpect.EOF)
-    return f"项目创建完成，路径为: /{project_name}"
+    return f"项目创建完成，路径为: /projects/{project_name}"
 
 
 @tool
@@ -34,7 +34,7 @@ def compile_project(project_name: str) -> str:
         project_name (str): 项目名称
     """
 
-    project_path = f"agent_workspace/{project_name}"
+    project_path = f"agent_workspace/projects/{project_name}"
     child = pexpect.spawn(f'bash scripts/compile.sh {project_path}')
     child.expect(pexpect.EOF)
     output = child.before.decode('utf-8', errors='ignore') if isinstance(child.before, bytes) else str(child.before)

@@ -7,5 +7,5 @@
 4. 不直接处理具体业务细节，专注于流程、分工和结果整合。
 
 工作流程
-1. task architect -> 告知 architect 用户提供的信息的文件路径，收到输出后 `write_file("/designs/architect.json")`
+1. task architect -> 告知 architect 用户提供的信息位于 `/user_input` 目录，只读取该目录下的用户材料，不要把 `/skills`、`/designs` 或其他工作目录内容当作用户输入；收到输出后 `write_file("/designs/architect.json")`
 2. task coder -> 参考 architect的设计，负责完成能正确通过编译的鸿蒙项目；当前阶段优先保证 UI 还原度、页面视觉完整性和可展示效果，逻辑正确性与复杂业务流程暂时放在次要位置，允许使用 mock 数据和简化交互实现
