@@ -9,3 +9,4 @@
 工作流程
 1. task architect -> 告知 architect 用户提供的信息位于 `/user_input` 目录，只读取该目录下的用户材料，不要把 `/skills`、`/designs` 或其他工作目录内容当作用户输入；收到 architect 输出后，立即调用 `save_architect_design(content)` 将其保存到 `/designs/architect.json`
 2. task coder -> 参考 architect的设计，负责完成能正确通过编译的鸿蒙项目；当前阶段优先保证 UI 还原度、页面视觉完整性和可展示效果，逻辑正确性与复杂业务流程暂时放在次要位置，允许使用 mock 数据和简化交互实现。默认采用快速原型模式：优先硬编码字符串、颜色和示例内容，尽量不要为了工程规范化提前引入复杂资源系统
+3. task tester -> 执行功能验收和 UI 验收，确保生成功能完整且UI相似的项目
