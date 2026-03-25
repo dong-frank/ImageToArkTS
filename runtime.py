@@ -16,6 +16,7 @@ from agent import graph
 PROJECT_ROOT = Path(__file__).resolve().parent
 AGENT_WORKSPACE_DIR = PROJECT_ROOT / "agent_workspace"
 USER_INPUT_DIR = PROJECT_ROOT / "agent_workspace" / "user_input"
+USER_INPUT_META_PATH = PROJECT_ROOT / "agent_workspace" / "user_input_metadata.json"
 RESET_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "reset_agent_workspace.sh"
 
 
@@ -93,17 +94,53 @@ def _build_tree_node(path: Path, root: Path) -> dict:
     }
 
 
+def _load_user_input_metadata() -> dict:
+    if not USER_INPUT_META_PATH.is_file():
+        return {}
+
+    try:
+        import json
+
+        data = json.loads(USER_INPUT_META_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+    if not isinstance(data, dict):
+        return {}
+
+    descriptions = data.get("descriptions", {})
+    if not isinstance(descriptions, dict):
+        return {}
+    return descriptions
+
+
+def _save_user_input_metadata(descriptions: dict) -> None:
+    import json
+
+    payload = {"descriptions": descriptions}
+    USER_INPUT_META_PATH.parent.mkdir(parents=True, exist_ok=True)
+    USER_INPUT_META_PATH.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
 @agent_app.endpoint("/user-input/upload", methods=["POST"])
 async def upload_user_input(
     files: List[UploadFile] = File(...),
     clear_existing: bool = Form(False),
+    image_description: str = Form(""),
 ):
     USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    descriptions = _load_user_input_metadata()
 
     if clear_existing:
         for item in USER_INPUT_DIR.iterdir():
             if item.is_file():
                 item.unlink()
+        descriptions = {}
+
+    normalized_description = image_description.strip()
 
     saved_files = []
     for upload in files:
@@ -118,14 +155,33 @@ async def upload_user_input(
         with target_path.open("wb") as output:
             shutil.copyfileobj(upload.file, output)
 
+        content_type = upload.content_type or ""
+        is_image = content_type.startswith("image/") or target_path.suffix.lower() in {
+            ".png",
+            ".jpg",
+            ".jpeg",
+            ".gif",
+            ".webp",
+            ".bmp",
+            ".svg",
+            ".heic",
+        }
+        if is_image and normalized_description:
+            descriptions[target_path.name] = normalized_description
+        elif target_path.name in descriptions:
+            descriptions.pop(target_path.name, None)
+
         saved_files.append(
             {
                 "name": target_path.name,
                 "path": f"/user_input/{target_path.name}",
-                "content_type": upload.content_type,
+                "content_type": content_type,
                 "size": target_path.stat().st_size,
+                "description": descriptions.get(target_path.name),
             }
         )
+
+    _save_user_input_metadata(descriptions)
 
     return {
         "saved_count": len(saved_files),
@@ -136,6 +192,7 @@ async def upload_user_input(
 @agent_app.endpoint("/user-input/files", methods=["GET"])
 async def list_user_input_files():
     USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    descriptions = _load_user_input_metadata()
 
     files = []
     for item in sorted(USER_INPUT_DIR.iterdir()):
@@ -146,12 +203,44 @@ async def list_user_input_files():
                 "name": item.name,
                 "path": f"/user_input/{item.name}",
                 "size": item.stat().st_size,
+                "description": descriptions.get(item.name),
             }
         )
 
     return {
         "count": len(files),
         "files": files,
+    }
+
+
+@agent_app.endpoint("/user-input/files/{file_name}", methods=["DELETE"])
+async def delete_user_input_file(file_name: str):
+    USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    safe_name = Path(file_name).name
+    if safe_name != file_name:
+        return JSONResponse(
+            status_code=400,
+            content={"ok": False, "error": "Invalid file name"},
+        )
+
+    target = USER_INPUT_DIR / safe_name
+    if not target.is_file():
+        return JSONResponse(
+            status_code=404,
+            content={"ok": False, "error": "File not found"},
+        )
+
+    target.unlink()
+
+    descriptions = _load_user_input_metadata()
+    if safe_name in descriptions:
+        descriptions.pop(safe_name, None)
+        _save_user_input_metadata(descriptions)
+
+    return {
+        "ok": True,
+        "deleted": safe_name,
     }
 
 

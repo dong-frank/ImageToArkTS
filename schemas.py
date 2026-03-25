@@ -1,4 +1,4 @@
-from typing import List, Optional, Literal
+from typing import Dict, List, Optional, Literal
 from pydantic import BaseModel, Field
 
 
@@ -9,6 +9,20 @@ class VisualStyle(BaseModel):
 	accent_colors: Optional[List[str]] = Field(None, description="辅助色列表")
 	typography_notes: Optional[str] = Field(None, description="字体层级、字号倾向、字重说明")
 	spacing_notes: Optional[str] = Field(None, description="整体留白、圆角、阴影、卡片间距等说明")
+	style_tokens: Optional[Dict[str, str]] = Field(
+		None,
+		description="可直接编码的全局样式键值，如 {'grid_gap': '12', 'row_spacing': '16', 'border_radius': '12'}",
+	)
+
+
+class InteractiveComponent(BaseModel):
+	name: str = Field(..., description="可交互组件名称，如 数字按钮、返回图标、菜单项")
+	component_type: str = Field(..., description="组件类型，如 Button、IconButton、Card、MenuItem")
+	action: str = Field(..., description="动作标识/函数名，如 append_digit、clear_all、open_conversion_menu")
+	style: Optional[Dict[str, str]] = Field(
+		None,
+		description="组件原子化样式键值，如 {'width': '72', 'height': '72', 'bg_color': '#E0E0E0'}",
+	)
 
 
 class PageSection(BaseModel):
@@ -17,6 +31,14 @@ class PageSection(BaseModel):
 	layout: str = Field(..., description="区块布局方式，如 纵向列表、双列网格、顶部横滑卡片")
 	components: List[str] = Field(..., description="该区块的核心组件列表，如 Text、Image、Button、Tabs、List")
 	style_notes: Optional[str] = Field(None, description="该区块的样式补充，如颜色、字号、边框、圆角、对齐方式")
+	interactive_components: Optional[List[InteractiveComponent]] = Field(
+		None,
+		description="区块内可交互组件及其 action 绑定",
+	)
+	style_tokens: Optional[Dict[str, str]] = Field(
+		None,
+		description="区块级原子化样式键值，如 {'padding': '16', 'margin_top': '12'}",
+	)
 
 
 class Page(BaseModel):
@@ -42,6 +64,9 @@ class DataModelField(BaseModel):
 class Interaction(BaseModel):
 	event: str = Field(..., description="用户事件名称")
 	description: str = Field(..., description="事件说明")
+	target: Optional[str] = Field(None, description="事件目标组件，如 equals_button、conversion_card")
+	handler: Optional[str] = Field(None, description="事件处理函数名，应与组件 action 语义一致")
+	state_change: Optional[str] = Field(None, description="触发后状态变化，如 切换到 result 状态")
 
 
 class NavigationFlow(BaseModel):

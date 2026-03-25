@@ -5,6 +5,7 @@ type ChatMessage = {
   role: string;
   text: string;
   status?: string;
+  runId?: string;
 };
 
 type UploadedFile = {
@@ -12,12 +13,16 @@ type UploadedFile = {
   path: string;
   size: number;
   content_type?: string;
+  description?: string;
 };
 
 type ActivityItem = {
   id: string;
   kind: "tool" | "status" | "error";
   text: string;
+  timestamp: number;
+  messageId?: string;
+  runId?: string;
 };
 
 type WorkspaceNode = {
@@ -49,6 +54,135 @@ function createRuntimeMessage(text: string): ChatMessage {
   };
 }
 
+function hasImageFile(files: FileList | null): boolean {
+  if (!files || files.length === 0) {
+    return false;
+  }
+
+  return Array.from(files).some((file) => {
+    if (file.type.startsWith("image/")) {
+      return true;
+    }
+    return /\.(png|jpe?g|gif|webp|bmp|svg|heic)$/i.test(file.name);
+  });
+}
+
+function extractTextFromContent(content: unknown): string {
+  if (!Array.isArray(content)) {
+    return "";
+  }
+
+  const chunks: string[] = [];
+  for (const item of content) {
+    if (typeof item === "string") {
+      chunks.push(item);
+      continue;
+    }
+
+    if (!item || typeof item !== "object") {
+      continue;
+    }
+
+    const directText = (item as { text?: unknown }).text;
+    if (typeof directText === "string" && directText.trim().length > 0) {
+      chunks.push(directText);
+    }
+
+    const nestedText = extractTextFromContent((item as { content?: unknown }).content);
+    if (nestedText) {
+      chunks.push(nestedText);
+    }
+  }
+
+  return chunks.join("");
+}
+
+function buildToolActivityText(data: Record<string, unknown> | undefined): string {
+  if (!data) {
+    return "tool call";
+  }
+
+  const toolName = typeof data.name === "string" ? data.name : "tool";
+  const candidateInput = (data.arguments ?? data.input ?? data.params) as unknown;
+  if (candidateInput === undefined) {
+    return `tool call: ${toolName}`;
+  }
+
+  const raw =
+    typeof candidateInput === "string"
+      ? candidateInput
+      : (() => {
+          try {
+            return JSON.stringify(candidateInput);
+          } catch {
+            return "";
+          }
+        })();
+
+  if (!raw) {
+    return `tool call: ${toolName}`;
+  }
+
+  const brief = raw.length > 180 ? `${raw.slice(0, 180)}...` : raw;
+  return `tool call: ${toolName} | args: ${brief}`;
+}
+
+function hasRenderableMessageText(message: ChatMessage): boolean {
+  if (message.role === "user") {
+    return true;
+  }
+  return message.text.trim().length > 0;
+}
+
+function tryReadString(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function extractRunId(source: Record<string, unknown> | undefined): string | undefined {
+  if (!source) {
+    return undefined;
+  }
+
+  const direct =
+    tryReadString(source.run_id) ??
+    tryReadString(source.runId) ??
+    tryReadString(source.response_id) ??
+    tryReadString(source.responseId);
+  if (direct) {
+    return direct;
+  }
+
+  const response = source.response;
+  if (response && typeof response === "object") {
+    const nestedId = tryReadString((response as { id?: unknown }).id);
+    if (nestedId) {
+      return nestedId;
+    }
+  }
+
+  if (source.object === "response") {
+    return tryReadString(source.id);
+  }
+
+  return undefined;
+}
+
+function bindPendingToolsForRunToMessage(
+  activities: ActivityItem[],
+  runId: string,
+  messageId: string
+): ActivityItem[] {
+  let hasChanges = false;
+  const next = activities.map((item) => {
+    if (item.kind === "tool" && item.runId === runId && !item.messageId) {
+      hasChanges = true;
+      return { ...item, messageId };
+    }
+    return item;
+  });
+  return hasChanges ? next : activities;
+}
+
 export default function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -57,12 +191,19 @@ export default function App() {
   const [workspaceTree, setWorkspaceTree] = useState<WorkspaceNode | null>(null);
   const [input, setInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [imageDescription, setImageDescription] = useState("");
+  const [showImageDescriptionDialog, setShowImageDescriptionDialog] = useState(false);
   const [clearExisting, setClearExisting] = useState(false);
+  const [deletingFileName, setDeletingFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const latestAssistantMessageIdRef = useRef<string | null>(null);
+  const currentRunIdRef = useRef<string | null>(null);
+  const runToMessageIdRef = useRef<Record<string, string>>({});
+  const messageToRunIdRef = useRef<Record<string, string>>({});
 
   useEffect(() => {
     void refreshFiles();
@@ -108,6 +249,9 @@ export default function App() {
         formData.append("files", file);
       }
       formData.append("clear_existing", String(clearExisting));
+      if (hasImageFile(selectedFiles) && imageDescription.trim()) {
+        formData.append("image_description", imageDescription.trim());
+      }
 
       const response = await fetch(`${API_BASE}/user-input/upload`, {
         method: "POST",
@@ -120,6 +264,8 @@ export default function App() {
       await refreshFiles();
       await refreshWorkspaceTree();
       setSelectedFiles(null);
+      setImageDescription("");
+      setShowImageDescriptionDialog(false);
       setClearExisting(false);
       setActivities((current) => [
         ...current,
@@ -127,6 +273,7 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "status",
           text: "已上传新的用户输入文件。",
+          timestamp: Date.now(),
         },
       ]);
     } catch (uploadError) {
@@ -138,6 +285,19 @@ export default function App() {
         fileInput.value = "";
       }
     }
+  }
+
+  function handleFileInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const nextFiles = event.target.files;
+    setSelectedFiles(nextFiles);
+
+    if (hasImageFile(nextFiles)) {
+      setShowImageDescriptionDialog(true);
+      return;
+    }
+
+    setShowImageDescriptionDialog(false);
+    setImageDescription("");
   }
 
   async function handleReset() {
@@ -169,6 +329,7 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "status",
           text: data.stdout || "agent_workspace 已重置。",
+          timestamp: Date.now(),
         },
       ]);
     } catch (resetError) {
@@ -180,10 +341,58 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "error",
           text: message,
+          timestamp: Date.now(),
         },
       ]);
     } finally {
       setIsResetting(false);
+    }
+  }
+
+  async function handleDeleteFile(fileName: string) {
+    if (!fileName || deletingFileName === fileName) {
+      return;
+    }
+
+    setDeletingFileName(fileName);
+    setError(null);
+    try {
+      const response = await fetch(
+        `${API_BASE}/user-input/files/${encodeURIComponent(fileName)}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status}`);
+      }
+
+      await refreshFiles();
+      await refreshWorkspaceTree();
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "status",
+          text: `已删除文件: ${fileName}`,
+          timestamp: Date.now(),
+        },
+      ]);
+    } catch (deleteError) {
+      const message = deleteError instanceof Error ? deleteError.message : "Delete failed";
+      setError(message);
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "error",
+          text: message,
+          timestamp: Date.now(),
+        },
+      ]);
+    } finally {
+      setDeletingFileName(null);
     }
   }
 
@@ -234,6 +443,37 @@ export default function App() {
       const reader = response.body.getReader();
       let buffer = "";
 
+      const processEventBlock = (block: string) => {
+        const dataLines = block
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).trimStart());
+
+        if (dataLines.length === 0) {
+          return;
+        }
+
+        const joined = dataLines.join("\n").trim();
+        if (!joined || joined === "[DONE]") {
+          return;
+        }
+
+        try {
+          const payload = JSON.parse(joined) as Record<string, unknown>;
+          applySsePayload(payload);
+        } catch {
+          setActivities((current) => [
+            ...current,
+            {
+              id: crypto.randomUUID(),
+              kind: "error",
+              text: "收到无法解析的流式数据片段。",
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+      };
+
       while (true) {
         const { done, value } = await reader.read();
         if (done) {
@@ -245,16 +485,12 @@ export default function App() {
         buffer = parts.pop() ?? "";
 
         for (const part of parts) {
-          const dataLine = part
-            .split("\n")
-            .find((line) => line.startsWith("data: "));
-          if (!dataLine) {
-            continue;
-          }
-
-          const payload = JSON.parse(dataLine.slice(6)) as Record<string, unknown>;
-          applySsePayload(payload);
+          processEventBlock(part);
         }
+      }
+
+      if (buffer.trim()) {
+        processEventBlock(buffer);
       }
     } catch (sendError) {
       const message = sendError instanceof Error ? sendError.message : "Request failed";
@@ -265,6 +501,7 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "error",
           text: message,
+          timestamp: Date.now(),
         },
       ]);
     } finally {
@@ -281,12 +518,18 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "error",
           text: errorText,
+          timestamp: Date.now(),
         },
       ]);
       return;
     }
 
     if (payload.object === "response") {
+      const runId = extractRunId(payload);
+      if (runId) {
+        currentRunIdRef.current = runId;
+      }
+
       const status = typeof payload.status === "string" ? payload.status : "unknown";
       setActivities((current) => [
         ...current,
@@ -294,8 +537,18 @@ export default function App() {
           id: crypto.randomUUID(),
           kind: "status",
           text: `run status: ${status}`,
+          timestamp: Date.now(),
+          runId,
         },
       ]);
+
+      if (
+        runId &&
+        (status === "completed" || status === "failed" || status === "cancelled") &&
+        currentRunIdRef.current === runId
+      ) {
+        currentRunIdRef.current = null;
+      }
       return;
     }
 
@@ -303,29 +556,42 @@ export default function App() {
       const id = typeof payload.id === "string" ? payload.id : crypto.randomUUID();
       const role = typeof payload.role === "string" ? payload.role : "assistant";
       const status = typeof payload.status === "string" ? payload.status : undefined;
-      const content = Array.isArray(payload.content) ? payload.content : [];
-      const text = content
-        .map((item) => {
-          if (item && typeof item === "object" && "text" in item) {
-            const value = (item as { text?: unknown }).text;
-            return typeof value === "string" ? value : "";
-          }
-          return "";
-        })
-        .join("");
+      const runId =
+        extractRunId(payload) ??
+        messageToRunIdRef.current[id] ??
+        currentRunIdRef.current ??
+        undefined;
+      const text = extractTextFromContent(payload.content);
+      const normalizedText = text.trim();
+
+      if (role === "assistant") {
+        latestAssistantMessageIdRef.current = id;
+      }
+
+      if (runId) {
+        messageToRunIdRef.current[id] = runId;
+        runToMessageIdRef.current[runId] = id;
+        setActivities((current) => bindPendingToolsForRunToMessage(current, runId, id));
+      }
 
       setMessages((current) => {
         const existing = current.find((message) => message.id === id);
         if (!existing) {
-          return [...current, { id, role, text, status }];
+          if (role !== "user" && normalizedText.length === 0) {
+            return current;
+          }
+          return [...current, { id, role, text, status, runId }];
         }
+
+        const nextText = normalizedText.length > 0 && text.length >= existing.text.length ? text : existing.text;
         return current.map((message) =>
           message.id === id
             ? {
                 ...message,
                 role,
                 status,
-                text: text || message.text,
+                text: nextText,
+                runId: runId ?? message.runId,
               }
             : message
         );
@@ -340,6 +606,19 @@ export default function App() {
         return;
       }
 
+      const runId =
+        extractRunId(payload) ??
+        messageToRunIdRef.current[msgId] ??
+        currentRunIdRef.current ??
+        undefined;
+
+      latestAssistantMessageIdRef.current = msgId;
+      if (runId) {
+        messageToRunIdRef.current[msgId] = runId;
+        runToMessageIdRef.current[runId] = msgId;
+        setActivities((current) => bindPendingToolsForRunToMessage(current, runId, msgId));
+      }
+
       setMessages((current) => {
         const existing = current.find((message) => message.id === msgId);
         if (!existing) {
@@ -350,6 +629,7 @@ export default function App() {
               role: "assistant",
               text,
               status: typeof payload.status === "string" ? payload.status : "in_progress",
+              runId,
             },
           ];
         }
@@ -360,6 +640,7 @@ export default function App() {
                 ...message,
                 text: `${message.text}${text}`,
                 status: typeof payload.status === "string" ? payload.status : message.status,
+                runId: runId ?? message.runId,
               }
             : message
         );
@@ -369,13 +650,33 @@ export default function App() {
 
     if (payload.object === "content" && payload.type === "data") {
       const data = payload.data as Record<string, unknown> | undefined;
-      const toolName = typeof data?.name === "string" ? data.name : "tool";
+      const runId = extractRunId(data) ?? extractRunId(payload) ?? currentRunIdRef.current ?? undefined;
+      const mappedMessageId = runId ? runToMessageIdRef.current[runId] : undefined;
+
       setActivities((current) => [
         ...current,
         {
           id: crypto.randomUUID(),
           kind: "tool",
-          text: `tool call: ${toolName}`,
+          text: buildToolActivityText(data),
+          timestamp: Date.now(),
+          messageId: mappedMessageId,
+          runId,
+        },
+      ]);
+      return;
+    }
+
+    if (payload.object) {
+      const objectName = typeof payload.object === "string" ? payload.object : "unknown";
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "status",
+          text: `event: ${objectName}`,
+          timestamp: Date.now(),
+          runId: extractRunId(payload),
         },
       ]);
     }
@@ -411,6 +712,16 @@ export default function App() {
     );
   }
 
+  const visibleMessages = messages.filter(hasRenderableMessageText);
+  const visibleMessageIds = new Set(visibleMessages.map((message) => message.id));
+  const pendingToolActivities = activities
+    .filter(
+      (item) =>
+        item.kind === "tool" &&
+        (!item.messageId || !visibleMessageIds.has(item.messageId))
+    )
+    .slice(-8);
+
   return (
     <main className="app-shell">
       <aside className="left-panel">
@@ -427,7 +738,7 @@ export default function App() {
               id="file-input"
               multiple
               type="file"
-              onChange={(event) => setSelectedFiles(event.target.files)}
+              onChange={handleFileInputChange}
             />
             <label className="checkbox-row">
               <input
@@ -441,15 +752,50 @@ export default function App() {
               {isUploading ? "Uploading..." : "Upload Files"}
             </button>
           </form>
+
+          {showImageDescriptionDialog ? (
+            <div className="image-desc-dialog">
+              <div className="panel-label">Image Description</div>
+              <p className="muted">检测到图片文件，请填写图片描述，帮助 agent 更准确理解上传素材。</p>
+              <textarea
+                value={imageDescription}
+                onChange={(event) => setImageDescription(event.target.value)}
+                placeholder="例如：这是一张计算器主界面草图，上方是表达式显示区，下方是数字键盘。"
+                rows={4}
+              />
+              <div className="dialog-actions">
+                <button
+                  className="secondary-button"
+                  type="button"
+                  onClick={() => setShowImageDescriptionDialog(false)}
+                >
+                  关闭
+                </button>
+                <span className="muted">上传时将随文件一起发送该描述</span>
+              </div>
+            </div>
+          ) : null}
+
           <div className="file-list">
             {files.length === 0 ? <p className="muted">当前还没有上传文件。</p> : null}
             {files.map((file) => (
               <div className="file-item" key={file.path}>
-                <div>
+                <div className="file-item-main">
                   <div className="file-name">{file.name}</div>
                   <div className="file-path">{file.path}</div>
+                  {file.description ? <div className="file-path">描述: {file.description}</div> : null}
                 </div>
-                <span className="file-size">{formatBytes(file.size)}</span>
+                <div className="file-item-actions">
+                  <span className="file-size">{formatBytes(file.size)}</span>
+                  <button
+                    className="file-delete-button"
+                    type="button"
+                    disabled={deletingFileName === file.name}
+                    onClick={() => void handleDeleteFile(file.name)}
+                  >
+                    {deletingFileName === file.name ? "删除中..." : "删除"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -468,17 +814,6 @@ export default function App() {
           </div>
         </section>
 
-        <section className="panel-card">
-          <div className="panel-label">Activity</div>
-          <div className="activity-list">
-            {activities.length === 0 ? <p className="muted">这里会显示运行状态和工具调用。</p> : null}
-            {activities.map((item) => (
-              <div className={`activity-item activity-${item.kind}`} key={item.id}>
-                {item.text}
-              </div>
-            ))}
-          </div>
-        </section>
       </aside>
 
       <section className="chat-panel">
@@ -491,24 +826,76 @@ export default function App() {
         </header>
 
         <div className="chat-scroll" ref={scrollRef}>
-          {messages.length === 0 ? (
+          {visibleMessages.length === 0 ? (
             <section className="empty-card">
               <h3>先上传资料，再开始对话</h3>
               <p>建议先把草图、截图、需求文档上传到左侧，再告诉 agent 你想做什么应用。</p>
             </section>
           ) : null}
 
-          {messages.map((message) => (
+          {visibleMessages.map((message) => (
             <div className={`message-row message-${message.role}`} key={message.id}>
               <article className="message-card">
                 <div className="message-meta">
                   <span>{message.role === "user" ? "You" : "Agent"}</span>
                   <span>{message.status ?? "in_progress"}</span>
                 </div>
-                <div className="message-text">{message.text || "..."}</div>
+                <div className="message-text">{message.text}</div>
+
+                {message.role === "assistant" ? (
+                  (() => {
+                    const inlineTools = activities.filter(
+                      (item) =>
+                        item.kind === "tool" &&
+                        (item.messageId === message.id ||
+                          (!!message.runId && !item.messageId && item.runId === message.runId))
+                    );
+                    if (inlineTools.length === 0) {
+                      return null;
+                    }
+                    return (
+                      <details className="inline-tool-trace" open={message.status === "in_progress"}>
+                        <summary>
+                          执行过程 · {inlineTools.length} 条
+                        </summary>
+                        <div className="inline-tool-list">
+                          {inlineTools.map((item) => (
+                            <div className="inline-tool-item" key={item.id}>
+                              <div>{item.text}</div>
+                              <div className="activity-time">{new Date(item.timestamp).toLocaleTimeString()}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </details>
+                    );
+                  })()
+                ) : null}
               </article>
             </div>
           ))}
+
+          {pendingToolActivities.length > 0 ? (
+            <div className="message-row message-assistant" key="pending-assistant-thinking">
+              <article className="message-card">
+                <div className="message-meta">
+                  <span>Agent</span>
+                  <span>in_progress</span>
+                </div>
+                <div className="message-text muted">正在思考与调用工具...</div>
+                <details className="inline-tool-trace" open>
+                  <summary>执行过程 · {pendingToolActivities.length} 条</summary>
+                  <div className="inline-tool-list">
+                    {pendingToolActivities.map((item) => (
+                      <div className="inline-tool-item" key={item.id}>
+                        <div>{item.text}</div>
+                        <div className="activity-time">{new Date(item.timestamp).toLocaleTimeString()}</div>
+                      </div>
+                    ))}
+                  </div>
+                </details>
+              </article>
+            </div>
+          ) : null}
         </div>
 
         <form className="composer" onSubmit={handleSend}>
