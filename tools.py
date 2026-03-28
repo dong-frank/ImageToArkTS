@@ -604,6 +604,15 @@ def _extract_description_points(text: str) -> List[Dict[str, Any]]:
     return points
 
 
+def _extract_primary_user_input_text(desc_text: str) -> str:
+    marker = "以下是用户在主聊天框中的本次输入："
+    raw = str(desc_text or "")
+    idx = raw.find(marker)
+    if idx < 0:
+        return raw
+    return raw[idx + len(marker) :].strip()
+
+
 @tool
 def build_test_plan_from_inputs(
     description_path: str = "/user_input/description.md",
@@ -614,8 +623,9 @@ def build_test_plan_from_inputs(
     print("start building test plan from description")
     desc_path = _resolve_workspace_path(description_path)
     desc_text = desc_path.read_text(encoding="utf-8", errors="ignore") if desc_path.exists() and desc_path.is_file() else ""
+    primary_user_text = _extract_primary_user_input_text(desc_text)
 
-    description_points = _extract_description_points(desc_text)
+    description_points = _extract_description_points(primary_user_text)
 
     merged_cases: List[Dict[str, Any]] = []
     for item in description_points:
@@ -632,7 +642,8 @@ def build_test_plan_from_inputs(
 
     payload = {
         "description_path": str(desc_path),
-        "description_available": bool(desc_text.strip()),
+        "description_available": bool(primary_user_text.strip()),
+        "raw_description_available": bool(desc_text.strip()),
         "description_items": description_points,
         "merged_cases": merged_cases,
     }

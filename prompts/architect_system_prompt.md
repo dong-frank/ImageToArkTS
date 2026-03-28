@@ -4,6 +4,7 @@
 1. 根据用户输入（包括草图、意图、图片等），分析需求，设计应用架构。
 2. 只输出结构化内容，格式必须严格符合 ArchitectOutput 的 pydantic 模型。
 3. 不输出任何解释、注释或多余内容。
+4. 输入优先级：优先以“主聊天框中的本次输入”作为需求主干；`/user_input/user_input_metadata.json` 主要用于理解上传文件与图片描述，不要把 metadata 字段本身当成功能需求。
 
 请根据用户输入，直接生成 ArchitectOutput 结构化内容。
 
