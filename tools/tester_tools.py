@@ -3,6 +3,7 @@ from __future__ import annotations
 import base64
 import json
 import mimetypes
+import os
 import re
 import time
 from datetime import datetime
@@ -13,7 +14,148 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 
 from models import vision_model
-from tools.common import ensure_directory, format_cmd_result, projects_root, resolve_workspace_path, run_hdc_cmd
+from tools.common import (
+    PROJECT_ROOT,
+    ensure_directory,
+    format_cmd_result,
+    is_wsl,
+    projects_root,
+    resolve_hdc_executable,
+    resolve_workspace_path,
+    run_cmd,
+    to_windows_path_if_needed,
+)
+
+TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
+
+
+def _tester_script_path(script_name: str) -> Path:
+    return TESTER_SCRIPTS_DIR / script_name
+
+
+def _hdc_uses_windows_binary(hdc_executable: str) -> bool:
+    lowered = str(hdc_executable or "").lower()
+    if lowered.endswith(".exe"):
+        return True
+    return bool(is_wsl() and os.getenv("HDC_WINDOWS_EXE"))
+
+
+def _adapt_local_path_for_hdc(local_path: Path | str, hdc_executable: str) -> str:
+    raw = str(local_path)
+    if _hdc_uses_windows_binary(hdc_executable):
+        return to_windows_path_if_needed(raw)
+    return raw
+
+
+def _run_tester_script(script_name: str, args: List[str], timeout: int = 60, target: str = ""):
+    script_path = _tester_script_path(script_name)
+    if not script_path.exists():
+        return run_cmd(["bash", str(script_path), *args], check=False, timeout=timeout)
+
+    hdc_executable = resolve_hdc_executable()
+    return run_cmd(
+        ["bash", str(script_path), hdc_executable, str(target or ""), *[str(item) for item in args]],
+        check=False,
+        timeout=timeout,
+    )
+
+
+def _parse_hdc_targets(raw: str) -> List[str]:
+    targets: List[str] = []
+    for raw_line in str(raw or "").splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        lowered = line.lower()
+        if "empty" in lowered or "no target" in lowered:
+            continue
+        if line.startswith("*"):
+            line = line.lstrip("*").strip()
+        if line:
+            targets.append(line)
+    return targets
+
+
+def _list_hdc_targets() -> Tuple[List[str], str]:
+    result = _run_tester_script("hdc_list_targets.sh", [], timeout=20)
+    output = "\n".join(part for part in [result.stdout, result.stderr] if part).strip()
+    if result.returncode != 0:
+        return [], output
+    return _parse_hdc_targets(result.stdout), output
+
+
+def _pick_target_from_list(targets: List[str]) -> Tuple[str, str]:
+    preferred = str(os.getenv("HDC_TARGET", "")).strip()
+    if preferred:
+        if preferred in targets:
+            return preferred, ""
+        return "", f"HDC_TARGET not found in connected targets: {preferred}"
+    if not targets:
+        return "", "no hdc target available"
+    return targets[0], ""
+
+
+def _ensure_target_ready(timeout_seconds: int = 90, poll_interval_seconds: float = 3.0, auto_start: bool = False) -> Tuple[str, str]:
+    targets, raw_output = _list_hdc_targets()
+    target, pick_error = _pick_target_from_list(targets)
+    if target:
+        return target, ""
+
+    if not auto_start:
+        return "", pick_error or f"hdc list targets output:\n{raw_output or '(empty)'}"
+
+    start_result = _run_tester_script("start_emulator.sh", [], timeout=30)
+    start_log = format_cmd_result(start_result)
+    if start_result.returncode != 0:
+        return "", f"auto start emulator failed\n{start_log}"
+
+    timeout = max(10, int(timeout_seconds))
+    interval = max(0.5, float(poll_interval_seconds))
+    started_at = time.time()
+    while time.time() - started_at <= timeout:
+        targets, _ = _list_hdc_targets()
+        target, pick_error = _pick_target_from_list(targets)
+        if target:
+            return target, ""
+        time.sleep(interval)
+
+    return "", f"emulator target not ready before timeout ({timeout}s); last_reason: {pick_error or 'unknown'}"
+
+
+@tool
+def ensure_emulator_ready(
+    timeout_seconds: int = 90,
+    poll_interval_seconds: float = 3.0,
+    auto_start: bool = False,
+) -> str:
+    """
+    Ensure at least one hdc target is available. Optionally auto-start emulator when no target exists.
+    """
+    print("start ensuring emulator ready")
+    target, error = _ensure_target_ready(
+        timeout_seconds=timeout_seconds,
+        poll_interval_seconds=poll_interval_seconds,
+        auto_start=bool(auto_start),
+    )
+    if not target:
+        return "\n".join(
+            [
+                "status: FAILED",
+                f"reason: {error or 'no available target'}",
+                "hint: set HDC_TARGET to a connected target or set HARMONY_EMULATOR_START_CMD for auto-start",
+            ]
+        )
+
+    targets, _ = _list_hdc_targets()
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"selected_target: {target}",
+            f"target_count: {len(targets)}",
+            "targets:",
+            *[f"- {item}" for item in targets],
+        ]
+    )
 
 def _encode_image_as_data_url(image_path: Path) -> str:
     mime, _ = mimetypes.guess_type(str(image_path))
@@ -293,6 +435,10 @@ def install_harmony_app(
     - If hap_path is empty, auto-discover newest .hap under /projects/<project_name>.
     """
     print("start installing harmony app to device")
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
     name = str(project_name or "").strip()
     if not name:
         return "status: FAILED\nreason: project_name is required"
@@ -338,15 +484,19 @@ def install_harmony_app(
     if app_payload:
         bundle_name = str((app_payload.get("app", {}) or {}).get("bundleName", "")).strip()
 
-    uninstall_result: Optional[subprocess.CompletedProcess[str]] = None
-    if uninstall_first and bundle_name:
-        uninstall_result = run_hdc_cmd(["uninstall", bundle_name], check=False, timeout=60)
+    hdc_executable = resolve_hdc_executable()
+    selected_hap_for_hdc = _adapt_local_path_for_hdc(selected_hap, hdc_executable)
 
-    install_args = ["install"]
-    if reinstall:
-        install_args.append("-r")
-    install_args.append(str(selected_hap))
-    install_result = run_hdc_cmd(install_args, check=False, timeout=180)
+    uninstall_result = None
+    if uninstall_first and bundle_name:
+        uninstall_result = _run_tester_script("hdc_uninstall.sh", [bundle_name], timeout=60, target=selected_target)
+
+    install_result = _run_tester_script(
+        "hdc_install_hap.sh",
+        [selected_hap_for_hdc, "1" if reinstall else "0"],
+        timeout=180,
+        target=selected_target,
+    )
 
     status = "SUCCESS" if install_result.returncode == 0 else "FAILED"
     lines = [
@@ -355,6 +505,7 @@ def install_harmony_app(
         f"project_path: /projects/{name}",
         f"hap_path: {selected_hap}",
         f"bundle_name: {bundle_name or '(unknown)'}",
+        f"target: {selected_target}",
         f"reinstall: {bool(reinstall)}",
         f"uninstall_first: {bool(uninstall_first)}",
     ]
@@ -380,14 +531,18 @@ def start_harmony_app(bundle_name: str, ability_name: str) -> str:
     Force-stop and then start a HarmonyOS app by bundle and ability name.
     """
     print("start starting harmony app on device")
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
     bundle = str(bundle_name or "").strip()
     ability = str(ability_name or "").strip()
     if not bundle or not ability:
         return "status: FAILED\nreason: bundle_name and ability_name are required"
 
-    stop_result = run_hdc_cmd(["shell", "aa", "force-stop", bundle], check=False, timeout=30)
+    stop_result = _run_tester_script("hdc_force_stop_app.sh", [bundle], timeout=30, target=selected_target)
     time.sleep(1)
-    start_result = run_hdc_cmd(["shell", "aa", "start", "-b", bundle, "-a", ability], check=False, timeout=30)
+    start_result = _run_tester_script("hdc_start_app.sh", [bundle, ability], timeout=30, target=selected_target)
     time.sleep(3)
 
     status = "SUCCESS" if start_result.returncode == 0 else "FAILED"
@@ -396,6 +551,7 @@ def start_harmony_app(bundle_name: str, ability_name: str) -> str:
             f"status: {status}",
             f"bundle_name: {bundle}",
             f"ability_name: {ability}",
+            f"target: {selected_target}",
             "force_stop:",
             format_cmd_result(stop_result),
             "start_result:",
@@ -414,6 +570,10 @@ def capture_app_screenshot(
     Capture a current device screenshot with hdc and save to tester logs.
     """
     print("start capturing app screenshot from device")
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
     base_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_name = Path(file_name).name or "app_screen.jpeg"
     if not safe_name.lower().endswith((".jpg", ".jpeg", ".png")):
@@ -424,17 +584,22 @@ def capture_app_screenshot(
 
     retries = max(1, int(max_retries))
     attempt_logs: List[str] = []
+    hdc_executable = resolve_hdc_executable()
+    local_path_for_hdc = _adapt_local_path_for_hdc(local_path, hdc_executable)
+
     for attempt in range(1, retries + 1):
-        run_hdc_cmd(["shell", "rm", "-f", remote_jpeg], check=False, timeout=15)
-        screenshot_result = run_hdc_cmd(
-            ["shell", "snapshot_display", "-f", remote_jpeg],
-            check=False,
+        _run_tester_script("hdc_rm_remote_file.sh", [remote_jpeg], timeout=15, target=selected_target)
+        screenshot_result = _run_tester_script(
+            "hdc_snapshot_display.sh",
+            [remote_jpeg],
             timeout=30,
+            target=selected_target,
         )
-        recv_result = run_hdc_cmd(
-            ["file", "recv", remote_jpeg, str(local_path)],
-            check=False,
+        recv_result = _run_tester_script(
+            "hdc_recv_file.sh",
+            [remote_jpeg, local_path_for_hdc],
             timeout=30,
+            target=selected_target,
         )
         attempt_logs.append(
             "\n".join(
@@ -457,6 +622,7 @@ def capture_app_screenshot(
                 [
                     "status: SUCCESS",
                     f"screenshot_path: {local_path}",
+                    f"target: {selected_target}",
                     "attempt_logs:",
                     "\n\n".join(attempt_logs),
                 ]
@@ -479,6 +645,10 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
     Dump the current app UI layout via hdc uitest and save as formatted JSON.
     """
     print("start dumping app layout")
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
     base_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_name = Path(file_name).name or "layout.json"
     if not safe_name.lower().endswith(".json"):
@@ -487,15 +657,15 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
     local_path = base_dir / f"{timestamp}_{safe_name}"
     remote_layout = "/data/local/tmp/layout.json"
 
-    dump_result = run_hdc_cmd(
-        ["shell", "uitest", "dumpLayout", "-p", remote_layout],
-        check=False,
+    hdc_executable = resolve_hdc_executable()
+    local_path_for_hdc = _adapt_local_path_for_hdc(local_path, hdc_executable)
+
+    dump_result = _run_tester_script("hdc_dump_layout.sh", [remote_layout], timeout=45, target=selected_target)
+    recv_result = _run_tester_script(
+        "hdc_recv_file.sh",
+        [remote_layout, local_path_for_hdc],
         timeout=45,
-    )
-    recv_result = run_hdc_cmd(
-        ["file", "recv", remote_layout, str(local_path)],
-        check=False,
-        timeout=45,
+        target=selected_target,
     )
     if dump_result.returncode != 0 or recv_result.returncode != 0 or not local_path.exists():
         return "\n".join(
@@ -523,11 +693,12 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
 
     return "\n".join(
         [
-            "status: SUCCESS",
-            f"layout_path: {local_path}",
-            _extract_layout_preview(payload),
-        ]
-    )
+                "status: SUCCESS",
+                f"layout_path: {local_path}",
+                f"target: {selected_target}",
+                _extract_layout_preview(payload),
+            ]
+        )
 
 
 @tool
@@ -916,10 +1087,15 @@ def click_element(
         )
 
     click_x, click_y = chosen["center"]
-    result = run_hdc_cmd(
-        ["shell", "uitest", "uiInput", "click", str(click_x), str(click_y)],
-        check=False,
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
+    result = _run_tester_script(
+        "hdc_ui_click.sh",
+        [str(click_x), str(click_y)],
         timeout=20,
+        target=selected_target,
     )
 
     status = "SUCCESS" if result.returncode == 0 else "FAILED"
@@ -936,6 +1112,7 @@ def click_element(
             f"matched_bounds: [{bounds[0]},{bounds[1]}][{bounds[2]},{bounds[3]}]",
             f"click_x: {click_x}",
             f"click_y: {click_y}",
+            f"target: {selected_target}",
             "cmd_result:",
             format_cmd_result(result),
         ]
@@ -953,19 +1130,15 @@ def swipe_screen(
     Swipe on screen using absolute coordinates.
     """
     print("start swiping screen by coordinates")
-    result = run_hdc_cmd(
-        [
-            "shell",
-            "uitest",
-            "uiInput",
-            "swipe",
-            str(int(start_x)),
-            str(int(start_y)),
-            str(int(end_x)),
-            str(int(end_y)),
-        ],
-        check=False,
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
+    result = _run_tester_script(
+        "hdc_ui_swipe.sh",
+        [str(int(start_x)), str(int(start_y)), str(int(end_x)), str(int(end_y))],
         timeout=20,
+        target=selected_target,
     )
     status = "SUCCESS" if result.returncode == 0 else "FAILED"
     return "\n".join(
@@ -973,6 +1146,7 @@ def swipe_screen(
             f"status: {status}",
             f"start: ({int(start_x)}, {int(start_y)})",
             f"end: ({int(end_x)}, {int(end_y)})",
+            f"target: {selected_target}",
             "cmd_result:",
             format_cmd_result(result),
         ]
@@ -985,16 +1159,17 @@ def press_back() -> str:
     Trigger system back key event.
     """
     print("start pressing back key")
-    result = run_hdc_cmd(
-        ["shell", "uitest", "uiInput", "keyEvent", "Back"],
-        check=False,
-        timeout=20,
-    )
+    selected_target, target_error = _ensure_target_ready()
+    if not selected_target:
+        return f"status: FAILED\nreason: {target_error}"
+
+    result = _run_tester_script("hdc_ui_back.sh", [], timeout=20, target=selected_target)
     status = "SUCCESS" if result.returncode == 0 else "FAILED"
     return "\n".join(
         [
             f"status: {status}",
             "key: Back",
+            f"target: {selected_target}",
             "cmd_result:",
             format_cmd_result(result),
         ]
@@ -1159,6 +1334,7 @@ def assert_state(
 
 
 TESTER_TOOLS = [
+    ensure_emulator_ready,
     read_description_baseline,
     build_test_plan_from_inputs,
     install_harmony_app,
@@ -1176,6 +1352,7 @@ TESTER_TOOLS = [
 ]
 
 TESTER_SCRIPT_EXECUTION_TOOLS = [
+    ensure_emulator_ready,
     install_harmony_app,
     start_harmony_app,
     dump_app_layout,

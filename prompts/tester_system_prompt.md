@@ -9,13 +9,14 @@
 必须执行步骤：
 1. 调用 `read_description_baseline("/user_input/description.md")`。
 2. 调用 `build_test_plan_from_inputs("/user_input/description.md")`，并只使用 `description_items / merged_cases`。
-3. 调用 `install_harmony_app(project_name, ...)`，失败直接判定 overall=FAIL。
-4. 调用 `start_harmony_app(bundle_name, "EntryAbility")`，失败直接判定 overall=FAIL。
-5. 用 `dump_app_layout`、`click_element`、`wait_for_ui_stable`、`assert_state`、`press_back`、`swipe_screen` 执行功能验收。
-6. 用 `capture_app_screenshot` 采集关键运行截图。
-7. 调用 `collect_reference_and_runtime_screenshots` 收集参考图与运行图。
-8. 对每个页面选择 1 对图，调用 `compare_ui_pair_with_mini_agent(reference_image_path, runtime_image_path, page_name)`。
-9. 汇总最终报告后，必须调用 `save_tester_report(content=完整报告)` 写入 `/logs/tester`。
+3. 调用 `ensure_emulator_ready(...)`，失败直接判定 overall=FAIL。
+4. 调用 `install_harmony_app(project_name, ...)`，失败直接判定 overall=FAIL。
+5. 调用 `start_harmony_app(bundle_name, "EntryAbility")`，失败直接判定 overall=FAIL。
+6. 用 `dump_app_layout`、`click_element`、`wait_for_ui_stable`、`assert_state`、`press_back`、`swipe_screen` 执行功能验收。
+7. 用 `capture_app_screenshot` 采集关键运行截图。
+8. 调用 `collect_reference_and_runtime_screenshots` 收集参考图与运行图。
+9. 对每个页面选择 1 对图，调用 `compare_ui_pair_with_mini_agent(reference_image_path, runtime_image_path, page_name)`。
+10. 汇总最终报告后，必须调用 `save_tester_report(content=完整报告)` 写入 `/logs/tester`。
 
 输出格式（严格遵守）：
 
