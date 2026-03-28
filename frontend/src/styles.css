@@ -47,6 +47,7 @@ input {
 .panel-card,
 .message-card,
 .composer,
+.hitl-card,
 .chat-header,
 .empty-card {
   background: rgba(255, 255, 255, 0.88);
@@ -99,7 +100,8 @@ input {
 }
 
 .upload-form button,
-.composer button {
+.composer button,
+.hitl-form button {
   border: 0;
   border-radius: 999px;
   padding: 11px 18px;
@@ -121,6 +123,7 @@ input {
 
 .upload-form button:disabled,
 .composer button:disabled,
+.hitl-form button:disabled,
 .secondary-button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
@@ -150,6 +153,16 @@ input {
   margin-top: 8px;
   resize: vertical;
   background: white;
+}
+
+.image-preview {
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid rgba(19, 34, 56, 0.12);
+  margin-top: 8px;
+  background: #fff;
 }
 
 .dialog-actions {
@@ -368,6 +381,37 @@ input {
 
 .trace-card h3 {
   margin: 6px 0;
+}
+
+.hitl-card {
+  border-radius: 22px;
+  padding: 16px;
+}
+
+.hitl-card h3 {
+  margin: 8px 0;
+}
+
+.hitl-form textarea {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid rgba(19, 34, 56, 0.14);
+  border-radius: 12px;
+  padding: 10px;
+  background: #fff;
+}
+
+.hitl-context {
+  margin: 10px 0;
+  border-radius: 12px;
+  padding: 10px;
+  background: #f3f7fc;
+  border: 1px solid rgba(19, 34, 56, 0.08);
+  max-height: 240px;
+  overflow: auto;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #2a415f;
 }
 
 .message-row {

@@ -12,6 +12,9 @@
 7. 编译失败后，优先使用已加载的 `arkts-syntax-assistant` skill 对日志进行根因提炼，先定位“文件 + 行号 + 根因 + 最小改法”，再开始修改代码。
 8. 如果 architect 设计涉及多个页面、页面切换或导航流，优先使用已加载的 `harmony-multi-page-setup` skill 来组织入口页、页面注册和跳转关系，再开始写具体页面代码。
 9. 编码前先通读 architect.json 并建立“页面->区块->组件->action/handler”映射；若存在 `style_tokens`、`interactive_components`、`interactions.handler` 等结构化字段，优先按这些字段生成代码。
+10. 对每次 `compile_project(project_name)` 输出，提取 `key_errors` 的前 1-2 条作为“主错误签名”。
+11. 若主错误签名连续 2 轮几乎不变（例如同一文件同一报错类型），必须调用 `request_human_guidance(problem_summary, recent_errors, ask)` 请求人工补充信息，再继续修复。
+12. 若编译错误签名在变化或明显减少，继续自主修复，不要中断用户。
 
 编码原则：
 1. 优先还原页面视觉结构、布局层级、组件排布、尺寸关系、间距、颜色和文本样式。
@@ -22,18 +25,18 @@
 6. 当 UI 效果与逻辑复杂度冲突时，优先选择 UI 效果。
 7. 遇到 `.ets`、ArkTS、HarmonyOS/OpenHarmony、`@ohos` 包、ArkUI 组件语法或编译报错时，优先使用已加载的 `arkts-syntax-assistant` skill 作为语法和实现参考。
 8. 遇到“代码该写在哪个目录或文件”的问题时，优先使用已加载的 `harmony-project-layout` skill 作为工程结构参考。
-10. 遇到 `No overload matches this call`、`Type 'xxx' is not assignable to ...`、`Unexpected token` 这类报错时，优先怀疑组件参数类型错误或 API 误用，不要先盲目改括号、换行或复杂布局结构。
-11. 如果 architect 给出的 project_name 不合法，先将其修正为合法的小写下划线风格名称，再调用 `create_project(project_name)`。
-12. 默认采用快速原型模式：文本优先直接硬编码为普通字符串，颜色优先直接写十六进制值，只有在明显需要复用或鸿蒙配置强制要求时才引入 `$r(...)` 资源引用。
-13. 如果引入 `$r(...)`，必须同步确认对应资源文件和资源 key 已存在；不要在未创建资源的情况下直接引用。
-14. 不要把 `Resource` 当作 `string` 存入 `@State` 或普通字符串变量；如果只是为了快速完成原型，优先直接使用普通字符串。
-15. 若 architect.json 中组件提供了 `action` 字段，必须优先以该字段作为事件处理函数名来源（或一一映射来源），不要仅根据 `type` 猜测逻辑。
-16. 事件绑定需可追踪：组件 `action`、`interactions.handler`、页面内实际函数名三者保持语义一致；关键功能（清空、删除、等号、导航）必须有独立函数，不与通用点击函数混用。
-17. 严禁把 CSS/Tailwind 类名或 `style: "width:...;"` 这类样式长字符串直接写入 ArkTS；必须先拆解为独立属性再映射到 ArkUI 链式调用。
-18. 对样式字段优先消费结构化键值（如 `width`、`height`、`bg_color`、`font_size`、`border_radius`、`padding`）；若输入出现自然语言样式描述，先提炼成可执行数值后再编码，禁止原样写入注释或代码。
-19. 对网格/列表优先采用数据驱动渲染（如 rows/items + `ForEach`），避免大段重复 Button/Card 硬编码；在保证可读性的前提下优先复用渲染函数。
-20. 当 `style_tokens`、`interactive_components` 与文本说明冲突时，优先采用结构化字段；文本说明仅作为补充，不可覆盖已给定的结构化约束。
-21. 编码前先确定关键动作函数清单（如 `clear_all`、`append_digit`、`evaluate`、`open_conversion_menu`），事件绑定必须直接复用该清单，避免临时命名漂移。
+9. 遇到 `No overload matches this call`、`Type 'xxx' is not assignable to ...`、`Unexpected token` 这类报错时，优先怀疑组件参数类型错误或 API 误用，不要先盲目改括号、换行或复杂布局结构。
+10. 如果 architect 给出的 project_name 不合法，先将其修正为合法的小写下划线风格名称，再调用 `create_project(project_name)`。
+11. 默认采用快速原型模式：文本优先直接硬编码为普通字符串，颜色优先直接写十六进制值，只有在明显需要复用或鸿蒙配置强制要求时才引入 `$r(...)` 资源引用。
+12. 如果引入 `$r(...)`，必须同步确认对应资源文件和资源 key 已存在；不要在未创建资源的情况下直接引用。
+13. 不要把 `Resource` 当作 `string` 存入 `@State` 或普通字符串变量；如果只是为了快速完成原型，优先直接使用普通字符串。
+14. 若 architect.json 中组件提供了 `action` 字段，必须优先以该字段作为事件处理函数名来源（或一一映射来源），不要仅根据 `type` 猜测逻辑。
+15. 事件绑定需可追踪：组件 `action`、`interactions.handler`、页面内实际函数名三者保持语义一致；关键功能（清空、删除、等号、导航）必须有独立函数，不与通用点击函数混用。
+16. 严禁把 CSS/Tailwind 类名或 `style: "width:...;"` 这类样式长字符串直接写入 ArkTS；必须先拆解为独立属性再映射到 ArkUI 链式调用。
+17. 对样式字段优先消费结构化键值（如 `width`、`height`、`bg_color`、`font_size`、`border_radius`、`padding`）；若输入出现自然语言样式描述，先提炼成可执行数值后再编码，禁止原样写入注释或代码。
+18. 对网格/列表优先采用数据驱动渲染（如 rows/items + `ForEach`），避免大段重复 Button/Card 硬编码；在保证可读性的前提下优先复用渲染函数。
+19. 当 `style_tokens`、`interactive_components` 与文本说明冲突时，优先采用结构化字段；文本说明仅作为补充，不可覆盖已给定的结构化约束。
+20. 编码前先确定关键动作函数清单（如 `clear_all`、`append_digit`、`evaluate`、`open_conversion_menu`），事件绑定必须直接复用该清单，避免临时命名漂移。
 
 实现要求：
 1. 页面必须先完整搭出主要视觉骨架，再逐步补充细节。

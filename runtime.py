@@ -1,23 +1,27 @@
 from contextlib import asynccontextmanager
+import json
 from pathlib import Path
 import subprocess
 import shutil
-from typing import AsyncIterator, List
+from typing import Any, AsyncIterator, List
 from uuid import uuid4
 
 from agentscope_runtime.engine import AgentApp
 from agentscope_runtime.engine.schemas.agent_schemas import AgentRequest
 from fastapi import File, Form, UploadFile
 from fastapi.responses import JSONResponse
-from langchain_core.messages import AIMessage, BaseMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
+from langgraph.types import Command
 
 from agent import graph
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 AGENT_WORKSPACE_DIR = PROJECT_ROOT / "agent_workspace"
 USER_INPUT_DIR = PROJECT_ROOT / "agent_workspace" / "user_input"
-USER_INPUT_META_PATH = PROJECT_ROOT / "agent_workspace" / "user_input_metadata.json"
+USER_INPUT_META_PATH = USER_INPUT_DIR / "user_input_metadata.json"
 RESET_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "reset_agent_workspace.sh"
+HITL_EVENT_PREFIX = "__HITL_REQUIRED__:"
+USER_INPUT_INSTRUCTION_PREFIX = "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作。"
 
 
 @asynccontextmanager
@@ -37,6 +41,105 @@ agent_app = AgentApp(
 )
 
 
+def _extract_resume_value(request: AgentRequest | None) -> Any:
+    if request is None:
+        return None
+    resume = getattr(request, "resume", None)
+    if resume is not None:
+        return resume
+    model_extra = getattr(request, "model_extra", None)
+    if isinstance(model_extra, dict):
+        return model_extra.get("resume")
+    return None
+
+
+def _normalize_message_text(msg: BaseMessage) -> str:
+    content = getattr(msg, "content", "")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+                continue
+            if isinstance(item, dict):
+                text_value = item.get("text")
+                if isinstance(text_value, str):
+                    parts.append(text_value)
+        return "\n".join(part for part in parts if part)
+    return str(content or "")
+
+
+def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage]:
+    merged = list(msgs)
+    for idx in range(len(merged) - 1, -1, -1):
+        msg = merged[idx]
+        if isinstance(msg, HumanMessage):
+            user_text = _normalize_message_text(msg).strip()
+            combined_text = (
+                f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
+                "以下是用户在主聊天框中的本次输入：\n"
+                f"{user_text or '(empty)'}"
+            )
+            merged[idx] = HumanMessage(content=combined_text)
+            return merged
+
+    return [HumanMessage(content=USER_INPUT_INSTRUCTION_PREFIX), *merged]
+
+
+def _task_interrupts(task: Any) -> list[Any]:
+    interrupts = getattr(task, "interrupts", None)
+    if interrupts is None and isinstance(task, dict):
+        interrupts = task.get("interrupts")
+    if not interrupts:
+        return []
+    return list(interrupts)
+
+
+def _build_hitl_payload(interrupt_value: Any) -> dict[str, Any]:
+    payload: dict[str, Any] = {"hitl_required": True}
+
+    if isinstance(interrupt_value, dict):
+        prompt = interrupt_value.get("ask") or interrupt_value.get("description")
+        if not prompt and interrupt_value.get("action_requests"):
+            first_action = interrupt_value["action_requests"][0]
+            if isinstance(first_action, dict):
+                prompt = first_action.get("description")
+        payload["prompt"] = str(prompt or "Agent paused and needs human guidance.")
+        payload["context"] = interrupt_value
+        return payload
+
+    payload["prompt"] = "Agent paused and needs human guidance."
+    payload["context"] = {"raw": str(interrupt_value)}
+    return payload
+
+
+async def _extract_pending_hitl_event(runtime_agent: Any, config: dict | None) -> dict[str, Any] | None:
+    if config is None:
+        return None
+    try:
+        if hasattr(runtime_agent, "get_state"):
+            state = runtime_agent.get_state(config=config)
+        elif hasattr(runtime_agent, "aget_state"):
+            state = await runtime_agent.aget_state(config=config)
+        else:
+            return None
+    except Exception:
+        return None
+
+    tasks = getattr(state, "tasks", None) or []
+    for task in tasks:
+        for interrupt in _task_interrupts(task):
+            value = getattr(interrupt, "value", None)
+            if value is None and isinstance(interrupt, dict):
+                value = interrupt.get("value")
+            if value is None:
+                continue
+            return _build_hitl_payload(value)
+    return None
+
+
 @agent_app.query(framework="langgraph")
 async def query_func(
     self,
@@ -48,9 +151,13 @@ async def query_func(
     config = None
     if request and request.session_id:
         config = {"configurable": {"thread_id": request.session_id}}
+    resume_value = _extract_resume_value(request)
+    graph_input: Any = Command(resume=resume_value) if resume_value is not None else {"messages": msgs}
+    if resume_value is None:
+        graph_input = {"messages": _prepend_user_input_instruction(msgs)}
 
-    async for chunk, _meta_data in runtime_agent.astream(
-        input={"messages": msgs},
+    for chunk, _meta_data in runtime_agent.stream(
+        input=graph_input,
         stream_mode="messages",
         config=config,
     ):
@@ -63,6 +170,11 @@ async def query_func(
                 continue
             continue
         yield chunk, is_last_chunk
+
+    pending_hitl = await _extract_pending_hitl_event(runtime_agent, config)
+    if pending_hitl:
+        payload = f"{HITL_EVENT_PREFIX}{json.dumps(pending_hitl, ensure_ascii=False)}"
+        yield AIMessage(content=payload), True
 
 
 def _sanitize_filename(filename: str | None) -> str:

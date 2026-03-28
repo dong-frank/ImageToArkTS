@@ -34,6 +34,13 @@ type WorkspaceNode = {
 };
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://127.0.0.1:8080";
+const HITL_EVENT_PREFIX = "__HITL_REQUIRED__:";
+
+type HitlEvent = {
+  hitl_required?: boolean;
+  prompt?: string;
+  context?: Record<string, unknown>;
+};
 
 function formatBytes(size: number): string {
   if (size < 1024) {
@@ -183,6 +190,29 @@ function bindPendingToolsForRunToMessage(
   return hasChanges ? next : activities;
 }
 
+function parseHitlEvent(text: string): HitlEvent | null {
+  const raw = text.trim();
+  if (!raw.startsWith(HITL_EVENT_PREFIX)) {
+    return null;
+  }
+  const payloadText = raw.slice(HITL_EVENT_PREFIX.length).trim();
+  if (!payloadText) {
+    return null;
+  }
+  try {
+    const parsed = JSON.parse(payloadText) as HitlEvent;
+    if (!parsed || typeof parsed !== "object") {
+      return null;
+    }
+    if (!parsed.hitl_required) {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
 export default function App() {
   const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -191,19 +221,25 @@ export default function App() {
   const [workspaceTree, setWorkspaceTree] = useState<WorkspaceNode | null>(null);
   const [input, setInput] = useState("");
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null);
+  const [pendingImagePreviewUrl, setPendingImagePreviewUrl] = useState("");
   const [imageDescription, setImageDescription] = useState("");
   const [showImageDescriptionDialog, setShowImageDescriptionDialog] = useState(false);
-  const [clearExisting, setClearExisting] = useState(false);
   const [deletingFileName, setDeletingFileName] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hitlPrompt, setHitlPrompt] = useState("");
+  const [hitlContextText, setHitlContextText] = useState("");
+  const [hitlInput, setHitlInput] = useState("");
+  const [hitlPending, setHitlPending] = useState(false);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const latestAssistantMessageIdRef = useRef<string | null>(null);
   const currentRunIdRef = useRef<string | null>(null);
   const runToMessageIdRef = useRef<Record<string, string>>({});
   const messageToRunIdRef = useRef<Record<string, string>>({});
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     void refreshFiles();
@@ -216,6 +252,39 @@ export default function App() {
       behavior: "smooth",
     });
   }, [messages, activities]);
+
+  useEffect(() => {
+    return () => {
+      if (pendingImagePreviewUrl) {
+        URL.revokeObjectURL(pendingImagePreviewUrl);
+      }
+    };
+  }, [pendingImagePreviewUrl]);
+
+  function clearFileInputValue() {
+    const fileInput = fileInputRef.current;
+    if (fileInput) {
+      fileInput.value = "";
+    }
+  }
+
+  async function uploadFiles(filesToUpload: File[], description = "") {
+    const formData = new FormData();
+    for (const file of filesToUpload) {
+      formData.append("files", file);
+    }
+    if (description.trim()) {
+      formData.append("image_description", description.trim());
+    }
+
+    const response = await fetch(`${API_BASE}/user-input/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.status}`);
+    }
+  }
 
   async function refreshFiles() {
     const response = await fetch(`${API_BASE}/user-input/files`);
@@ -237,36 +306,28 @@ export default function App() {
 
   async function handleUpload(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!selectedFiles || selectedFiles.length === 0 || isUploading) {
+    if (isUploading) {
+      return;
+    }
+    if (!selectedFiles || selectedFiles.length === 0) {
+      fileInputRef.current?.click();
+      return;
+    }
+    if (showImageDescriptionDialog) {
+      setError("请在图片描述弹窗中点击“确认上传”。");
       return;
     }
 
     setIsUploading(true);
     setError(null);
     try {
-      const formData = new FormData();
-      for (const file of Array.from(selectedFiles)) {
-        formData.append("files", file);
-      }
-      formData.append("clear_existing", String(clearExisting));
-      if (hasImageFile(selectedFiles) && imageDescription.trim()) {
-        formData.append("image_description", imageDescription.trim());
-      }
-
-      const response = await fetch(`${API_BASE}/user-input/upload`, {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.status}`);
-      }
+      await uploadFiles(Array.from(selectedFiles));
 
       await refreshFiles();
       await refreshWorkspaceTree();
       setSelectedFiles(null);
       setImageDescription("");
       setShowImageDescriptionDialog(false);
-      setClearExisting(false);
       setActivities((current) => [
         ...current,
         {
@@ -280,10 +341,7 @@ export default function App() {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed");
     } finally {
       setIsUploading(false);
-      const fileInput = document.getElementById("file-input") as HTMLInputElement | null;
-      if (fileInput) {
-        fileInput.value = "";
-      }
+      clearFileInputValue();
     }
   }
 
@@ -292,12 +350,68 @@ export default function App() {
     setSelectedFiles(nextFiles);
 
     if (hasImageFile(nextFiles)) {
+      const firstImage = (nextFiles ? Array.from(nextFiles) : []).find((file) =>
+        file.type.startsWith("image/") || /\.(png|jpe?g|gif|webp|bmp|svg|heic)$/i.test(file.name)
+      );
+      if (firstImage) {
+        if (pendingImagePreviewUrl) {
+          URL.revokeObjectURL(pendingImagePreviewUrl);
+        }
+        setPendingImageFile(firstImage);
+        setPendingImagePreviewUrl(URL.createObjectURL(firstImage));
+      }
       setShowImageDescriptionDialog(true);
       return;
     }
 
+    if (pendingImagePreviewUrl) {
+      URL.revokeObjectURL(pendingImagePreviewUrl);
+    }
+    setPendingImageFile(null);
+    setPendingImagePreviewUrl("");
     setShowImageDescriptionDialog(false);
     setImageDescription("");
+  }
+
+  async function handleConfirmImageUpload() {
+    if (!pendingImageFile || isUploading) {
+      return;
+    }
+    const description = imageDescription.trim();
+    if (!description) {
+      setError("图片上传时请填写描述，便于写入 user_input_metadata.json。");
+      return;
+    }
+
+    setIsUploading(true);
+    setError(null);
+    try {
+      await uploadFiles([pendingImageFile], description);
+      await refreshFiles();
+      await refreshWorkspaceTree();
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "status",
+          text: `已上传图片并写入描述: ${pendingImageFile.name}`,
+          timestamp: Date.now(),
+        },
+      ]);
+      if (pendingImagePreviewUrl) {
+        URL.revokeObjectURL(pendingImagePreviewUrl);
+      }
+      setPendingImageFile(null);
+      setPendingImagePreviewUrl("");
+      setSelectedFiles(null);
+      setShowImageDescriptionDialog(false);
+      setImageDescription("");
+      clearFileInputValue();
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "Upload failed");
+    } finally {
+      setIsUploading(false);
+    }
   }
 
   async function handleReset() {
@@ -396,6 +510,26 @@ export default function App() {
     }
   }
 
+  function applyHitlEvent(event: HitlEvent) {
+    setHitlPending(true);
+    setHitlPrompt(event.prompt ?? "Agent 已暂停，等待你补充信息。");
+    setHitlInput("");
+    const contextText =
+      event.context && Object.keys(event.context).length > 0
+        ? JSON.stringify(event.context, null, 2)
+        : "";
+    setHitlContextText(contextText);
+    setActivities((current) => [
+      ...current,
+      {
+        id: crypto.randomUUID(),
+        kind: "status",
+        text: "Agent paused: waiting for human guidance.",
+        timestamp: Date.now(),
+      },
+    ]);
+  }
+
   async function handleSend(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const text = input.trim();
@@ -413,6 +547,8 @@ export default function App() {
     setMessages((current) => [...current, userMessage]);
     setInput("");
     setError(null);
+    setHitlPending(false);
+    setHitlInput("");
     setIsSending(true);
 
     try {
@@ -509,6 +645,123 @@ export default function App() {
     }
   }
 
+  async function handleResume(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!hitlPending || isSending) {
+      return;
+    }
+
+    const guidance = hitlInput.trim();
+    if (!guidance) {
+      setError("请先填写你的补充建议，再继续。");
+      return;
+    }
+
+    const userMessage: ChatMessage = {
+      id: crypto.randomUUID(),
+      role: "user",
+      text: `[Human guidance] ${guidance}`,
+      status: "completed",
+    };
+
+    setMessages((current) => [...current, userMessage]);
+    setError(null);
+    setIsSending(true);
+
+    try {
+      const response = await fetch(`${API_BASE}/process`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input: [],
+          session_id: sessionId,
+          user_id: "frontend-user",
+          stream: true,
+          resume: {
+            guidance,
+          },
+        }),
+      });
+
+      if (!response.ok || !response.body) {
+        throw new Error(`Resume request failed: ${response.status}`);
+      }
+
+      setHitlPending(false);
+      setHitlInput("");
+
+      const decoder = new TextDecoder();
+      const reader = response.body.getReader();
+      let buffer = "";
+
+      const processEventBlock = (block: string) => {
+        const dataLines = block
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5).trimStart());
+
+        if (dataLines.length === 0) {
+          return;
+        }
+
+        const joined = dataLines.join("\n").trim();
+        if (!joined || joined === "[DONE]") {
+          return;
+        }
+
+        try {
+          const payload = JSON.parse(joined) as Record<string, unknown>;
+          applySsePayload(payload);
+        } catch {
+          setActivities((current) => [
+            ...current,
+            {
+              id: crypto.randomUUID(),
+              kind: "error",
+              text: "收到无法解析的流式数据片段。",
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+      };
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) {
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
+
+        for (const part of parts) {
+          processEventBlock(part);
+        }
+      }
+
+      if (buffer.trim()) {
+        processEventBlock(buffer);
+      }
+    } catch (resumeError) {
+      const message = resumeError instanceof Error ? resumeError.message : "Resume request failed";
+      setError(message);
+      setActivities((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          kind: "error",
+          text: message,
+          timestamp: Date.now(),
+        },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
+  }
+
   function applySsePayload(payload: Record<string, unknown>) {
     if (payload.error && typeof payload.error === "object") {
       const errorText = (payload.error as { message?: string }).message ?? "Unknown runtime error";
@@ -563,6 +816,11 @@ export default function App() {
         undefined;
       const text = extractTextFromContent(payload.content);
       const normalizedText = text.trim();
+      const hitlEvent = parseHitlEvent(normalizedText);
+      if (hitlEvent) {
+        applyHitlEvent(hitlEvent);
+        return;
+      }
 
       if (role === "assistant") {
         latestAssistantMessageIdRef.current = id;
@@ -603,6 +861,11 @@ export default function App() {
       const msgId = typeof payload.msg_id === "string" ? payload.msg_id : null;
       const text = typeof payload.text === "string" ? payload.text : "";
       if (!msgId || !text) {
+        return;
+      }
+      const hitlEvent = parseHitlEvent(text);
+      if (hitlEvent) {
+        applyHitlEvent(hitlEvent);
         return;
       }
 
@@ -736,27 +999,31 @@ export default function App() {
           <form className="upload-form" onSubmit={handleUpload}>
             <input
               id="file-input"
-              multiple
               type="file"
+              ref={fileInputRef}
               onChange={handleFileInputChange}
+              style={{ display: "none" }}
             />
-            <label className="checkbox-row">
-              <input
-                checked={clearExisting}
-                type="checkbox"
-                onChange={(event) => setClearExisting(event.target.checked)}
-              />
-              上传前清空旧文件
-            </label>
-            <button disabled={isUploading || !selectedFiles || selectedFiles.length === 0} type="submit">
-              {isUploading ? "Uploading..." : "Upload Files"}
+            <button disabled={isUploading || showImageDescriptionDialog} type="submit">
+              {isUploading ? "Uploading..." : selectedFiles && selectedFiles.length > 0 ? "上传文件" : "选择文件"}
             </button>
+            {selectedFiles && selectedFiles.length > 0 ? (
+              <p className="muted">已选择: {selectedFiles[0].name}</p>
+            ) : null}
           </form>
 
           {showImageDescriptionDialog ? (
             <div className="image-desc-dialog">
               <div className="panel-label">Image Description</div>
               <p className="muted">检测到图片文件，请填写图片描述，帮助 agent 更准确理解上传素材。</p>
+              {pendingImagePreviewUrl ? (
+                <img
+                  src={pendingImagePreviewUrl}
+                  alt={pendingImageFile?.name ?? "pending upload preview"}
+                  className="image-preview"
+                />
+              ) : null}
+              {pendingImageFile ? <p className="file-path">待上传: {pendingImageFile.name}</p> : null}
               <textarea
                 value={imageDescription}
                 onChange={(event) => setImageDescription(event.target.value)}
@@ -767,11 +1034,27 @@ export default function App() {
                 <button
                   className="secondary-button"
                   type="button"
-                  onClick={() => setShowImageDescriptionDialog(false)}
+                  onClick={() => {
+                    if (pendingImagePreviewUrl) {
+                      URL.revokeObjectURL(pendingImagePreviewUrl);
+                    }
+                    setPendingImageFile(null);
+                    setPendingImagePreviewUrl("");
+                    setSelectedFiles(null);
+                    setShowImageDescriptionDialog(false);
+                    setImageDescription("");
+                    clearFileInputValue();
+                  }}
                 >
                   关闭
                 </button>
-                <span className="muted">上传时将随文件一起发送该描述</span>
+                <button
+                  type="button"
+                  disabled={isUploading || !pendingImageFile || !imageDescription.trim()}
+                  onClick={() => void handleConfirmImageUpload()}
+                >
+                  {isUploading ? "上传中..." : "确认上传"}
+                </button>
               </div>
             </div>
           ) : null}
@@ -822,7 +1105,9 @@ export default function App() {
             <div className="panel-label">Conversation</div>
             <h2>Session {sessionId.slice(0, 8)}</h2>
           </div>
-          <div className="header-chip">{isSending ? "Agent Running" : "Ready"}</div>
+          <div className="header-chip">
+            {isSending ? "Agent Running" : hitlPending ? "Waiting Human" : "Ready"}
+          </div>
         </header>
 
         <div className="chat-scroll" ref={scrollRef}>
@@ -897,6 +1182,31 @@ export default function App() {
             </div>
           ) : null}
         </div>
+
+        {hitlPending ? (
+          <section className="hitl-card">
+            <div className="panel-label">Human-in-the-loop</div>
+            <h3>Agent 需要你的补充信息</h3>
+            <p className="muted">{hitlPrompt}</p>
+            {hitlContextText ? (
+              <pre className="hitl-context">{hitlContextText}</pre>
+            ) : null}
+            <form className="hitl-form" onSubmit={handleResume}>
+              <textarea
+                rows={4}
+                value={hitlInput}
+                onChange={(event) => setHitlInput(event.target.value)}
+                placeholder="例如：允许临时简化布局，先保证主页面可编译；某个组件改成静态文本。"
+              />
+              <div className="composer-footer">
+                <div className="muted">提交后会在同一 session 内继续执行。</div>
+                <button disabled={isSending || !hitlInput.trim()} type="submit">
+                  {isSending ? "Resuming..." : "继续执行"}
+                </button>
+              </div>
+            </form>
+          </section>
+        ) : null}
 
         <form className="composer" onSubmit={handleSend}>
           <textarea

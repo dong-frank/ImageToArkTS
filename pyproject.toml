@@ -9,5 +9,6 @@ dependencies = [
     "deepagents>=0.4.11",
     "dotenv>=0.9.9",
     "langchain[openai]>=1.2.12",
+    "langgraph-checkpoint-sqlite>=3.0.3",
     "pexpect>=4.9.0",
 ]

@@ -15,6 +15,7 @@ from tools import (
     dump_app_layout,
     install_harmony_app,
     press_back,
+    request_human_guidance,
     read_description_baseline,
     save_architect_design,
     save_tester_report,
@@ -22,6 +23,7 @@ from tools import (
     swipe_screen,
     wait_for_ui_stable,
 )
+from utils.checkpointing import get_checkpointer
 from utils.utils import load_prompt
 
 
@@ -40,7 +42,7 @@ coding_subagent = {
     "model": base_model,
     "system_prompt": load_prompt("coder_system_prompt.md"),
     "skills": ["/skills"],
-    "tools": [create_project, compile_project],
+    "tools": [create_project, compile_project, request_human_guidance],
 }
 
 test_subagent = {
@@ -74,6 +76,7 @@ agent = create_deep_agent(
     subagents=subagents,
     backend=FilesystemBackend(root_dir="agent_workspace", virtual_mode=True),
     tools=[save_architect_design],
+    checkpointer=get_checkpointer(),
 )
 
 graph = agent
