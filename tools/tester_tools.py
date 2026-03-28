@@ -3,406 +3,17 @@ from __future__ import annotations
 import base64
 import json
 import mimetypes
-import os
 import re
-import shutil
-import subprocess
-import sys
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from langchain_core.messages import HumanMessage
 from langchain.tools import tool
-from langgraph.types import interrupt
+from langchain_core.messages import HumanMessage
+
 from models import vision_model
-from utils.session_context import get_current_session_id
-from utils.session_workspace import session_workspace_dir
-
-
-PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
-PROJECT_ROOT = Path(__file__).resolve().parent
-
-TEMPLATE_ROOT = PROJECT_ROOT / "template"
-TEMPLATE_PROJECT_DIR = TEMPLATE_ROOT / "MyApplication"
-INSTALL_DEPENDENCIES_SCRIPT = PROJECT_ROOT / "scripts" / "install_dependencies.sh"
-TEMPLATE_IGNORE_PATTERNS = shutil.ignore_patterns(
-    ".git",
-    ".idea",
-    ".hvigor",
-    "oh_modules",
-    "build",
-    "node_modules",
-    "local.properties",
-    "oh-package-lock.json5",
-    "*.log",
-)
-
-
-def _workspace_root() -> Path:
-    return session_workspace_dir(PROJECT_ROOT, get_current_session_id())
-
-
-def _projects_root() -> Path:
-    return _workspace_root() / "projects"
-
-
-def _architect_design_path() -> Path:
-    return _workspace_root() / "designs" / "architect.json"
-
-
-def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
-    lines = [line.rstrip() for line in output.splitlines() if line.strip()]
-
-    failed_step = None
-    for line in lines:
-        if line.startswith("[compile] FAIL "):
-            failed_step = line[len("[compile] FAIL ") :]
-            break
-
-    error_pattern = re.compile(
-        r"(error|fail|exception|arkts|typescript|module not found|cannot find|syntax)", re.IGNORECASE
-    )
-    error_lines: List[str] = []
-    seen = set()
-    for line in lines:
-        if error_pattern.search(line):
-            normalized = line.strip()
-            if normalized not in seen:
-                seen.add(normalized)
-                error_lines.append(normalized)
-        if len(error_lines) >= 12:
-            break
-
-    tail_lines = lines[-40:] if lines else []
-    status = "SUCCESS" if exit_code == 0 else "FAILED"
-
-    parts = [
-        f"compile_status: {status}",
-        f"project_name: {project_name}",
-        f"project_path: /projects/{project_name}",
-        f"exit_code: {exit_code}",
-    ]
-
-    if failed_step:
-        parts.append(f"failed_step: {failed_step}")
-
-    if error_lines:
-        parts.append("key_errors:")
-        parts.extend(f"- {line}" for line in error_lines)
-    else:
-        parts.append("key_errors:")
-        parts.append("- No concise error line was extracted. Check the recent log tail below.")
-
-    parts.append("recent_log_tail:")
-    if tail_lines:
-        parts.extend(tail_lines)
-    else:
-        parts.append("(no output)")
-
-    return "\n".join(parts)
-
-
-def _load_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _write_json(path: Path, data: dict) -> None:
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-
-
-def _configure_project_metadata(project_name: str, target_dir: Path) -> None:
-    app_json_path = target_dir / "AppScope" / "app.json5"
-    if app_json_path.exists():
-        app_json = _load_json(app_json_path)
-        app_config = app_json.setdefault("app", {})
-        app_config["bundleName"] = f"com.example.{project_name}"
-        _write_json(app_json_path, app_json)
-
-
-def _install_project_dependencies(target_dir: Path) -> tuple[int, str]:
-    result = subprocess.run(
-        ["bash", str(INSTALL_DEPENDENCIES_SCRIPT), str(target_dir)],
-        cwd=target_dir,
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="ignore",
-    )
-    output = "\n".join(part for part in [result.stdout, result.stderr] if part).strip()
-    return result.returncode, output
-
-
-@tool
-def create_project(project_name: str) -> str:
-    """
-    Create a HarmonyOS project by copying from local template.
-    """
-    print("start creating project from template")
-    if not PROJECT_NAME_PATTERN.fullmatch(project_name):
-        return (
-            "项目名不合法。必须以小写字母开头，只能包含小写字母、数字和下划线(_)；长度 1-200。"
-            "合法示例: calculator_app；非法示例: calc-app、my app、计算器、CalculatorApp。"
-        )
-
-    if not TEMPLATE_PROJECT_DIR.exists():
-        return "项目创建失败：未找到模板工程。请确认目录存在：/template/MyApplication"
-
-    projects_root = _projects_root()
-    target_dir = projects_root / project_name
-    if target_dir.exists():
-        return f"项目创建失败：目标目录已存在 /projects/{project_name}。请更换项目名或先清理目录。"
-
-    projects_root.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(TEMPLATE_PROJECT_DIR, target_dir, ignore=TEMPLATE_IGNORE_PATTERNS)
-    _configure_project_metadata(project_name, target_dir)
-
-    install_exit_code, install_output = _install_project_dependencies(target_dir)
-    if install_exit_code != 0:
-        install_tail = "\n".join(install_output.splitlines()[-20:]) if install_output else "(no output)"
-        return (
-            f"项目模板已复制到 /projects/{project_name}，但依赖安装失败。\n"
-            f"install_exit_code: {install_exit_code}\n"
-            "recent_install_log_tail:\n"
-            f"{install_tail}"
-        )
-
-    return (
-        f"项目创建完成，路径为: /projects/{project_name}\n"
-        "create_mode: template-copy\n"
-        "template_source: /template/MyApplication\n"
-        "dependencies: installed with ohpm install --all"
-    )
-
-
-@tool
-def compile_project(project_name: str) -> str:
-    """
-    Compile a HarmonyOS project and return a summarized output.
-    """
-    print("start compiling project by hdc build")
-    project_path = str((_projects_root() / project_name).resolve())
-    result = subprocess.run(
-        ["bash", "scripts/compile.sh", project_path],
-        capture_output=True,
-        text=True,
-        encoding="utf-8",
-        errors="ignore",
-    )
-    combined_output = "\n".join(part for part in [result.stdout, result.stderr] if part)
-    return _summarize_compile_output(
-        project_name=project_name,
-        project_path=project_path,
-        output=combined_output,
-        exit_code=result.returncode,
-    )
-
-
-@tool
-def request_human_guidance(
-    problem_summary: str,
-    recent_errors: str = "",
-    ask: str = "请提供修复建议或额外约束，然后继续。",
-) -> str:
-    """
-    Pause execution for human guidance and continue with the provided input.
-    """
-    payload = {
-        "type": "human_guidance",
-        "problem_summary": str(problem_summary or "").strip(),
-        "recent_errors": str(recent_errors or "").strip(),
-        "ask": str(ask or "").strip() or "请提供修复建议或额外约束，然后继续。",
-    }
-    decision = interrupt(payload)
-
-    if isinstance(decision, dict):
-        for key in ("guidance", "text", "message", "resume", "answer"):
-            value = decision.get(key)
-            if value is not None:
-                return str(value)
-        return json.dumps(decision, ensure_ascii=False)
-
-    if isinstance(decision, str):
-        return decision
-
-    return str(decision)
-
-
-@tool
-def save_architect_design(content: str) -> str:
-    """
-    Save architect structured output JSON to /designs/architect.json.
-    """
-    print("start saving architect design")
-
-    try:
-        parsed = json.loads(content)
-    except json.JSONDecodeError as exc:
-        return f"保存失败：architect 输出不是合法 JSON。错误：{exc}"
-
-    design_path = _architect_design_path()
-    design_path.parent.mkdir(parents=True, exist_ok=True)
-    design_path.write_text(
-        json.dumps(parsed, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    return "architect 设计已保存到 /designs/architect.json"
-
-
-def _run_cmd(cmd: List[str], check: bool = False, timeout: int = 120) -> subprocess.CompletedProcess[str]:
-    try:
-        return subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="ignore",
-            check=check,
-            timeout=timeout,
-        )
-    except FileNotFoundError:
-        # Normalize "command not found" as a process result so tools can return
-        # readable failure details instead of crashing the whole graph.
-        command = cmd[0] if cmd else "<empty>"
-        message = (
-            f"command not found: {command}. "
-            "If you are on WSL and Harmony emulator is on Windows, "
-            "set HDC_WINDOWS_EXE to the full hdc.exe path."
-        )
-        return subprocess.CompletedProcess(args=cmd, returncode=127, stdout="", stderr=message)
-
-
-def _is_wsl() -> bool:
-    if os.name != "posix":
-        return False
-    try:
-        with open("/proc/version", "r", encoding="utf-8", errors="ignore") as fp:
-            version_info = fp.read().lower()
-        return "microsoft" in version_info or "wsl" in version_info
-    except OSError:
-        return False
-
-
-def _to_windows_path_if_needed(path_value: str) -> str:
-    if not _is_wsl():
-        return path_value
-    result = _run_cmd(["wslpath", "-w", str(path_value)], check=False, timeout=10)
-    if result.returncode == 0 and (result.stdout or "").strip():
-        return result.stdout.strip()
-    return path_value
-
-
-def _resolve_hdc_executable() -> str:
-    # Priority:
-    # 1) HDC_EXECUTABLE explicit override
-    # 2) WSL + HDC_WINDOWS_EXE for calling Windows-side hdc.exe
-    # 3) hdc in PATH
-    explicit = str(os.getenv("HDC_EXECUTABLE", "")).strip()
-    if explicit:
-        return explicit
-
-    if _is_wsl():
-        win_hdc = str(os.getenv("HDC_WINDOWS_EXE", "")).strip()
-        if win_hdc:
-            return win_hdc
-
-        # Try common executable names discoverable in WSL PATH.
-        for candidate in ["hdc.exe", "hdc"]:
-            resolved = shutil.which(candidate)
-            if resolved:
-                return resolved
-
-        # Try common DevEco Studio install locations on Windows disks.
-        common_paths = [
-            "/mnt/c/Program Files/Huawei/DevEco Studio/tools/hdc.exe",
-            "/mnt/c/Program Files/Huawei/DevEco Studio/sdk/default/openharmony/toolchains/hdc.exe",
-            "/mnt/c/Program Files/Huawei/DevEco Studio/sdk/default/ohos-sdk/toolchains/hdc.exe",
-            "/mnt/c/Program Files/DevEco Studio/tools/hdc.exe",
-        ]
-        for path in common_paths:
-            if os.path.exists(path):
-                return path
-
-    # Non-WSL or fallback.
-    for candidate in ["hdc", "hdc.exe"]:
-        resolved = shutil.which(candidate)
-        if resolved:
-            return resolved
-
-    return "hdc"
-
-
-def _hdc_uses_windows_binary(hdc_executable: str) -> bool:
-    lowered = hdc_executable.lower()
-    if lowered.endswith(".exe"):
-        return True
-    return bool(_is_wsl() and os.getenv("HDC_WINDOWS_EXE"))
-
-
-def _adapt_hdc_args_for_target(hdc_args: List[str], hdc_executable: str) -> List[str]:
-    adapted = list(hdc_args)
-    if not _hdc_uses_windows_binary(hdc_executable):
-        return adapted
-
-    if len(adapted) >= 4 and adapted[0] == "file" and adapted[1] == "recv":
-        # hdc file recv <remote> <local>
-        adapted[3] = _to_windows_path_if_needed(adapted[3])
-    elif len(adapted) >= 4 and adapted[0] == "file" and adapted[1] == "send":
-        # hdc file send <local> <remote>
-        adapted[2] = _to_windows_path_if_needed(adapted[2])
-    elif len(adapted) >= 2 and adapted[0] == "install":
-        # hdc install <local_hap>
-        for idx in range(1, len(adapted)):
-            value = adapted[idx]
-            if value.startswith("-"):
-                continue
-            if os.path.exists(value):
-                adapted[idx] = _to_windows_path_if_needed(value)
-    return adapted
-
-
-def _run_hdc_cmd(hdc_args: List[str], check: bool = False, timeout: int = 120) -> subprocess.CompletedProcess[str]:
-    hdc_executable = _resolve_hdc_executable()
-    adapted_args = _adapt_hdc_args_for_target(hdc_args, hdc_executable)
-    return _run_cmd([hdc_executable, *adapted_args], check=check, timeout=timeout)
-
-
-def _resolve_workspace_path(raw_path: str) -> Path:
-    raw = str(raw_path or "").strip()
-    workspace_root = _workspace_root()
-    if not raw:
-        return workspace_root
-
-    normalized = raw.replace("\\", "/")
-    if normalized.startswith("/"):
-        return workspace_root / normalized.lstrip("/")
-
-    candidate = Path(raw)
-    if candidate.is_absolute():
-        return candidate
-
-    return PROJECT_ROOT / normalized
-
-
-def _ensure_directory(path: Path) -> Path:
-    path.mkdir(parents=True, exist_ok=True)
-    return path
-
-
-def _format_cmd_result(result: subprocess.CompletedProcess[str]) -> str:
-    stdout = (result.stdout or "").strip()
-    stderr = (result.stderr or "").strip()
-    return "\n".join(
-        [
-            f"exit_code: {result.returncode}",
-            "stdout:",
-            stdout if stdout else "(empty)",
-            "stderr:",
-            stderr if stderr else "(empty)",
-        ]
-    )
-
+from tools.common import ensure_directory, format_cmd_result, projects_root, resolve_workspace_path, run_hdc_cmd
 
 def _encode_image_as_data_url(image_path: Path) -> str:
     mime, _ = mimetypes.guess_type(str(image_path))
@@ -495,7 +106,7 @@ def read_description_baseline(path: str = "/user_input/description.md") -> str:
     Read the product requirement baseline text for tester validation.
     """
     print("start reading description baseline")
-    target_path = _resolve_workspace_path(path)
+    target_path = resolve_workspace_path(path)
     if not target_path.exists():
         return f"description_status: NOT_FOUND\npath: {target_path}"
     if not target_path.is_file():
@@ -525,7 +136,7 @@ def save_tester_report(
     if not text:
         return "status: FAILED\nreason: empty report content"
 
-    base_dir = _ensure_directory(_resolve_workspace_path(output_dir))
+    base_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_name = Path(file_name).name or "tester_report.md"
     if not safe_name.lower().endswith((".md", ".txt", ".json")):
         safe_name = f"{safe_name}.md"
@@ -633,7 +244,7 @@ def build_test_plan_from_inputs(
     Build test plan from description.md only.
     """
     print("start building test plan from description")
-    desc_path = _resolve_workspace_path(description_path)
+    desc_path = resolve_workspace_path(description_path)
     desc_text = desc_path.read_text(encoding="utf-8", errors="ignore") if desc_path.exists() and desc_path.is_file() else ""
     primary_user_text = _extract_primary_user_input_text(desc_text)
 
@@ -686,12 +297,12 @@ def install_harmony_app(
     if not name:
         return "status: FAILED\nreason: project_name is required"
 
-    project_dir = _projects_root() / name
+    project_dir = projects_root() / name
     if not project_dir.exists() or not project_dir.is_dir():
         return f"status: FAILED\nreason: project directory not found: /projects/{name}"
 
     if hap_path:
-        selected_hap = _resolve_workspace_path(hap_path)
+        selected_hap = resolve_workspace_path(hap_path)
     else:
         candidates = [path for path in project_dir.rglob("*.hap") if path.is_file()]
         if not candidates:
@@ -729,13 +340,13 @@ def install_harmony_app(
 
     uninstall_result: Optional[subprocess.CompletedProcess[str]] = None
     if uninstall_first and bundle_name:
-        uninstall_result = _run_hdc_cmd(["uninstall", bundle_name], check=False, timeout=60)
+        uninstall_result = run_hdc_cmd(["uninstall", bundle_name], check=False, timeout=60)
 
     install_args = ["install"]
     if reinstall:
         install_args.append("-r")
     install_args.append(str(selected_hap))
-    install_result = _run_hdc_cmd(install_args, check=False, timeout=180)
+    install_result = run_hdc_cmd(install_args, check=False, timeout=180)
 
     status = "SUCCESS" if install_result.returncode == 0 else "FAILED"
     lines = [
@@ -751,13 +362,13 @@ def install_harmony_app(
         lines.extend(
             [
                 "uninstall_result:",
-                _format_cmd_result(uninstall_result),
+                format_cmd_result(uninstall_result),
             ]
         )
     lines.extend(
         [
             "install_result:",
-            _format_cmd_result(install_result),
+            format_cmd_result(install_result),
         ]
     )
     return "\n".join(lines)
@@ -774,9 +385,9 @@ def start_harmony_app(bundle_name: str, ability_name: str) -> str:
     if not bundle or not ability:
         return "status: FAILED\nreason: bundle_name and ability_name are required"
 
-    stop_result = _run_hdc_cmd(["shell", "aa", "force-stop", bundle], check=False, timeout=30)
+    stop_result = run_hdc_cmd(["shell", "aa", "force-stop", bundle], check=False, timeout=30)
     time.sleep(1)
-    start_result = _run_hdc_cmd(["shell", "aa", "start", "-b", bundle, "-a", ability], check=False, timeout=30)
+    start_result = run_hdc_cmd(["shell", "aa", "start", "-b", bundle, "-a", ability], check=False, timeout=30)
     time.sleep(3)
 
     status = "SUCCESS" if start_result.returncode == 0 else "FAILED"
@@ -786,9 +397,9 @@ def start_harmony_app(bundle_name: str, ability_name: str) -> str:
             f"bundle_name: {bundle}",
             f"ability_name: {ability}",
             "force_stop:",
-            _format_cmd_result(stop_result),
+            format_cmd_result(stop_result),
             "start_result:",
-            _format_cmd_result(start_result),
+            format_cmd_result(start_result),
         ]
     )
 
@@ -803,7 +414,7 @@ def capture_app_screenshot(
     Capture a current device screenshot with hdc and save to tester logs.
     """
     print("start capturing app screenshot from device")
-    base_dir = _ensure_directory(_resolve_workspace_path(output_dir))
+    base_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_name = Path(file_name).name or "app_screen.jpeg"
     if not safe_name.lower().endswith((".jpg", ".jpeg", ".png")):
         safe_name = f"{safe_name}.jpeg"
@@ -814,13 +425,13 @@ def capture_app_screenshot(
     retries = max(1, int(max_retries))
     attempt_logs: List[str] = []
     for attempt in range(1, retries + 1):
-        _run_hdc_cmd(["shell", "rm", "-f", remote_jpeg], check=False, timeout=15)
-        screenshot_result = _run_hdc_cmd(
+        run_hdc_cmd(["shell", "rm", "-f", remote_jpeg], check=False, timeout=15)
+        screenshot_result = run_hdc_cmd(
             ["shell", "snapshot_display", "-f", remote_jpeg],
             check=False,
             timeout=30,
         )
-        recv_result = _run_hdc_cmd(
+        recv_result = run_hdc_cmd(
             ["file", "recv", remote_jpeg, str(local_path)],
             check=False,
             timeout=30,
@@ -830,9 +441,9 @@ def capture_app_screenshot(
                 [
                     f"attempt: {attempt}/{retries}",
                     "snapshot_cmd:",
-                    _format_cmd_result(screenshot_result),
+                    format_cmd_result(screenshot_result),
                     "recv_cmd:",
-                    _format_cmd_result(recv_result),
+                    format_cmd_result(recv_result),
                 ]
             )
         )
@@ -868,7 +479,7 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
     Dump the current app UI layout via hdc uitest and save as formatted JSON.
     """
     print("start dumping app layout")
-    base_dir = _ensure_directory(_resolve_workspace_path(output_dir))
+    base_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_name = Path(file_name).name or "layout.json"
     if not safe_name.lower().endswith(".json"):
         safe_name = f"{safe_name}.json"
@@ -876,12 +487,12 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
     local_path = base_dir / f"{timestamp}_{safe_name}"
     remote_layout = "/data/local/tmp/layout.json"
 
-    dump_result = _run_hdc_cmd(
+    dump_result = run_hdc_cmd(
         ["shell", "uitest", "dumpLayout", "-p", remote_layout],
         check=False,
         timeout=45,
     )
-    recv_result = _run_hdc_cmd(
+    recv_result = run_hdc_cmd(
         ["file", "recv", remote_layout, str(local_path)],
         check=False,
         timeout=45,
@@ -892,9 +503,9 @@ def dump_app_layout(file_name: str = "layout.json", output_dir: str = "/logs/tes
                 "status: FAILED",
                 f"layout_path: {local_path}",
                 "dump_cmd:",
-                _format_cmd_result(dump_result),
+                format_cmd_result(dump_result),
                 "recv_cmd:",
-                _format_cmd_result(recv_result),
+                format_cmd_result(recv_result),
             ]
         )
 
@@ -929,8 +540,8 @@ def collect_reference_and_runtime_screenshots(
     """
     print("start collecting reference and runtime screenshots")
     image_suffixes = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
-    ref_root = _resolve_workspace_path(reference_dir)
-    runtime_root = _resolve_workspace_path(runtime_dir)
+    ref_root = resolve_workspace_path(reference_dir)
+    runtime_root = resolve_workspace_path(runtime_dir)
 
     def _collect_images(root: Path) -> List[Path]:
         if not root.exists():
@@ -977,8 +588,8 @@ def compare_ui_pair_with_mini_agent(
     vision mini-agent prompt, and return similarities / differences.
     """
     print("start comparing ui images with mini agent")
-    ref_path = _resolve_workspace_path(reference_image_path)
-    run_path = _resolve_workspace_path(runtime_image_path)
+    ref_path = resolve_workspace_path(reference_image_path)
+    run_path = resolve_workspace_path(runtime_image_path)
 
     if not ref_path.exists() or not ref_path.is_file():
         return f"status: FAILED\nreason: reference image not found\nreference_image_path: {ref_path}"
@@ -1023,7 +634,7 @@ def compare_ui_pair_with_mini_agent(
     raw_text = _extract_message_text(getattr(response, "content", ""))
     parsed = _extract_json_like_object(raw_text)
 
-    out_dir = _ensure_directory(_resolve_workspace_path(output_dir))
+    out_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_page = re.sub(r"[^a-zA-Z0-9_-]+", "_", page_name.strip()) or "page"
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     analysis_path = out_dir / f"{ts}_{safe_page}_ui_compare.json"
@@ -1169,7 +780,7 @@ def _extract_key_value(output_text: str, key: str) -> str:
 
 
 def _load_layout_from_path(layout_path: str) -> Tuple[Optional[Path], Optional[Dict[str, Any]], Optional[str]]:
-    target = _resolve_workspace_path(layout_path)
+    target = resolve_workspace_path(layout_path)
     if not target.exists():
         return None, None, f"layout not found: {target}"
     if not target.is_file():
@@ -1305,7 +916,7 @@ def click_element(
         )
 
     click_x, click_y = chosen["center"]
-    result = _run_hdc_cmd(
+    result = run_hdc_cmd(
         ["shell", "uitest", "uiInput", "click", str(click_x), str(click_y)],
         check=False,
         timeout=20,
@@ -1326,7 +937,7 @@ def click_element(
             f"click_x: {click_x}",
             f"click_y: {click_y}",
             "cmd_result:",
-            _format_cmd_result(result),
+            format_cmd_result(result),
         ]
     )
 
@@ -1342,7 +953,7 @@ def swipe_screen(
     Swipe on screen using absolute coordinates.
     """
     print("start swiping screen by coordinates")
-    result = _run_hdc_cmd(
+    result = run_hdc_cmd(
         [
             "shell",
             "uitest",
@@ -1363,7 +974,7 @@ def swipe_screen(
             f"start: ({int(start_x)}, {int(start_y)})",
             f"end: ({int(end_x)}, {int(end_y)})",
             "cmd_result:",
-            _format_cmd_result(result),
+            format_cmd_result(result),
         ]
     )
 
@@ -1374,7 +985,7 @@ def press_back() -> str:
     Trigger system back key event.
     """
     print("start pressing back key")
-    result = _run_hdc_cmd(
+    result = run_hdc_cmd(
         ["shell", "uitest", "uiInput", "keyEvent", "Back"],
         check=False,
         timeout=20,
@@ -1385,7 +996,7 @@ def press_back() -> str:
             f"status: {status}",
             "key: Back",
             "cmd_result:",
-            _format_cmd_result(result),
+            format_cmd_result(result),
         ]
     )
 
@@ -1545,3 +1156,39 @@ def assert_state(
     preview = texts[:30]
     lines.extend(f"- {item}" for item in preview or ["- (none)"])
     return "\n".join(lines)
+
+
+TESTER_TOOLS = [
+    read_description_baseline,
+    build_test_plan_from_inputs,
+    install_harmony_app,
+    start_harmony_app,
+    dump_app_layout,
+    click_element,
+    wait_for_ui_stable,
+    assert_state,
+    capture_app_screenshot,
+    press_back,
+    swipe_screen,
+    collect_reference_and_runtime_screenshots,
+    compare_ui_pair_with_mini_agent,
+    save_tester_report,
+]
+
+TESTER_SCRIPT_EXECUTION_TOOLS = [
+    install_harmony_app,
+    start_harmony_app,
+    dump_app_layout,
+    click_element,
+    capture_app_screenshot,
+    press_back,
+    swipe_screen,
+]
+
+
+def tester_tool_names() -> list[str]:
+    return [tool.name for tool in TESTER_TOOLS]
+
+
+def tester_script_execution_tool_names() -> list[str]:
+    return [tool.name for tool in TESTER_SCRIPT_EXECUTION_TOOLS]
