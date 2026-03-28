@@ -33,7 +33,7 @@ architect_subagent = {
     "model": vision_model,
     "system_prompt": load_prompt("architect_system_prompt.md"),
     "response_format": ArchitectOutput,
-    "tools": [],
+    "tools": [request_human_guidance],
 }
 
 coding_subagent = {
@@ -51,6 +51,7 @@ test_subagent = {
     "model": vision_model,
     "system_prompt": load_prompt("tester_system_prompt.md"),
     "tools": [
+        request_human_guidance,
         read_description_baseline,
         build_test_plan_from_inputs,
         install_harmony_app,
@@ -75,7 +76,7 @@ agent = create_deep_agent(
     system_prompt=load_prompt("system_prompt.md"),
     subagents=subagents,
     backend=FilesystemBackend(root_dir="agent_workspace", virtual_mode=True),
-    tools=[save_architect_design],
+    tools=[save_architect_design, request_human_guidance],
     checkpointer=get_checkpointer(),
 )
 

@@ -77,6 +77,8 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage
         USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
         DESCRIPTION_MD_PATH.write_text(content, encoding="utf-8")
 
+    metadata_payload = _load_user_input_metadata_payload()
+    metadata_json = json.dumps(metadata_payload, ensure_ascii=False, indent=2)
     merged = list(msgs)
     for idx in range(len(merged) - 1, -1, -1):
         msg = merged[idx]
@@ -84,6 +86,10 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage
             user_text = _normalize_message_text(msg).strip()
             combined_text = (
                 f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
+                "请重点参考 user_input_metadata.json：该文件记录了上传文件清单、类型和每个文件的描述信息，"
+                "尤其是图片的 description，它是你理解用户意图的重要依据。\n\n"
+                "user_input_metadata.json:\n"
+                f"{metadata_json}\n\n"
                 "以下是用户在主聊天框中的本次输入：\n"
                 f"{user_text or '(empty)'}"
             )
@@ -91,8 +97,14 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage
             merged[idx] = HumanMessage(content=combined_text)
             return merged
 
-    _persist_description_md(USER_INPUT_INSTRUCTION_PREFIX)
-    return [HumanMessage(content=USER_INPUT_INSTRUCTION_PREFIX), *merged]
+    fallback_text = (
+        f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
+        "请重点参考 user_input_metadata.json：该文件记录了上传文件清单、类型和每个文件的描述信息，"
+        "尤其是图片的 description，它是你理解用户意图的重要依据。\n\n"
+        f"user_input_metadata.json:\n{metadata_json}"
+    )
+    _persist_description_md(fallback_text)
+    return [HumanMessage(content=fallback_text), *merged]
 
 
 def _task_interrupts(task: Any) -> list[Any]:
@@ -213,33 +225,72 @@ def _build_tree_node(path: Path, root: Path) -> dict:
     }
 
 
-def _load_user_input_metadata() -> dict:
+def _load_user_input_metadata_payload() -> dict:
     if not USER_INPUT_META_PATH.is_file():
-        return {}
+        return {"files": {}}
 
     try:
-        import json
-
         data = json.loads(USER_INPUT_META_PATH.read_text(encoding="utf-8"))
     except Exception:
-        return {}
+        return {"files": {}}
 
     if not isinstance(data, dict):
-        return {}
+        return {"files": {}}
 
-    descriptions = data.get("descriptions", {})
-    if not isinstance(descriptions, dict):
-        return {}
-    return descriptions
+    raw_files = data.get("files", {})
+    files: dict[str, dict] = {}
+    if isinstance(raw_files, dict):
+        for file_name, raw_meta in raw_files.items():
+            if not isinstance(file_name, str):
+                continue
+            if not isinstance(raw_meta, dict):
+                raw_meta = {}
+            name = str(raw_meta.get("name") or file_name)
+            path = str(raw_meta.get("path") or f"/user_input/{name}")
+            content_type = str(raw_meta.get("content_type") or "")
+            description_raw = raw_meta.get("description")
+            description = None
+            if isinstance(description_raw, str) and description_raw.strip():
+                description = description_raw.strip()
+            files[file_name] = {
+                "name": name,
+                "description": description,
+                "path": path,
+                "content_type": content_type,
+            }
+
+    return {
+        "files": files,
+    }
 
 
-def _save_user_input_metadata(descriptions: dict) -> None:
-    import json
+def _save_user_input_metadata_payload(payload: dict) -> None:
+    raw_files = payload.get("files", {})
+    normalized_files: dict[str, dict] = {}
+    if isinstance(raw_files, dict):
+        for file_name, raw_meta in raw_files.items():
+            if not isinstance(file_name, str):
+                continue
+            if not isinstance(raw_meta, dict):
+                raw_meta = {}
+            name = str(raw_meta.get("name") or file_name)
+            path = str(raw_meta.get("path") or f"/user_input/{name}")
+            content_type = str(raw_meta.get("content_type") or "")
+            description_raw = raw_meta.get("description")
+            description = None
+            if isinstance(description_raw, str) and description_raw.strip():
+                description = description_raw.strip()
+            normalized_files[file_name] = {
+                "name": name,
+                "description": description,
+                "path": path,
+                "content_type": content_type,
+            }
 
-    payload = {"descriptions": descriptions}
+    normalized_payload = {"files": normalized_files}
     USER_INPUT_META_PATH.parent.mkdir(parents=True, exist_ok=True)
     USER_INPUT_META_PATH.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=2),
+        json.dumps(normalized_payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
@@ -251,13 +302,16 @@ async def upload_user_input(
     image_description: str = Form(""),
 ):
     USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    descriptions = _load_user_input_metadata()
+    metadata_payload = _load_user_input_metadata_payload()
+    files_metadata = metadata_payload.get("files", {})
+    if not isinstance(files_metadata, dict):
+        files_metadata = {}
 
     if clear_existing:
         for item in USER_INPUT_DIR.iterdir():
             if item.is_file():
                 item.unlink()
-        descriptions = {}
+        files_metadata = {}
 
     normalized_description = image_description.strip()
 
@@ -285,22 +339,38 @@ async def upload_user_input(
             ".svg",
             ".heic",
         }
-        if is_image and normalized_description:
-            descriptions[target_path.name] = normalized_description
-        elif target_path.name in descriptions:
-            descriptions.pop(target_path.name, None)
 
-        saved_files.append(
-            {
-                "name": target_path.name,
-                "path": f"/user_input/{target_path.name}",
-                "content_type": content_type,
-                "size": target_path.stat().st_size,
-                "description": descriptions.get(target_path.name),
-            }
-        )
+        file_path = f"/user_input/{target_path.name}"
+        description_value = normalized_description if (is_image and normalized_description) else None
+        # Preserve previous description if current upload doesn't provide one.
+        previous_meta = files_metadata.get(target_path.name)
+        if not description_value and isinstance(previous_meta, dict):
+            previous_description = previous_meta.get("description")
+            if isinstance(previous_description, str) and previous_description.strip():
+                description_value = previous_description.strip()
 
-    _save_user_input_metadata(descriptions)
+        metadata_entry = {
+            "name": target_path.name,
+            "description": description_value,
+            "path": file_path,
+            "content_type": content_type,
+        }
+        response_entry = {
+            "name": target_path.name,
+            "path": file_path,
+            "content_type": content_type,
+            "size": target_path.stat().st_size,
+            "description": description_value,
+        }
+
+        saved_files.append(response_entry)
+        files_metadata[target_path.name] = metadata_entry
+
+    _save_user_input_metadata_payload(
+        {
+            "files": files_metadata,
+        }
+    )
 
     return {
         "saved_count": len(saved_files),
@@ -311,20 +381,28 @@ async def upload_user_input(
 @agent_app.endpoint("/user-input/files", methods=["GET"])
 async def list_user_input_files():
     USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    descriptions = _load_user_input_metadata()
+    metadata_payload = _load_user_input_metadata_payload()
+    files_metadata = metadata_payload.get("files", {})
+    if not isinstance(files_metadata, dict):
+        files_metadata = {}
 
     files = []
     for item in sorted(USER_INPUT_DIR.iterdir()):
         if not item.is_file():
             continue
-        files.append(
-            {
-                "name": item.name,
-                "path": f"/user_input/{item.name}",
-                "size": item.stat().st_size,
-                "description": descriptions.get(item.name),
-            }
-        )
+        base_info = {
+            "name": item.name,
+            "path": f"/user_input/{item.name}",
+            "size": item.stat().st_size,
+            "description": None,
+        }
+        existing_meta = files_metadata.get(item.name)
+        if isinstance(existing_meta, dict):
+            merged = dict(existing_meta)
+            merged.update(base_info)
+            files.append(merged)
+        else:
+            files.append(base_info)
 
     return {
         "count": len(files),
@@ -352,10 +430,21 @@ async def delete_user_input_file(file_name: str):
 
     target.unlink()
 
-    descriptions = _load_user_input_metadata()
-    if safe_name in descriptions:
-        descriptions.pop(safe_name, None)
-        _save_user_input_metadata(descriptions)
+    metadata_payload = _load_user_input_metadata_payload()
+    files_metadata = metadata_payload.get("files", {})
+    if not isinstance(files_metadata, dict):
+        files_metadata = {}
+
+    changed = False
+    if safe_name in files_metadata:
+        files_metadata.pop(safe_name, None)
+        changed = True
+    if changed:
+        _save_user_input_metadata_payload(
+            {
+                "files": files_metadata,
+            }
+        )
 
     return {
         "ok": True,
