@@ -19,6 +19,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 AGENT_WORKSPACE_DIR = PROJECT_ROOT / "agent_workspace"
 USER_INPUT_DIR = PROJECT_ROOT / "agent_workspace" / "user_input"
 USER_INPUT_META_PATH = USER_INPUT_DIR / "user_input_metadata.json"
+DESCRIPTION_MD_PATH = USER_INPUT_DIR / "description.md"
 RESET_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "reset_agent_workspace.sh"
 HITL_EVENT_PREFIX = "__HITL_REQUIRED__:"
 USER_INPUT_INSTRUCTION_PREFIX = "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作。"
@@ -72,6 +73,10 @@ def _normalize_message_text(msg: BaseMessage) -> str:
 
 
 def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage]:
+    def _persist_description_md(content: str) -> None:
+        USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+        DESCRIPTION_MD_PATH.write_text(content, encoding="utf-8")
+
     merged = list(msgs)
     for idx in range(len(merged) - 1, -1, -1):
         msg = merged[idx]
@@ -82,9 +87,11 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage
                 "以下是用户在主聊天框中的本次输入：\n"
                 f"{user_text or '(empty)'}"
             )
+            _persist_description_md(combined_text)
             merged[idx] = HumanMessage(content=combined_text)
             return merged
 
+    _persist_description_md(USER_INPUT_INSTRUCTION_PREFIX)
     return [HumanMessage(content=USER_INPUT_INSTRUCTION_PREFIX), *merged]
 
 
