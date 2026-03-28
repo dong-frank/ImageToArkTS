@@ -42,6 +42,108 @@ type HitlEvent = {
   context?: Record<string, unknown>;
 };
 
+type SessionItem = {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+};
+
+type SessionSnapshot = {
+  messages: ChatMessage[];
+  activities: ActivityItem[];
+};
+
+const SESSION_LIST_STORAGE_KEY = "imagetoarkts_sessions_v1";
+const ACTIVE_SESSION_STORAGE_KEY = "imagetoarkts_active_session_v1";
+const SESSION_SNAPSHOT_STORAGE_KEY = "imagetoarkts_session_snapshots_v1";
+
+function createDefaultSession(index = 1): SessionItem {
+  const now = Date.now();
+  return {
+    id: crypto.randomUUID(),
+    title: `新会话 ${index}`,
+    createdAt: now,
+    updatedAt: now,
+  };
+}
+
+function readSessionList(): SessionItem[] {
+  try {
+    const raw = localStorage.getItem(SESSION_LIST_STORAGE_KEY);
+    if (!raw) {
+      return [];
+    }
+    const parsed = JSON.parse(raw) as SessionItem[];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+    return parsed
+      .filter((item) => item && typeof item.id === "string" && item.id.trim().length > 0)
+      .map((item, idx) => {
+        const now = Date.now();
+        return {
+          id: item.id,
+          title: typeof item.title === "string" && item.title.trim() ? item.title.trim() : `会话 ${idx + 1}`,
+          createdAt: Number.isFinite(item.createdAt) ? item.createdAt : now,
+          updatedAt: Number.isFinite(item.updatedAt) ? item.updatedAt : now,
+        };
+      });
+  } catch {
+    return [];
+  }
+}
+
+function persistSessionList(items: SessionItem[]): void {
+  localStorage.setItem(SESSION_LIST_STORAGE_KEY, JSON.stringify(items));
+}
+
+function readActiveSessionId(candidates: SessionItem[]): string {
+  const saved = localStorage.getItem(ACTIVE_SESSION_STORAGE_KEY);
+  if (saved && candidates.some((item) => item.id === saved)) {
+    return saved;
+  }
+  return candidates[0]?.id ?? createDefaultSession().id;
+}
+
+function persistActiveSessionId(sessionId: string): void {
+  localStorage.setItem(ACTIVE_SESSION_STORAGE_KEY, sessionId);
+}
+
+function readSessionSnapshots(): Record<string, SessionSnapshot> {
+  try {
+    const raw = localStorage.getItem(SESSION_SNAPSHOT_STORAGE_KEY);
+    if (!raw) {
+      return {};
+    }
+    const parsed = JSON.parse(raw) as Record<string, SessionSnapshot>;
+    if (!parsed || typeof parsed !== "object") {
+      return {};
+    }
+    return parsed;
+  } catch {
+    return {};
+  }
+}
+
+function readSnapshotForSession(sessionId: string): SessionSnapshot | null {
+  const snapshots = readSessionSnapshots();
+  const snapshot = snapshots[sessionId];
+  if (!snapshot) {
+    return null;
+  }
+  return {
+    messages: Array.isArray(snapshot.messages) ? snapshot.messages : [],
+    activities: Array.isArray(snapshot.activities) ? snapshot.activities : [],
+  };
+}
+
+function persistSnapshotForSession(sessionId: string, snapshot: SessionSnapshot): void {
+  const snapshots = readSessionSnapshots();
+  snapshots[sessionId] = snapshot;
+  localStorage.setItem(SESSION_SNAPSHOT_STORAGE_KEY, JSON.stringify(snapshots));
+}
+
 function formatBytes(size: number): string {
   if (size < 1024) {
     return `${size} B`;
@@ -214,7 +316,18 @@ function parseHitlEvent(text: string): HitlEvent | null {
 }
 
 export default function App() {
-  const [sessionId] = useState(() => crypto.randomUUID());
+  const [sessions, setSessions] = useState<SessionItem[]>(() => {
+    const stored = readSessionList();
+    if (stored.length > 0) {
+      return stored;
+    }
+    return [createDefaultSession(1)];
+  });
+  const [sessionId, setSessionId] = useState(() => {
+    const stored = readSessionList();
+    const candidates = stored.length > 0 ? stored : [createDefaultSession(1)];
+    return readActiveSessionId(candidates);
+  });
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [files, setFiles] = useState<UploadedFile[]>([]);
@@ -242,9 +355,46 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
+    const exists = sessions.some((item) => item.id === sessionId);
+    if (!exists && sessions.length > 0) {
+      setSessionId(sessions[0].id);
+    }
+  }, [sessions, sessionId]);
+
+  useEffect(() => {
+    persistSessionList(sessions);
+  }, [sessions]);
+
+  useEffect(() => {
+    persistActiveSessionId(sessionId);
+  }, [sessionId]);
+
+  useEffect(() => {
+    const snapshot = readSnapshotForSession(sessionId);
+    setMessages(snapshot?.messages ?? []);
+    setActivities(snapshot?.activities ?? []);
+    setInput("");
+    setError(null);
+    setHitlPending(false);
+    setHitlPrompt("");
+    setHitlContextText("");
+    setHitlInput("");
+    currentRunIdRef.current = null;
+    latestAssistantMessageIdRef.current = null;
+    runToMessageIdRef.current = {};
+    messageToRunIdRef.current = {};
     void refreshFiles();
     void refreshWorkspaceTree();
-  }, []);
+  }, [sessionId]);
+
+  useEffect(() => {
+    persistSnapshotForSession(sessionId, { messages, activities });
+    setSessions((current) =>
+      current.map((item) =>
+        item.id === sessionId ? { ...item, updatedAt: Date.now() } : item
+      )
+    );
+  }, [activities, messages, sessionId]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -268,11 +418,46 @@ export default function App() {
     }
   }
 
+  function handleCreateSession() {
+    setSessions((current) => {
+      const next = [createDefaultSession(current.length + 1), ...current];
+      setSessionId(next[0].id);
+      return next;
+    });
+  }
+
+  function handleSwitchSession(nextSessionId: string) {
+    if (!nextSessionId || nextSessionId === sessionId) {
+      return;
+    }
+    setSessionId(nextSessionId);
+  }
+
+  function maybeRenameSessionFromUserInput(text: string) {
+    const cleaned = text.trim();
+    if (!cleaned) {
+      return;
+    }
+    const title = cleaned.length > 24 ? `${cleaned.slice(0, 24)}...` : cleaned;
+    setSessions((current) =>
+      current.map((item) => {
+        if (item.id !== sessionId) {
+          return item;
+        }
+        if (!item.title.startsWith("新会话")) {
+          return { ...item, updatedAt: Date.now() };
+        }
+        return { ...item, title, updatedAt: Date.now() };
+      })
+    );
+  }
+
   async function uploadFiles(filesToUpload: File[], description = "") {
     const formData = new FormData();
     for (const file of filesToUpload) {
       formData.append("files", file);
     }
+    formData.append("session_id", sessionId);
     if (description.trim()) {
       formData.append("image_description", description.trim());
     }
@@ -287,7 +472,9 @@ export default function App() {
   }
 
   async function refreshFiles() {
-    const response = await fetch(`${API_BASE}/user-input/files`);
+    const response = await fetch(
+      `${API_BASE}/user-input/files?session_id=${encodeURIComponent(sessionId)}`
+    );
     if (!response.ok) {
       throw new Error(`Failed to list files: ${response.status}`);
     }
@@ -296,7 +483,9 @@ export default function App() {
   }
 
   async function refreshWorkspaceTree() {
-    const response = await fetch(`${API_BASE}/workspace/tree`);
+    const response = await fetch(
+      `${API_BASE}/workspace/tree?session_id=${encodeURIComponent(sessionId)}`
+    );
     if (!response.ok) {
       throw new Error(`Failed to load workspace tree: ${response.status}`);
     }
@@ -424,6 +613,11 @@ export default function App() {
     try {
       const response = await fetch(`${API_BASE}/reset`, {
         method: "POST",
+        body: (() => {
+          const formData = new FormData();
+          formData.append("session_id", sessionId);
+          return formData;
+        })(),
       });
       const data = (await response.json()) as {
         ok?: boolean;
@@ -472,7 +666,7 @@ export default function App() {
     setError(null);
     try {
       const response = await fetch(
-        `${API_BASE}/user-input/files/${encodeURIComponent(fileName)}`,
+        `${API_BASE}/user-input/files/${encodeURIComponent(fileName)}?session_id=${encodeURIComponent(sessionId)}`,
         {
           method: "DELETE",
         }
@@ -545,6 +739,7 @@ export default function App() {
     };
 
     setMessages((current) => [...current, userMessage]);
+    maybeRenameSessionFromUserInput(text);
     setInput("");
     setError(null);
     setHitlPending(false);
@@ -1101,9 +1296,27 @@ export default function App() {
 
       <section className="chat-panel">
         <header className="chat-header">
-          <div>
+          <div className="session-header-main">
             <div className="panel-label">Conversation</div>
-            <h2>Session {sessionId.slice(0, 8)}</h2>
+            <h2>{sessions.find((item) => item.id === sessionId)?.title ?? `Session ${sessionId.slice(0, 8)}`}</h2>
+            <div className="session-controls">
+              <select
+                value={sessionId}
+                onChange={(event) => handleSwitchSession(event.target.value)}
+              >
+                {sessions
+                  .slice()
+                  .sort((a, b) => b.updatedAt - a.updatedAt)
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.title} · {item.id.slice(0, 8)}
+                    </option>
+                  ))}
+              </select>
+              <button className="secondary-button" type="button" onClick={handleCreateSession}>
+                新建会话
+              </button>
+            </div>
           </div>
           <div className="header-chip">
             {isSending ? "Agent Running" : hitlPending ? "Waiting Human" : "Ready"}

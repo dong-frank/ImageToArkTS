@@ -17,15 +17,12 @@ from langchain_core.messages import HumanMessage
 from langchain.tools import tool
 from langgraph.types import interrupt
 from models import vision_model
+from utils.session_context import get_current_session_id
+from utils.session_workspace import session_workspace_dir
 
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
 PROJECT_ROOT = Path(__file__).resolve().parent
-AGENT_WORKSPACE_ROOT = PROJECT_ROOT / "agent_workspace"
-ARCHITECT_DESIGN_PATH = AGENT_WORKSPACE_ROOT / "designs" / "architect.json"
-PROJECTS_ROOT = AGENT_WORKSPACE_ROOT / "projects"
-LOGS_ROOT = AGENT_WORKSPACE_ROOT / "logs"
-TESTER_LOGS_ROOT = LOGS_ROOT / "tester"
 
 TEMPLATE_ROOT = PROJECT_ROOT / "template"
 TEMPLATE_PROJECT_DIR = TEMPLATE_ROOT / "MyApplication"
@@ -41,6 +38,18 @@ TEMPLATE_IGNORE_PATTERNS = shutil.ignore_patterns(
     "oh-package-lock.json5",
     "*.log",
 )
+
+
+def _workspace_root() -> Path:
+    return session_workspace_dir(PROJECT_ROOT, get_current_session_id())
+
+
+def _projects_root() -> Path:
+    return _workspace_root() / "projects"
+
+
+def _architect_design_path() -> Path:
+    return _workspace_root() / "designs" / "architect.json"
 
 
 def _summarize_compile_output(project_name: str, project_path: str, output: str, exit_code: int) -> str:
@@ -140,11 +149,12 @@ def create_project(project_name: str) -> str:
     if not TEMPLATE_PROJECT_DIR.exists():
         return "项目创建失败：未找到模板工程。请确认目录存在：/template/MyApplication"
 
-    target_dir = PROJECTS_ROOT / project_name
+    projects_root = _projects_root()
+    target_dir = projects_root / project_name
     if target_dir.exists():
         return f"项目创建失败：目标目录已存在 /projects/{project_name}。请更换项目名或先清理目录。"
 
-    PROJECTS_ROOT.mkdir(parents=True, exist_ok=True)
+    projects_root.mkdir(parents=True, exist_ok=True)
     shutil.copytree(TEMPLATE_PROJECT_DIR, target_dir, ignore=TEMPLATE_IGNORE_PATTERNS)
     _configure_project_metadata(project_name, target_dir)
 
@@ -172,7 +182,7 @@ def compile_project(project_name: str) -> str:
     Compile a HarmonyOS project and return a summarized output.
     """
     print("start compiling project by hdc build")
-    project_path = f"agent_workspace/projects/{project_name}"
+    project_path = str((_projects_root() / project_name).resolve())
     result = subprocess.run(
         ["bash", "scripts/compile.sh", project_path],
         capture_output=True,
@@ -231,8 +241,9 @@ def save_architect_design(content: str) -> str:
     except json.JSONDecodeError as exc:
         return f"保存失败：architect 输出不是合法 JSON。错误：{exc}"
 
-    ARCHITECT_DESIGN_PATH.parent.mkdir(parents=True, exist_ok=True)
-    ARCHITECT_DESIGN_PATH.write_text(
+    design_path = _architect_design_path()
+    design_path.parent.mkdir(parents=True, exist_ok=True)
+    design_path.write_text(
         json.dumps(parsed, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
@@ -359,12 +370,13 @@ def _run_hdc_cmd(hdc_args: List[str], check: bool = False, timeout: int = 120) -
 
 def _resolve_workspace_path(raw_path: str) -> Path:
     raw = str(raw_path or "").strip()
+    workspace_root = _workspace_root()
     if not raw:
-        return AGENT_WORKSPACE_ROOT
+        return workspace_root
 
     normalized = raw.replace("\\", "/")
     if normalized.startswith("/"):
-        return AGENT_WORKSPACE_ROOT / normalized.lstrip("/")
+        return workspace_root / normalized.lstrip("/")
 
     candidate = Path(raw)
     if candidate.is_absolute():
@@ -674,7 +686,7 @@ def install_harmony_app(
     if not name:
         return "status: FAILED\nreason: project_name is required"
 
-    project_dir = PROJECTS_ROOT / name
+    project_dir = _projects_root() / name
     if not project_dir.exists() or not project_dir.is_dir():
         return f"status: FAILED\nreason: project directory not found: /projects/{name}"
 

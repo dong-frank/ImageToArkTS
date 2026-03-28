@@ -70,3 +70,22 @@ npm run dev
 
 - 后端：`http://127.0.0.1:8080`
 - 前端：`http://127.0.0.1:5173`
+
+## Session 隔离（本地）
+
+默认使用本地文件系统隔离，不需要额外云端沙箱配置。
+
+```env
+# 可选，默认即 filesystem
+SANDBOX_PROVIDER=filesystem
+```
+
+启动应用：
+
+```bash
+uv run python runtime.py
+```
+
+前端每个 `session_id` 会映射到独立本地目录：
+
+`agent_workspace/sessions/<session_id>/...`
