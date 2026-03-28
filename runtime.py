@@ -14,12 +14,19 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage
 from langgraph.types import Command
 
 from agent import graph
+from utils.session_backend import sync_backend_outputs_to_local, sync_local_user_input_to_backend
+from utils.session_context import reset_current_session_id, set_current_session_id
+from utils.session_workspace import (
+    DEFAULT_SESSION_ID,
+    normalize_session_id,
+    session_description_md_path,
+    session_user_input_dir,
+    session_user_input_meta_path,
+    session_workspace_dir,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent
 AGENT_WORKSPACE_DIR = PROJECT_ROOT / "agent_workspace"
-USER_INPUT_DIR = PROJECT_ROOT / "agent_workspace" / "user_input"
-USER_INPUT_META_PATH = USER_INPUT_DIR / "user_input_metadata.json"
-DESCRIPTION_MD_PATH = USER_INPUT_DIR / "description.md"
 RESET_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "reset_agent_workspace.sh"
 HITL_EVENT_PREFIX = "__HITL_REQUIRED__:"
 USER_INPUT_INSTRUCTION_PREFIX = "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作。"
@@ -31,7 +38,7 @@ async def lifespan(app):
     if getattr(app, "_runner", None) is not None:
         app._runner.agent = graph
     AGENT_WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
-    USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+    session_user_input_dir(PROJECT_ROOT, DEFAULT_SESSION_ID).mkdir(parents=True, exist_ok=True)
     yield
 
 
@@ -54,6 +61,10 @@ def _extract_resume_value(request: AgentRequest | None) -> Any:
     return None
 
 
+def _resolve_session_id(raw: str | None) -> str:
+    return normalize_session_id(raw)
+
+
 def _normalize_message_text(msg: BaseMessage) -> str:
     content = getattr(msg, "content", "")
     if isinstance(content, str):
@@ -72,12 +83,14 @@ def _normalize_message_text(msg: BaseMessage) -> str:
     return str(content or "")
 
 
-def _prepend_user_input_instruction(msgs: List[BaseMessage]) -> List[BaseMessage]:
+def _prepend_user_input_instruction(msgs: List[BaseMessage], session_id: str) -> List[BaseMessage]:
     def _persist_description_md(content: str) -> None:
-        USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-        DESCRIPTION_MD_PATH.write_text(content, encoding="utf-8")
+        user_input_dir = session_user_input_dir(PROJECT_ROOT, session_id)
+        description_path = session_description_md_path(PROJECT_ROOT, session_id)
+        user_input_dir.mkdir(parents=True, exist_ok=True)
+        description_path.write_text(content, encoding="utf-8")
 
-    metadata_payload = _load_user_input_metadata_payload()
+    metadata_payload = _load_user_input_metadata_payload(session_id)
     metadata_json = json.dumps(metadata_payload, ensure_ascii=False, indent=2)
     merged = list(msgs)
     for idx in range(len(merged) - 1, -1, -1):
@@ -167,33 +180,37 @@ async def query_func(
     **kwargs,
 ) -> AsyncIterator[tuple[BaseMessage, bool]]:
     runtime_agent = getattr(self, "agent", graph)
-    config = None
-    if request and request.session_id:
-        config = {"configurable": {"thread_id": request.session_id}}
+    session_id = _resolve_session_id(getattr(request, "session_id", None))
+    config = {"configurable": {"thread_id": session_id}}
+    session_token = set_current_session_id(session_id)
     resume_value = _extract_resume_value(request)
     graph_input: Any = Command(resume=resume_value) if resume_value is not None else {"messages": msgs}
     if resume_value is None:
-        graph_input = {"messages": _prepend_user_input_instruction(msgs)}
-
-    for chunk, _meta_data in runtime_agent.stream(
-        input=graph_input,
-        stream_mode="messages",
-        config=config,
-    ):
-        is_last_chunk = bool(getattr(chunk, "chunk_position", "") == "last")
-        if chunk is None:
-            continue
-        if not getattr(chunk, "content", None):
-            if is_last_chunk:
-                yield chunk, True
+        graph_input = {"messages": _prepend_user_input_instruction(msgs, session_id)}
+    sync_local_user_input_to_backend(session_id)
+    try:
+        for chunk, _meta_data in runtime_agent.stream(
+            input=graph_input,
+            stream_mode="messages",
+            config=config,
+        ):
+            is_last_chunk = bool(getattr(chunk, "chunk_position", "") == "last")
+            if chunk is None:
                 continue
-            continue
-        yield chunk, is_last_chunk
+            if not getattr(chunk, "content", None):
+                if is_last_chunk:
+                    yield chunk, True
+                    continue
+                continue
+            yield chunk, is_last_chunk
 
-    pending_hitl = await _extract_pending_hitl_event(runtime_agent, config)
-    if pending_hitl:
-        payload = f"{HITL_EVENT_PREFIX}{json.dumps(pending_hitl, ensure_ascii=False)}"
-        yield AIMessage(content=payload), True
+        pending_hitl = await _extract_pending_hitl_event(runtime_agent, config)
+        if pending_hitl:
+            payload = f"{HITL_EVENT_PREFIX}{json.dumps(pending_hitl, ensure_ascii=False)}"
+            yield AIMessage(content=payload), True
+    finally:
+        sync_backend_outputs_to_local(session_id)
+        reset_current_session_id(session_token)
 
 
 def _sanitize_filename(filename: str | None) -> str:
@@ -225,12 +242,13 @@ def _build_tree_node(path: Path, root: Path) -> dict:
     }
 
 
-def _load_user_input_metadata_payload() -> dict:
-    if not USER_INPUT_META_PATH.is_file():
+def _load_user_input_metadata_payload(session_id: str) -> dict:
+    metadata_path = session_user_input_meta_path(PROJECT_ROOT, session_id)
+    if not metadata_path.is_file():
         return {"files": {}}
 
     try:
-        data = json.loads(USER_INPUT_META_PATH.read_text(encoding="utf-8"))
+        data = json.loads(metadata_path.read_text(encoding="utf-8"))
     except Exception:
         return {"files": {}}
 
@@ -264,7 +282,7 @@ def _load_user_input_metadata_payload() -> dict:
     }
 
 
-def _save_user_input_metadata_payload(payload: dict) -> None:
+def _save_user_input_metadata_payload(session_id: str, payload: dict) -> None:
     raw_files = payload.get("files", {})
     normalized_files: dict[str, dict] = {}
     if isinstance(raw_files, dict):
@@ -288,8 +306,9 @@ def _save_user_input_metadata_payload(payload: dict) -> None:
             }
 
     normalized_payload = {"files": normalized_files}
-    USER_INPUT_META_PATH.parent.mkdir(parents=True, exist_ok=True)
-    USER_INPUT_META_PATH.write_text(
+    metadata_path = session_user_input_meta_path(PROJECT_ROOT, session_id)
+    metadata_path.parent.mkdir(parents=True, exist_ok=True)
+    metadata_path.write_text(
         json.dumps(normalized_payload, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
@@ -300,15 +319,18 @@ async def upload_user_input(
     files: List[UploadFile] = File(...),
     clear_existing: bool = Form(False),
     image_description: str = Form(""),
+    session_id: str = Form(DEFAULT_SESSION_ID),
 ):
-    USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    metadata_payload = _load_user_input_metadata_payload()
+    normalized_session_id = _resolve_session_id(session_id)
+    user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
+    user_input_dir.mkdir(parents=True, exist_ok=True)
+    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
 
     if clear_existing:
-        for item in USER_INPUT_DIR.iterdir():
+        for item in user_input_dir.iterdir():
             if item.is_file():
                 item.unlink()
         files_metadata = {}
@@ -318,12 +340,12 @@ async def upload_user_input(
     saved_files = []
     for upload in files:
         safe_name = _sanitize_filename(upload.filename)
-        target_path = USER_INPUT_DIR / safe_name
+        target_path = user_input_dir / safe_name
 
         if target_path.exists():
             stem = target_path.stem
             suffix = target_path.suffix
-            target_path = USER_INPUT_DIR / f"{stem}_{uuid4().hex[:8]}{suffix}"
+            target_path = user_input_dir / f"{stem}_{uuid4().hex[:8]}{suffix}"
 
         with target_path.open("wb") as output:
             shutil.copyfileobj(upload.file, output)
@@ -367,6 +389,7 @@ async def upload_user_input(
         files_metadata[target_path.name] = metadata_entry
 
     _save_user_input_metadata_payload(
+        normalized_session_id,
         {
             "files": files_metadata,
         }
@@ -379,15 +402,17 @@ async def upload_user_input(
 
 
 @agent_app.endpoint("/user-input/files", methods=["GET"])
-async def list_user_input_files():
-    USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
-    metadata_payload = _load_user_input_metadata_payload()
+async def list_user_input_files(session_id: str = DEFAULT_SESSION_ID):
+    normalized_session_id = _resolve_session_id(session_id)
+    user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
+    user_input_dir.mkdir(parents=True, exist_ok=True)
+    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
 
     files = []
-    for item in sorted(USER_INPUT_DIR.iterdir()):
+    for item in sorted(user_input_dir.iterdir()):
         if not item.is_file():
             continue
         base_info = {
@@ -411,8 +436,10 @@ async def list_user_input_files():
 
 
 @agent_app.endpoint("/user-input/files/{file_name}", methods=["DELETE"])
-async def delete_user_input_file(file_name: str):
-    USER_INPUT_DIR.mkdir(parents=True, exist_ok=True)
+async def delete_user_input_file(file_name: str, session_id: str = DEFAULT_SESSION_ID):
+    normalized_session_id = _resolve_session_id(session_id)
+    user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
+    user_input_dir.mkdir(parents=True, exist_ok=True)
 
     safe_name = Path(file_name).name
     if safe_name != file_name:
@@ -421,7 +448,7 @@ async def delete_user_input_file(file_name: str):
             content={"ok": False, "error": "Invalid file name"},
         )
 
-    target = USER_INPUT_DIR / safe_name
+    target = user_input_dir / safe_name
     if not target.is_file():
         return JSONResponse(
             status_code=404,
@@ -430,7 +457,7 @@ async def delete_user_input_file(file_name: str):
 
     target.unlink()
 
-    metadata_payload = _load_user_input_metadata_payload()
+    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
@@ -441,6 +468,7 @@ async def delete_user_input_file(file_name: str):
         changed = True
     if changed:
         _save_user_input_metadata_payload(
+            normalized_session_id,
             {
                 "files": files_metadata,
             }
@@ -453,16 +481,30 @@ async def delete_user_input_file(file_name: str):
 
 
 @agent_app.endpoint("/workspace/tree", methods=["GET"])
-async def get_workspace_tree():
-    AGENT_WORKSPACE_DIR.mkdir(parents=True, exist_ok=True)
-    tree = _build_tree_node(AGENT_WORKSPACE_DIR, AGENT_WORKSPACE_DIR)
+async def get_workspace_tree(session_id: str = DEFAULT_SESSION_ID):
+    session_dir = session_workspace_dir(PROJECT_ROOT, _resolve_session_id(session_id))
+    session_dir.mkdir(parents=True, exist_ok=True)
+    tree = _build_tree_node(session_dir, session_dir)
     return {
         "root": tree,
     }
 
 
 @agent_app.endpoint("/reset", methods=["POST"])
-async def reset_agent_workspace():
+async def reset_agent_workspace(session_id: str = Form(DEFAULT_SESSION_ID)):
+    normalized_session_id = _resolve_session_id(session_id)
+    if normalized_session_id != DEFAULT_SESSION_ID:
+        session_dir = session_workspace_dir(PROJECT_ROOT, normalized_session_id)
+        if session_dir.exists():
+            shutil.rmtree(session_dir)
+        session_user_input_dir(PROJECT_ROOT, normalized_session_id).mkdir(parents=True, exist_ok=True)
+        return {
+            "ok": True,
+            "code": 0,
+            "stdout": f"Session workspace reset: {normalized_session_id}",
+            "stderr": "",
+        }
+
     if not RESET_SCRIPT_PATH.is_file():
         return JSONResponse(
             status_code=500,

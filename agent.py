@@ -1,5 +1,4 @@
 from deepagents import create_deep_agent
-from deepagents.backends import FilesystemBackend
 
 from models import base_model, vision_model
 from schemas import ArchitectOutput
@@ -24,6 +23,7 @@ from tools import (
     wait_for_ui_stable,
 )
 from utils.checkpointing import get_checkpointer
+from utils.session_backend import backend_factory
 from utils.utils import load_prompt
 
 
@@ -75,7 +75,7 @@ agent = create_deep_agent(
     model=base_model,
     system_prompt=load_prompt("system_prompt.md"),
     subagents=subagents,
-    backend=FilesystemBackend(root_dir="agent_workspace", virtual_mode=True),
+    backend=backend_factory,
     tools=[save_architect_design, request_human_guidance],
     checkpointer=get_checkpointer(),
 )

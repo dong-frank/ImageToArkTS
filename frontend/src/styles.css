@@ -348,6 +348,27 @@ input {
   padding: 18px 20px;
 }
 
+.session-header-main {
+  min-width: 0;
+}
+
+.session-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.session-controls select {
+  min-width: 260px;
+  max-width: 420px;
+  border: 1px solid rgba(19, 34, 56, 0.16);
+  border-radius: 10px;
+  background: #fff;
+  color: #203247;
+  padding: 8px 10px;
+}
+
 .header-chip {
   border-radius: 999px;
   padding: 8px 12px;
@@ -519,6 +540,24 @@ input {
 
   .workspace-tree {
     max-height: 320px;
+  }
+
+  .chat-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .session-controls {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .session-controls select {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
   }
 
   .dialog-actions {
