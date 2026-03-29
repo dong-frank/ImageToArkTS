@@ -1,0 +1,65 @@
+FROM python:3.11-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    UV_SYSTEM_PYTHON=1 \
+    COMMANDLINE_TOOL_DIR=/opt \
+    NODE_HOME=/opt/command-line-tools/tool/node \
+    HDC_HOME=/opt/command-line-tools/sdk/default/openharmony/toolchains \
+    PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/command-line-tools/tool/node/bin:/opt/command-line-tools/sdk/default/openharmony/toolchains
+
+WORKDIR /app
+
+RUN set -eux; \
+    for i in 1 2 3; do \
+      apt-get update && \
+      apt-get install -y --no-install-recommends --fix-missing \
+        -o Acquire::Retries=5 \
+        -o Acquire::http::Timeout=30 \
+        -o Acquire::https::Timeout=30 \
+        bash \
+        ca-certificates \
+        curl \
+        git \
+        libatomic1 \
+        openjdk-17-jdk \
+        unzip && break; \
+      echo "apt install failed (attempt ${i}), retrying..."; \
+      sleep 5; \
+    done; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir uv
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen
+
+COPY . .
+
+RUN set -eux; \
+    mkdir -p "${COMMANDLINE_TOOL_DIR}"; \
+    LOCAL_ZIP="$(find /app/docker/harmony -maxdepth 1 -type f -name 'commandline-tools-linux-x64-*.zip' | sort | head -n1 || true)"; \
+    test -n "${LOCAL_ZIP}"; \
+    test -f "${LOCAL_ZIP}"; \
+    echo "Using cached Harmony command line tools: ${LOCAL_ZIP}"; \
+    unzip -q "${LOCAL_ZIP}" -d "${COMMANDLINE_TOOL_DIR}"; \
+    test -f "${COMMANDLINE_TOOL_DIR}/command-line-tools/bin/ohpm"; \
+    test -f "${COMMANDLINE_TOOL_DIR}/command-line-tools/bin/hvigorw"; \
+    test -f "${COMMANDLINE_TOOL_DIR}/command-line-tools/sdk/default/openharmony/toolchains/hdc"; \
+    printf '%s\n' '#!/usr/bin/env bash' 'set -euo pipefail' 'exec /opt/command-line-tools/bin/ohpm "$@"' > /usr/local/bin/ohpm; \
+    printf '%s\n' '#!/usr/bin/env bash' 'set -euo pipefail' 'exec /opt/command-line-tools/bin/hvigorw "$@"' > /usr/local/bin/hvigorw; \
+    chmod +x /usr/local/bin/ohpm /usr/local/bin/hvigorw "${COMMANDLINE_TOOL_DIR}/command-line-tools/sdk/default/openharmony/toolchains/hdc"; \
+    node -v; \
+    npm config set registry https://repo.huaweicloud.com/repository/npm/; \
+    npm config set "@ohos:registry" https://repo.harmonyos.com/npm/; \
+    rm -f /app/docker/harmony/commandline-tools-linux-x64-*.zip; \
+    echo "Installed Harmony tools from cached command line tools package."
+
+RUN chmod +x scripts/compile.sh scripts/install_dependencies.sh
+RUN chmod +x docker/runtime/entrypoint.sh
+
+EXPOSE 8080
+
+ENTRYPOINT ["docker/runtime/entrypoint.sh"]
+CMD ["uv", "run", "python", "runtime.py"]

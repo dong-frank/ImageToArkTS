@@ -1,0 +1,27 @@
+services:
+  runtime:
+    container_name: imagetoarkts-runtime
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: Dockerfile.runtime
+    image: dongfrank1524/imagetoarkts-runtime:latest
+    env_file:
+      - .env
+    environment:
+      HDC_AUTO_TCONN: ${HDC_AUTO_TCONN:-1}
+      HDC_TCP_TARGET: ${HDC_TCP_TARGET:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - runtime_agent_workspace:/app/agent_workspace
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:8080/workspace/tree"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+volumes:
+  runtime_agent_workspace:

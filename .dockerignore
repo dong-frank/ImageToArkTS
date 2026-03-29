@@ -1,0 +1,9 @@
+.git
+.gitignore
+.DS_Store
+.env
+__pycache__/
+.pycache_tmp/
+.venv/
+frontend/
+agent_workspace_copy/
