@@ -1,0 +1,79 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	task_dispatch{{task dispatch}}
+	tools -.-> task_dispatch;
+	main_tools_meta["main tools: write_todos, ls, read_file, write_file<br/>edit_file, glob, grep, execute<br/>task, save_architect_design, request_human_guidance"]
+	tools -.-> main_tools_meta;
+	main_model_meta["main model: qwen3.5-plus"]
+	model -.-> main_model_meta;
+	subgraph cluster_subagent_general_purpose["general-purpose"]
+		subagent_general_purpose["general-purpose"]
+		subagent_general_purpose_tools["tools: write_todos, ls, read_file, write_file<br/>edit_file, glob, grep, execute<br/>task, save_architect_design, request_human_guidance"]
+		subagent_general_purpose -.-> subagent_general_purpose_tools;
+		subagent_general_purpose_model["model: qwen3.5-plus"]
+		subagent_general_purpose -.-> subagent_general_purpose_model;
+	end
+	task_dispatch -.-> subagent_general_purpose;
+	subagent_general_purpose -.-> model;
+	subgraph cluster_subagent_architect["architect"]
+		subagent_architect["architect"]
+		subagent_architect_tools["tools: request_human_guidance"]
+		subagent_architect -.-> subagent_architect_tools;
+		subagent_architect_model["model: qwen3-vl-plus"]
+		subagent_architect -.-> subagent_architect_model;
+	end
+	task_dispatch -.-> subagent_architect;
+	subagent_architect -.-> model;
+	subgraph cluster_subagent_coder["coder"]
+		subagent_coder["coder"]
+		subagent_coder_tools["tools: create_project, compile_project, request_human_guidance"]
+		subagent_coder -.-> subagent_coder_tools;
+		subagent_coder_model["model: qwen3.5-plus"]
+		subagent_coder -.-> subagent_coder_model;
+		subagent_coder_skills["skills: arkts-syntax-assistant, harmony-multi-page-setup, harmony-project-layout"]
+		subagent_coder -.-> subagent_coder_skills;
+	end
+	task_dispatch -.-> subagent_coder;
+	subagent_coder -.-> model;
+	subgraph cluster_subagent_tester["tester"]
+		subagent_tester["tester"]
+		subagent_tester_tools["tools: ensure_emulator_ready, read_description_baseline, build_test_plan_from_inputs, install_harmony_app<br/>start_harmony_app, dump_app_layout, click_element, wait_for_ui_stable<br/>assert_state, capture_app_screenshot, press_back, swipe_screen<br/>collect_reference_and_runtime_screenshots, compare_ui_pair_with_mini_agent, save_tester_report, request_human_guidance"]
+		subagent_tester -.-> subagent_tester_tools;
+		subagent_tester_model["model: qwen3-vl-plus"]
+		subagent_tester -.-> subagent_tester_model;
+	end
+	task_dispatch -.-> subagent_tester;
+	subagent_tester -.-> model;
+	classDef subagent fill:#e8f4ff,stroke:#4a78b8,stroke-width:1px;
+	classDef meta fill:#f7f8fa,stroke:#9aa5b1,stroke-dasharray: 3 2;
+	classDef dispatch fill:#fff3e0,stroke:#c77700,stroke-width:1.5px;
+	class task_dispatch dispatch;
+	class main_tools_meta,main_model_meta meta;
+	class subagent_general_purpose subagent;
+	class subagent_general_purpose_tools meta;
+	class subagent_architect subagent;
+	class subagent_architect_tools meta;
+	class subagent_coder subagent;
+	class subagent_coder_tools meta;
+	class subagent_tester subagent;
+	class subagent_tester_tools meta;
+	__start__([<p>__start__</p>]):::first
+	model(model)
+	tools(tools)
+	TodoListMiddleware\2eafter_model(TodoListMiddleware.after_model)
+	PatchToolCallsMiddleware\2ebefore_agent(PatchToolCallsMiddleware.before_agent)
+	__end__([<p>__end__</p>]):::last
+	PatchToolCallsMiddleware\2ebefore_agent --> model;
+	TodoListMiddleware\2eafter_model -.-> __end__;
+	TodoListMiddleware\2eafter_model -.-> model;
+	TodoListMiddleware\2eafter_model -.-> tools;
+	__start__ --> PatchToolCallsMiddleware\2ebefore_agent;
+	model --> TodoListMiddleware\2eafter_model;
+	tools -.-> model;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
