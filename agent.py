@@ -1,6 +1,6 @@
 from deepagents import create_deep_agent
 
-from models import base_model, vision_model
+from models import architect_vision_model, base_model, vision_model
 from schemas import ArchitectOutput
 from tools.tool_sets import (
     ARCHITECT_SUBAGENT_TOOLS,
@@ -16,7 +16,7 @@ from utils.utils import load_prompt
 architect_subagent = {
     "name": "architect",
     "description": "架构师 Agent，负责拆解用户意图并生成结构化设计方案。",
-    "model": vision_model,
+    "model": architect_vision_model,
     "system_prompt": load_prompt("architect_system_prompt.md"),
     "response_format": ArchitectOutput,
     "tools": ARCHITECT_SUBAGENT_TOOLS,

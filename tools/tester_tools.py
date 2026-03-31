@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 
-from models import vision_model
+from models import small_model, vision_model
 from tools.common import (
     PROJECT_ROOT,
     ensure_directory,
@@ -27,6 +27,16 @@ from tools.common import (
 )
 
 TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
+ALLOWED_ACTION_TYPES = {
+    "assert",
+    "click",
+    "navigate",
+    "switch",
+    "back",
+    "input",
+    "scroll",
+    "long_press",
+}
 
 
 def _tester_script_path(script_name: str) -> Path:
@@ -369,6 +379,113 @@ def _extract_description_points(text: str) -> List[Dict[str, Any]]:
     return points
 
 
+def _normalize_action_type(raw: str) -> str:
+    value = str(raw or "").strip().lower()
+    if value in ALLOWED_ACTION_TYPES:
+        return value
+    return "assert"
+
+
+def _normalize_expected_keywords(raw: Any) -> List[str]:
+    tokens: List[str] = []
+    if isinstance(raw, list):
+        tokens = [str(item).strip() for item in raw if str(item).strip()]
+    elif isinstance(raw, str):
+        tokens = [part.strip() for part in re.split(r"[ï¼Œ,ã€‚ï¼›;ã€\s]+", raw) if part.strip()]
+
+    unique: List[str] = []
+    seen = set()
+    for token in tokens:
+        if len(token) < 2:
+            continue
+        if token in {"ç‚¹å‡»", "è¿›å…¥", "åˆ‡æ¢", "é¡µé¢", "æŒ‰é’®", "è¿”å›ž"}:
+            continue
+        if token in seen:
+            continue
+        seen.add(token)
+        unique.append(token)
+        if len(unique) >= 6:
+            break
+    return unique
+
+
+def _extract_description_points_with_small_model(text: str) -> Tuple[List[Dict[str, Any]], str]:
+    source_text = str(text or "").strip()
+    if not source_text:
+        return [], "empty_description"
+
+    max_chars = 12000
+    truncated = len(source_text) > max_chars
+    user_text = source_text[:max_chars]
+
+    prompt = (
+        "ä½ æ˜¯ä¸€ä¸ªæµ‹è¯•ç”¨ä¾‹æå–å™¨ã€‚"
+        "è¯·ä»Žä»¥ä¸‹äº§å“æè¿°ä¸­æå–å¾…æµ‹è¯•åŠŸèƒ½ç‚¹ï¼Œå¹¶ä¸¥æ ¼è¾“å‡º JSON å¯¹è±¡ï¼Œä¸è¦è¾“å‡ºå…¶ä»–æ–‡å­—ã€‚"
+        "JSON ç»“æž„å¿…é¡»æ˜¯ï¼š"
+        '{"items":[{"description":"...","action_type":"assert|click|navigate|switch|back|input|scroll|long_press","expected_keywords":["..."]}]}'  # noqa: E501
+        "ã€‚"
+        "è¦æ±‚ï¼š"
+        "1) description ç®€æ´å…·ä½“ï¼›"
+        "2) action_type å¿…é¡»åœ¨ç»™å®šæžšä¸¾å†…ï¼›"
+        "3) expected_keywords ç”¨äºŽæ–‡æœ¬æ–­è¨€ï¼Œ1-6 ä¸ªï¼›"
+        "4) ä¸èƒ½è™šæž„ï¼Œåªèƒ½åŸºäºŽè¾“å…¥ã€‚\n\n"
+        f"äº§å“æè¿°ï¼š\n{user_text}"
+    )
+
+    try:
+        response = small_model.invoke([HumanMessage(content=prompt)])
+    except Exception as exc:  # noqa: BLE001
+        return [], f"small_model_error: {exc}"
+
+    raw_text = _extract_message_text(getattr(response, "content", ""))
+    parsed = _extract_json_like_object(raw_text)
+    if parsed is None:
+        try:
+            direct = json.loads(raw_text)
+            parsed = direct if isinstance(direct, dict) else None
+        except Exception:  # noqa: BLE001
+            parsed = None
+
+    if not isinstance(parsed, dict):
+        return [], "small_model_invalid_json"
+
+    raw_items = parsed.get("items")
+    if not isinstance(raw_items, list):
+        return [], "small_model_missing_items"
+
+    points: List[Dict[str, Any]] = []
+    for idx, item in enumerate(raw_items, start=1):
+        if not isinstance(item, dict):
+            continue
+
+        description = str(item.get("description", "")).strip()
+        if not description:
+            continue
+
+        action_type = _normalize_action_type(str(item.get("action_type", "")))
+        expected_keywords = _normalize_expected_keywords(item.get("expected_keywords", []))
+        if not expected_keywords:
+            expected_keywords = _pick_expected_keywords(description)
+
+        points.append(
+            {
+                "id": f"DESC_{idx:03d}",
+                "source": "description",
+                "action_type": action_type,
+                "description": description,
+                "expected_keywords": expected_keywords,
+            }
+        )
+
+    if not points:
+        return [], "small_model_empty_items"
+
+    extractor = "small_model"
+    if truncated:
+        extractor = "small_model_truncated_input"
+    return points, extractor
+
+
 def _extract_primary_user_input_text(desc_text: str) -> str:
     marker = "以下是用户在主聊天框中的本次输入："
     raw = str(desc_text or "")
@@ -390,7 +507,10 @@ def build_test_plan_from_inputs(
     desc_text = desc_path.read_text(encoding="utf-8", errors="ignore") if desc_path.exists() and desc_path.is_file() else ""
     primary_user_text = _extract_primary_user_input_text(desc_text)
 
-    description_points = _extract_description_points(primary_user_text)
+    description_points, extractor = _extract_description_points_with_small_model(primary_user_text)
+    if not description_points:
+        description_points = _extract_description_points(primary_user_text)
+        extractor = "rule_fallback"
 
     merged_cases: List[Dict[str, Any]] = []
     for item in description_points:
@@ -409,6 +529,7 @@ def build_test_plan_from_inputs(
         "description_path": str(desc_path),
         "description_available": bool(primary_user_text.strip()),
         "raw_description_available": bool(desc_text.strip()),
+        "extractor": extractor,
         "description_items": description_points,
         "merged_cases": merged_cases,
     }
@@ -416,6 +537,7 @@ def build_test_plan_from_inputs(
         [
             "status: SUCCESS",
             f"description_available: {payload['description_available']}",
+            f"extractor: {payload['extractor']}",
             f"merged_case_count: {len(merged_cases)}",
             "plan_json:",
             json.dumps(payload, ensure_ascii=False),
@@ -774,11 +896,20 @@ def compare_ui_pair_with_mini_agent(
         return f"status: FAILED\nreason: encode image failed: {exc}"
 
     compare_prompt = (
-        "你是移动端 UI 视觉评审专家。"
-        "请对比主页面原图和生成的页面截图，判断页面是否生成正确。"
-        "重点关注页面结构、关键组件、文案语义、层级关系、布局位置和缺失元素。"
-        "请输出结构化结论，并指出差异与修复建议。"
-        f" 当前页面/模块名：{page_name or 'unknown'}。\n"
+        "你是移动端 UI 快速验收助手。"
+        "只判断是否“大致相似”，不要做像素级或过度细节分析。"
+        f"当前页面/模块名：{page_name or 'unknown'}。\n"
+        "判定标准：\n"
+        "1) 页面主结构是否一致（头部/主体/底部、主要分区）。\n"
+        "2) 关键组件是否存在（核心按钮、输入区、列表/卡片）。\n"
+        "3) 主要文案语义是否一致。\n"
+        "可忽略：小间距、小字号差异、轻微颜色偏差、圆角细节。\n"
+        "输出严格 JSON："
+        '{"overall":"PASS|FAIL","similarity_score":0-100,'
+        '"similarities":["..."],'
+        '"differences":[{"item":"...","impact":"high|medium|low","category":"layout|component|text|style"}],'
+        '"summary":"..."}'
+        "当 similarity_score >= 70 时给 PASS，否则 FAIL。"
     )
 
     try:
