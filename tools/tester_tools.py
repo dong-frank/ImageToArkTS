@@ -497,6 +497,221 @@ def _extract_primary_user_input_text(desc_text: str) -> str:
     return raw[idx + len(marker) :].strip()
 
 
+def _extract_primary_user_input_text_v2(desc_text: str) -> str:
+    raw = str(desc_text or "")
+    markers = [
+        "以下是用户在主聊天框中的本次输入：",
+        "以下是用户在主聊天框中的本次输入:",
+        "main chat input:",
+    ]
+    for marker in markers:
+        idx = raw.find(marker)
+        if idx >= 0:
+            return raw[idx + len(marker) :].strip()
+    return raw.strip()
+
+
+def _extract_balanced_json_object_v2(raw_text: str, start_idx: int) -> str:
+    if start_idx < 0 or start_idx >= len(raw_text) or raw_text[start_idx] != "{":
+        return ""
+
+    depth = 0
+    in_string = False
+    escaped = False
+    for index in range(start_idx, len(raw_text)):
+        char = raw_text[index]
+        if in_string:
+            if escaped:
+                escaped = False
+                continue
+            if char == "\\":
+                escaped = True
+                continue
+            if char == '"':
+                in_string = False
+            continue
+
+        if char == '"':
+            in_string = True
+            continue
+        if char == "{":
+            depth += 1
+            continue
+        if char == "}":
+            depth -= 1
+            if depth == 0:
+                return raw_text[start_idx : index + 1]
+    return ""
+
+
+def _extract_user_input_metadata_v2(desc_text: str) -> Tuple[Optional[Dict[str, Any]], str]:
+    raw = str(desc_text or "")
+    marker_match = re.search(r"user_input_metadata\.json\s*[:：]", raw, re.IGNORECASE)
+    if not marker_match:
+        return None, "metadata_marker_not_found"
+
+    brace_index = raw.find("{", marker_match.end())
+    if brace_index < 0:
+        return None, "metadata_json_not_found"
+
+    json_text = _extract_balanced_json_object_v2(raw, brace_index)
+    if not json_text:
+        return None, "metadata_json_unbalanced"
+
+    try:
+        payload = json.loads(json_text)
+    except Exception as exc:  # noqa: BLE001
+        return None, f"metadata_json_parse_failed: {exc}"
+
+    if not isinstance(payload, dict):
+        return None, "metadata_json_not_object"
+    return payload, "metadata_ok"
+
+
+def _normalize_page_name_v2(raw: str, fallback: str) -> str:
+    token = str(raw or "").strip().lower()
+    token = re.sub(r"[^a-zA-Z0-9]+", "_", token)
+    token = re.sub(r"_+", "_", token).strip("_")
+    if token:
+        return token
+    return fallback
+
+
+def _guess_action_type_v2(description: str) -> str:
+    lowered = str(description or "").lower()
+    if any(token in lowered for token in ["click", "tap", "press", "点击"]):
+        return "click"
+    if any(token in lowered for token in ["navigate", "open", "enter", "进入", "打开"]):
+        return "navigate"
+    if "switch" in lowered or "切换" in lowered:
+        return "switch"
+    if "back" in lowered or "返回" in lowered:
+        return "back"
+    return "assert"
+
+
+def _extract_metadata_points_v2(metadata_payload: Optional[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    if not isinstance(metadata_payload, dict):
+        return [], []
+
+    files = metadata_payload.get("files")
+    if not isinstance(files, dict):
+        return [], []
+
+    metadata_cases: List[Dict[str, Any]] = []
+    expected_pages: List[Dict[str, Any]] = []
+    page_index = 0
+    case_index = 0
+
+    for file_key, file_value in files.items():
+        if not isinstance(file_value, dict):
+            continue
+
+        file_name = str(file_value.get("name") or file_key or "").strip()
+        raw_path = str(file_value.get("path") or "").strip()
+        content_type = str(file_value.get("content_type") or "").strip().lower()
+        description = str(file_value.get("description") or "").strip()
+        fallback_path = f"/user_input/{file_name}" if file_name else ""
+        reference_path = raw_path or fallback_path
+        suffix = Path(file_name or reference_path).suffix.lower()
+        is_image = suffix in IMAGE_SUFFIXES or content_type.startswith("image/")
+
+        if description:
+            case_index += 1
+            metadata_cases.append(
+                {
+                    "id": f"META_{case_index:03d}",
+                    "source": "metadata_description",
+                    "action_type": _guess_action_type_v2(description),
+                    "description": description,
+                    "expected_keywords": _pick_expected_keywords(description),
+                    "file_name": file_name,
+                    "reference_image_path": reference_path if is_image else "",
+                }
+            )
+
+        if not is_image:
+            continue
+
+        page_index += 1
+        page_stem = Path(file_name or f"page_{page_index}").stem
+        page_name = _normalize_page_name_v2(page_stem, f"page_{page_index:03d}")
+        page_keywords = _pick_expected_keywords(f"{page_name} {description}".strip())
+        if not page_keywords:
+            page_keywords = [page_name]
+
+        expected_pages.append(
+            {
+                "id": f"PAGE_{page_index:03d}",
+                "source": "metadata_image",
+                "page_name": page_name,
+                "file_name": file_name,
+                "reference_image_path": reference_path,
+                "description": description,
+                "expected_keywords": page_keywords,
+            }
+        )
+
+    return metadata_cases, expected_pages
+
+
+def _deduplicate_cases_v2(cases: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    seen = set()
+    for case in cases:
+        description = str(case.get("description") or "").strip().lower()
+        action_type = str(case.get("action_type") or "assert").strip().lower()
+        source = str(case.get("source") or "").strip().lower()
+        if not description:
+            continue
+        key = (description, action_type, source)
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(case)
+    return merged
+
+
+def _deduplicate_pages_v2(pages: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged: List[Dict[str, Any]] = []
+    seen = set()
+    for page in pages:
+        page_name = str(page.get("page_name") or "").strip().lower()
+        reference_image_path = str(page.get("reference_image_path") or "").strip().lower()
+        if not page_name and not reference_image_path:
+            continue
+        key = (page_name, reference_image_path)
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(page)
+    return merged
+
+
+def _compose_test_plan_seed_text_v2(
+    raw_description_text: str,
+    primary_user_text: str,
+    metadata_payload: Optional[Dict[str, Any]],
+) -> str:
+    chunks: List[str] = []
+    if primary_user_text.strip():
+        chunks.append(primary_user_text.strip())
+
+    files = metadata_payload.get("files") if isinstance(metadata_payload, dict) else None
+    if isinstance(files, dict):
+        for file_key, file_value in files.items():
+            if not isinstance(file_value, dict):
+                continue
+            name = str(file_value.get("name") or file_key or "").strip()
+            description = str(file_value.get("description") or "").strip()
+            if description:
+                chunks.append(f"[file={name}] {description}")
+
+    if not chunks and raw_description_text.strip():
+        chunks.append(raw_description_text.strip())
+    return "\n".join(chunks)
+
+
 @tool
 def build_test_plan_from_inputs(
     description_path: str = "/user_input/description.md",
@@ -507,40 +722,79 @@ def build_test_plan_from_inputs(
     print("start building test plan from description")
     desc_path = resolve_workspace_path(description_path)
     desc_text = desc_path.read_text(encoding="utf-8", errors="ignore") if desc_path.exists() and desc_path.is_file() else ""
-    primary_user_text = _extract_primary_user_input_text(desc_text)
+    primary_user_text = _extract_primary_user_input_text_v2(desc_text)
+    metadata_payload, metadata_status = _extract_user_input_metadata_v2(desc_text)
+    metadata_cases, expected_pages_from_metadata = _extract_metadata_points_v2(metadata_payload)
+    plan_seed_text = _compose_test_plan_seed_text_v2(
+        raw_description_text=desc_text,
+        primary_user_text=primary_user_text,
+        metadata_payload=metadata_payload,
+    )
 
-    description_points, extractor = _extract_description_points_with_small_model(primary_user_text)
+    description_points, extractor = _extract_description_points_with_small_model(plan_seed_text)
     if not description_points:
-        description_points = _extract_description_points(primary_user_text)
+        description_points = _extract_description_points(plan_seed_text)
         extractor = "rule_fallback"
 
+    merged_case_items = _deduplicate_cases_v2([*metadata_cases, *description_points])
+    expected_pages = _deduplicate_pages_v2(expected_pages_from_metadata)
+
+    if not expected_pages and merged_case_items:
+        expected_pages = [
+            {
+                "id": "PAGE_001",
+                "source": "fallback_inference",
+                "page_name": "main_page",
+                "file_name": "",
+                "reference_image_path": "",
+                "description": "No reference page image found in description metadata.",
+                "expected_keywords": _pick_expected_keywords(primary_user_text) or ["main"],
+            }
+        ]
+
+    for case_idx, case_item in enumerate(merged_case_items, start=1):
+        case_item["id"] = f"CASE_{case_idx:03d}"
+
     merged_cases: List[Dict[str, Any]] = []
-    for item in description_points:
+    for item in merged_case_items:
         merged_cases.append(
             {
                 "id": item.get("id"),
                 "source": item.get("source"),
-                "category": "description_case",
+                "category": "metadata_case" if str(item.get("source")) == "metadata_description" else "description_case",
                 "description": item.get("description", ""),
                 "action_type": item.get("action_type", ""),
                 "expected_keywords": item.get("expected_keywords", []),
+                "reference_image_path": item.get("reference_image_path", ""),
+                "file_name": item.get("file_name", ""),
             }
         )
 
     payload = {
         "description_path": str(desc_path),
-        "description_available": bool(primary_user_text.strip()),
+        "description_available": bool(plan_seed_text.strip()),
         "raw_description_available": bool(desc_text.strip()),
+        "primary_user_input_available": bool(primary_user_text.strip()),
+        "metadata_available": bool(metadata_payload),
+        "metadata_status": metadata_status,
         "extractor": extractor,
         "description_items": description_points,
+        "metadata_items": metadata_cases,
         "merged_cases": merged_cases,
+        "expected_pages": expected_pages,
+        "coverage_targets": {
+            "expected_case_count": len(merged_cases),
+            "expected_page_count": len(expected_pages),
+        },
     }
     return "\n".join(
         [
             "status: SUCCESS",
             f"description_available: {payload['description_available']}",
+            f"metadata_available: {payload['metadata_available']}",
             f"extractor: {payload['extractor']}",
             f"merged_case_count: {len(merged_cases)}",
+            f"expected_page_count: {len(expected_pages)}",
             "plan_json:",
             json.dumps(payload, ensure_ascii=False),
         ]
@@ -834,7 +1088,6 @@ def collect_reference_and_runtime_screenshots(
     Collect reference screenshots from user input and runtime screenshots from logs.
     """
     print("start collecting reference and runtime screenshots")
-    image_suffixes = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
     ref_root = resolve_workspace_path(reference_dir)
     runtime_root = resolve_workspace_path(runtime_dir)
 
@@ -845,7 +1098,7 @@ def collect_reference_and_runtime_screenshots(
             [
                 path
                 for path in root.rglob("*")
-                if path.is_file() and path.suffix.lower() in image_suffixes
+                if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
             ]
         )
 
@@ -869,6 +1122,191 @@ def collect_reference_and_runtime_screenshots(
         lines.append("- (none)")
 
     return "\n".join(lines)
+
+
+def _collect_images_under(root: Path) -> List[Path]:
+    if not root.exists():
+        return []
+    return sorted(
+        [
+            path
+            for path in root.rglob("*")
+            if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
+        ]
+    )
+
+
+def _extract_plan_payload(plan_json: str) -> Optional[Dict[str, Any]]:
+    text = str(plan_json or "").strip()
+    if not text:
+        return None
+
+    if "plan_json:" in text:
+        text = text.split("plan_json:", 1)[1].strip()
+
+    parsed = _extract_json_like_object(text)
+    if parsed is None:
+        try:
+            raw = json.loads(text)
+            parsed = raw if isinstance(raw, dict) else None
+        except Exception:  # noqa: BLE001
+            parsed = None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _normalize_match_key(raw: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", str(raw or "").lower())
+
+
+def _score_path_match(page_name: str, reference_path: Path, runtime_path: Path) -> float:
+    page_key = _normalize_match_key(page_name)
+    ref_key = _normalize_match_key(reference_path.stem)
+    run_key = _normalize_match_key(runtime_path.stem)
+    a = page_key or ref_key
+    b = run_key
+    return difflib.SequenceMatcher(None, a, b).ratio()
+
+
+@tool
+def pair_reference_pages_with_runtime(
+    plan_json: str = "",
+    reference_dir: str = "/user_input",
+    runtime_dir: str = "/logs",
+    output_dir: str = "/logs/tester",
+    min_similarity: float = 0.32,
+) -> str:
+    """
+    Pair expected reference pages with runtime screenshots for later UI comparison.
+    """
+    print("start pairing reference pages with runtime screenshots")
+    ref_root = resolve_workspace_path(reference_dir)
+    runtime_root = resolve_workspace_path(runtime_dir)
+    refs = _collect_images_under(ref_root)
+    runtime = _collect_images_under(runtime_root)
+    plan_payload = _extract_plan_payload(plan_json)
+
+    expected_pages_raw = plan_payload.get("expected_pages", []) if isinstance(plan_payload, dict) else []
+    expected_pages: List[Dict[str, Any]] = []
+    if isinstance(expected_pages_raw, list):
+        for idx, item in enumerate(expected_pages_raw, start=1):
+            if not isinstance(item, dict):
+                continue
+            page_name = str(item.get("page_name") or "").strip()
+            reference_image_path = str(item.get("reference_image_path") or "").strip()
+            expected_pages.append(
+                {
+                    "id": str(item.get("id") or f"PAGE_{idx:03d}"),
+                    "page_name": page_name or f"page_{idx:03d}",
+                    "reference_image_path": reference_image_path,
+                }
+            )
+
+    if not expected_pages:
+        for idx, path in enumerate(refs, start=1):
+            expected_pages.append(
+                {
+                    "id": f"PAGE_{idx:03d}",
+                    "page_name": _normalize_page_name_v2(path.stem, f"page_{idx:03d}"),
+                    "reference_image_path": str(path),
+                }
+            )
+
+    used_runtime: set[str] = set()
+    pairs: List[Dict[str, Any]] = []
+    unmatched_pages: List[Dict[str, Any]] = []
+
+    for page in expected_pages:
+        page_name = str(page.get("page_name") or "").strip()
+        reference_image_path = str(page.get("reference_image_path") or "").strip()
+        reference_path: Optional[Path] = None
+        if reference_image_path:
+            resolved = resolve_workspace_path(reference_image_path)
+            if resolved.exists() and resolved.is_file():
+                reference_path = resolved
+
+        if reference_path is None and refs:
+            best_ref = max(
+                refs,
+                key=lambda candidate: difflib.SequenceMatcher(
+                    None,
+                    _normalize_match_key(page_name),
+                    _normalize_match_key(candidate.stem),
+                ).ratio(),
+            )
+            reference_path = best_ref
+
+        if reference_path is None:
+            unmatched_pages.append(
+                {
+                    "page_name": page_name,
+                    "reason": "reference_not_found",
+                    "reference_image_path": reference_image_path,
+                }
+            )
+            continue
+
+        best_runtime: Optional[Path] = None
+        best_score = -1.0
+        for runtime_path in runtime:
+            key = str(runtime_path)
+            if key in used_runtime:
+                continue
+            score = _score_path_match(page_name=page_name, reference_path=reference_path, runtime_path=runtime_path)
+            if score > best_score:
+                best_score = score
+                best_runtime = runtime_path
+
+        if best_runtime is None or best_score < float(min_similarity):
+            unmatched_pages.append(
+                {
+                    "page_name": page_name,
+                    "reason": "runtime_not_matched",
+                    "reference_image_path": str(reference_path),
+                    "best_score": round(best_score, 3) if best_score >= 0 else None,
+                }
+            )
+            continue
+
+        used_runtime.add(str(best_runtime))
+        pairs.append(
+            {
+                "page_name": page_name,
+                "reference_image_path": str(reference_path),
+                "runtime_image_path": str(best_runtime),
+                "score": round(best_score, 3),
+            }
+        )
+
+    unmatched_runtime = [str(path) for path in runtime if str(path) not in used_runtime]
+    payload = {
+        "reference_dir": str(ref_root),
+        "runtime_dir": str(runtime_root),
+        "pair_count": len(pairs),
+        "expected_page_count": len(expected_pages),
+        "unmatched_page_count": len(unmatched_pages),
+        "unmatched_runtime_count": len(unmatched_runtime),
+        "pairs": pairs,
+        "unmatched_pages": unmatched_pages,
+        "unmatched_runtime_images": unmatched_runtime,
+    }
+
+    out_dir = ensure_directory(resolve_workspace_path(output_dir))
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    pair_path = out_dir / f"{ts}_page_pairs.json"
+    pair_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"pair_path: {pair_path}",
+            f"expected_page_count: {len(expected_pages)}",
+            f"pair_count: {len(pairs)}",
+            f"unmatched_page_count: {len(unmatched_pages)}",
+            f"unmatched_runtime_count: {len(unmatched_runtime)}",
+            "pair_json:",
+            json.dumps(payload, ensure_ascii=False),
+        ]
+    )
 
 
 @tool
@@ -1003,6 +1441,100 @@ def compare_ui_pair_with_mini_agent(
 
     lines.append(f"summary: {summary or '(empty)'}")
     return "\n".join(lines)
+
+
+@tool
+def evaluate_test_coverage(
+    plan_json: str,
+    visited_pages: str = "",
+    executed_case_ids: str = "",
+    compared_pages: str = "",
+) -> str:
+    """
+    Evaluate whether all planned pages/cases have been covered by execution records.
+    """
+    print("start evaluating tester coverage")
+    payload = _extract_plan_payload(plan_json)
+    if not payload:
+        return "status: FAILED\nreason: invalid plan_json input"
+
+    expected_pages_raw = payload.get("expected_pages", [])
+    expected_cases_raw = payload.get("merged_cases", [])
+
+    expected_pages = []
+    if isinstance(expected_pages_raw, list):
+        for item in expected_pages_raw:
+            if isinstance(item, dict):
+                value = str(item.get("page_name") or "").strip()
+                if value:
+                    expected_pages.append(value)
+
+    expected_case_ids = []
+    if isinstance(expected_cases_raw, list):
+        for item in expected_cases_raw:
+            if isinstance(item, dict):
+                value = str(item.get("id") or "").strip()
+                if value:
+                    expected_case_ids.append(value)
+
+    def _parse_items(raw: str) -> List[str]:
+        text = str(raw or "").strip()
+        if not text:
+            return []
+        try:
+            parsed = json.loads(text)
+            if isinstance(parsed, list):
+                values = [str(item).strip() for item in parsed if str(item).strip()]
+                return values
+        except Exception:  # noqa: BLE001
+            pass
+        return [part.strip() for part in re.split(r"[,\n|;]+", text) if part.strip()]
+
+    visited = _parse_items(visited_pages)
+    executed = _parse_items(executed_case_ids)
+    compared = _parse_items(compared_pages)
+
+    visited_norm = {_normalize_match_key(item): item for item in visited}
+    compared_norm = {_normalize_match_key(item): item for item in compared}
+    executed_norm = {str(item).strip().upper() for item in executed}
+
+    missing_pages_visit = [
+        page for page in expected_pages if _normalize_match_key(page) not in visited_norm
+    ]
+    missing_pages_compare = [
+        page for page in expected_pages if _normalize_match_key(page) not in compared_norm
+    ]
+    missing_cases = [
+        case_id for case_id in expected_case_ids if case_id.strip().upper() not in executed_norm
+    ]
+
+    passed = not missing_pages_visit and not missing_pages_compare and not missing_cases
+    result_payload = {
+        "expected_page_count": len(expected_pages),
+        "expected_case_count": len(expected_case_ids),
+        "visited_page_count": len(visited),
+        "executed_case_count": len(executed),
+        "compared_page_count": len(compared),
+        "missing_pages_by_visit": missing_pages_visit,
+        "missing_pages_by_compare": missing_pages_compare,
+        "missing_case_ids": missing_cases,
+    }
+
+    return "\n".join(
+        [
+            f"status: {'PASS' if passed else 'FAIL'}",
+            f"expected_page_count: {len(expected_pages)}",
+            f"expected_case_count: {len(expected_case_ids)}",
+            f"visited_page_count: {len(visited)}",
+            f"executed_case_count: {len(executed)}",
+            f"compared_page_count: {len(compared)}",
+            f"missing_pages_by_visit_count: {len(missing_pages_visit)}",
+            f"missing_pages_by_compare_count: {len(missing_pages_compare)}",
+            f"missing_case_count: {len(missing_cases)}",
+            "coverage_json:",
+            json.dumps(result_payload, ensure_ascii=False),
+        ]
+    )
 
 
 def _parse_bounds(bounds_str: str) -> Optional[Tuple[int, int, int, int]]:
@@ -1480,7 +2012,9 @@ TESTER_TOOLS = [
     press_back,
     swipe_screen,
     collect_reference_and_runtime_screenshots,
+    pair_reference_pages_with_runtime,
     compare_ui_pair_with_mini_agent,
+    evaluate_test_coverage,
     save_tester_report,
 ]
 
