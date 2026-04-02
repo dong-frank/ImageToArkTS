@@ -1,0 +1,11 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/MemoDetail",
+    "pages/MemoDetail_attach",
+    "pages/MemoDetail_draw",
+    "pages/MemoDetail_menu",
+    "pages/MemoList",
+    "pages/NewMemo"
+  ]
+}

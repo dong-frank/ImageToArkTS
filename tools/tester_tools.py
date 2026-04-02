@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import difflib
 import json
 import mimetypes
 import os
@@ -27,6 +28,7 @@ from tools.common import (
 )
 
 TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 ALLOWED_ACTION_TYPES = {
     "assert",
     "click",

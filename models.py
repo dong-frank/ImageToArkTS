@@ -10,7 +10,6 @@ architect_vision_model = ChatOpenAI(
         model="qwen3-vl-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
-        model_kwargs={"parallel_tool_calls": False},
 )
 
 vision_model = ChatOpenAI(
