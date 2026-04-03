@@ -18,7 +18,6 @@ architect_subagent = {
     "description": "架构师 Agent，负责拆解用户意图并生成结构化设计方案。",
     "model": architect_vision_model,
     "system_prompt": load_prompt("architect_system_prompt.md"),
-    "response_format": ArchitectOutput,
     "tools": ARCHITECT_SUBAGENT_TOOLS,
 }
 
