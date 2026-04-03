@@ -421,17 +421,15 @@ def _extract_description_points_with_small_model(text: str) -> Tuple[List[Dict[s
     user_text = source_text[:max_chars]
 
     prompt = (
-        "ä½ æ˜¯ä¸€ä¸ªæµ‹è¯•ç”¨ä¾‹æå–å™¨ã€‚"
-        "è¯·ä»Žä»¥ä¸‹äº§å“æè¿°ä¸­æå–å¾…æµ‹è¯•åŠŸèƒ½ç‚¹ï¼Œå¹¶ä¸¥æ ¼è¾“å‡º JSON å¯¹è±¡ï¼Œä¸è¦è¾“å‡ºå…¶ä»–æ–‡å­—ã€‚"
-        "JSON ç»“æž„å¿…é¡»æ˜¯ï¼š"
-        '{"items":[{"description":"...","action_type":"assert|click|navigate|switch|back|input|scroll|long_press","expected_keywords":["..."]}]}'  # noqa: E501
-        "ã€‚"
-        "è¦æ±‚ï¼š"
-        "1) description ç®€æ´å…·ä½“ï¼›"
-        "2) action_type å¿…é¡»åœ¨ç»™å®šæžšä¸¾å†…ï¼›"
-        "3) expected_keywords ç”¨äºŽæ–‡æœ¬æ–­è¨€ï¼Œ1-6 ä¸ªï¼›"
-        "4) ä¸èƒ½è™šæž„ï¼Œåªèƒ½åŸºäºŽè¾“å…¥ã€‚\n\n"
-        f"äº§å“æè¿°ï¼š\n{user_text}"
+        "你是一个测试用例提取器。\n"
+        "请从以下产品描述中提取待测试功能点，并严格按序号列表输出，绝对不要输出任何前言、总结或解释性文字。\n"
+        "输出格式示例：\n"
+        "1. 验证用户登录功能\n"
+        "2. 检查密码输入错误时的提示\n"
+        "要求：\n"
+        "1) 描述必须简洁具体；\n"
+        "2) 不能虚构内容，只能基于输入的产品描述进行提取。\n\n"
+        f"产品描述：\n{user_text}"
     )
 
     try:

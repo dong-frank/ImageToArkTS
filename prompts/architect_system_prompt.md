@@ -25,105 +25,83 @@
 - 全局审查：剔除所有可能暗示动态数据流或后台业务逻辑的字段。
 
 # JSON Schema 输出要求
-请严格按照以下结构输出，不要增加与业务逻辑相关的多余字段：
+请严格按照以下结构输出，这是一个包含多个页面的根对象 `pages` 数组。根据传入的截图数量，输出对应数量的 page 对象：
 
 ```JSON
 {
-  "page_name": "MemoDetail",
-  "page_style": {
-    "background_color": "#F7F8FA",
-    "color_palette": ["#F7F8FA", "#FFFFFF", "#111111", "#666666", "#3D7BFF"]
-  },
-  "ui_tree": {
-    "type": "Column",
-    "layout_props": {
-      "width": "100%",
-      "height": "100%",
-      "justifyContent": "FlexStart"
-    },
-    "children": [
-      {
-        "type": "Row",
-        "description": "顶部导航栏",
-        "children": [
-          {
-            "type": "Icon",
-            "name": "back",
-            "icon": {
-              "emoji": "⬅️",
-              "semantic": "返回",
-              "source": "auto_matched"
-            },
-            "styling": {
-              "tint_color": "#222222",
-              "background_color": "transparent"
-            },
-            "ui_action": {
-              "action_type": "router.back",
-              "target_folder": "Index",
-              "trigger_description": "左上角返回按钮"
-            }
-          },
-          { "type": "Blank" },
-          {
-            "type": "Icon",
-            "name": "more",
-            "icon": {
-              "emoji": "⋯",
-              "semantic": "更多菜单",
-              "source": "auto_matched"
-            },
-            "styling": {
-              "tint_color": "#222222",
-              "background_color": "transparent"
-            },
-            "overlay": {
-              "type": "Menu",
-              "description": "右上角更多按钮点击后弹出的视图",
-              "styling": {
-                "background_color": "#FFFFFF",
-                "font_color": "#222222"
-              },
-              "children": [
-                { "type": "MenuItem", "text": "扫描" },
-                { "type": "MenuItem", "text": "置顶备忘录" }
-              ]
-            }
-          }
-        ]
+  "pages": [
+    {
+      "page_id": "view_page_01",
+      "page_style": {
+        "background_color": "#F7F8FA"
       },
-      {
-        "type": "List",
-        "description": "备忘录静态列表视图",
-        "styling": {
-          "background_color": "#F7F8FA"
+      "ui_tree": {
+        "type": "Column",
+        "layout_props": {
+          "width": "100%",
+          "height": "100%",
+          "justifyContent": "FlexStart"
         },
         "children": [
           {
-            "type": "ListItem",
-            "description": "单条卡片模板",
-            "styling": {
-              "background_color": "#FFFFFF",
-              "font_color": "#222222"
-            },
-            "ui_action": {
-              "action_type": "router.push",
-              "target_folder": "MemoDetail",
-              "trigger_description": "点击卡片跳转详情"
-            }
+            "type": "Row",
+            "visual_desc": "顶部水平排列的图标区域",
+            "children": [
+              {
+                "type": "Icon",
+                "id": "icon_top_left_1",
+                "visual_desc": "向左的箭头图标",
+                "icon_emoji": "⬅️",
+                "styling": {
+                  "tint_color": "#222222",
+                  "background_color": "transparent"
+                },
+                "ui_action": {
+                  "action_type": "router.back",
+                  "target_id": "view_page_previous"
+                }
+              },
+              { "type": "Blank" },
+              {
+                "type": "Icon",
+                "id": "icon_top_right_1",
+                "visual_desc": "三个横向排列的圆点图标",
+                "icon_emoji": "⋯",
+                "styling": {
+                  "tint_color": "#222222",
+                  "background_color": "transparent"
+                },
+                "ui_action": {
+                  "action_type": "overlay.toggle",
+                  "target_id": "overlay_dropdown_1"
+                },
+                "overlay_content": {
+                  "type": "Menu",
+                  "visual_desc": "白色背景的下拉浮层视图",
+                  "styling": {
+                    "background_color": "#FFFFFF"
+                  },
+                  "children": [
+                    { "type": "Text", "text_content": "扫描", "styling": {"font_color": "#222222"} }
+                  ]
+                }
+              }
+            ]
           }
         ]
-      },
-      {
-        "type": "Text",
-        "text_content": "占位标题文本",
-        "styling": {
-          "fontSize": "24vp",
-          "fontWeight": "bold",
-          "font_color": "#111111",
-          "background_color": "transparent"
-        }
       }
-    ]
-  }
+    },
+    {
+      "page_id": "view_page_02",
+      "page_style": {
+        "background_color": "#FFFFFF"
+      },
+      "ui_tree": {
+        "type": "Column",
+        "children": [
+           // ... 第二张截图的视图树解析
+        ]
+      }
+    }
+  ]
 }
