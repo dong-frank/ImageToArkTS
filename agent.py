@@ -15,30 +15,30 @@ from utils.utils import load_prompt
 
 architect_subagent = {
     "name": "architect",
-    "description": "架构师 Agent，负责拆解用户意图并生成结构化设计方案。",
+    "description": "你是 ImageToArkTS 系统的 Architect",
     "model": architect_vision_model,
     "system_prompt": load_prompt("architect_system_prompt.md"),
     "tools": ARCHITECT_SUBAGENT_TOOLS,
 }
 
-coding_subagent = {
+coder_subagent = {
     "name": "coder",
-    "description": "编码 Agent，负责将架构方案转化为可编译的项目实现。",
+    "description": "你是 ImageToArkTS 系统的 Coder",
     "model": base_model,
     "system_prompt": load_prompt("coder_system_prompt.md"),
     "skills": ["/skills"],
     "tools": CODER_SUBAGENT_TOOLS,
 }
 
-test_subagent = {
+tester_subagent = {
     "name": "tester",
-    "description": "测试验收 Agent，负责启动 app、按坐标点击验证流程并基于 description 做功能与静态 UI 完整性验收。",
+    "description": "你是 ImageToArkTS 系统的 Tester",
     "model": vision_model,
     "system_prompt": load_prompt("tester_system_prompt.md"),
     "tools": TESTER_SUBAGENT_TOOLS,
 }
 
-subagents = [architect_subagent, coding_subagent, test_subagent]
+subagents = [architect_subagent, coder_subagent, tester_subagent]
 
 agent = create_deep_agent(
     model=base_model,
