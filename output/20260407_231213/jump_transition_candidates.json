@@ -1,0 +1,124 @@
+[
+  {
+    "depth": 0,
+    "timestamp": "2026-04-07T23:12:44",
+    "from_page": "ability=EntryAbility|page=pages/Index",
+    "to_page": "ability=EntryAbility|page=pages/ConverterPage",
+    "from_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/Index",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/Index",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "to_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/ConverterPage",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/ConverterPage",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "trigger": {
+      "element_index": 2,
+      "id": "text:⋯",
+      "type": "Text",
+      "text": "⋯",
+      "bounds": "[1179,180][1264,302]",
+      "action_type": "click",
+      "action_success": true
+    },
+    "return_success": true,
+    "evidence": {
+      "element_dir": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2",
+      "before_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2/before.jpeg",
+      "after_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2/after.jpeg",
+      "after_layout": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2/after_layout.json",
+      "source_layout": "output/20260407_231213/ability_EntryAbility_page_pages_Index/layout.json",
+      "new_page_layout": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/layout.json",
+      "return_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2/return.jpeg",
+      "return_layout": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem2/return_layout.json"
+    }
+  },
+  {
+    "depth": 1,
+    "timestamp": "2026-04-07T23:12:51",
+    "from_page": "ability=EntryAbility|page=pages/ConverterPage",
+    "to_page": "ability=EntryAbility|page=pages/Index",
+    "from_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/ConverterPage",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/ConverterPage",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "to_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/Index",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/Index",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "trigger": {
+      "element_index": 1,
+      "id": "text:⬅️",
+      "type": "Text",
+      "text": "⬅️",
+      "bounds": "[56,192][161,291]",
+      "action_type": "click",
+      "action_success": true
+    },
+    "return_success": null,
+    "evidence": {
+      "element_dir": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/elem1",
+      "before_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/elem1/before.jpeg",
+      "after_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/elem1/after.jpeg",
+      "after_layout": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/elem1/after_layout.json",
+      "source_layout": "output/20260407_231213/ability_EntryAbility_page_pages_ConverterPage/layout.json",
+      "new_page_layout": null
+    }
+  },
+  {
+    "depth": 0,
+    "timestamp": "2026-04-07T23:15:15",
+    "from_page": "ability=EntryAbility|page=pages/Index",
+    "to_page": "ability=EntryAbility|page=pages/ConverterPage",
+    "from_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/Index",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/Index",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "to_page_context": {
+      "page_id": "ability=EntryAbility|page=pages/ConverterPage",
+      "bundle_name": "com.example.calculator_app",
+      "ability_name": "EntryAbility",
+      "page_path": "pages/ConverterPage",
+      "id_source": "ability_page",
+      "signature_preview": []
+    },
+    "trigger": {
+      "element_index": 19,
+      "id": "text:00",
+      "type": "Button",
+      "text": "00",
+      "bounds": "[68,1410][313,1655]",
+      "action_type": "click",
+      "action_success": true
+    },
+    "return_success": null,
+    "evidence": {
+      "element_dir": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem19",
+      "before_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem19/before.jpeg",
+      "after_screenshot": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem19/after.jpeg",
+      "after_layout": "output/20260407_231213/ability_EntryAbility_page_pages_Index/elem19/after_layout.json",
+      "source_layout": "output/20260407_231213/ability_EntryAbility_page_pages_Index/layout.json",
+      "new_page_layout": null
+    }
+  }
+]

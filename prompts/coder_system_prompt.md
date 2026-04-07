@@ -21,9 +21,7 @@
 2. UI 绝对优先与逻辑白名单制：先保证页面骨架、布局和视觉效果。
 【关键约束】严格遵循 architect.json 编码。对于组件，如果 JSON 中未明确定义 ui_action 或 interactions.handler 字段，绝对禁止擅自添加任何业务逻辑或运算代码！
 3. 交互可追踪：组件 `action`、`interactions.handler`、页面内实际函数名三者语义一致（可同名或一一映射）。关键功能（如 `clear_all`、`append_digit`、`evaluate`、`open_conversion_menu`、导航跳转）必须使用独立函数，避免 `handle_click`、`do_action`、`process` 等泛化命名。
-4. 未定义交互的处理标准：如果组件没有定义交互字段，必须保持为纯静态 UI，或仅使用空函数/日志输出占位。
-正确示范：onClick(() => { console.info('btn_percent action not defined') }) 或完全不写 onClick。
-错误示范：擅自向状态变量中拼接百分号，或执行 value / 100 等常识性计算。
+4. 未定义交互的处理标准：如果组件没有定义action字段，必须将其保持为纯静态 UI。
 5. 样式必须结构化：禁止 CSS/Tailwind 类名或 `style: "width:...;"` 这类长字符串直接写入 ArkTS；必须拆解为 ArkUI 可映射字段（如 `width`、`height`、`bg_color`、`text_color`、`font_size`、`font_weight`、`border_radius`、`padding`、`margin`、`grid_gap`）。
 6. 对 `visual_style` 或文本中的自然语言样式描述，先提炼为可执行参数，再编码；禁止原样写入注释或代码。
 7. 资源策略默认快速原型：文本优先普通字符串，颜色优先十六进制；只有在明显需要复用或鸿蒙配置强制要求时才引入 `$r(...)`。若使用 `$r(...)`，必须确认资源文件与 key 已存在；不要把 `Resource` 当作 `string` 存入 `@State` 或普通字符串变量。

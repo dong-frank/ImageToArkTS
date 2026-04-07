@@ -112,6 +112,92 @@ def _collect_signature_tokens(node, tokens, max_tokens=120):
         _collect_signature_tokens(child, tokens, max_tokens=max_tokens)
 
 
+def _estimate_status_bar_bottom(layout_data: Any) -> int:
+    root_attrs = layout_data.get("attributes", {}) if isinstance(layout_data, dict) else {}
+    root_bounds = parse_bounds(root_attrs.get("bounds", "")) if isinstance(root_attrs, dict) else None
+    if not root_bounds:
+        return 120
+
+    root_top = root_bounds[1]
+    root_height = max(1, root_bounds[3] - root_bounds[1])
+    default_cutoff = root_top + max(60, int(root_height * 0.04))
+    top_scan_limit = root_top + int(root_height * 0.12)
+    expected_bundle = str(globals().get("bundle_name", "")).strip()
+
+    max_system_bottom = default_cutoff
+
+    def walk(node):
+        nonlocal max_system_bottom
+        if not isinstance(node, dict):
+            return
+        attrs = node.get("attributes", {})
+        if isinstance(attrs, dict):
+            bounds = parse_bounds(attrs.get("bounds", ""))
+            if bounds and bounds[1] <= top_scan_limit:
+                node_bundle = str(attrs.get("bundleName", "")).strip()
+                node_type = str(attrs.get("type", "")).strip().lower()
+                is_system_node = (
+                    (node_bundle and expected_bundle and node_bundle != expected_bundle)
+                    or "status" in node_type
+                    or "systemui" in node_type
+                )
+                if is_system_node:
+                    max_system_bottom = max(max_system_bottom, bounds[3])
+
+        for child in node.get("children", []):
+            walk(child)
+        overlay = node.get("overlay")
+        if isinstance(overlay, dict):
+            walk(overlay)
+
+    walk(layout_data)
+    return max_system_bottom
+
+
+def _build_layout_compare_snapshot(node: Any, ignore_top_y: int) -> Any:
+    if not isinstance(node, dict):
+        return None
+
+    attrs = node.get("attributes", {})
+    if not isinstance(attrs, dict):
+        attrs = {}
+
+    bounds = parse_bounds(attrs.get("bounds", ""))
+    if bounds and bounds[3] <= ignore_top_y:
+        return None
+
+    keep_keys = (
+        "type", "text", "bounds", "enabled", "clickable",
+        "longClickable", "scrollable", "checkable", "focusable",
+        "bundleName", "abilityName", "pagePath"
+    )
+    kept_attrs = {key: attrs.get(key) for key in keep_keys if key in attrs}
+
+    children_snapshots = []
+    for child in node.get("children", []):
+        child_snapshot = _build_layout_compare_snapshot(child, ignore_top_y)
+        if child_snapshot is not None:
+            children_snapshots.append(child_snapshot)
+
+    overlay_snapshot = None
+    overlay = node.get("overlay")
+    if isinstance(overlay, dict):
+        overlay_snapshot = _build_layout_compare_snapshot(overlay, ignore_top_y)
+
+    return {
+        "attributes": kept_attrs,
+        "children": children_snapshots,
+        "overlay": overlay_snapshot,
+    }
+
+
+def _is_layout_effectively_same(before_layout: Any, after_layout: Any) -> bool:
+    ignore_top_y = max(_estimate_status_bar_bottom(before_layout), _estimate_status_bar_bottom(after_layout))
+    before_snapshot = _build_layout_compare_snapshot(before_layout, ignore_top_y)
+    after_snapshot = _build_layout_compare_snapshot(after_layout, ignore_top_y)
+    return before_snapshot == after_snapshot
+
+
 def _get_or_allocate_page_id(signature_tokens):
     global PAGE_ID_COUNTER
     key = tuple(signature_tokens)
@@ -855,6 +941,7 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
         after_layout_path = os.path.join(elem_dir, "after_layout.json")
         after_page_id = None
         after_page_context = None
+        after_data = None
         new_page_dir = None
         new_layout_path = None
 
@@ -870,6 +957,14 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
                 os.makedirs(new_page_dir, exist_ok=True)
                 new_layout_path = os.path.join(new_page_dir, "layout.json")
                 shutil.copy2(after_layout_path, new_layout_path)
+
+        # 过滤无效点击：忽略系统状态栏后，前后主布局无变化则跳过。
+        if after_data is not None and _is_layout_effectively_same(data, after_data):
+            print(f"⏭️ 跳过无效点击（主布局无变化）: {elem_info['id']}")
+            if os.path.isdir(elem_dir):
+                shutil.rmtree(elem_dir, ignore_errors=True)
+            page_elem_count -= 1
+            continue
 
         page_changed = (after_page_id != page_id) if after_page_id else False
 
