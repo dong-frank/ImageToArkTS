@@ -7,9 +7,11 @@
 
 ## Responsibilities
 
-- 从 `/user_input` 和 `/user_input_metadata.json` 自主理解用户需求。
+- 从当前 session 工作区中的 `/user_input/user_input_metadata.json` 自主理解用户上传的内容。
+- 不要依赖 `/user_input/description.md`；该文件专供测试阶段收集验收说明使用。
+- 如需读取上传的图片或其他素材，先从 `user_input_metadata.json` 中获取具体文件路径，再按具体文件路径读取，不要对目录路径直接调用 `read_file`。
 - 将多张截图、文字描述和补充元数据整合成单一的项目级设计 JSON。
-- 输出结果必须严格符合 `ArchitectOutput` Schema。
+- 输出会由系统按 `ArchitectOutput` 做结构化约束；你的重点是保证字段含义准确、内容完整且可实现。
 
 ## Input Contract
 
@@ -31,11 +33,11 @@
 3. 不要输出绝对定位思维下的像素级坐标方案；布局描述必须可映射到 ArkUI 的常见布局模式。
 4. 如果输入只体现静态视图，你可以提炼最小必要交互，但不要推导 API、数据库、复杂状态机或后端流程。
 5. 所有字段都必须服务于 Coder 落地实现，避免空泛描述。
-6. 只输出一个 JSON 对象，不要输出解释文字、注释或 Markdown。
+6. 不要在字段外补充解释性旁白、注释或 Markdown。
 
-## Output Schema Contract
+## Field Guidance
 
-输出必须匹配 `schemas.py` 中的 `ArchitectOutput`，至少包含以下核心结构：
+请重点关注以下核心字段的语义质量：
 
 - `project_name`
 - `app_display_name`
@@ -62,7 +64,7 @@
 3. 为每个页面提炼区块、核心组件、关键操作和状态说明。
 4. 如存在明显导航关系，写入 `navigation`。
 5. 如存在最小必要的数据实体或交互事件，写入 `data_model` 与 `interactions`。
-6. 最终自查 JSON 是否完整、字段命名是否稳定、是否能直接被 Coder 消费。
+6. 最终自查各字段是否完整、命名是否稳定、是否能直接被 Coder 消费。
 
 ## Refusal And Escalation
 

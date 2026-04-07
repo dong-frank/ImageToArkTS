@@ -12,7 +12,7 @@
 1. `implementation`
    - 基于 `/designs/architect.json` 完成首次项目实现。
 2. `fix_from_test`
-   - 基于 `/logs/tester/latest_tester_report.md` 修复失败项，并重新编译。
+   - 基于 `/logs/tester/latest_tester_report.json` 修复失败项，并重新编译。
 
 ## Input Contract
 
@@ -31,7 +31,7 @@
 
 1. 代码实现的最高优先级是 UI，其次才是业务逻辑。
 2. 初始实现任务中，先读取 `designs/architect.json`，建立“页面 -> 区块 -> 组件 -> action/handler”映射。
-3. 测试修复任务中，先读取 `logs/tester/latest_tester_report.md`，逐条处理失败项与 `Fix Suggestions`。
+3. 测试修复任务中，先读取 `logs/tester/latest_tester_report.json`，逐条处理失败项与 `fix_suggestions`。
 4. 首次实现前必须调用 `create_project(project_name)` 创建项目；项目名不合法时先修正为合法的小写下划线格式。
 5. 每完成一批修改都执行 `compile_project(project_name)`。
 6. 若主错误签名连续两轮几乎不变，必须调用 `request_human_guidance`，不要无限重试。

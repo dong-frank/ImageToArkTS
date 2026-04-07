@@ -92,3 +92,55 @@ class ArchitectOutput(BaseModel):
 	navigation: Optional[List[NavigationFlow]] = Field(None, description="页面间跳转与切换关系")
 	data_model: Optional[List[DataModelField]] = Field(None, description="数据模型字段及说明")
 	interactions: Optional[List[Interaction]] = Field(None, description="用户交互事件及说明")
+
+
+class TesterChecklistItem(BaseModel):
+	name: str = Field(..., description="Checklist item or page/module name.")
+	status: Literal["PASS", "FAIL", "UNKNOWN"] = Field(..., description="Validation status.")
+	source: Optional[str] = Field(None, description="Source of the checklist item.")
+	evidence: Optional[str] = Field(None, description="Evidence path or summary.")
+	gap: Optional[str] = Field(None, description="Missing info or functional gap.")
+	pair: Optional[str] = Field(None, description="Reference/runtime image pair summary.")
+	advices: Optional[List[str]] = Field(None, description="UI comparison advice list.")
+	impact: Optional[Literal["high", "medium", "low"]] = Field(None, description="Impact level for UI gap.")
+
+
+class TesterMissingItems(BaseModel):
+	functional: List[str] = Field(default_factory=list, description="Missing functional items.")
+	ui: List[str] = Field(default_factory=list, description="Missing UI items.")
+
+
+class TesterEvidencePaths(BaseModel):
+	description: str = Field(..., description="Description path.")
+	reference_images: List[str] = Field(default_factory=list, description="Reference image paths.")
+	runtime_screenshots: List[str] = Field(default_factory=list, description="Runtime screenshot paths.")
+	layout_json: List[str] = Field(default_factory=list, description="Captured layout json paths.")
+	ui_compare_logs: List[str] = Field(default_factory=list, description="UI comparison log paths.")
+	report_path: str = Field(..., description="Saved report path.")
+
+
+class TesterFixSuggestions(BaseModel):
+	p0: List[str] = Field(default_factory=list, description="Critical fixes.")
+	p1: List[str] = Field(default_factory=list, description="High-priority fixes.")
+	p2: List[str] = Field(default_factory=list, description="Low-priority fixes.")
+
+
+class TesterCompletionSummary(BaseModel):
+	task_type: Literal["validation"] = Field(..., description="Tester task type.")
+	report_saved: bool = Field(..., description="Whether the json report was saved.")
+	next_recommended_agent: Literal["coder", "orchestrator", "human"] = Field(
+		..., description="Recommended next owner."
+	)
+	blocker: str = Field(..., description="Blocker summary, use 'none' when clear.")
+
+
+class TesterReportOutput(BaseModel):
+	overall: Literal["PASS", "FAIL"] = Field(..., description="Overall validation verdict.")
+	functional_completeness: Literal["PASS", "FAIL"] = Field(..., description="Functional verdict.")
+	static_ui_completeness: Literal["PASS", "FAIL"] = Field(..., description="Static UI verdict.")
+	functional_checklist: List[TesterChecklistItem] = Field(default_factory=list, description="Functional checklist.")
+	static_ui_checklist: List[TesterChecklistItem] = Field(default_factory=list, description="Static UI checklist.")
+	missing_items: TesterMissingItems = Field(..., description="Missing functional and UI items.")
+	evidence_paths: TesterEvidencePaths = Field(..., description="Evidence path collection.")
+	fix_suggestions: TesterFixSuggestions = Field(..., description="Fix suggestion groups.")
+	completion_summary: TesterCompletionSummary = Field(..., description="Completion metadata.")

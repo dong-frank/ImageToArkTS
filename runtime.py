@@ -16,12 +16,16 @@ from langgraph.types import Command
 from agent import graph
 from utils.session_backend import sync_backend_outputs_to_local, sync_local_user_input_to_backend
 from utils.session_context import reset_current_session_id, set_current_session_id
+from utils.user_input_preparation import (
+    load_user_input_metadata_payload,
+    prepend_user_input_instruction,
+    refresh_user_input_artifacts,
+    save_user_input_metadata_payload,
+)
 from utils.session_workspace import (
     DEFAULT_SESSION_ID,
     normalize_session_id,
-    session_description_md_path,
     session_user_input_dir,
-    session_user_input_meta_path,
     session_workspace_dir,
 )
 
@@ -29,9 +33,6 @@ PROJECT_ROOT = Path(__file__).resolve().parent
 AGENT_WORKSPACE_DIR = PROJECT_ROOT / "agent_workspace"
 RESET_SCRIPT_PATH = PROJECT_ROOT / "scripts" / "reset_agent_workspace.sh"
 HITL_EVENT_PREFIX = "__HITL_REQUIRED__:"
-USER_INPUT_INSTRUCTION_PREFIX = "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作。"
-
-
 @asynccontextmanager
 async def lifespan(app):
     app.agent = graph
@@ -63,61 +64,6 @@ def _extract_resume_value(request: AgentRequest | None) -> Any:
 
 def _resolve_session_id(raw: str | None) -> str:
     return normalize_session_id(raw)
-
-
-def _normalize_message_text(msg: BaseMessage) -> str:
-    content = getattr(msg, "content", "")
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for item in content:
-            if isinstance(item, str):
-                parts.append(item)
-                continue
-            if isinstance(item, dict):
-                text_value = item.get("text")
-                if isinstance(text_value, str):
-                    parts.append(text_value)
-        return "\n".join(part for part in parts if part)
-    return str(content or "")
-
-
-def _prepend_user_input_instruction(msgs: List[BaseMessage], session_id: str) -> List[BaseMessage]:
-    def _persist_description_md(content: str) -> None:
-        user_input_dir = session_user_input_dir(PROJECT_ROOT, session_id)
-        description_path = session_description_md_path(PROJECT_ROOT, session_id)
-        user_input_dir.mkdir(parents=True, exist_ok=True)
-        description_path.write_text(content, encoding="utf-8")
-
-    metadata_payload = _load_user_input_metadata_payload(session_id)
-    metadata_json = json.dumps(metadata_payload, ensure_ascii=False, indent=2)
-    merged = list(msgs)
-    for idx in range(len(merged) - 1, -1, -1):
-        msg = merged[idx]
-        if isinstance(msg, HumanMessage):
-            user_text = _normalize_message_text(msg).strip()
-            combined_text = (
-                f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
-                "请重点参考 user_input_metadata.json：该文件记录了上传文件清单、类型和每个文件的描述信息，"
-                "尤其是图片的 description，它是你理解用户意图的重要依据。\n\n"
-                "user_input_metadata.json:\n"
-                f"{metadata_json}\n\n"
-                "以下是用户在主聊天框中的本次输入：\n"
-                f"{user_text or '(empty)'}"
-            )
-            _persist_description_md(combined_text)
-            merged[idx] = HumanMessage(content=combined_text)
-            return merged
-
-    fallback_text = (
-        f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
-        "请重点参考 user_input_metadata.json：该文件记录了上传文件清单、类型和每个文件的描述信息，"
-        "尤其是图片的 description，它是你理解用户意图的重要依据。\n\n"
-        f"user_input_metadata.json:\n{metadata_json}"
-    )
-    _persist_description_md(fallback_text)
-    return [HumanMessage(content=fallback_text), *merged]
 
 
 def _task_interrupts(task: Any) -> list[Any]:
@@ -186,7 +132,8 @@ async def query_func(
     resume_value = _extract_resume_value(request)
     graph_input: Any = Command(resume=resume_value) if resume_value is not None else {"messages": msgs}
     if resume_value is None:
-        graph_input = {"messages": _prepend_user_input_instruction(msgs, session_id)}
+        refresh_user_input_artifacts(PROJECT_ROOT, session_id)
+        graph_input = {"messages": prepend_user_input_instruction(PROJECT_ROOT, msgs, session_id)}
     sync_local_user_input_to_backend(session_id)
     try:
         for chunk, _meta_data in runtime_agent.stream(
@@ -242,78 +189,6 @@ def _build_tree_node(path: Path, root: Path) -> dict:
     }
 
 
-def _load_user_input_metadata_payload(session_id: str) -> dict:
-    metadata_path = session_user_input_meta_path(PROJECT_ROOT, session_id)
-    if not metadata_path.is_file():
-        return {"files": {}}
-
-    try:
-        data = json.loads(metadata_path.read_text(encoding="utf-8"))
-    except Exception:
-        return {"files": {}}
-
-    if not isinstance(data, dict):
-        return {"files": {}}
-
-    raw_files = data.get("files", {})
-    files: dict[str, dict] = {}
-    if isinstance(raw_files, dict):
-        for file_name, raw_meta in raw_files.items():
-            if not isinstance(file_name, str):
-                continue
-            if not isinstance(raw_meta, dict):
-                raw_meta = {}
-            name = str(raw_meta.get("name") or file_name)
-            path = str(raw_meta.get("path") or f"/user_input/{name}")
-            content_type = str(raw_meta.get("content_type") or "")
-            description_raw = raw_meta.get("description")
-            description = None
-            if isinstance(description_raw, str) and description_raw.strip():
-                description = description_raw.strip()
-            files[file_name] = {
-                "name": name,
-                "description": description,
-                "path": path,
-                "content_type": content_type,
-            }
-
-    return {
-        "files": files,
-    }
-
-
-def _save_user_input_metadata_payload(session_id: str, payload: dict) -> None:
-    raw_files = payload.get("files", {})
-    normalized_files: dict[str, dict] = {}
-    if isinstance(raw_files, dict):
-        for file_name, raw_meta in raw_files.items():
-            if not isinstance(file_name, str):
-                continue
-            if not isinstance(raw_meta, dict):
-                raw_meta = {}
-            name = str(raw_meta.get("name") or file_name)
-            path = str(raw_meta.get("path") or f"/user_input/{name}")
-            content_type = str(raw_meta.get("content_type") or "")
-            description_raw = raw_meta.get("description")
-            description = None
-            if isinstance(description_raw, str) and description_raw.strip():
-                description = description_raw.strip()
-            normalized_files[file_name] = {
-                "name": name,
-                "description": description,
-                "path": path,
-                "content_type": content_type,
-            }
-
-    normalized_payload = {"files": normalized_files}
-    metadata_path = session_user_input_meta_path(PROJECT_ROOT, session_id)
-    metadata_path.parent.mkdir(parents=True, exist_ok=True)
-    metadata_path.write_text(
-        json.dumps(normalized_payload, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-
-
 @agent_app.endpoint("/user-input/upload", methods=["POST"])
 async def upload_user_input(
     files: List[UploadFile] = File(...),
@@ -324,7 +199,7 @@ async def upload_user_input(
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
-    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
+    metadata_payload = load_user_input_metadata_payload(PROJECT_ROOT, normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
@@ -388,12 +263,14 @@ async def upload_user_input(
         saved_files.append(response_entry)
         files_metadata[target_path.name] = metadata_entry
 
-    _save_user_input_metadata_payload(
+    save_user_input_metadata_payload(
+        PROJECT_ROOT,
         normalized_session_id,
         {
             "files": files_metadata,
         }
     )
+    refresh_user_input_artifacts(PROJECT_ROOT, normalized_session_id)
 
     return {
         "saved_count": len(saved_files),
@@ -406,7 +283,7 @@ async def list_user_input_files(session_id: str = DEFAULT_SESSION_ID):
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
-    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
+    metadata_payload = load_user_input_metadata_payload(PROJECT_ROOT, normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
@@ -457,7 +334,7 @@ async def delete_user_input_file(file_name: str, session_id: str = DEFAULT_SESSI
 
     target.unlink()
 
-    metadata_payload = _load_user_input_metadata_payload(normalized_session_id)
+    metadata_payload = load_user_input_metadata_payload(PROJECT_ROOT, normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
         files_metadata = {}
@@ -467,12 +344,14 @@ async def delete_user_input_file(file_name: str, session_id: str = DEFAULT_SESSI
         files_metadata.pop(safe_name, None)
         changed = True
     if changed:
-        _save_user_input_metadata_payload(
+        save_user_input_metadata_payload(
+            PROJECT_ROOT,
             normalized_session_id,
             {
                 "files": files_metadata,
             }
         )
+    refresh_user_input_artifacts(PROJECT_ROOT, normalized_session_id)
 
     return {
         "ok": True,

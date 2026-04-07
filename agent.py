@@ -1,55 +1,42 @@
-from deepagents import create_deep_agent
+from langchain.agents import create_agent
+from langchain.agents.middleware import TodoListMiddleware
+from langchain_anthropic.middleware import AnthropicPromptCachingMiddleware
 
-from models import architect_vision_model, base_model, vision_model
-from schemas import ArchitectOutput
-from tools.tool_sets import (
-    ARCHITECT_SUBAGENT_TOOLS,
-    CODER_SUBAGENT_TOOLS,
-    MAIN_AGENT_TOOLS,
-    TESTER_SUBAGENT_TOOLS,
-)
+from deepagents.graph import BASE_AGENT_PROMPT
+from deepagents.middleware.filesystem import FilesystemMiddleware
+from deepagents.middleware.patch_tool_calls import PatchToolCallsMiddleware
+from deepagents.middleware.summarization import create_summarization_middleware
+from models import base_model
+from subagents import SUBAGENT_SPECS
+from tools.tool_sets import ORCHESTRATOR_AGENT_TOOLS
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
 from utils.utils import load_prompt
 
 
-architect_subagent = {
-    "name": "architect",
-    "description": "你是 ImageToArkTS 系统的 Architect",
-    "model": architect_vision_model,
-    "system_prompt": load_prompt("architect_system_prompt.md"),
-    "tools": ARCHITECT_SUBAGENT_TOOLS,
-}
-
-coder_subagent = {
-    "name": "coder",
-    "description": "你是 ImageToArkTS 系统的 Coder",
-    "model": base_model,
-    "system_prompt": load_prompt("coder_system_prompt.md"),
-    "skills": ["/skills"],
-    "tools": CODER_SUBAGENT_TOOLS,
-}
-
-tester_subagent = {
-    "name": "tester",
-    "description": "你是 ImageToArkTS 系统的 Tester",
-    "model": vision_model,
-    "system_prompt": load_prompt("tester_system_prompt.md"),
-    "tools": TESTER_SUBAGENT_TOOLS,
-}
-
-subagents = [architect_subagent, coder_subagent, tester_subagent]
-
-agent = create_deep_agent(
+agent = create_agent(
     model=base_model,
-    system_prompt=load_prompt("system_prompt.md"),
-    subagents=subagents,
-    backend=backend_factory,
-    tools=MAIN_AGENT_TOOLS,
+    system_prompt=load_prompt("system_prompt.md") + "\n\n" + BASE_AGENT_PROMPT,
+    tools=ORCHESTRATOR_AGENT_TOOLS,
+    middleware=[
+        TodoListMiddleware(),
+        FilesystemMiddleware(backend=backend_factory),
+        create_summarization_middleware(base_model, backend_factory),
+        AnthropicPromptCachingMiddleware(unsupported_model_behavior="ignore"),
+        PatchToolCallsMiddleware(),
+    ],
     checkpointer=get_checkpointer(),
+).with_config(
+    {
+        "recursion_limit": 1000,
+        "metadata": {
+            "ls_integration": "deepagents",
+        },
+    }
 )
 
 graph = agent
+subagents = SUBAGENT_SPECS
 
 
 def run_agent():

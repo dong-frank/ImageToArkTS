@@ -40,7 +40,7 @@ def _build_default_prompt(project_name: str) -> str:
     return (
         "请你作为独立 tester 子代理执行一次完整验收。\n"
         f"待测项目路径：/projects/{project_name}\n"
-        "严格按照 tester 系统提示里的流程执行工具调用，并输出 `# Tester Verdict` 模板结果。\n"
+        "严格按照 tester 系统提示里的流程执行工具调用，并输出符合 TesterReportOutput 的 JSON 结果。\n"
         "若未显式给出 bundleName，请先从 /projects/<project_name>/AppScope/app.json5 读取后再启动应用。"
     )
 

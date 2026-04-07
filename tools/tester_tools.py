@@ -13,8 +13,10 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
+from pydantic import BaseModel, ValidationError
 
 from models import small_model, vision_model
+from schemas import TesterReportOutput
 from tools.common import (
     PROJECT_ROOT,
     ensure_directory,
@@ -26,6 +28,8 @@ from tools.common import (
     run_cmd,
     to_windows_path_if_needed,
 )
+from utils.session_context import get_current_session_id
+from utils.user_input_preparation import persist_test_description
 
 TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
@@ -280,33 +284,67 @@ def read_description_baseline(path: str = "/user_input/description.md") -> str:
 def save_tester_report(
     content: str,
     output_dir: str = "/logs/tester",
-    file_name: str = "tester_report.md",
+    file_name: str = "tester_report.json",
 ) -> str:
     """
     Save tester final output content to logs directory.
     """
     print("start save tester report")
-    text = str(content or "").strip()
-    if not text:
-        return "status: FAILED\nreason: empty report content"
+    return save_tester_report_payload(content, output_dir=output_dir, file_name=file_name)
 
-    base_dir = ensure_directory(resolve_workspace_path(output_dir))
-    safe_name = Path(file_name).name or "tester_report.md"
-    if not safe_name.lower().endswith((".md", ".txt", ".json")):
-        safe_name = f"{safe_name}.md"
+
+def _normalize_tester_report_payload(payload: Any) -> dict:
+    if isinstance(payload, TesterReportOutput):
+        return payload.model_dump(mode="json", exclude_none=True)
+    if isinstance(payload, BaseModel):
+        validated = TesterReportOutput.model_validate(payload.model_dump(mode="json"))
+        return validated.model_dump(mode="json", exclude_none=True)
+    if isinstance(payload, dict):
+        validated = TesterReportOutput.model_validate(payload)
+        return validated.model_dump(mode="json", exclude_none=True)
+    if isinstance(payload, str):
+        text = str(payload or "").strip()
+        if not text:
+            raise ValueError("empty report content")
+        parsed = json.loads(text)
+        validated = TesterReportOutput.model_validate(parsed)
+        return validated.model_dump(mode="json", exclude_none=True)
+    raise ValueError(f"tester report type not supported: {type(payload).__name__}")
+
+
+def save_tester_report_payload(
+    payload: Any,
+    output_dir: str = "/logs/tester",
+    file_name: str = "tester_report.json",
+    project_root: Path | None = None,
+) -> str:
+    try:
+        normalized = _normalize_tester_report_payload(payload)
+    except json.JSONDecodeError as exc:
+        return f"status: FAILED\nreason: tester report is not valid JSON: {exc}"
+    except ValidationError as exc:
+        return f"status: FAILED\nreason: tester report does not match TesterReportOutput schema: {exc}"
+    except ValueError as exc:
+        return f"status: FAILED\nreason: {exc}"
+
+    root_base_dir = ensure_directory(resolve_workspace_path(output_dir)) if project_root is None else ensure_directory(project_root / "agent_workspace" / "sessions" / get_current_session_id() / output_dir.lstrip("/"))
+    safe_name = Path(file_name).name or "tester_report.json"
+    if not safe_name.lower().endswith(".json"):
+        safe_name = f"{Path(safe_name).stem}.json"
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    report_path = base_dir / f"{timestamp}_{safe_name}"
-    latest_path = base_dir / f"latest_{safe_name}"
-    report_path.write_text(text, encoding="utf-8")
-    latest_path.write_text(text, encoding="utf-8")
+    report_path = root_base_dir / f"{timestamp}_{safe_name}"
+    latest_path = root_base_dir / f"latest_{safe_name}"
+    payload_text = json.dumps(normalized, ensure_ascii=False, indent=2)
+    report_path.write_text(payload_text, encoding="utf-8")
+    latest_path.write_text(payload_text, encoding="utf-8")
 
     return "\n".join(
         [
             "status: SUCCESS",
             f"report_path: {report_path}",
             f"latest_report_path: {latest_path}",
-            f"output_dir: {base_dir}",
+            f"output_dir: {root_base_dir}",
         ]
     )
 
@@ -899,6 +937,27 @@ def install_harmony_app(
         ]
     )
     return "\n".join(lines)
+
+
+@tool
+def save_test_description(
+    content: str,
+    path: str = "/user_input/description.md",
+) -> str:
+    """
+    Persist tester-provided validation scope into description.md for the current session.
+    """
+    target_path = resolve_workspace_path(path)
+    ensure_directory(target_path.parent)
+    normalized_content = str(content or "").strip()
+    persist_test_description(PROJECT_ROOT, get_current_session_id(), normalized_content)
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"path: {path}",
+            f"saved_chars: {len(normalized_content)}",
+        ]
+    )
 
 
 @tool
@@ -1999,6 +2058,7 @@ def assert_state(
 TESTER_TOOLS = [
     ensure_emulator_ready,
     read_description_baseline,
+    save_test_description,
     build_test_plan_from_inputs,
     install_harmony_app,
     start_harmony_app,
