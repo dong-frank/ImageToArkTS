@@ -18,11 +18,15 @@
 
 实现与约束：
 1. `project_name` 不合法时，先修正为合法的小写下划线风格名称，再调用 `create_project(project_name)`。
-2. UI 优先：先保证页面骨架、布局层级、关键组件、尺寸间距和视觉效果；可用静态/Mock 数据、占位文本和占位图片；复杂逻辑先做最小可运行版本，保证界面可展示、可切换、可点击。
+2. UI 绝对优先与逻辑白名单制：先保证页面骨架、布局和视觉效果。
+【关键约束】严格遵循 architect.json 编码。对于组件，如果 JSON 中未明确定义 ui_action 或 interactions.handler 字段，绝对禁止擅自添加任何业务逻辑或运算代码！
 3. 交互可追踪：组件 `action`、`interactions.handler`、页面内实际函数名三者语义一致（可同名或一一映射）。关键功能（如 `clear_all`、`append_digit`、`evaluate`、`open_conversion_menu`、导航跳转）必须使用独立函数，避免 `handle_click`、`do_action`、`process` 等泛化命名。
-4. 样式必须结构化：禁止 CSS/Tailwind 类名或 `style: "width:...;"` 这类长字符串直接写入 ArkTS；必须拆解为 ArkUI 可映射字段（如 `width`、`height`、`bg_color`、`text_color`、`font_size`、`font_weight`、`border_radius`、`padding`、`margin`、`grid_gap`）。
-5. 对 `visual_style` 或文本中的自然语言样式描述，先提炼为可执行参数，再编码；禁止原样写入注释或代码。
-6. 资源策略默认快速原型：文本优先普通字符串，颜色优先十六进制；只有在明显需要复用或鸿蒙配置强制要求时才引入 `$r(...)`。若使用 `$r(...)`，必须确认资源文件与 key 已存在；不要把 `Resource` 当作 `string` 存入 `@State` 或普通字符串变量。
-7. 多页面项目先完成真实首页选择、`EntryAbility.loadContent`、`main_pages.json` 注册和路由名统一，再实现页面内部 UI。
-8. 当高级 ArkUI 写法导致类型不稳定或编译失败时，优先回退到简单、保守、常见的可编译写法，再逐步恢复视觉效果。
-9. 不输出多余解释，只专注于项目代码与结构。
+4. 未定义交互的处理标准：如果组件没有定义交互字段，必须保持为纯静态 UI，或仅使用空函数/日志输出占位。
+正确示范：onClick(() => { console.info('btn_percent action not defined') }) 或完全不写 onClick。
+错误示范：擅自向状态变量中拼接百分号，或执行 value / 100 等常识性计算。
+5. 样式必须结构化：禁止 CSS/Tailwind 类名或 `style: "width:...;"` 这类长字符串直接写入 ArkTS；必须拆解为 ArkUI 可映射字段（如 `width`、`height`、`bg_color`、`text_color`、`font_size`、`font_weight`、`border_radius`、`padding`、`margin`、`grid_gap`）。
+6. 对 `visual_style` 或文本中的自然语言样式描述，先提炼为可执行参数，再编码；禁止原样写入注释或代码。
+7. 资源策略默认快速原型：文本优先普通字符串，颜色优先十六进制；只有在明显需要复用或鸿蒙配置强制要求时才引入 `$r(...)`。若使用 `$r(...)`，必须确认资源文件与 key 已存在；不要把 `Resource` 当作 `string` 存入 `@State` 或普通字符串变量。
+8. 多页面项目先完成真实首页选择、`EntryAbility.loadContent`、`main_pages.json` 注册和路由名统一，再实现页面内部 UI。
+9. 当高级 ArkUI 写法导致类型不稳定或编译失败时，优先回退到简单、保守、常见的可编译写法，再逐步恢复视觉效果。
+10. 不输出多余解释，只专注于项目代码与结构。
