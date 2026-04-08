@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import base64
 import difflib
@@ -26,6 +26,13 @@ from tools.common import (
     run_cmd,
     to_windows_path_if_needed,
 )
+
+try:
+    from PIL import Image
+
+    PIL_AVAILABLE = True
+except Exception:  # noqa: BLE001
+    PIL_AVAILABLE = False
 
 TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
@@ -297,7 +304,7 @@ def save_tester_report(
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     report_path = base_dir / f"{timestamp}_{safe_name}"
-    latest_path = base_dir / f"latest_{safe_name}"
+    latest_path = base_dir / (safe_name if safe_name.startswith("latest_") else f"latest_{safe_name}")
     report_path.write_text(text, encoding="utf-8")
     latest_path.write_text(text, encoding="utf-8")
 
@@ -307,6 +314,238 @@ def save_tester_report(
             f"report_path: {report_path}",
             f"latest_report_path: {latest_path}",
             f"output_dir: {base_dir}",
+        ]
+    )
+
+
+def _workspace_relative_display(path_value: Path) -> str:
+    normalized = Path(path_value).resolve()
+    marker = "/agent_workspace/sessions/"
+    text = str(normalized).replace("\\", "/")
+    marker_index = text.find(marker)
+    if marker_index >= 0:
+        tail = text[marker_index + len(marker) :]
+        parts = tail.split("/", 1)
+        if len(parts) == 2:
+            return f"/{parts[1]}"
+    return str(normalized)
+
+
+def _extract_bundle_name_from_appscope(app_json_path: Path) -> str:
+    if not app_json_path.exists() or not app_json_path.is_file():
+        return ""
+    raw = app_json_path.read_text(encoding="utf-8", errors="ignore")
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            app = parsed.get("app")
+            if isinstance(app, dict):
+                value = str(app.get("bundleName", "")).strip()
+                if value:
+                    return value
+    except Exception:  # noqa: BLE001
+        pass
+
+    match = re.search(r'"bundleName"\s*:\s*"([^"]+)"', raw)
+    if match:
+        return match.group(1).strip()
+    return ""
+
+
+def _find_best_hap_under(outputs_dir: Path) -> Path | None:
+    if not outputs_dir.exists() or not outputs_dir.is_dir():
+        return None
+    hap_files = [path for path in outputs_dir.rglob("*.hap") if path.is_file()]
+    if not hap_files:
+        return None
+
+    def _score(path: Path) -> tuple[int, float]:
+        name = path.name.lower()
+        unsigned_bonus = 1 if "unsigned" in name else 0
+        return unsigned_bonus, path.stat().st_mtime
+
+    return sorted(hap_files, key=_score, reverse=True)[0]
+
+
+def _infer_single_project_name() -> tuple[str, str]:
+    root = projects_root()
+    if not root.exists():
+        return "", f"projects root not found: {root}"
+    dirs = sorted(path for path in root.iterdir() if path.is_dir())
+    if not dirs:
+        return "", f"no project found under: {root}"
+    if len(dirs) > 1:
+        names = ", ".join(path.name for path in dirs)
+        return "", f"multiple projects found, pass project_name explicitly: {names}"
+    return dirs[0].name, ""
+
+
+@tool
+def resolve_review_target(
+    project_name: str = "",
+    bundle_name: str = "",
+    hap_path: str = "",
+) -> str:
+    """
+    Resolve project_name / bundle_name / hap_path for review execution.
+    Default rule: bundle_name uses project_name when not provided.
+    """
+    print("start resolving review target")
+
+    resolved_project = str(project_name or "").strip()
+    if not resolved_project:
+        inferred, infer_error = _infer_single_project_name()
+        if infer_error:
+            return f"status: FAILED\nreason: {infer_error}"
+        resolved_project = inferred
+
+    project_dir = projects_root() / resolved_project
+    if not project_dir.exists() or not project_dir.is_dir():
+        return f"status: FAILED\nreason: project not found: {project_dir}"
+
+    outputs_dir = project_dir / "entry" / "build" / "default" / "outputs" / "default"
+    resolved_hap = str(hap_path or "").strip()
+    if resolved_hap:
+        target_hap = resolve_workspace_path(resolved_hap)
+    else:
+        best = _find_best_hap_under(outputs_dir)
+        if best is None:
+            return (
+                "status: FAILED\n"
+                "reason: hap file not found under expected output directory\n"
+                f"expected_dir: {outputs_dir}"
+            )
+        target_hap = best
+
+    if not target_hap.exists() or not target_hap.is_file():
+        return f"status: FAILED\nreason: hap file not found: {target_hap}"
+
+    appscope_bundle = _extract_bundle_name_from_appscope(project_dir / "AppScope" / "app.json5")
+    resolved_bundle = str(bundle_name or "").strip() or resolved_project
+
+    payload = {
+        "project_name": resolved_project,
+        "bundle_name": resolved_bundle,
+        "bundle_name_from_appscope": appscope_bundle,
+        "hap_path": str(target_hap.resolve()),
+        "expected_hap_dir": str(outputs_dir.resolve()),
+        "project_dir": str(project_dir.resolve()),
+    }
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"project_name: {resolved_project}",
+            f"bundle_name: {resolved_bundle}",
+            f"bundle_name_from_appscope: {appscope_bundle or '(empty)'}",
+            f"hap_path: {target_hap.resolve()}",
+            f"expected_hap_dir: {outputs_dir.resolve()}",
+            "resolved_json:",
+            json.dumps(payload, ensure_ascii=False),
+        ]
+    )
+
+
+def _parse_key_value_lines(raw_text: str) -> Dict[str, str]:
+    values: Dict[str, str] = {}
+    for raw_line in str(raw_text or "").splitlines():
+        line = raw_line.strip()
+        if ":" not in line:
+            continue
+        key, value = line.split(":", 1)
+        values[key.strip()] = value.strip()
+    return values
+
+
+@tool
+def run_review_node_with_inputs(
+    project_name: str = "",
+    bundle_name: str = "",
+    hap_path: str = "",
+    ability_name: str = "EntryAbility",
+    max_depth: int = 5,
+    output_root: str = "/output",
+    architect_output_path: str = "/designs/architect.json",
+    run_jump_compare: bool = True,
+    install_hap: bool = True,
+) -> str:
+    """
+    Execute review_node.run_review_workflow with resolved project target.
+    """
+    print("start running review node workflow")
+
+    resolved_text = resolve_review_target.invoke(
+        {"project_name": project_name, "bundle_name": bundle_name, "hap_path": hap_path}
+    )
+    if "status: FAILED" in resolved_text:
+        return resolved_text
+
+    resolved_values = _parse_key_value_lines(resolved_text)
+    resolved_project_name = resolved_values.get("project_name", "").strip()
+    resolved_bundle_name = resolved_values.get("bundle_name", "").strip()
+    resolved_hap_path = resolved_values.get("hap_path", "").strip()
+    if not resolved_bundle_name or not resolved_hap_path:
+        return (
+            "status: FAILED\n"
+            "reason: resolve_review_target did not produce bundle_name/hap_path\n"
+            f"raw_resolve_output:\n{resolved_text}"
+        )
+
+    review_output_root = resolve_workspace_path(output_root)
+    architect_json_path = resolve_workspace_path(architect_output_path)
+
+    try:
+        from review_node import run_review_workflow
+    except Exception as exc:  # noqa: BLE001
+        return f"status: FAILED\nreason: import review_node failed\nerror: {exc}"
+
+    try:
+        result = run_review_workflow(
+            hap_path=resolved_hap_path,
+            bundle_name_value=resolved_bundle_name,
+            ability_name_value=str(ability_name or "").strip() or "EntryAbility",
+            max_depth=max_depth,
+            output_root=str(review_output_root),
+            architect_output_path=str(architect_json_path),
+            run_jump_compare=bool(run_jump_compare),
+            install_hap=bool(install_hap),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return (
+            "status: FAILED\n"
+            "reason: run_review_workflow execution failed\n"
+            f"project_name: {resolved_project_name}\n"
+            f"bundle_name: {resolved_bundle_name}\n"
+            f"hap_path: {resolved_hap_path}\n"
+            f"error: {exc}"
+        )
+
+    output_dir = Path(str(result.get("output_dir", "")).strip()) if isinstance(result, dict) else None
+    report_path = Path(str(result.get("report_path", "")).strip()) if isinstance(result, dict) else None
+    detailed_path = Path(str(result.get("review_detailed_output_path", "")).strip()) if isinstance(result, dict) else None
+
+    output_display = _workspace_relative_display(output_dir) if output_dir else ""
+    report_display = _workspace_relative_display(report_path) if report_path else ""
+    detailed_display = _workspace_relative_display(detailed_path) if detailed_path else ""
+
+    payload = result if isinstance(result, dict) else {"status": "UNKNOWN"}
+    return "\n".join(
+        [
+            f"status: {payload.get('status', 'UNKNOWN')}",
+            f"project_name: {resolved_project_name}",
+            f"bundle_name: {resolved_bundle_name}",
+            f"ability_name: {payload.get('ability_name', ability_name)}",
+            f"hap_path: {resolved_hap_path}",
+            f"output_dir: {payload.get('output_dir', '')}",
+            f"output_dir_rel: {output_display}",
+            f"report_path: {payload.get('report_path', '')}",
+            f"report_path_rel: {report_display}",
+            f"review_detailed_output_path: {payload.get('review_detailed_output_path', '')}",
+            f"review_detailed_output_path_rel: {detailed_display}",
+            f"jump_transition_candidates_path: {payload.get('jump_transition_candidates_path', '')}",
+            f"jump_action_diff_path: {payload.get('jump_action_diff_path', '')}",
+            f"jump_action_summary_path: {payload.get('jump_action_summary_path', '')}",
+            "result_json:",
+            json.dumps(payload, ensure_ascii=False),
         ]
     )
 
@@ -1165,13 +1404,57 @@ def _score_path_match(page_name: str, reference_path: Path, runtime_path: Path) 
     return difflib.SequenceMatcher(None, a, b).ratio()
 
 
+def _image_ahash_bits(image_path: Path, size: int = 16) -> Optional[List[int]]:
+    if not PIL_AVAILABLE:
+        return None
+    try:
+        with Image.open(image_path) as image:
+            grayscale = image.convert("L").resize((size, size))
+            pixels = list(grayscale.getdata())
+    except Exception:  # noqa: BLE001
+        return None
+
+    if not pixels:
+        return None
+    avg = sum(pixels) / len(pixels)
+    return [1 if pixel >= avg else 0 for pixel in pixels]
+
+
+def _image_similarity_score(reference_path: Path, runtime_path: Path) -> Optional[float]:
+    bits_a = _image_ahash_bits(reference_path)
+    bits_b = _image_ahash_bits(runtime_path)
+    if not bits_a or not bits_b or len(bits_a) != len(bits_b):
+        return None
+    distance = sum(1 for left, right in zip(bits_a, bits_b) if left != right)
+    return 1.0 - (distance / len(bits_a))
+
+
+def _pair_similarity_score(
+    page_name: str,
+    reference_path: Path,
+    runtime_path: Path,
+    path_weight: float = 0.35,
+    image_weight: float = 0.65,
+) -> Dict[str, float]:
+    path_similarity = _score_path_match(page_name=page_name, reference_path=reference_path, runtime_path=runtime_path)
+    image_similarity = _image_similarity_score(reference_path, runtime_path)
+    if image_similarity is None:
+        image_similarity = path_similarity
+    combined = (path_similarity * float(path_weight)) + (image_similarity * float(image_weight))
+    return {
+        "path_similarity": round(path_similarity, 3),
+        "image_similarity": round(image_similarity, 3),
+        "combined_similarity": round(combined, 3),
+    }
+
+
 @tool
 def pair_reference_pages_with_runtime(
     plan_json: str = "",
     reference_dir: str = "/user_input",
     runtime_dir: str = "/logs",
     output_dir: str = "/logs/tester",
-    min_similarity: float = 0.32,
+    min_similarity: float = 0.35,
 ) -> str:
     """
     Pair expected reference pages with runtime screenshots for later UI comparison.
@@ -1244,15 +1527,22 @@ def pair_reference_pages_with_runtime(
             continue
 
         best_runtime: Optional[Path] = None
+        best_pair_scores: Dict[str, float] = {}
         best_score = -1.0
         for runtime_path in runtime:
             key = str(runtime_path)
             if key in used_runtime:
                 continue
-            score = _score_path_match(page_name=page_name, reference_path=reference_path, runtime_path=runtime_path)
+            score_payload = _pair_similarity_score(
+                page_name=page_name,
+                reference_path=reference_path,
+                runtime_path=runtime_path,
+            )
+            score = score_payload["combined_similarity"]
             if score > best_score:
                 best_score = score
                 best_runtime = runtime_path
+                best_pair_scores = score_payload
 
         if best_runtime is None or best_score < float(min_similarity):
             unmatched_pages.append(
@@ -1261,6 +1551,7 @@ def pair_reference_pages_with_runtime(
                     "reason": "runtime_not_matched",
                     "reference_image_path": str(reference_path),
                     "best_score": round(best_score, 3) if best_score >= 0 else None,
+                    "best_pair_scores": best_pair_scores,
                 }
             )
             continue
@@ -1272,6 +1563,8 @@ def pair_reference_pages_with_runtime(
                 "reference_image_path": str(reference_path),
                 "runtime_image_path": str(best_runtime),
                 "score": round(best_score, 3),
+                "path_similarity": best_pair_scores.get("path_similarity"),
+                "image_similarity": best_pair_scores.get("image_similarity"),
             }
         )
 
@@ -1439,6 +1732,80 @@ def compare_ui_pair_with_mini_agent(
 
     lines.append(f"summary: {summary or '(empty)'}")
     return "\n".join(lines)
+
+
+def _resolve_review_output_dir(review_output_dir: str) -> tuple[Optional[Path], str]:
+    root = resolve_workspace_path(review_output_dir)
+    if not root.exists():
+        return None, f"review output dir not found: {root}"
+    if not root.is_dir():
+        return None, f"review output path is not directory: {root}"
+
+    if (root / "report.txt").exists() or (root / "review_detailed_output.json").exists():
+        return root, ""
+
+    candidates = [path for path in root.iterdir() if path.is_dir() and (path / "report.txt").exists()]
+    if not candidates:
+        return None, (
+            "cannot find review run directory with report.txt under: "
+            f"{root}. pass exact review output dir (for example /output/<timestamp>)."
+        )
+    latest = sorted(candidates, key=lambda path: path.stat().st_mtime, reverse=True)[0]
+    return latest, ""
+
+
+def _select_summary_images(image_paths: List[Path], max_images: int) -> List[Path]:
+    if not image_paths:
+        return []
+
+    def _priority(path: Path) -> tuple[int, float]:
+        name = path.name.lower()
+        rank = 5
+        if "init_screen" in name:
+            rank = 0
+        elif "after" in name:
+            rank = 1
+        elif "before" in name:
+            rank = 2
+        elif "return" in name:
+            rank = 3
+        return rank, -path.stat().st_mtime
+
+    ranked = sorted(image_paths, key=_priority)
+    selected = ranked[: max(1, int(max_images))]
+    return sorted(selected, key=lambda path: str(path))
+
+
+def _describe_screenshot_for_summary(image_path: Path) -> str:
+    try:
+        image_data_url = _encode_image_as_data_url(image_path)
+    except Exception as exc:  # noqa: BLE001
+        return f"(image_read_failed: {exc})"
+
+    prompt = (
+        "You are summarizing mobile app test evidence. "
+        "Describe in ONE short sentence what end-user capability is visible in this screenshot. "
+        "Focus on user actions, not pixel details."
+    )
+    try:
+        response = vision_model.invoke(
+            [
+                HumanMessage(
+                    content=[
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": {"url": image_data_url}},
+                    ]
+                )
+            ]
+        )
+    except Exception as exc:  # noqa: BLE001
+        return f"(vision_summary_failed: {exc})"
+
+    text = _extract_message_text(getattr(response, "content", ""))
+    first_line = str(text or "").strip().splitlines()[0] if str(text or "").strip() else ""
+    return first_line or "(empty_vision_summary)"
+
+
 
 
 @tool
@@ -1997,6 +2364,8 @@ def assert_state(
 
 
 TESTER_TOOLS = [
+    resolve_review_target,
+    run_review_node_with_inputs,
     ensure_emulator_ready,
     read_description_baseline,
     build_test_plan_from_inputs,

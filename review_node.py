@@ -23,6 +23,48 @@ except ImportError:
 PAGE_SIGNATURE_TO_ID: Dict[Tuple[str, ...], str] = {}
 PAGE_ID_COUNTER = 0
 
+
+def _convert_mnt_to_windows(path_value: str) -> str:
+    text = str(path_value or "").strip()
+    normalized = text.replace("\\", "/")
+    # 强制匹配纯正的 /mnt/d/ 格式
+    match = re.search(r"^/?mnt/([a-zA-Z])/(.*)$", normalized)
+    if match:
+        suffix = match.group(2).replace("/", "\\")
+        return f"{match.group(1).upper()}:\\{suffix}"
+    return text
+
+def _normalize_host_path(path_value: str) -> str:
+    text = str(path_value or "").strip()
+    if not text:
+        return text
+    
+    # 1. 暴力切断：只要字符串里包含 /mnt/，直接扔掉它前面的所有乱码
+    normalized = text.replace("\\", "/")
+    mixed_match = re.search(r"(/mnt/[a-zA-Z]/.*)$", normalized)
+    if mixed_match:
+        text = mixed_match.group(1)
+        
+    if os.name == "nt": 
+        return _convert_mnt_to_windows(text)
+    else: 
+        win_match = re.search(r"^([a-zA-Z]):/(.*)$", text)
+        if win_match:
+            return f"/mnt/{win_match.group(1).lower()}/{win_match.group(2)}"
+        return text
+
+def _normalize_local_path_for_hdc(path_value: str) -> str:
+    """专门为 HDC 准备的终极清洗函数"""
+    clean_path = _normalize_host_path(path_value)
+    clean_path = clean_path.replace("\\", "/")
+    
+    mnt_match = re.search(r"^/?mnt/([a-zA-Z])/(.*)$", clean_path)
+    if mnt_match:
+        suffix = mnt_match.group(2).replace("/", "\\")
+        return f"{mnt_match.group(1).upper()}:\\{suffix}"
+        
+    return clean_path.replace("/", "\\")
+
 def run_cmd(cmd, check=True):
     """执行命令并打印输出，check=True 时失败抛出异常"""
     print(f"▶️ 执行: {' '.join(cmd)}")
@@ -448,7 +490,8 @@ def take_screenshot(save_path, max_retries=3):
             time.sleep(1)
             continue
         # 传输文件到本地
-        result2 = run_cmd([HDC_WINDOWS_EXE, "file", "recv", remote_jpeg, save_path], check=False)
+        local_save_path = _normalize_local_path_for_hdc(save_path)
+        result2 = run_cmd([HDC_WINDOWS_EXE, "file", "recv", remote_jpeg, local_save_path], check=False)
         if result2.returncode != 0:
             print(f"⚠️ 文件传输失败 (尝试 {attempt+1}/{max_retries})")
             time.sleep(1)
@@ -467,7 +510,8 @@ def dump_layout(save_path, auto_recover=True, _has_recovered=False):
     """获取布局并保存（自动格式化），返回是否成功"""
     remote_layout = "/data/local/tmp/layout.json"
     run_cmd([HDC_WINDOWS_EXE, "shell", "uitest", "dumpLayout", "-p", remote_layout])
-    run_cmd([HDC_WINDOWS_EXE, "file", "recv", remote_layout, save_path])
+    local_save_path = _normalize_local_path_for_hdc(save_path)
+    run_cmd([HDC_WINDOWS_EXE, "file", "recv", remote_layout, local_save_path])
     if os.path.exists(save_path):
         try:
             with open(save_path, "r", encoding="utf-8") as f:
@@ -1361,6 +1405,16 @@ def generate_report(results, report_path):
 
     lines.append(f"\n📊 总体统计")
     lines.append(f"测试元素总数: {total_tests}")
+    
+    # 修复除零错误：先判断 total_tests 是否大于 0
+    if total_tests > 0:
+        lines.append(f"操作成功数: {success_actions} ({success_actions/total_tests*100:.1f}%)")
+    else:
+        lines.append(f"操作成功数: 0 (0.0%)")
+        
+    lines.append(f"触发页面跳转数: {total_jumps}")
+    lines.append(f"\n📊 总体统计")
+    lines.append(f"测试元素总数: {total_tests}")
     lines.append(f"操作成功数: {success_actions} ({success_actions/total_tests*100:.1f}%)")
     lines.append(f"触发页面跳转数: {total_jumps}")
     if total_return_attempts > 0:
@@ -1893,29 +1947,50 @@ def compare_jump_actions(
     print(f"[jump-compare] summary saved: {summary_path}")
     return diff_path, summary_path
 
-def main():
+def run_review_workflow(
+    hap_path: str,
+    bundle_name_value: str,
+    ability_name_value: str = "EntryAbility",
+    max_depth: int = 5,
+    output_root: str = "output",
+    architect_output_path: str = os.path.join("designs", "architect.json"),
+    run_jump_compare: bool = True,
+    install_hap: bool = True,
+) -> Dict[str, Any]:
     global bundle_name, ability_name, PAGE_SIGNATURE_TO_ID, PAGE_ID_COUNTER
-    hap_path = "D:\\project\\0331\\ImageToArkTS\\agent_workspace\\sessions\\df46dc8a-8426-4029-9cd3-570414c96bf7\\projects\\calculator_app\\entry\\build\\default\\outputs\\default\\entry-default-unsigned.hap"
-    bundle_name = "com.example.calculator_app"
-    ability_name = "EntryAbility"
-    max_depth = 5
+
+    normalized_hap_path = _normalize_host_path(str(hap_path or "").strip())
+    resolved_hap_path = os.path.abspath(normalized_hap_path)
+    if not resolved_hap_path or not os.path.isfile(resolved_hap_path):
+        raise FileNotFoundError(f"HAP file not found: {resolved_hap_path or hap_path}")
+
+    bundle_name = str(bundle_name_value or "").strip()
+    if not bundle_name:
+        raise ValueError("bundle_name_value is required")
+
+    ability_name = str(ability_name_value or "").strip() or "EntryAbility"
+    depth_limit = max(1, int(max_depth or 1))
     PAGE_SIGNATURE_TO_ID = {}
     PAGE_ID_COUNTER = 0
 
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = os.path.join("output", timestamp)
+    normalized_output_root = _normalize_host_path(str(output_root or "output"))
+    output_base_dir = os.path.abspath(normalized_output_root)
+    os.makedirs(output_base_dir, exist_ok=True)
+    output_dir = os.path.join(output_base_dir, timestamp)
     os.makedirs(output_dir, exist_ok=True)
-    print(f"📁 输出根目录: {os.path.abspath(output_dir)}")
+    print(f"output root dir: {os.path.abspath(output_dir)}")
 
-    print("📦 安装 HAP 包...")
-    run_cmd([HDC_WINDOWS_EXE, "install", hap_path])
+    if install_hap:
+        print("installing HAP...")
+        hdc_hap_path = _normalize_local_path_for_hdc(resolved_hap_path)
+        run_cmd([HDC_WINDOWS_EXE, "install", hdc_hap_path])
 
     restart_app(bundle_name, ability_name)
-    # 获取初始布局并保存到初始页面目录
+
     temp_layout = os.path.join(output_dir, "temp_init_layout.json")
     if not dump_layout(temp_layout):
-        print("❌ 无法获取初始布局，退出")
-        return
+        raise RuntimeError("failed to dump initial layout")
 
     with open(temp_layout, "r", encoding="utf-8") as f:
         init_data = json.load(f)
@@ -1926,25 +2001,57 @@ def main():
     os.makedirs(init_page_dir, exist_ok=True)
     init_layout_path = os.path.join(init_page_dir, "layout.json")
     shutil.move(temp_layout, init_layout_path)
-    print(f"初始页面 {init_page_id} 布局已保存至 {init_layout_path}")
-
-    # 初始页面截图和标注由 explore_page 统一处理，这里不再重复保存
 
     all_results = []
     visited_pages = set()
-
-    explore_page(init_layout_path, visited_pages, depth=0, max_depth=max_depth,
-                 output_dir=output_dir, results_list=all_results, page_dir=init_page_dir)
+    explore_page(
+        init_layout_path,
+        visited_pages,
+        depth=0,
+        max_depth=depth_limit,
+        output_dir=output_dir,
+        results_list=all_results,
+        page_dir=init_page_dir,
+    )
 
     report_path = os.path.join(output_dir, "report.txt")
     generate_report(all_results, report_path)
-    _, transitions_path = write_detailed_outputs(all_results, output_dir, report_path, max_depth)
-    compare_jump_actions(
-        architect_output_path=os.path.join("artifacts", "architect_test_output.json"),
-        transitions_path=transitions_path,
-        output_dir=output_dir
+    detailed_path, transitions_path = write_detailed_outputs(
+        all_results,
+        output_dir,
+        report_path,
+        depth_limit,
     )
-    print(f"✅ 所有测试完成！结果保存在: {output_dir}")
+
+    compare_detail_path = None
+    compare_summary_path = None
+    normalized_architect_path = _normalize_host_path(str(architect_output_path))
+    resolved_architect_path = os.path.abspath(normalized_architect_path)
+    if run_jump_compare:
+        compare_detail_path, compare_summary_path = compare_jump_actions(
+            architect_output_path=resolved_architect_path,
+            transitions_path=transitions_path,
+            output_dir=output_dir,
+        )
+
+    return {
+        "status": "SUCCESS",
+        "hap_path": resolved_hap_path,
+        "bundle_name": bundle_name,
+        "ability_name": ability_name,
+        "max_depth": depth_limit,
+        "output_dir": os.path.abspath(output_dir),
+        "report_path": os.path.abspath(report_path),
+        "review_detailed_output_path": os.path.abspath(detailed_path),
+        "jump_transition_candidates_path": os.path.abspath(transitions_path),
+        "architect_output_path": resolved_architect_path,
+        "jump_action_diff_path": os.path.abspath(compare_detail_path) if compare_detail_path else "",
+        "jump_action_summary_path": os.path.abspath(compare_summary_path) if compare_summary_path else "",
+    }
+
+
+def main():
+    return
 
 if __name__ == "__main__":
     main()
