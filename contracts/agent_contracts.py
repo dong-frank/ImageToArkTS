@@ -60,10 +60,10 @@ class SubagentDefinition(BaseModel):
 
 ARCHITECT_DEFINITION = SubagentDefinition(
     name="architect",
-    description="Read uploaded inputs and produce structured architecture JSON.",
+    description="Read materialized architect inputs and return structured architecture JSON.",
     owned_task_types=["architecture"],
-    required_inputs=["/user_input/user_input_metadata.json"],
-    primary_outputs=["/designs/architect.json"],
+    required_inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
+    primary_outputs=["ArchitectOutput"],
     structured_output_schema="ArchitectOutput",
 )
 
@@ -90,12 +90,13 @@ TESTER_DEFINITION = SubagentDefinition(
 ARCHITECT_DISPATCH_CONTRACT = DispatchContract(
     task_type="architecture",
     trigger="new_user_input_ready",
-    inputs=["/user_input/user_input_metadata.json"],
-    required_outputs=["/designs/architect.json"],
+    inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
+    required_outputs=["/designs/architect_image_facts.json", "ArchitectOutput"],
     done_criteria=[
+        "build /designs/architect_image_facts.json from per-image grounded facts before final aggregation",
         "return valid JSON matching ArchitectOutput",
-        "final response contains only architecture JSON content",
-        "use metadata file to discover uploaded asset file paths before reading asset files",
+        "aggregate final design from metadata and image facts bundle instead of feeding all raw images into the final generation step",
+        "orchestration persists /designs/architect.json after receiving ArchitectOutput",
     ],
     fallback=[
         FallbackRule(condition="missing critical inputs", action="need_human_guidance"),

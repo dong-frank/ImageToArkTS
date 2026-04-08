@@ -94,6 +94,37 @@ class ArchitectOutput(BaseModel):
 	interactions: Optional[List[Interaction]] = Field(None, description="用户交互事件及说明")
 
 
+class ArchitectImageFactsOutput(BaseModel):
+	image_path: str = Field(..., description="Workspace-relative image path.")
+	image_role: Literal["entry", "primary", "secondary", "detail", "modal", "popup", "unknown"] = Field(
+		..., description="Most likely UI role of the image."
+	)
+	visible_texts: List[str] = Field(default_factory=list, description="Visible text snippets found in the image.")
+	layout_summary: str = Field(..., description="High-level layout description grounded in the image.")
+	key_sections: List[str] = Field(default_factory=list, description="Key visible sections in the image.")
+	interactive_hints: List[str] = Field(default_factory=list, description="Observable interaction hints from the image.")
+	uncertainties: List[str] = Field(default_factory=list, description="Uncertain or ambiguous observations.")
+
+
+class ArchitectCoverageSummary(BaseModel):
+	total_image_count: int = Field(..., description="Total discovered image inputs.")
+	processed_image_count: int = Field(..., description="Processed image count within budget.")
+	omitted_image_count: int = Field(..., description="Image count skipped due to budget limits.")
+	failed_image_count: int = Field(..., description="Image count that failed fact extraction.")
+	strategy: Literal["all_images_processed", "limited_to_budget"] = Field(
+		..., description="Image processing strategy used for this bundle."
+	)
+	notes: Optional[str] = Field(None, description="Extra context about the coverage decision.")
+
+
+class ArchitectImageFactsBundle(BaseModel):
+	facts: List[ArchitectImageFactsOutput] = Field(default_factory=list, description="Per-image grounded facts.")
+	shared_patterns: List[str] = Field(default_factory=list, description="Patterns shared across multiple images.")
+	conflicts: List[str] = Field(default_factory=list, description="Conflicts detected across image facts.")
+	coverage_summary: ArchitectCoverageSummary = Field(..., description="Coverage and budgeting summary.")
+	omitted_images: List[str] = Field(default_factory=list, description="Image paths skipped due to budget limits.")
+
+
 class TesterChecklistItem(BaseModel):
 	name: str = Field(..., description="Checklist item or page/module name.")
 	status: Literal["PASS", "FAIL", "UNKNOWN"] = Field(..., description="Validation status.")

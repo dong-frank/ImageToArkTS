@@ -30,6 +30,7 @@ from tools.common import (
 )
 from utils.session_context import get_current_session_id
 from utils.user_input_preparation import persist_test_description
+from utils.llm_utils import extract_tool_call_args, invoke_with_tool, normalize_tool_schema
 
 TESTER_SCRIPTS_DIR = PROJECT_ROOT / "scripts" / "tester"
 IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
@@ -460,29 +461,59 @@ def _extract_description_points_with_small_model(text: str) -> Tuple[List[Dict[s
 
     prompt = (
         "你是一个测试用例提取器。\n"
-        "请从以下产品描述中提取待测试功能点，并严格按序号列表输出，绝对不要输出任何前言、总结或解释性文字。\n"
-        "输出格式示例：\n"
-        "1. 验证用户登录功能\n"
-        "2. 检查密码输入错误时的提示\n"
+        "请从以下产品描述中提取待测试功能点，并返回结构化结果。\n"
         "要求：\n"
-        "1) 描述必须简洁具体；\n"
-        "2) 不能虚构内容，只能基于输入的产品描述进行提取。\n\n"
+        "1) 每个 item 必须包含 description、action_type、expected_keywords。\n"
+        "2) description 必须简洁具体。\n"
+        "3) action_type 只能是 assert/click/navigate/switch/back/input/scroll/long_press。\n"
+        "4) expected_keywords 必须是字符串数组。\n"
+        "5) 不能虚构内容，只能基于输入产品描述提取。\n\n"
         f"产品描述：\n{user_text}"
     )
 
     try:
-        response = small_model.invoke([HumanMessage(content=prompt)])
+        response = invoke_with_tool(
+            small_model,
+            [HumanMessage(content=prompt)],
+            "emit_description_points",
+            {
+                "type": "object",
+                "properties": {
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "description": {"type": "string"},
+                                "action_type": {
+                                    "type": "string",
+                                    "enum": sorted(ALLOWED_ACTION_TYPES),
+                                },
+                                "expected_keywords": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                },
+                            },
+                            "required": ["description", "action_type", "expected_keywords"],
+                        },
+                    }
+                },
+                "required": ["items"],
+            },
+        )
     except Exception as exc:  # noqa: BLE001
         return [], f"small_model_error: {exc}"
 
-    raw_text = _extract_message_text(getattr(response, "content", ""))
-    parsed = _extract_json_like_object(raw_text)
+    parsed = extract_tool_call_args(response, "emit_description_points")
     if parsed is None:
-        try:
-            direct = json.loads(raw_text)
-            parsed = direct if isinstance(direct, dict) else None
-        except Exception:  # noqa: BLE001
-            parsed = None
+        raw_text = _extract_message_text(getattr(response, "content", ""))
+        parsed = _extract_json_like_object(raw_text)
+        if parsed is None:
+            try:
+                direct = json.loads(raw_text)
+                parsed = direct if isinstance(direct, dict) else None
+            except Exception:  # noqa: BLE001
+                parsed = None
 
     if not isinstance(parsed, dict):
         return [], "small_model_invalid_json"
@@ -1410,7 +1441,8 @@ def compare_ui_pair_with_mini_agent(
     )
 
     try:
-        response = vision_model.invoke(
+        response = invoke_with_tool(
+            vision_model,
             [
                 HumanMessage(
                     content=[
@@ -1419,7 +1451,30 @@ def compare_ui_pair_with_mini_agent(
                         {"type": "image_url", "image_url": {"url": run_data_url}},
                     ]
                 )
-            ]
+            ],
+            "emit_ui_compare_result",
+            {
+                "type": "object",
+                "properties": {
+                    "overall": {"type": "string", "enum": ["PASS", "FAIL"]},
+                    "similarity_score": {"type": "number"},
+                    "similarities": {"type": "array", "items": {"type": "string"}},
+                    "differences": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "item": {"type": "string"},
+                                "impact": {"type": "string", "enum": ["high", "medium", "low"]},
+                                "category": {"type": "string", "enum": ["layout", "component", "text", "style"]},
+                            },
+                            "required": ["item", "impact", "category"],
+                        },
+                    },
+                    "summary": {"type": "string"},
+                },
+                "required": ["overall", "similarity_score", "similarities", "differences", "summary"],
+            },
         )
     except Exception as exc:  # noqa: BLE001
         return (
@@ -1431,7 +1486,9 @@ def compare_ui_pair_with_mini_agent(
         )
 
     raw_text = _extract_message_text(getattr(response, "content", ""))
-    parsed = _extract_json_like_object(raw_text)
+    parsed = extract_tool_call_args(response, "emit_ui_compare_result")
+    if parsed is None:
+        parsed = _extract_json_like_object(raw_text)
 
     out_dir = ensure_directory(resolve_workspace_path(output_dir))
     safe_page = re.sub(r"[^a-zA-Z0-9_-]+", "_", page_name.strip()) or "page"

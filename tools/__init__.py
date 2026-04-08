@@ -1,4 +1,3 @@
-from tools.architect_tools import save_architect_design
 from tools.human_guidance import request_human_guidance
 from tools.project_tools import compile_project, create_project
 from tools.tester_tools import (
@@ -42,7 +41,6 @@ __all__ = [
     "press_back",
     "request_human_guidance",
     "read_description_baseline",
-    "save_architect_design",
     "save_tester_report",
     "start_harmony_app",
     "swipe_screen",

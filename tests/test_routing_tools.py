@@ -10,11 +10,13 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         self.assertIn("task_type: architecture", description)
         self.assertIn("- /user_input/user_input_metadata.json", description)
-        self.assertIn("- /designs/architect.json", description)
+        self.assertIn("- /designs/architect_image_facts.json", description)
+        self.assertIn("- ArchitectOutput", description)
         self.assertNotIn("- /user_input/description.md", description)
         self.assertNotIn("- /user_input_metadata.json", description)
         self.assertNotIn("\n- /user_input\n", f"\n{description}\n")
-        self.assertIn("use metadata file to discover uploaded asset file paths", description)
+        self.assertIn("build /designs/architect_image_facts.json", description)
+        self.assertIn("orchestration persists /designs/architect.json", description)
         self.assertNotIn("帮我实现", description)
 
     def test_tester_dispatch_contract_requires_test_description(self) -> None:
@@ -62,7 +64,7 @@ class RoutingToolsContractTests(unittest.TestCase):
         _, kwargs = agent.invoke.call_args
         self.assertEqual(kwargs["config"], {"configurable": {"thread_id": "session-123"}})
 
-    def test_dispatch_architect_prefers_structured_response(self) -> None:
+    def test_dispatch_architect_uses_tool_output(self) -> None:
         from tools.routing_tools import dispatch_architect
 
         runtime = Mock()
@@ -81,25 +83,106 @@ class RoutingToolsContractTests(unittest.TestCase):
             ],
         }
 
-        result = {
-            "messages": [Mock(text="not-json")],
-            "structured_response": structured,
-        }
-
         with (
-            unittest.mock.patch("tools.routing_tools.get_architect_agent") as get_architect_agent,
+            unittest.mock.patch("tools.routing_tools.invoke_architect_aggregator") as invoke_architect_aggregator,
             unittest.mock.patch("tools.routing_tools.save_architect_design_payload") as save_payload,
+            unittest.mock.patch("tools.routing_tools.build_architect_image_facts_bundle_payload") as build_facts,
+            unittest.mock.patch("tools.routing_tools.load_architect_materialized_inputs") as load_inputs,
         ):
-            get_architect_agent.return_value.invoke.return_value = result
+            invoke_architect_aggregator.return_value = structured
             save_payload.return_value = "architect 设计已保存到 /designs/architect.json"
+            build_facts.return_value = "status: SUCCESS"
+            load_inputs.return_value = (
+                {"files": {"a.png": {"path": "/user_input/a.png"}}},
+                {"facts": [], "shared_patterns": [], "conflicts": [], "coverage_summary": {"total_image_count": 0, "processed_image_count": 0, "omitted_image_count": 0, "failed_image_count": 0, "strategy": "all_images_processed"}, "omitted_images": []},
+            )
 
             command = dispatch_architect.func(runtime=runtime)
 
+        build_facts.assert_called_once()
         save_payload.assert_called_once_with(structured)
         tool_message = command.update["messages"][0]
         self.assertIn('"project_name": "calculator_app"', tool_message.content)
 
-    def test_dispatch_tester_prefers_structured_response(self) -> None:
+    def test_dispatch_architect_requires_tool_output(self) -> None:
+        from tools.routing_tools import dispatch_architect
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-3"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_architect_aggregator") as invoke_architect_aggregator,
+            unittest.mock.patch("tools.routing_tools.build_architect_image_facts_bundle_payload") as build_facts,
+            unittest.mock.patch("tools.routing_tools.load_architect_materialized_inputs") as load_inputs,
+        ):
+            invoke_architect_aggregator.side_effect = ValueError("Architect dispatch requires tool-call output from ArchitectOutput")
+            build_facts.return_value = "status: SUCCESS"
+            load_inputs.return_value = (
+                {"files": {}},
+                {"facts": [], "shared_patterns": [], "conflicts": [], "coverage_summary": {"total_image_count": 0, "processed_image_count": 0, "omitted_image_count": 0, "failed_image_count": 0, "strategy": "all_images_processed"}, "omitted_images": []},
+            )
+
+            with self.assertRaisesRegex(ValueError, "tool-call output"):
+                dispatch_architect.func(runtime=runtime)
+
+    def test_invoke_architect_aggregator_extracts_tool_args(self) -> None:
+        from tools.routing_tools import invoke_architect_aggregator
+
+        llm_response = Mock()
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = {
+                "project_name": "calculator_app",
+                "app_display_name": "计算器",
+                "pages": [{"name": "Index", "responsibilities": "展示主页面"}],
+            }
+
+            result = invoke_architect_aggregator({"files": {}}, {"facts": []})
+
+        self.assertEqual(result["project_name"], "calculator_app")
+
+    def test_architect_aggregation_prompt_materializes_metadata_and_facts(self) -> None:
+        from tools.routing_tools import build_architect_aggregation_prompt
+
+        prompt = build_architect_aggregation_prompt(
+            metadata_payload={"files": {"a.png": {"path": "/user_input/a.png", "content_type": "image/png"}}},
+            facts_bundle={
+                "facts": [
+                    {
+                        "image_path": "/user_input/a.png",
+                        "image_role": "entry",
+                        "visible_texts": ["Calculator"],
+                        "layout_summary": "display and keypad",
+                        "key_sections": ["display", "keypad"],
+                        "interactive_hints": ["tap digits"],
+                        "uncertainties": [],
+                    }
+                ],
+                "shared_patterns": [],
+                "conflicts": [],
+                "coverage_summary": {
+                    "total_image_count": 1,
+                    "processed_image_count": 1,
+                    "omitted_image_count": 0,
+                    "failed_image_count": 0,
+                    "strategy": "all_images_processed",
+                },
+                "omitted_images": [],
+            },
+        )
+
+        self.assertIn("/user_input/user_input_metadata.json", prompt)
+        self.assertIn("/designs/architect_image_facts.json", prompt)
+        self.assertIn("Calculator", prompt)
+        self.assertIn("display and keypad", prompt)
+
+    def test_dispatch_tester_reads_saved_json_report(self) -> None:
         from tools.routing_tools import dispatch_tester
 
         runtime = Mock()
@@ -131,13 +214,14 @@ class RoutingToolsContractTests(unittest.TestCase):
             },
         }
 
-        result = {
-            "messages": [Mock(text="not-json")],
-            "structured_response": structured,
-        }
+        result = {"messages": [Mock(text="not-json")]}
 
-        with unittest.mock.patch("tools.routing_tools.get_tester_agent") as get_tester_agent:
+        with (
+            unittest.mock.patch("tools.routing_tools.get_tester_agent") as get_tester_agent,
+            unittest.mock.patch("tools.routing_tools.load_tester_report_payload") as load_tester_report_payload,
+        ):
             get_tester_agent.return_value.invoke.return_value = result
+            load_tester_report_payload.return_value = structured
             command = dispatch_tester.func(runtime=runtime)
 
         tool_message = command.update["messages"][0]

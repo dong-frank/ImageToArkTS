@@ -10,6 +10,7 @@ class AgentContractsTests(unittest.TestCase):
         self.assertIn("task_type: architecture", rendered)
         self.assertIn("inputs:", rendered)
         self.assertIn("- /user_input/user_input_metadata.json", rendered)
+        self.assertIn("- /designs/architect_image_facts.json", rendered)
         self.assertIn("fallback:", rendered)
         self.assertIn("- if missing critical inputs => need_human_guidance", rendered)
 
@@ -32,6 +33,24 @@ class AgentContractsTests(unittest.TestCase):
         from contracts.agent_contracts import ARCHITECT_DEFINITION
 
         self.assertEqual(ARCHITECT_DEFINITION.structured_output_schema, "ArchitectOutput")
+
+    def test_architect_definition_declares_image_facts_artifact(self) -> None:
+        from contracts.agent_contracts import ARCHITECT_DEFINITION
+
+        self.assertEqual(ARCHITECT_DEFINITION.primary_outputs, ["ArchitectOutput"])
+
+    def test_architect_subagent_uses_non_vision_final_model(self) -> None:
+        from models import base_model
+        from subagents import ARCHITECT_SUBAGENT_SPEC
+
+        self.assertIs(ARCHITECT_SUBAGENT_SPEC["model"], base_model)
+
+    def test_architect_subagent_tools_do_not_expose_final_save_tool(self) -> None:
+        from subagents import ARCHITECT_SUBAGENT_TOOLS
+
+        tool_names = [tool.name for tool in ARCHITECT_SUBAGENT_TOOLS]
+        self.assertEqual(tool_names, ["request_human_guidance"])
+        self.assertNotIn("save_architect_design", tool_names)
 
     def test_tester_definition_has_structured_output_schema_name(self) -> None:
         from contracts.agent_contracts import TESTER_DEFINITION
