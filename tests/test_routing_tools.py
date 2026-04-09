@@ -437,6 +437,95 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIsInstance(result["state_management"], dict)
         self.assertEqual(result["state_management"]["store_name"], "AppStore")
 
+    def test_invoke_coder_skeleton_planner_normalizes_relative_project_paths(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_planner
+
+        llm_response = Mock()
+        payload = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "entry/src/main/ets/pages/Index.ets",
+                }
+            ],
+            "shared_data_models": [],
+            "shared_components": [
+                {
+                    "name": "BottomNavBar",
+                    "file_path": "entry/src/main/ets/common/components/BottomNavBar.ets",
+                    "description": "底部导航栏",
+                }
+            ],
+            "public_interfaces": [
+                {
+                    "name": "NavigationService",
+                    "file_path": "entry/src/main/ets/common/interfaces/NavigationService.ets",
+                    "description": "导航接口",
+                }
+            ],
+            "state_management": json.dumps(
+                {
+                    "store_name": "AppStore",
+                    "file_path": "entry/src/main/ets/common/store/AppStore.ets",
+                    "responsibilities": "管理全局共享状态",
+                    "exposed_state": ["city"],
+                    "exposed_actions": ["setCity"],
+                },
+                ensure_ascii=False,
+            ),
+            "page_tasks": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "entry/src/main/ets/pages/Index.ets",
+                    "component_files": ["entry/src/main/ets/pages/components/IndexHeader.ets"],
+                    "allowed_write_paths": [
+                        "entry/src/main/ets/pages/Index.ets",
+                        "entry/src/main/ets/pages/components/IndexHeader.ets",
+                    ],
+                    "shared_dependencies": ["BottomNavBar", "AppStore"],
+                    "responsibilities": "首页",
+                    "primary_actions": ["open_detail"],
+                }
+            ],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = payload
+
+            result = invoke_coder_skeleton_planner(
+                architect_payload={
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [{"name": "Index", "responsibilities": "首页"}],
+                },
+                task_type="implementation",
+            )
+
+        self.assertEqual(
+            result["route_table"][0]["page_file"],
+            "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+        )
+        self.assertEqual(
+            result["shared_components"][0]["file_path"],
+            "/projects/damai_app/entry/src/main/ets/common/components/BottomNavBar.ets",
+        )
+        self.assertEqual(
+            result["state_management"]["file_path"],
+            "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+        )
+        self.assertEqual(
+            result["page_tasks"][0]["allowed_write_paths"][0],
+            "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

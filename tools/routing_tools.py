@@ -177,6 +177,70 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
     )
 
 
+def _normalize_project_relative_path(project_name: str, raw_path: str) -> str:
+    raw = str(raw_path or "").strip().replace("\\", "/")
+    if not raw:
+        return raw
+    if raw.startswith("/projects/"):
+        return raw
+    if raw.startswith("/"):
+        return f"/projects/{project_name}{raw}"
+    return f"/projects/{project_name}/{raw.lstrip('/')}"
+
+
+def _normalize_coder_skeleton_paths(payload: dict) -> dict:
+    normalized = dict(payload)
+    project_name = str(normalized.get("project_name") or "").strip()
+    if not project_name:
+        return normalized
+
+    route_table = []
+    for route_item in normalized.get("route_table", []) or []:
+        item = dict(route_item)
+        if item.get("page_file"):
+            item["page_file"] = _normalize_project_relative_path(project_name, str(item["page_file"]))
+        route_table.append(item)
+    normalized["route_table"] = route_table
+
+    shared_components = []
+    for component in normalized.get("shared_components", []) or []:
+        item = dict(component)
+        if item.get("file_path"):
+            item["file_path"] = _normalize_project_relative_path(project_name, str(item["file_path"]))
+        shared_components.append(item)
+    normalized["shared_components"] = shared_components
+
+    public_interfaces = []
+    for interface in normalized.get("public_interfaces", []) or []:
+        item = dict(interface)
+        if item.get("file_path"):
+            item["file_path"] = _normalize_project_relative_path(project_name, str(item["file_path"]))
+        public_interfaces.append(item)
+    normalized["public_interfaces"] = public_interfaces
+
+    state_management = dict(normalized.get("state_management") or {})
+    if state_management.get("file_path"):
+        state_management["file_path"] = _normalize_project_relative_path(project_name, str(state_management["file_path"]))
+    normalized["state_management"] = state_management
+
+    page_tasks = []
+    for task in normalized.get("page_tasks", []) or []:
+        item = dict(task)
+        if item.get("page_file"):
+            item["page_file"] = _normalize_project_relative_path(project_name, str(item["page_file"]))
+        item["component_files"] = [
+            _normalize_project_relative_path(project_name, str(path))
+            for path in (item.get("component_files") or [])
+        ]
+        item["allowed_write_paths"] = [
+            _normalize_project_relative_path(project_name, str(path))
+            for path in (item.get("allowed_write_paths") or [])
+        ]
+        page_tasks.append(item)
+    normalized["page_tasks"] = page_tasks
+    return normalized
+
+
 def invoke_coder_skeleton_planner(architect_payload: dict, task_type: Literal["implementation", "fix_from_test"]) -> dict:
     tool_name = "CoderSkeletonOutput"
     llm_response = invoke_with_tool(
@@ -201,6 +265,7 @@ def invoke_coder_skeleton_planner(architect_payload: dict, task_type: Literal["i
                     parsed = state_management
                 if isinstance(parsed, dict):
                     normalized_tool_args["state_management"] = parsed
+        normalized_tool_args = _normalize_coder_skeleton_paths(normalized_tool_args)
         try:
             return CoderSkeletonOutput.model_validate(normalized_tool_args).model_dump(mode="json", exclude_none=True)
         except Exception as exc:  # noqa: BLE001
