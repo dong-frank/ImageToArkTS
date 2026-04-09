@@ -25,3 +25,4 @@ agent_workspace/*
 
 .env
 docker/harmony/
+logs/

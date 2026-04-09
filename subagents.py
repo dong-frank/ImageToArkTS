@@ -19,7 +19,10 @@ from utils.session_backend import backend_factory
 from utils.utils import load_prompt
 
 ARCHITECT_SUBAGENT_TOOLS = [request_human_guidance]
-CODER_SUBAGENT_TOOLS = [*CODER_TOOLS, request_human_guidance]
+CODER_ORCHESTRATOR_TOOLS = []
+CODER_SKELETON_WORKER_TOOLS = [request_human_guidance]
+CODER_PAGE_WORKER_TOOLS = [request_human_guidance]
+CODER_INTEGRATION_WORKER_TOOLS = [*CODER_TOOLS, request_human_guidance]
 TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, request_human_guidance]
 
 
@@ -31,13 +34,38 @@ ARCHITECT_SUBAGENT_SPEC = {
     "tools": ARCHITECT_SUBAGENT_TOOLS,
 }
 
-CODER_SUBAGENT_SPEC = {
-    "name": CODER_DEFINITION.name,
-    "description": CODER_DEFINITION.description,
+CODER_ORCHESTRATOR_SPEC = {
+    "name": "coder_orchestrator",
+    "description": "Coordinate skeleton, page worker, and integration stages for coding tasks.",
     "model": base_model,
-    "system_prompt": load_prompt("coder_system_prompt.md"),
+    "system_prompt": load_prompt("coder_orchestrator_system_prompt.md"),
+    "tools": CODER_ORCHESTRATOR_TOOLS,
+}
+
+CODER_SKELETON_WORKER_SPEC = {
+    "name": "coder_skeleton_worker",
+    "description": "Plan shared project skeleton and page tasks from architect design.",
+    "model": base_model,
+    "system_prompt": load_prompt("coder_skeleton_system_prompt.md"),
+    "tools": CODER_SKELETON_WORKER_TOOLS,
+}
+
+CODER_PAGE_WORKER_SPEC = {
+    "name": "coder_page_worker",
+    "description": "Implement one page and its page-local components inside assigned file boundaries.",
+    "model": base_model,
+    "system_prompt": load_prompt("coder_page_system_prompt.md"),
     "skills": ["/skills"],
-    "tools": CODER_SUBAGENT_TOOLS,
+    "tools": CODER_PAGE_WORKER_TOOLS,
+}
+
+CODER_INTEGRATION_WORKER_SPEC = {
+    "name": "coder_integration_worker",
+    "description": "Integrate page results, resolve shared issues, and support compile closure.",
+    "model": base_model,
+    "system_prompt": load_prompt("coder_integration_system_prompt.md"),
+    "skills": ["/skills"],
+    "tools": CODER_INTEGRATION_WORKER_TOOLS,
 }
 
 TESTER_SUBAGENT_SPEC = {
@@ -50,7 +78,10 @@ TESTER_SUBAGENT_SPEC = {
 
 SUBAGENT_SPECS = [
     ARCHITECT_SUBAGENT_SPEC,
-    CODER_SUBAGENT_SPEC,
+    CODER_ORCHESTRATOR_SPEC,
+    CODER_SKELETON_WORKER_SPEC,
+    CODER_PAGE_WORKER_SPEC,
+    CODER_INTEGRATION_WORKER_SPEC,
     TESTER_SUBAGENT_SPEC,
 ]
 
@@ -96,8 +127,35 @@ def get_architect_agent():
 
 
 @lru_cache(maxsize=1)
-def get_coder_agent():
-    return _build_subagent(CODER_SUBAGENT_SPEC)
+def get_coder_skeleton_worker():
+    return _build_subagent(CODER_SKELETON_WORKER_SPEC)
+
+
+def _build_coder_orchestrator():
+    from tools.routing_tools import CODER_ORCHESTRATOR_TOOLS
+
+    return create_deep_agent(
+        model=CODER_ORCHESTRATOR_SPEC["model"],
+        system_prompt=CODER_ORCHESTRATOR_SPEC["system_prompt"],
+        tools=[*CODER_ORCHESTRATOR_TOOLS, request_human_guidance],
+        backend=backend_factory,
+        checkpointer=get_checkpointer(),
+        name=CODER_ORCHESTRATOR_SPEC["name"],
+    )
+
+
+@lru_cache(maxsize=1)
+def get_coder_orchestrator():
+    return _build_coder_orchestrator()
+
+
+def build_coder_page_worker():
+    return _build_subagent(CODER_PAGE_WORKER_SPEC)
+
+
+@lru_cache(maxsize=1)
+def get_coder_integration_worker():
+    return _build_subagent(CODER_INTEGRATION_WORKER_SPEC)
 
 
 @lru_cache(maxsize=1)

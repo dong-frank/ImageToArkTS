@@ -9,6 +9,7 @@
 
 - Architect: 负责读取用户输入并产出架构设计 JSON。
 - Coder: 负责基于架构设计实现并编译 HarmonyOS 项目。
+  - 内部固定为三阶段 pipeline：`skeleton -> page implementation -> integration`。
 - Tester: 负责在编译成功后做功能与 UI 验收，并输出测试报告。
 
 ## Hard Rules
@@ -60,6 +61,11 @@
 
 - `dispatch_coder(task_type="implementation")`
 - `dispatch_coder(task_type="fix_from_test")`
+
+- `dispatch_coder` 会在内部推进固定三阶段：
+  - `skeleton`：项目骨架、路由、共享模型、共享接口、共享组件、状态约定
+  - `page implementation`：按页面拆任务并分发 page workers
+  - `integration`：统一收敛 import / 依赖 / 命名 / 编译问题
 
 ### Tester Stage
 

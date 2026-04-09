@@ -70,10 +70,16 @@ ARCHITECT_DEFINITION = SubagentDefinition(
 
 CODER_DEFINITION = SubagentDefinition(
     name="coder",
-    description="Implement or repair the HarmonyOS project from structured design artifacts.",
+    description="Run the staged coding pipeline from structured design artifacts to an integration report.",
     owned_task_types=["implementation", "fix_from_test"],
     required_inputs=["/designs/architect.json"],
-    primary_outputs=["/projects/<project_name>"],
+    primary_outputs=[
+        "/designs/coder_skeleton_plan.json",
+        "/designs/coder_page_tasks.json",
+        "/logs/coder/page_worker_results.json",
+        "/logs/coder/integration_report.json",
+    ],
+    structured_output_schema="CoderIntegrationReport",
 )
 
 
@@ -110,11 +116,22 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
         return DispatchContract(
             task_type="fix_from_test",
             trigger="tester_report_fail",
-            inputs=["/designs/architect.json", "/logs/tester/latest_tester_report.json"],
-            required_outputs=["/projects/<project_name>", "compiled project"],
+            inputs=[
+                "/designs/architect.json",
+                "/logs/tester/latest_tester_report.json",
+                "/designs/coder_skeleton_plan.json",
+                "/designs/coder_page_tasks.json",
+            ],
+            required_outputs=[
+                "/logs/coder/page_worker_results.json",
+                "/logs/coder/integration_report.json",
+            ],
             done_criteria=[
+                "reuse existing skeleton stage artifacts when still valid before dispatching page implementation work",
+                "run page implementation stage on impacted pages or fall back to all page tasks when impact is unclear",
+                "run integration stage and save /logs/coder/integration_report.json",
                 "address tester failures and fix suggestions",
-                "run compile_project(project_name) successfully after changes",
+                "integration stage compiles the project and records remaining blockers when compilation fails",
             ],
             fallback=[
                 FallbackRule(condition="repeated compile errors do not change", action="need_human_guidance"),
@@ -126,10 +143,18 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
         task_type="implementation",
         trigger="architect_design_ready",
         inputs=["/designs/architect.json"],
-        required_outputs=["/projects/<project_name>", "compiled project"],
+        required_outputs=[
+            "/designs/coder_skeleton_plan.json",
+            "/designs/coder_page_tasks.json",
+            "/logs/coder/page_worker_results.json",
+            "/logs/coder/integration_report.json",
+        ],
         done_criteria=[
-            "create or update HarmonyOS project from architect design",
-            "run compile_project(project_name) successfully at least once",
+            "skeleton stage creates project structure, route table, shared models, interfaces, shared components, and state conventions",
+            "page implementation stage dispatches page workers from /designs/coder_page_tasks.json",
+            "integration stage resolves imports, dependencies, interface mismatches, and compiles the project",
+            "save /designs/coder_skeleton_plan.json and /designs/coder_page_tasks.json before page implementation begins",
+            "save /logs/coder/page_worker_results.json and /logs/coder/integration_report.json before returning",
         ],
         fallback=[
             FallbackRule(condition="repeated compile errors do not change", action="need_human_guidance"),

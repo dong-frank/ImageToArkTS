@@ -57,6 +57,33 @@ class AgentContractsTests(unittest.TestCase):
 
         self.assertEqual(TESTER_DEFINITION.structured_output_schema, "TesterReportOutput")
 
+    def test_coder_definition_declares_pipeline_artifacts(self) -> None:
+        from contracts.agent_contracts import CODER_DEFINITION
+
+        self.assertEqual(
+            CODER_DEFINITION.primary_outputs,
+            [
+                "/designs/coder_skeleton_plan.json",
+                "/designs/coder_page_tasks.json",
+                "/logs/coder/page_worker_results.json",
+                "/logs/coder/integration_report.json",
+            ],
+        )
+        self.assertEqual(CODER_DEFINITION.structured_output_schema, "CoderIntegrationReport")
+
+    def test_coder_worker_specs_are_split_by_stage(self) -> None:
+        from subagents import (
+            CODER_ORCHESTRATOR_SPEC,
+            CODER_INTEGRATION_WORKER_SPEC,
+            CODER_PAGE_WORKER_SPEC,
+            CODER_SKELETON_WORKER_SPEC,
+        )
+
+        self.assertEqual(CODER_ORCHESTRATOR_SPEC["name"], "coder_orchestrator")
+        self.assertEqual(CODER_SKELETON_WORKER_SPEC["name"], "coder_skeleton_worker")
+        self.assertEqual(CODER_PAGE_WORKER_SPEC["name"], "coder_page_worker")
+        self.assertEqual(CODER_INTEGRATION_WORKER_SPEC["name"], "coder_integration_worker")
+
 
 if __name__ == "__main__":
     unittest.main()

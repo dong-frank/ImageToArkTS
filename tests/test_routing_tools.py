@@ -1,3 +1,4 @@
+import json
 import unittest
 from unittest.mock import Mock
 
@@ -38,6 +39,21 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("task_type: fix_from_test", description)
         self.assertIn("- /logs/tester/latest_tester_report.json", description)
         self.assertIn("need_human_guidance", description)
+        self.assertIn("- /designs/coder_skeleton_plan.json", description)
+        self.assertIn("- /logs/coder/integration_report.json", description)
+
+    def test_coder_implementation_dispatch_contract_mentions_three_stages(self) -> None:
+        from tools.routing_tools import build_coder_dispatch_description
+
+        description = build_coder_dispatch_description(task_type="implementation")
+
+        self.assertIn("- /designs/coder_skeleton_plan.json", description)
+        self.assertIn("- /designs/coder_page_tasks.json", description)
+        self.assertIn("- /logs/coder/page_worker_results.json", description)
+        self.assertIn("- /logs/coder/integration_report.json", description)
+        self.assertIn("skeleton stage", description)
+        self.assertIn("page implementation stage", description)
+        self.assertIn("integration stage", description)
 
     def test_main_tools_use_routing_tools(self) -> None:
         from tools.tool_sets import ORCHESTRATOR_AGENT_TOOLS
@@ -226,6 +242,200 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         tool_message = command.update["messages"][0]
         self.assertIn('"overall": "PASS"', tool_message.content)
+
+    def test_dispatch_coder_routes_through_coder_orchestrator(self) -> None:
+        from tools.routing_tools import dispatch_coder
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-coder"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        orchestrator_result = {"messages": [Mock(text='{"compile_status":"SUCCESS"}')]}
+
+        with (
+            unittest.mock.patch("tools.routing_tools.get_coder_orchestrator") as get_coder_orchestrator,
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
+        ):
+            get_coder_orchestrator.return_value = Mock()
+            invoke_subagent.return_value = orchestrator_result
+
+            dispatch_coder.func(task_type="implementation", runtime=runtime)
+
+        invoke_subagent.assert_called_once()
+        called_agent = invoke_subagent.call_args.args[0]
+        self.assertIs(called_agent, get_coder_orchestrator.return_value)
+
+    def test_dispatch_coder_skeleton_calls_create_project_and_materialize(self) -> None:
+        from tools.routing_tools import dispatch_coder_skeleton
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-skeleton"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        skeleton_payload = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [],
+            "shared_data_models": [],
+            "shared_components": [],
+            "public_interfaces": [],
+            "state_management": {
+                "store_name": "AppStore",
+                "file_path": "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+                "responsibilities": "管理全局共享状态",
+                "exposed_state": [],
+                "exposed_actions": [],
+            },
+            "page_tasks": [],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.load_architect_design_payload") as load_architect_design_payload,
+            unittest.mock.patch("tools.routing_tools.invoke_coder_skeleton_planner") as invoke_coder_skeleton_planner,
+            unittest.mock.patch("tools.routing_tools.save_coder_skeleton_plan_payload") as save_coder_skeleton_plan_payload,
+            unittest.mock.patch("tools.routing_tools.create_project") as create_project,
+            unittest.mock.patch("tools.routing_tools.materialize_coder_skeleton") as materialize_coder_skeleton,
+        ):
+            load_architect_design_payload.return_value = {"project_name": "damai_app", "app_display_name": "大麦", "pages": []}
+            invoke_coder_skeleton_planner.return_value = skeleton_payload
+            create_project.func.return_value = "项目创建完成"
+            materialize_coder_skeleton.return_value = "status: SUCCESS"
+
+            command = dispatch_coder_skeleton.func(task_type="implementation", runtime=runtime)
+
+        create_project.func.assert_called_once_with("damai_app")
+        materialize_coder_skeleton.assert_called_once_with(skeleton_payload)
+        self.assertIn('"project_name": "damai_app"', command.update["messages"][0].content)
+
+    def test_invoke_coder_skeleton_planner_extracts_tool_args(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_planner
+
+        llm_response = Mock()
+        expected = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+                }
+            ],
+            "shared_components": [],
+            "public_interfaces": [],
+            "state_management": {
+                "store_name": "AppStore",
+                "file_path": "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+                "responsibilities": "管理全局共享状态",
+                "exposed_state": ["selectedCity"],
+                "exposed_actions": ["setSelectedCity"],
+            },
+            "page_tasks": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+                    "component_files": [],
+                    "allowed_write_paths": ["/projects/damai_app/entry/src/main/ets/pages/Index.ets"],
+                    "shared_dependencies": [],
+                    "responsibilities": "首页",
+                    "primary_actions": ["open_detail"],
+                }
+            ],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = expected
+
+            result = invoke_coder_skeleton_planner(
+                architect_payload={
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [{"name": "Index", "responsibilities": "首页"}],
+                },
+                task_type="implementation",
+            )
+
+        self.assertEqual(result["project_name"], "damai_app")
+
+    def test_invoke_coder_skeleton_planner_validates_required_fields_immediately(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_planner
+
+        llm_response = Mock()
+        incomplete = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [],
+            "shared_components": [],
+            "public_interfaces": [],
+            "page_tasks": [],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = incomplete
+
+            with self.assertRaisesRegex(ValueError, "missing state_management"):
+                invoke_coder_skeleton_planner(
+                    architect_payload={
+                        "project_name": "damai_app",
+                        "app_display_name": "大麦",
+                        "pages": [{"name": "Index", "responsibilities": "首页"}],
+                    },
+                    task_type="implementation",
+                )
+
+    def test_invoke_coder_skeleton_planner_loads_nested_state_management_json(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_planner
+
+        llm_response = Mock()
+        payload = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [],
+            "shared_data_models": [],
+            "shared_components": [],
+            "public_interfaces": [],
+            "state_management": json.dumps(
+                {
+                    "store_name": "AppStore",
+                    "file_path": "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+                    "responsibilities": "管理全局共享状态",
+                    "exposed_state": ["city"],
+                    "exposed_actions": ["setCity"],
+                },
+                ensure_ascii=False,
+            ),
+            "page_tasks": [],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = payload
+
+            result = invoke_coder_skeleton_planner(
+                architect_payload={
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [{"name": "Index", "responsibilities": "首页"}],
+                },
+                task_type="implementation",
+            )
+
+        self.assertIsInstance(result["state_management"], dict)
+        self.assertEqual(result["state_management"]["store_name"], "AppStore")
 
 
 if __name__ == "__main__":

@@ -125,6 +125,88 @@ class ArchitectImageFactsBundle(BaseModel):
 	omitted_images: List[str] = Field(default_factory=list, description="Image paths skipped due to budget limits.")
 
 
+class CoderRouteSpec(BaseModel):
+    page_name: str = Field(..., description="Page name.")
+    route: str = Field(..., description="Harmony page route such as pages/Index.")
+    page_file: str = Field(..., description="Workspace-relative page file path.")
+
+
+class CoderSharedArtifact(BaseModel):
+    name: str = Field(..., description="Shared artifact name.")
+    file_path: str = Field(..., description="Workspace-relative file path.")
+    description: str = Field(..., description="Artifact responsibility summary.")
+
+
+class CoderStateConvention(BaseModel):
+    store_name: str = Field(..., description="Primary shared store name.")
+    file_path: str = Field(..., description="Workspace-relative store file path.")
+    responsibilities: str = Field(..., description="What the store manages.")
+    exposed_state: List[str] = Field(default_factory=list, description="Shared state keys exposed to pages.")
+    exposed_actions: List[str] = Field(default_factory=list, description="Shared actions exposed to pages.")
+
+
+class CoderPageTask(BaseModel):
+    page_name: str = Field(..., description="Page name assigned to the worker.")
+    route: str = Field(..., description="Harmony page route such as pages/Index.")
+    page_file: str = Field(..., description="Workspace-relative primary page file path.")
+    component_files: List[str] = Field(default_factory=list, description="Page-local component file paths.")
+    allowed_write_paths: List[str] = Field(default_factory=list, description="Workspace-relative file paths the page worker may edit.")
+    shared_dependencies: List[str] = Field(default_factory=list, description="Shared components, stores, or interfaces the page uses.")
+    responsibilities: str = Field(..., description="Page responsibility summary.")
+    primary_actions: List[str] = Field(default_factory=list, description="Primary handlers or user actions for the page.")
+    state_notes: Optional[str] = Field(None, description="Relevant page state notes.")
+    role: Optional[str] = Field(None, description="Page role copied from architect design when useful.")
+
+
+class CoderSkeletonOutput(BaseModel):
+    project_name: str = Field(
+        ...,
+        pattern=r"^[a-z][a-z0-9_]{0,199}$",
+        description="Project directory name.",
+    )
+    app_display_name: str = Field(..., description="User-visible app name.")
+    route_table: List[CoderRouteSpec] = Field(default_factory=list, description="Initial route table.")
+    shared_data_models: List[DataModelField] = Field(default_factory=list, description="Shared data model definitions.")
+    shared_components: List[CoderSharedArtifact] = Field(default_factory=list, description="Shared component artifacts.")
+    public_interfaces: List[CoderSharedArtifact] = Field(default_factory=list, description="Shared interface/service artifacts.")
+    state_management: CoderStateConvention = Field(..., description="Shared state management convention.")
+    page_tasks: List[CoderPageTask] = Field(default_factory=list, description="Page implementation tasks.")
+
+
+class CoderPageTaskBundle(BaseModel):
+    project_name: str = Field(..., description="Project name that owns the page tasks.")
+    tasks: List[CoderPageTask] = Field(default_factory=list, description="Page task list.")
+
+
+class CoderPageWorkerResult(BaseModel):
+    status: Literal["done", "blocked", "need_human_guidance"] = Field(..., description="Worker completion state.")
+    page_name: str = Field(..., description="Page name handled by the worker.")
+    modified_files: List[str] = Field(default_factory=list, description="Files modified for this page task.")
+    exports_added: List[str] = Field(default_factory=list, description="New exports or symbols added by the worker.")
+    shared_contract_requests: List[str] = Field(default_factory=list, description="Requests for integration to adjust shared contracts.")
+    blockers: List[str] = Field(default_factory=list, description="Blocking issues encountered by the worker.")
+    summary: str = Field(..., description="Short implementation summary.")
+
+
+class CoderPageWorkerResultBundle(BaseModel):
+    project_name: str = Field(..., description="Project name that owns the worker results.")
+    results: List[CoderPageWorkerResult] = Field(default_factory=list, description="Collected page worker results.")
+
+
+class CoderIntegrationReport(BaseModel):
+    compile_status: Literal["SUCCESS", "FAILED"] = Field(..., description="Compilation verdict after integration.")
+    project_name: str = Field(..., description="Project name.")
+    project_path: str = Field(..., description="Workspace-relative project path.")
+    ready_for_tester: bool = Field(..., description="Whether the project is ready for tester validation.")
+    fixes_applied: List[str] = Field(default_factory=list, description="Integration fixes applied.")
+    remaining_errors: List[str] = Field(default_factory=list, description="Remaining errors after integration.")
+    blocker: str = Field(..., description="Blocking summary, use 'none' when clear.")
+    next_recommended_agent: Literal["tester", "coder", "human", "orchestrator"] = Field(
+        ...,
+        description="Next recommended owner after integration.",
+    )
+
+
 class TesterChecklistItem(BaseModel):
 	name: str = Field(..., description="Checklist item or page/module name.")
 	status: Literal["PASS", "FAIL", "UNKNOWN"] = Field(..., description="Validation status.")
