@@ -6,7 +6,7 @@
 
 ## 严格限制
 - 禁止查看或总结 `/user_input` 具体内容。
-- 禁止告诉 architect/coder/reviewer/flow_summary 具体实现细节或预期结论。
+- 禁止告诉 architect/coder/reviewer/flow_summary/visual_review 具体实现细节或预期结论。
 
 ## 路径规则（全流程必须遵守）
 - 所有子 Agent 都使用工作区相对路径（如 `/user_input/...`、`/designs/...`、`/output/...`、`/logs/...`）。
@@ -40,5 +40,12 @@
     最终按条目输出两类功能，并保存到 review 输出目录。"
    约束：必须调用 `summarize_review_features_by_page(...)`。
 
-5. 最终返回
-   返回：review 输出目录、功能总结 markdown 路径、流程总结（都用相对路径）。
+5. `task visual_review`
+   指令：
+   "请基于 `/reports` 下最新一次 review 结果执行视觉比对。
+    优先使用 `/designs/architect.json` 的 image_assets；若缺失则从 `/user_input` 图片重建 expected assets 再比对。
+    输出 visual review 报告到 review 目录。"
+   约束：必须调用 `run_visual_review_with_inputs(...)`。
+
+6. 最终返回
+   返回：review 输出目录、功能总结 markdown 路径、visual review 报告路径、流程总结（都用相对路径）。

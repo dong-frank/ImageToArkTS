@@ -7,6 +7,7 @@ from tools.tool_sets import (
     FLOW_SUMMARY_SUBAGENT_TOOLS,
     MAIN_AGENT_TOOLS,
     REVIEW_EXECUTOR_SUBAGENT_TOOLS,
+    VISUAL_REVIEW_SUBAGENT_TOOLS,
 )
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
@@ -46,11 +47,20 @@ flow_summary_subagent = {
     "tools": FLOW_SUMMARY_SUBAGENT_TOOLS,
 }
 
+visual_review_subagent = {
+    "name": "visual_review",
+    "description": "Run visual matching between user input references and runtime screenshots after flow summary.",
+    "model": vision_model,
+    "system_prompt": load_prompt("visual_review_system_prompt.md"),
+    "tools": VISUAL_REVIEW_SUBAGENT_TOOLS,
+}
+
 subagents = [
     architect_subagent,
     coding_subagent,
     review_executor_subagent,
     flow_summary_subagent,
+    visual_review_subagent,
 ]
 
 agent = create_deep_agent(

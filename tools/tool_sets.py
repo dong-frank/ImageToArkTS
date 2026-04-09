@@ -8,6 +8,7 @@ from tools.tester_tools import (
     pair_reference_pages_with_runtime,
     resolve_review_target,
     run_review_node_with_inputs,
+    run_visual_review_with_inputs,
     save_tester_report,
     summarize_review_features_by_page,
 )
@@ -25,6 +26,12 @@ REVIEW_EXECUTOR_SUBAGENT_TOOLS = [
 
 FLOW_SUMMARY_SUBAGENT_TOOLS = [
     summarize_review_features_by_page,
+    request_human_guidance,
+]
+
+
+VISUAL_REVIEW_SUBAGENT_TOOLS = [
+    run_visual_review_with_inputs,
     request_human_guidance,
 ]
 

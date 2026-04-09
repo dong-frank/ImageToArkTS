@@ -11,9 +11,8 @@ import time
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-import lpips
 import numpy as np
 import open_clip
 import torch
@@ -26,41 +25,19 @@ except Exception:
     load_dotenv = None
 
 
-WEIGHT_SSIM = 0.32
-WEIGHT_CLIP = 0.36
-WEIGHT_LPIPS = 0.32
-
-NAVIGATION_SCORE_THRESHOLD = 0.62
-NAVIGATION_MARGIN = 0.03
+WEIGHT_SSIM = 0.45
+WEIGHT_CLIP = 0.55
 DEFAULT_VLM_MODEL = "qwen-vl-max"
+IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".webp", ".bmp"}
 
 
 @dataclass
-class ExpectedImage:
-    page_key: str
-    image_path: str
-    image_data: str
-    is_interaction: bool
-
-
-@dataclass
-class ActualInteraction:
-    elem_dir: str
-    after_path: str
-    after_data: str
-    before_path: Optional[str]
-    before_data: Optional[str]
-    return_path: Optional[str]
-    return_data: Optional[str]
-
-
-@dataclass
-class ActualPage:
-    page_dir: str
-    page_key: str
-    init_path: str
-    init_data: str
-    interactions: List[ActualInteraction]
+class ImageAsset:
+    path: str
+    b64: str
+    image_rgb: Image.Image
+    gray: np.ndarray
+    clip_embedding: Optional[np.ndarray] = None
 
 
 class ProgressPrinter:
@@ -108,12 +85,15 @@ def _load_env_vars() -> None:
         return
 
     cwd_env = Path.cwd() / ".env"
-    script_env = Path(__file__).resolve().parents[3] / ".env"
+    script_env = Path(__file__).resolve().parent / ".env"
+    root_env = Path(__file__).resolve().parent.parent / ".env"
 
     if cwd_env.exists():
         load_dotenv(dotenv_path=cwd_env, override=False)
     elif script_env.exists():
         load_dotenv(dotenv_path=script_env, override=False)
+    elif root_env.exists():
+        load_dotenv(dotenv_path=root_env, override=False)
     else:
         load_dotenv(override=False)
 
@@ -126,11 +106,6 @@ def _clamp01(value: float) -> float:
 
 
 @lru_cache(maxsize=1)
-def _get_lpips_model() -> Any:
-    return lpips.LPIPS(net="alex").to(_device).eval()
-
-
-@lru_cache(maxsize=1)
 def _get_clip_components() -> Tuple[Any, Any]:
     model, _, preprocess = open_clip.create_model_and_transforms(
         "ViT-B-32", pretrained="laion2b_s34b_b79k"
@@ -139,290 +114,82 @@ def _get_clip_components() -> Tuple[Any, Any]:
     return model, preprocess
 
 
-def _read_json(path: Path) -> Dict[str, Any]:
-    return json.loads(path.read_text(encoding="utf-8"))
+def _load_image_asset(path: Path) -> ImageAsset:
+    raw = path.read_bytes()
+    b64 = base64.b64encode(raw).decode("ascii")
+    image_rgb = Image.open(io.BytesIO(raw)).convert("RGB")
+    gray = np.array(image_rgb.convert("L"))
+    return ImageAsset(path=str(path), b64=b64, image_rgb=image_rgb, gray=gray)
 
 
-def _get_dashscope_api_key() -> str:
-    return os.getenv("DASHSCOPE_API_KEY", "").strip()
+def _collect_images(root: Path) -> List[Path]:
+    if not root.exists() or not root.is_dir():
+        return []
+    return sorted(
+        [
+            item
+            for item in root.rglob("*")
+            if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES
+        ],
+        key=lambda p: str(p).lower(),
+    )
 
 
-def _extract_state_from_architect_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
-    if isinstance(payload.get("final_state"), dict):
-        return payload["final_state"]
-    if isinstance(payload.get("state"), dict):
-        return payload["state"]
-    return payload
+def _is_runtime_image_selected(path: Path) -> bool:
+    normalized = str(path).replace("\\", "/").lower()
+    normalized = normalized.replace("_", " ").replace("-", " ")
+
+    if "before" in normalized or "return" in normalized:
+        return False
+
+    return ("after" in normalized) or ("init screen" in normalized) or ("initscreen" in normalized)
 
 
-def _normalize_path(path_like: str) -> str:
-    return path_like.replace("\\", "/").strip("/")
-
-
-def _extract_page_key_from_review_dir_name(name: str) -> str:
-    markers = [
-        "EntryAbility_page_pages_",
-        "EntryAbility_pages_",
-        "_pages_",
-    ]
-    for marker in markers:
-        if marker in name:
-            return name.split(marker, 1)[-1]
-    return name
-
-
-def _read_image_b64(path: Path) -> str:
-    return base64.b64encode(path.read_bytes()).decode("utf-8")
-
-
-def _scan_actual_pages(review_output_dir: Path) -> List[ActualPage]:
-    pages: List[ActualPage] = []
-    if not review_output_dir.exists():
-        return pages
-
-    for page_dir in sorted(review_output_dir.iterdir(), key=lambda p: p.name.lower()):
-        if not page_dir.is_dir():
-            continue
-
-        init_path = page_dir / "init_screen.jpeg"
-        if not init_path.exists():
-            continue
-
-        interactions: List[ActualInteraction] = []
-        for child in sorted(page_dir.iterdir(), key=lambda p: p.name.lower()):
-            if not child.is_dir() or not child.name.lower().startswith("elem"):
-                continue
-
-            after_path = child / "after.jpeg"
-            if not after_path.exists():
-                continue
-
-            before_path = child / "before.jpeg"
-            return_path = child / "return.jpeg"
-
-            interactions.append(
-                ActualInteraction(
-                    elem_dir=child.name,
-                    after_path=str(after_path),
-                    after_data=_read_image_b64(after_path),
-                    before_path=str(before_path) if before_path.exists() else None,
-                    before_data=_read_image_b64(before_path) if before_path.exists() else None,
-                    return_path=str(return_path) if return_path.exists() else None,
-                    return_data=_read_image_b64(return_path) if return_path.exists() else None,
-                )
-            )
-
-        pages.append(
-            ActualPage(
-                page_dir=page_dir.name,
-                page_key=_extract_page_key_from_review_dir_name(page_dir.name),
-                init_path=str(init_path),
-                init_data=_read_image_b64(init_path),
-                interactions=interactions,
-            )
-        )
-
-    return pages
-
-
-def _infer_page_key_from_expected_path(image_path: str, actual_page_keys: Set[str]) -> str:
-    normalized = _normalize_path(image_path)
-    parts = [p for p in normalized.split("/") if p]
-    if not parts:
-        return "."
-
-    # Prefer exact segment matches with actual page keys, choosing the deepest segment.
-    matching_segments = [seg for seg in parts if seg in actual_page_keys]
-    if matching_segments:
-        return matching_segments[-1]
-
-    stem = Path(parts[-1]).stem
-    if stem in actual_page_keys:
-        return stem
-
-    # Heuristic: file names such as MemoDetail_menu_xxx.png should map to MemoDetail_menu.
-    for key in sorted(actual_page_keys, key=len, reverse=True):
-        if stem == key or stem.startswith(f"{key}_"):
-            return key
-
-    # If no strong signal, use parent directory as fallback.
-    if len(parts) >= 2:
-        return parts[-2]
-    return stem
-
-
-def _extract_expected_images(
-    state: Dict[str, Any],
-    actual_page_keys: Set[str],
-) -> List[ExpectedImage]:
-    expected: List[ExpectedImage] = []
-    assets = state.get("image_assets", [])
-    if not isinstance(assets, list):
-        return expected
-
-    for item in assets:
-        if not isinstance(item, dict):
-            continue
-
-        image_path = str(item.get("image_path", "")).strip()
-        image_data = str(item.get("image_data", "")).strip()
-        if not image_path or not image_data:
-            continue
-
-        normalized = _normalize_path(image_path)
-        parts = normalized.split("/") if normalized else []
-        is_interaction = any(part == "Interaction" for part in parts)
-
-        page_key = _infer_page_key_from_expected_path(image_path, actual_page_keys)
-        expected.append(
-            ExpectedImage(
-                page_key=page_key,
-                image_path=image_path,
-                image_data=image_data,
-                is_interaction=is_interaction,
-            )
-        )
-
-    return expected
-
-
-def _split_expected_images(
-    expected_images: List[ExpectedImage],
-) -> Tuple[Dict[str, List[ExpectedImage]], Dict[str, List[ExpectedImage]], List[ExpectedImage], List[ExpectedImage]]:
-    base_by_page: Dict[str, List[ExpectedImage]] = {}
-    interaction_by_page: Dict[str, List[ExpectedImage]] = {}
-    base_all: List[ExpectedImage] = []
-    interaction_all: List[ExpectedImage] = []
-
-    for item in expected_images:
-        if item.is_interaction:
-            interaction_by_page.setdefault(item.page_key, []).append(item)
-            interaction_all.append(item)
-        else:
-            base_by_page.setdefault(item.page_key, []).append(item)
-            base_all.append(item)
-
-    return base_by_page, interaction_by_page, base_all, interaction_all
-
-
-def _index_expected_images_by_path(expected_images: List[ExpectedImage]) -> Dict[str, ExpectedImage]:
-    return {item.image_path: item for item in expected_images}
-
-
-def _decode_base64_image(image_b64: str) -> Image.Image:
-    raw = base64.b64decode(image_b64)
-    return Image.open(io.BytesIO(raw)).convert("RGB")
-
-
-def _pil_to_tensor(img: Image.Image) -> torch.Tensor:
-    img = img.convert("RGB").resize((224, 224), Image.Resampling.BICUBIC)
-    img_np = np.array(img).astype(np.float32) / 127.5 - 1.0
-    return torch.from_numpy(img_np).permute(2, 0, 1).unsqueeze(0).to(_device)
-
-
-def _ssim_score(img_a: Image.Image, img_b: Image.Image) -> float:
-    arr_a = np.array(img_a.convert("L"))
-    arr_b = np.array(img_b.convert("L"))
+def _ssim_score(img_a: np.ndarray, img_b: np.ndarray, img_a_rgb: Image.Image, img_b_rgb: Image.Image) -> float:
+    arr_a = img_a
+    arr_b = img_b
 
     if arr_a.shape != arr_b.shape:
         size = (min(arr_a.shape[1], arr_b.shape[1]), min(arr_a.shape[0], arr_b.shape[0]))
-        arr_a = np.array(img_a.resize(size, Image.Resampling.LANCZOS).convert("L"))
-        arr_b = np.array(img_b.resize(size, Image.Resampling.LANCZOS).convert("L"))
+        arr_a = np.array(img_a_rgb.resize(size, Image.Resampling.LANCZOS).convert("L"))
+        arr_b = np.array(img_b_rgb.resize(size, Image.Resampling.LANCZOS).convert("L"))
 
     return _clamp01(float(ssim(arr_a, arr_b, data_range=255)))
 
 
-def _lpips_score(img_a: Image.Image, img_b: Image.Image) -> float:
-    tensor_a = _pil_to_tensor(img_a)
-    tensor_b = _pil_to_tensor(img_b)
-    model = _get_lpips_model()
-    with torch.no_grad():
-        dist = model(tensor_a, tensor_b)
-    return float(dist.item())
+def _compute_clip_embeddings(assets: List[ImageAsset], progress: ProgressPrinter, label: str) -> None:
+    if not assets:
+        return
 
-
-def _clip_similarity(img_a: Image.Image, img_b: Image.Image) -> float:
     model, preprocess = _get_clip_components()
-    image_a = preprocess(img_a).unsqueeze(0).to(_device)
-    image_b = preprocess(img_b).unsqueeze(0).to(_device)
 
     with torch.no_grad():
-        emb_a = model.encode_image(image_a)
-        emb_b = model.encode_image(image_b)
-        emb_a = emb_a / emb_a.norm(dim=-1, keepdim=True)
-        emb_b = emb_b / emb_b.norm(dim=-1, keepdim=True)
-        cosine = (emb_a * emb_b).sum().item()
+        total = len(assets)
+        for idx, asset in enumerate(assets, start=1):
+            image = preprocess(asset.image_rgb).unsqueeze(0).to(_device)
+            emb = model.encode_image(image)
+            emb = emb / emb.norm(dim=-1, keepdim=True)
+            asset.clip_embedding = emb.squeeze(0).detach().cpu().numpy().astype(np.float32)
+            progress.update(idx, total, f"{label} {Path(asset.path).name}")
 
+
+def _clip_similarity_from_embeddings(reference: ImageAsset, runtime: ImageAsset) -> float:
+    if reference.clip_embedding is None or runtime.clip_embedding is None:
+        raise ValueError("CLIP embedding is missing.")
+    cosine = float(np.dot(reference.clip_embedding, runtime.clip_embedding))
     return _clamp01((cosine + 1.0) / 2.0)
 
 
-def _weighted_similarity_score(expected_b64: str, actual_b64: str) -> Dict[str, float]:
-    exp_img = _decode_base64_image(expected_b64)
-    act_img = _decode_base64_image(actual_b64)
-
-    ssim_value = _ssim_score(exp_img, act_img)
-    lpips_distance = max(0.0, _lpips_score(exp_img, act_img))
-    clip_value = _clip_similarity(exp_img, act_img)
-
-    lpips_good = 1.0 / (1.0 + lpips_distance)
-    final_score = WEIGHT_SSIM * ssim_value + WEIGHT_CLIP * clip_value + WEIGHT_LPIPS * lpips_good
+def _weighted_similarity_score(reference: ImageAsset, runtime: ImageAsset) -> Dict[str, float]:
+    ssim_value = _ssim_score(reference.gray, runtime.gray, reference.image_rgb, runtime.image_rgb)
+    clip_value = _clip_similarity_from_embeddings(reference, runtime)
+    final_score = WEIGHT_SSIM * ssim_value + WEIGHT_CLIP * clip_value
 
     return {
         "final": round(_clamp01(final_score), 6),
         "ssim": round(_clamp01(ssim_value), 6),
         "clip": round(_clamp01(clip_value), 6),
-        "lpips": round(_clamp01(lpips_good), 6),
     }
-
-
-def _best_match(
-    actual_b64: str,
-    expected_candidates: List[ExpectedImage],
-    top_k: int = 3,
-) -> Dict[str, Any]:
-    if not expected_candidates:
-        return {
-            "best": None,
-            "top_candidates": [],
-        }
-
-    scored: List[Dict[str, Any]] = []
-    for exp in expected_candidates:
-        metrics = _weighted_similarity_score(exp.image_data, actual_b64)
-        scored.append(
-            {
-                "expected_page_key": exp.page_key,
-                "expected_image_path": exp.image_path,
-                "score": metrics["final"],
-                "component_scores": {
-                    "ssim": metrics["ssim"],
-                    "clip": metrics["clip"],
-                    "lpips": metrics["lpips"],
-                },
-            }
-        )
-
-    scored.sort(key=lambda item: item["score"], reverse=True)
-    top = scored[:top_k]
-
-    return {
-        "best": top[0] if top else None,
-        "top_candidates": top,
-    }
-
-
-def _classify_interaction_transition(
-    best_interaction_score: float,
-    best_global_page_score: float,
-) -> str:
-    if (
-        best_global_page_score >= NAVIGATION_SCORE_THRESHOLD
-        and best_global_page_score >= best_interaction_score + NAVIGATION_MARGIN
-    ):
-        return "navigation_or_return"
-    if best_interaction_score > 0.0:
-        return "in_page_interaction"
-    return "unknown"
 
 
 def _build_vlm(model_name: str) -> Any:
@@ -438,29 +205,14 @@ def _build_vlm(model_name: str) -> Any:
     BaseModel = getattr(pydantic_module, "BaseModel")
     Field = getattr(pydantic_module, "Field")
 
-    class VisualPageFeedback(BaseModel):
-        verdict: str = Field(description="PASS / WARN / FAIL")
-        confidence: float = Field(description="0-1 confidence")
+    class VisualPairFeedback(BaseModel):
+        overall: str = Field(description="PASS / FAIL")
+        similarity_score: float = Field(description="0-100")
+        differences: List[Dict[str, Any]] = Field(description="Difference items with impact/category")
         summary: str = Field(description="A short summary in Chinese")
-        matched_points: List[str] = Field(description="Matched visual points")
-        differences: List[str] = Field(description="Key visual differences")
-        suggestions: List[str] = Field(description="Actionable suggestions")
+        suggestions: str = Field(description="Actionable suggestions for improving consistency")
 
-    class VisualInteractionFeedback(BaseModel):
-        operation_type: str = Field(
-            description="Inferred action type, such as navigation, scroll, click, input, toggle, return, unknown"
-        )
-        operation_target: str = Field(description="Likely target control or area that triggered the interaction")
-        expected_result: str = Field(description="What result the interaction appears to be aiming for")
-        result_correct: bool = Field(description="Whether the actual result matches the expected behavior")
-        verdict: str = Field(description="PASS / WARN / FAIL")
-        confidence: float = Field(description="0-1 confidence")
-        summary: str = Field(description="A short summary in Chinese")
-        matched_points: List[str] = Field(description="Matched visual points")
-        differences: List[str] = Field(description="Key visual differences")
-        suggestions: List[str] = Field(description="Actionable suggestions")
-
-    api_key = _get_dashscope_api_key()
+    api_key = str(os.getenv("DASHSCOPE_API_KEY", "")).strip()
     if not api_key:
         raise ValueError("DASHSCOPE_API_KEY is missing.")
 
@@ -470,19 +222,16 @@ def _build_vlm(model_name: str) -> Any:
         base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
         temperature=0.0,
     )
-    return {
-        "page": llm.with_structured_output(VisualPageFeedback),
-        "interaction": llm.with_structured_output(VisualInteractionFeedback),
-    }
+    return llm.with_structured_output(VisualPairFeedback)
 
 
-def _vlm_compare_page(
+def _vlm_compare_pair(
     llm: Any,
-    page_key: str,
-    actual_init_b64: str,
-    actual_init_path: str,
-    expected_page: ExpectedImage,
-    similarity_top_candidates: List[Dict[str, Any]],
+    runtime_image_path: str,
+    runtime_b64: str,
+    reference_image_path: str,
+    reference_b64: str,
+    score_payload: Dict[str, float],
 ) -> Dict[str, Any]:
     try:
         messages_module = importlib.import_module("langchain_core.messages")
@@ -492,45 +241,41 @@ def _vlm_compare_page(
     HumanMessage = getattr(messages_module, "HumanMessage")
     SystemMessage = getattr(messages_module, "SystemMessage")
 
-    expected_ext = Path(expected_page.image_path).suffix.lower()
-    expected_mime = "image/png" if expected_ext == ".png" else "image/jpeg"
-
-    system_prompt = (
-        "你是移动端 UI 视觉评审专家。"
-        "请对比主页面原图和生成的页面截图，判断页面是否生成正确。"
-        "重点关注页面结构、关键组件、文案语义、层级关系、布局位置和缺失元素。"
-        "请输出结构化结论，并指出差异与修复建议。"
+    prompt = (
+        "你是移动端 UI 快速验收助手。"
+        "只判断是否“大致相似”，不要做像素级或过度细节分析。"
+        "判定标准：\n"
+        "1) 页面主结构是否一致（头部/主体/底部、主要分区）。\n"
+        "2) 关键组件是否存在（核心按钮、输入区、列表/卡片）。\n"
+        "3) 主要文案语义是否一致。\n"
+        "4) 顶部的系统信号、时间、电量等信息不是 UI 设计的一部分，坚决不要进行解析和输出。\n"
+        "5) 图标不要求完全一致，只要语义和功能一致即可。\n"
+        "可忽略：小间距、小字号差异、轻微颜色偏差、圆角细节、顶部状态栏。\n"
+        "输出严格 JSON："
+        '{"overall":"PASS|FAIL","similarity_score":0-100,'
+        '"differences":[{"item":"...","impact":"high|medium|low","category":"layout|component|text|style"}],'
+        '"summary":"...",'
+        '"suggestions":"..."}\n'
+        "当 similarity_score >= 70 时给 PASS，否则 FAIL。"
     )
 
-    content: List[Dict[str, Any]] = [
+    content = [
         {
             "type": "text",
             "text": (
-                f"page_key={page_key}\n"
-                "以下是算法召回结果（SSIM+CLIP+LPIPS，仅作参考）：\n"
-                f"page_top_candidates={json.dumps(similarity_top_candidates, ensure_ascii=False)}\n"
-                "请以图片为主判断生成页面是否正确。"
+                "算法分数(仅参考): "
+                f"final={score_payload.get('final', 0)}, "
+                f"ssim={score_payload.get('ssim', 0)}, "
+                f"clip={score_payload.get('clip', 0)}"
             ),
         },
-        {
-            "type": "text",
-            "text": f"[Original-Page] path={expected_page.image_path}",
-        },
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:{expected_mime};base64,{expected_page.image_data}"},
-        },
-        {
-            "type": "text",
-            "text": f"[Generated-Init] path={actual_init_path}",
-        },
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:image/jpeg;base64,{actual_init_b64}"},
-        },
+        {"type": "text", "text": f"[Runtime] {runtime_image_path}"},
+        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{runtime_b64}"}},
+        {"type": "text", "text": f"[Reference] {reference_image_path}"},
+        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{reference_b64}"}},
     ]
 
-    result: Any = llm.invoke([SystemMessage(content=system_prompt), HumanMessage(content=content)])
+    result: Any = llm.invoke([SystemMessage(content=prompt), HumanMessage(content=content)])
     if hasattr(result, "model_dump"):
         return result.model_dump()
     if isinstance(result, dict):
@@ -538,465 +283,275 @@ def _vlm_compare_page(
     return {"raw": str(result)}
 
 
-def _vlm_compare_interaction(
-    llm: Any,
-    page_key: str,
-    elem_dir: str,
-    current_page_b64: str,
-    current_page_path: str,
-    actual_after_b64: str,
-    actual_after_path: str,
-    expected_target: Optional[ExpectedImage],
-    transition_type: str,
-    interaction_top_candidates: List[Dict[str, Any]],
-    global_page_top_candidates: List[Dict[str, Any]],
-) -> Dict[str, Any]:
+def _relative_paths(path_value: Path, root: Path) -> str:
     try:
-        messages_module = importlib.import_module("langchain_core.messages")
-    except Exception as exc:
-        raise RuntimeError("langchain-core is missing for VLM invocation.") from exc
+        return path_value.resolve().relative_to(root.resolve()).as_posix()
+    except Exception:
+        return str(path_value)
 
-    HumanMessage = getattr(messages_module, "HumanMessage")
-    SystemMessage = getattr(messages_module, "SystemMessage")
 
-    system_prompt = (
-        "你是移动端 UI 视觉评审专家。"
-        "你会看到交互前的当前页面截图和交互后的页面截图。"
-        "请先根据两张图的变化推断发生了什么操作，例如点击按钮、滚动、返回、跳转、展开收起、输入等。"
-        "如果还提供了 after 可能对应的目标原图，请进一步判断 after 是否达到了这个目标结果。"
-        "重点关注交互对象、滚动位置、页面跳转、状态变化，以及错误跳转或无效操作。"
-    )
+def _build_user_markdown(report: Dict[str, Any]) -> str:
+    stats = report.get("stats", {}) if isinstance(report, dict) else {}
+    rows = report.get("pair_results", []) if isinstance(report, dict) else []
 
-    content: List[Dict[str, Any]] = [
-        {
-            "type": "text",
-            "text": (
-                f"页面 page_key={page_key}，交互元素 {elem_dir}。\n"
-                f"第一阶段判断的 transition_type={transition_type}。\n"
-                "以下是算法召回结果（SSIM+CLIP+LPIPS，仅作参考）：\n"
-                f"same_page_interaction_top={json.dumps(interaction_top_candidates, ensure_ascii=False)}\n"
-                f"global_page_top={json.dumps(global_page_top_candidates, ensure_ascii=False)}\n"
-                "请先从当前页面到 after 的变化中推断操作类型与操作对象；"
-                "最后判断操作结果是否正确。"
-            ),
-        },
-        {
-            "type": "text",
-            "text": f"[Current-Page-Before] path={current_page_path}",
-        },
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:image/jpeg;base64,{current_page_b64}"},
-        },
-        {
-            "type": "text",
-            "text": f"[Actual-After] path={actual_after_path}",
-        },
-        {
-            "type": "image_url",
-            "image_url": {"url": f"data:image/jpeg;base64,{actual_after_b64}"},
-        },
+    lines: List[str] = [
+        "# Visual Review Summary",
+        "",
+        f"- runtime_image_count: {stats.get('runtime_image_count', 0)}",
+        f"- reference_image_count: {stats.get('reference_image_count', 0)}",
+        f"- matched_count: {stats.get('matched_count', 0)}",
+        f"- avg_top1_score: {stats.get('avg_top1_score', 0)}",
+        "",
+        "## Top1 Matches",
     ]
 
-    if expected_target is not None:
-        target_ext = Path(expected_target.image_path).suffix.lower()
-        target_mime = "image/png" if target_ext == ".png" else "image/jpeg"
-        content.extend(
-            [
-                {
-                    "type": "text",
-                    "text": f"[Original-Target-Candidate] page_key={expected_target.page_key} path={expected_target.image_path}",
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {"url": f"data:{target_mime};base64,{expected_target.image_data}"},
-                },
-            ]
-        )
+    if not rows:
+        lines.append("- No matches found")
+        lines.append("")
+        return "\n".join(lines)
 
-    result: Any = llm.invoke(
-        [
-            SystemMessage(content=system_prompt),
-            HumanMessage(content=content),
-        ]
-    )
-    if hasattr(result, "model_dump"):
-        return result.model_dump()
-    if isinstance(result, dict):
-        return result
-    return {"raw": str(result)}
+    for row in rows:
+        reference_path = str(row.get("reference_image_path_rel") or row.get("reference_image_path") or "")
+        runtime_path = str(row.get("runtime_image_path_rel") or row.get("runtime_image_path") or "")
+        score = row.get("score", {}) if isinstance(row.get("score"), dict) else {}
+        final_score = score.get("final", 0)
+        lines.append(f"- {reference_path} -> {runtime_path} (score={final_score})")
+
+        feedback = row.get("visual_feedback", {}) if isinstance(row.get("visual_feedback"), dict) else {}
+        if feedback.get("status") == "ok":
+            review = feedback.get("review", {}) if isinstance(feedback.get("review"), dict) else {}
+            summary = str(review.get("summary", "")).strip()
+            suggestions = str(review.get("suggestions", "")).strip()
+            verdict = str(review.get("overall", "")).strip() or str(review.get("verdict", "")).strip() or "UNKNOWN"
+            sim_score = review.get("similarity_score", None)
+            if summary:
+                if sim_score is None:
+                    lines.append(f"  overall={verdict}; {summary}")
+                else:
+                    lines.append(f"  overall={verdict}; similarity_score={sim_score}; {summary}")
+            if suggestions:
+                lines.append(f"  suggestions={suggestions}")
+
+    lines.append("")
+    return "\n".join(lines)
 
 
 def run_visual_review_page_elem(
-    architect_output_path: Path,
     review_output_dir: Path,
     output_json_path: Path,
+    user_input_dir: Path,
     show_progress: bool = True,
     use_llm: bool = True,
     llm_model: str = DEFAULT_VLM_MODEL,
+    architect_output_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
+    _ = architect_output_path
     t0 = time.perf_counter()
     progress = ProgressPrinter(enabled=show_progress)
+    prepare_t0 = time.perf_counter()
 
-    progress.stage("Loading architect JSON")
-    payload = _read_json(architect_output_path)
-    state = _extract_state_from_architect_payload(payload)
+    progress.stage("Collecting images")
+    runtime_paths_all = _collect_images(review_output_dir)
+    runtime_paths = [path for path in runtime_paths_all if _is_runtime_image_selected(path)]
+    runtime_filtered_out_count = max(0, len(runtime_paths_all) - len(runtime_paths))
+    reference_paths = _collect_images(user_input_dir)
 
-    progress.stage("Scanning actual output pages")
-    actual_pages = _scan_actual_pages(review_output_dir)
-    if not actual_pages:
-        raise ValueError("No page folders with init_screen.jpeg were found under review output dir.")
+    if not runtime_paths:
+        raise ValueError(
+            "No runtime images found after filtering (only init screen/after, excluding before/return) "
+            f"under: {review_output_dir}"
+        )
+    if not reference_paths:
+        raise ValueError(f"No user input images found under: {user_input_dir}")
 
-    progress.stage("Indexing expected images")
-    actual_page_keys = {page.page_key for page in actual_pages}
-    expected_images = _extract_expected_images(state, actual_page_keys)
-    if not expected_images:
-        raise ValueError("No expected image_assets(base64) found in architect JSON.")
+    progress.stage("Loading images")
+    runtime_assets: List[ImageAsset] = []
+    for idx, path in enumerate(runtime_paths, start=1):
+        runtime_assets.append(_load_image_asset(path))
+        progress.update(idx, len(runtime_paths), f"loading runtime {path.name}")
 
-    expected_by_path = _index_expected_images_by_path(expected_images)
-    base_by_page, interaction_by_page, base_all, interaction_all = _split_expected_images(expected_images)
-    if not base_all:
-        raise ValueError("No base expected images (non-Interaction) found in architect JSON.")
+    reference_assets: List[ImageAsset] = []
+    for idx, path in enumerate(reference_paths, start=1):
+        reference_assets.append(_load_image_asset(path))
+        progress.update(idx, len(reference_paths), f"loading reference {path.name}")
 
-    page_reports: List[Dict[str, Any]] = []
-    page_index_pairs: List[Dict[str, Any]] = []
-    interaction_image_pairs: List[Dict[str, Any]] = []
-    page_name_hit = 0
-    interaction_count = 0
-    interaction_nav_like = 0
-    missing_expected_index_pages = 0
-    missing_expected_interaction_pages = 0
+    progress.stage("Computing CLIP embeddings")
+    _compute_clip_embeddings(reference_assets, progress, "embedding reference")
+    _compute_clip_embeddings(runtime_assets, progress, "embedding runtime")
+    prepare_seconds = round(time.perf_counter() - prepare_t0, 3)
+
     llm_requested = bool(use_llm)
     llm_used = False
     llm_error = ""
-    page_feedback_ok = 0
-    page_feedback_failed = 0
-    page_feedback_skipped = 0
-    llm_feedback_ok = 0
-    llm_feedback_skipped = 0
-    llm_feedback_failed = 0
-    vlm = None
-
-    if use_llm:
+    llm = None
+    if llm_requested:
         progress.stage(f"Initializing VLM reviewer ({llm_model})")
         try:
-            vlm = _build_vlm(llm_model)
+            llm = _build_vlm(llm_model)
             llm_used = True
         except Exception as exc:
             llm_error = str(exc)
 
-    total_pages = len(actual_pages)
-    total_interactions = sum(len(page.interactions) for page in actual_pages)
-    done_interactions = 0
+    progress.stage("Matching user input images to runtime top1 (1:1)")
+    pair_results: List[Dict[str, Any]] = []
+    score_sum = 0.0
+    scoring_t0 = time.perf_counter()
 
-    progress.stage(f"Matching pages ({total_pages}) and interactions ({total_interactions})")
+    # Build all pair scores first, then assign greedily by highest score to enforce 1:1 mapping.
+    score_records: List[Tuple[float, int, int, Dict[str, float]]] = []
+    total_pairs = len(reference_assets) * len(runtime_assets)
+    pair_counter = 0
+    for ref_idx, reference in enumerate(reference_assets):
+        for run_idx, runtime in enumerate(runtime_assets):
+            score = _weighted_similarity_score(reference, runtime)
+            score_records.append((float(score.get("final", 0.0)), ref_idx, run_idx, score))
+            pair_counter += 1
+            progress.update(pair_counter, total_pairs, f"scoring {Path(reference.path).name}")
 
-    for page_index, page in enumerate(actual_pages, start=1):
-        page_base_candidates = base_by_page.get(page.page_key, [])
-        if not page_base_candidates:
-            missing_expected_index_pages += 1
-        page_init_match = _best_match(page.init_data, page_base_candidates, top_k=5)
+    scoring_seconds = round(time.perf_counter() - scoring_t0, 3)
 
-        progress.update(
-            page_index,
-            total_pages,
-            f"page init matching: {page.page_key}",
-        )
+    score_records.sort(key=lambda item: item[0], reverse=True)
 
-        init_best = page_init_match.get("best")
-        main_page_expected = None
-        if isinstance(init_best, dict):
-            main_page_expected = expected_by_path.get(str(init_best.get("expected_image_path", "")).strip())
-        top1_name_match = bool(init_best and init_best.get("expected_page_key", "").lower() == page.page_key.lower())
-        if top1_name_match:
-            page_name_hit += 1
+    assigned_ref_indices = set()
+    assigned_run_indices = set()
+    selected_pairs: List[Tuple[int, int, Dict[str, float]]] = []
 
-        page_index_pairs.append(
-            {
-                "page_key": page.page_key,
-                "page_dir": page.page_dir,
-                "original_index_image": init_best.get("expected_image_path") if isinstance(init_best, dict) else None,
-                "generated_index_image": page.init_path,
-                "similarity_score": init_best.get("score") if isinstance(init_best, dict) else None,
-            }
-        )
+    for _, ref_idx, run_idx, score in score_records:
+        if ref_idx in assigned_ref_indices or run_idx in assigned_run_indices:
+            continue
+        assigned_ref_indices.add(ref_idx)
+        assigned_run_indices.add(run_idx)
+        selected_pairs.append((ref_idx, run_idx, score))
+        if len(assigned_ref_indices) >= len(reference_assets):
+            break
+        if len(assigned_run_indices) >= len(runtime_assets):
+            break
 
-        page_vlm_feedback: Dict[str, Any] = {
-            "status": "skipped",
-            "reason": "llm_not_enabled",
-        }
+    progress.stage("Running pair review for selected matches")
+    llm_t0 = time.perf_counter()
+    total_selected = len(selected_pairs)
+    for idx, (ref_idx, run_idx, best_score) in enumerate(selected_pairs, start=1):
+        reference = reference_assets[ref_idx]
+        runtime = runtime_assets[run_idx]
+
+        score_sum += max(0.0, float(best_score.get("final", 0.0)))
+
+        visual_feedback: Dict[str, Any] = {"status": "skipped", "reason": "llm_not_enabled"}
         if llm_requested and not llm_used:
-            page_vlm_feedback = {
-                "status": "skipped",
-                "reason": llm_error or "llm_not_available",
-            }
-            page_feedback_skipped += 1
-        elif llm_used and vlm is not None:
-            if main_page_expected is None:
-                page_vlm_feedback = {
-                    "status": "skipped",
-                    "reason": "main_page_original_not_found",
-                }
-                page_feedback_skipped += 1
-            else:
-                try:
-                    review = _vlm_compare_page(
-                        llm=vlm["page"],
-                        page_key=page.page_key,
-                        actual_init_b64=page.init_data,
-                        actual_init_path=page.init_path,
-                        expected_page=main_page_expected,
-                        similarity_top_candidates=page_init_match.get("top_candidates", []),
-                    )
-                    page_vlm_feedback = {
-                        "status": "ok",
-                        "review": review,
-                    }
-                    page_feedback_ok += 1
-                except Exception as exc:
-                    page_vlm_feedback = {
-                        "status": "failed",
-                        "reason": str(exc),
-                    }
-                    page_feedback_failed += 1
+            visual_feedback = {"status": "skipped", "reason": llm_error or "llm_not_available"}
+        elif llm_used and llm is not None:
+            try:
+                review = _vlm_compare_pair(
+                    llm=llm,
+                    runtime_image_path=runtime.path,
+                    runtime_b64=runtime.b64,
+                    reference_image_path=reference.path,
+                    reference_b64=reference.b64,
+                    score_payload=best_score,
+                )
+                visual_feedback = {"status": "ok", "review": review}
+            except Exception as exc:  # noqa: BLE001
+                visual_feedback = {"status": "failed", "reason": str(exc)}
 
-        interaction_reports: List[Dict[str, Any]] = []
-        for interaction in page.interactions:
-            interaction_count += 1
-
-            same_page_interaction_candidates = interaction_by_page.get(page.page_key, [])
-            if not same_page_interaction_candidates:
-                missing_expected_interaction_pages += 1
-            same_page_interaction_match = _best_match(
-                interaction.after_data,
-                same_page_interaction_candidates,
-                top_k=5,
-            )
-
-            global_page_match = _best_match(interaction.after_data, base_all, top_k=5)
-
-            before_page_match = None
-            if interaction.before_data:
-                before_page_match = _best_match(interaction.before_data, page_base_candidates, top_k=3)
-
-            return_page_match = None
-            if interaction.return_data:
-                return_page_match = _best_match(interaction.return_data, page_base_candidates, top_k=3)
-
-            interaction_best = same_page_interaction_match.get("best")
-            global_page_best = global_page_match.get("best")
-
-            interaction_score = float(interaction_best.get("score", 0.0)) if interaction_best else 0.0
-            global_page_score = float(global_page_best.get("score", 0.0)) if global_page_best else 0.0
-
-            transition_type = _classify_interaction_transition(interaction_score, global_page_score)
-            if transition_type == "navigation_or_return":
-                interaction_nav_like += 1
-
-            expected_target = None
-            expected_target_selection = {
-                "selected_kind": "none",
-                "selected_expected_image_path": None,
-                "selected_score": None,
-            }
-            if transition_type == "navigation_or_return" and isinstance(global_page_best, dict):
-                expected_target_selection = {
-                    "selected_kind": "base_page",
-                    "selected_expected_image_path": global_page_best.get("expected_image_path"),
-                    "selected_score": global_page_best.get("score"),
-                }
-                expected_target = expected_by_path.get(str(global_page_best.get("expected_image_path", "")).strip())
-            elif isinstance(interaction_best, dict):
-                expected_target_selection = {
-                    "selected_kind": "interaction",
-                    "selected_expected_image_path": interaction_best.get("expected_image_path"),
-                    "selected_score": interaction_best.get("score"),
-                }
-                expected_target = expected_by_path.get(str(interaction_best.get("expected_image_path", "")).strip())
-
-            vlm_review: Dict[str, Any] = {
-                "status": "skipped",
-                "reason": "llm_not_enabled",
-            }
-            if llm_requested and not llm_used:
-                vlm_review = {
-                    "status": "skipped",
-                    "reason": llm_error or "llm_not_available",
-                }
-                llm_feedback_skipped += 1
-            elif llm_used and vlm is not None:
-                if not interaction.before_data or not interaction.before_path:
-                    vlm_review = {
-                        "status": "skipped",
-                        "reason": "before_image_missing",
-                    }
-                    llm_feedback_skipped += 1
-                elif main_page_expected is None:
-                    vlm_review = {
-                        "status": "skipped",
-                        "reason": "main_page_original_not_found",
-                    }
-                    llm_feedback_skipped += 1
-                else:
-                    try:
-                        review = _vlm_compare_interaction(
-                            llm=vlm["interaction"],
-                            page_key=page.page_key,
-                            elem_dir=interaction.elem_dir,
-                            current_page_b64=interaction.before_data,
-                            current_page_path=interaction.before_path,
-                            actual_after_b64=interaction.after_data,
-                            actual_after_path=interaction.after_path,
-                            expected_target=expected_target,
-                            transition_type=transition_type,
-                            interaction_top_candidates=same_page_interaction_match.get("top_candidates", []),
-                            global_page_top_candidates=global_page_match.get("top_candidates", []),
-                        )
-                        vlm_review = {
-                            "status": "ok",
-                            "selected_expected_target": expected_target_selection,
-                            "review": review,
-                        }
-                        llm_feedback_ok += 1
-                    except Exception as exc:
-                        llm_feedback_failed += 1
-                        vlm_review = {
-                            "status": "failed",
-                            "selected_expected_target": expected_target_selection,
-                            "reason": str(exc),
-                        }
-
-            interaction_image_pairs.append(
-                {
-                    "page_key": page.page_key,
-                    "elem_dir": interaction.elem_dir,
-                    "original_interaction_image": interaction_best.get("expected_image_path") if isinstance(interaction_best, dict) else None,
-                    "generated_interaction_after_image": interaction.after_path,
-                    "similarity_score": interaction_best.get("score") if isinstance(interaction_best, dict) else None,
-                    "original_index_image": init_best.get("expected_image_path") if isinstance(init_best, dict) else None,
-                    "generated_index_image": page.init_path,
-                }
-            )
-
-            done_interactions += 1
-            progress.update(
-                done_interactions,
-                total_interactions,
-                f"interaction matching: {page.page_key}/{interaction.elem_dir}",
-            )
-
-            interaction_reports.append(
-                {
-                    "elem_dir": interaction.elem_dir,
-                    "after_image_path": interaction.after_path,
-                    "before_image_path": interaction.before_path,
-                    "return_image_path": interaction.return_path,
-                    "transition_type": transition_type,
-                    "after_vs_expected_interaction": same_page_interaction_match,
-                    "after_vs_expected_page_global": global_page_match,
-                    "selected_expected_target": expected_target_selection,
-                    "before_vs_current_page": before_page_match,
-                    "return_vs_current_page": return_page_match,
-                    "vlm_feedback": vlm_review,
-                }
-            )
-
-        page_reports.append(
+        pair_results.append(
             {
-                "actual_page_dir": page.page_dir,
-                "actual_page_key": page.page_key,
-                "actual_init_screen_path": page.init_path,
-                "top1_name_match": top1_name_match,
-                "init_vs_expected_page": page_init_match,
-                "vlm_feedback": page_vlm_feedback,
-                "interactions": interaction_reports,
+                "runtime_image_path": runtime.path,
+                "reference_image_path": reference.path,
+                "score": best_score,
+                "visual_feedback": visual_feedback,
             }
         )
+        progress.update(idx, total_selected, f"reviewing {Path(reference.path).name}")
 
-    progress.finish("Similarity matching completed")
+    llm_review_seconds = round(time.perf_counter() - llm_t0, 3)
+
+    progress.finish("Image matching completed")
 
     elapsed_seconds = round(time.perf_counter() - t0, 3)
+    matched_count = len(pair_results)
+    avg_score = round(score_sum / matched_count, 6) if matched_count else 0.0
 
     report = {
-        "architect_output_path": str(architect_output_path),
         "review_output_dir": str(review_output_dir),
+        "user_input_dir": str(user_input_dir),
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "stats": {
-            "actual_pages": len(actual_pages),
-            "expected_images": len(expected_images),
-            "expected_base_images": len(base_all),
-            "expected_interaction_images": len(interaction_all),
-            "missing_expected_index_pages": missing_expected_index_pages,
-            "missing_expected_interaction_pages": missing_expected_interaction_pages,
-            "page_top1_name_match": page_name_hit,
-            "page_top1_name_total": len(actual_pages),
-            "page_top1_name_match_accuracy": round(page_name_hit / len(actual_pages), 4) if actual_pages else 0.0,
-            "interaction_total": interaction_count,
-            "interaction_navigation_or_return": interaction_nav_like,
-            "interaction_in_page_or_unknown": interaction_count - interaction_nav_like,
+            "runtime_image_total_count": len(runtime_paths_all),
+            "runtime_image_count": len(runtime_assets),
+            "runtime_image_filtered_out_count": runtime_filtered_out_count,
+            "reference_image_count": len(reference_assets),
+            "matched_count": matched_count,
+            "reference_unmatched_count": max(0, len(reference_assets) - matched_count),
+            "runtime_ignored_count": max(0, len(runtime_assets) - matched_count),
+            "avg_top1_score": avg_score,
             "llm_requested": llm_requested,
             "llm_used": llm_used,
             "llm_model": llm_model if llm_requested else None,
-            "page_feedback_ok": page_feedback_ok,
-            "page_feedback_skipped": page_feedback_skipped,
-            "page_feedback_failed": page_feedback_failed,
-            "llm_feedback_ok": llm_feedback_ok,
-            "llm_feedback_skipped": llm_feedback_skipped,
-            "llm_feedback_failed": llm_feedback_failed,
-            "similarity_weights": {
-                "ssim": WEIGHT_SSIM,
-                "clip": WEIGHT_CLIP,
-                "lpips": WEIGHT_LPIPS,
-            },
-            "transition_thresholds": {
-                "navigation_score_threshold": NAVIGATION_SCORE_THRESHOLD,
-                "navigation_margin": NAVIGATION_MARGIN,
-            },
+            "image_prepare_seconds": prepare_seconds,
+            "scoring_seconds": scoring_seconds,
+            "llm_review_seconds": llm_review_seconds,
             "elapsed_seconds": elapsed_seconds,
         },
-        "page_index_pairs": page_index_pairs,
-        "interaction_image_pairs": interaction_image_pairs,
-        "page_reports": page_reports,
+        "pair_results": pair_results,
         "llm_error": llm_error,
     }
 
-    progress.stage("Writing report JSON")
     output_json_path.parent.mkdir(parents=True, exist_ok=True)
+
+    project_root = Path(__file__).resolve().parent
+    for row in pair_results:
+        runtime_path = Path(str(row.get("runtime_image_path", "")))
+        reference_path = Path(str(row.get("reference_image_path", "")))
+        row["runtime_image_path_rel"] = _relative_paths(runtime_path, project_root)
+        row["reference_image_path_rel"] = _relative_paths(reference_path, project_root)
+
     output_json_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-    progress.finish(f"Report written: {output_json_path} | elapsed={elapsed_seconds}s")
+
+    user_md_path = output_json_path.with_name(output_json_path.stem + "_user.md")
+    user_md_path.write_text(_build_user_markdown(report), encoding="utf-8")
+
+    report["machine_report_path"] = str(output_json_path)
+    report["user_report_path"] = str(user_md_path)
     return report
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Visual review for page-level init_screen and elem-level after screenshots. "
-            "Reads expected images from architect JSON and compares against output page folders."
+            "Visual review: user-input-primary one-to-one matching. "
+            "Find best runtime screenshot for each user input image using SSIM+CLIP, "
+            "ignore extra runtime screenshots, then optionally run VLM pair comparison."
         )
-    )
-    parser.add_argument(
-        "--architect-output",
-        required=True,
-        help="Path to architect output JSON (must contain final_state/state.image_assets with base64)",
     )
     parser.add_argument(
         "--review-output-dir",
         required=True,
-        help="Output directory containing page folders with init_screen.jpeg and elem*/after.jpeg",
+        help="Directory containing runtime images (typically a report run folder).",
+    )
+    parser.add_argument(
+        "--user-input-dir",
+        required=True,
+        help="Directory containing user input reference images.",
     )
     parser.add_argument(
         "--output-json",
-        default="artifacts/visual_review_page_elem_output.json",
-        help="Path to save the review report JSON",
+        default="artifacts/visual_review_output.json",
+        help="Path to save machine-readable review report JSON.",
+    )
+    parser.add_argument(
+        "--architect-output",
+        default="",
+        help="Deprecated. Kept only for backward compatibility; ignored.",
     )
     parser.add_argument(
         "--no-progress",
         action="store_true",
-        help="Disable progress output in terminal",
+        help="Disable progress output in terminal.",
     )
     parser.add_argument(
         "--disable-llm",
         action="store_true",
-        help="Disable optional VLM review stage",
+        help="Disable optional VLM pair comparison.",
     )
     parser.add_argument(
         "--llm-model",
@@ -1006,24 +561,26 @@ def main() -> None:
     args = parser.parse_args()
 
     report = run_visual_review_page_elem(
-        architect_output_path=Path(args.architect_output).resolve(),
         review_output_dir=Path(args.review_output_dir).resolve(),
         output_json_path=Path(args.output_json).resolve(),
+        user_input_dir=Path(args.user_input_dir).resolve(),
         show_progress=not args.no_progress,
         use_llm=not args.disable_llm,
         llm_model=args.llm_model,
+        architect_output_path=Path(args.architect_output).resolve() if str(args.architect_output).strip() else None,
     )
 
     print(
         json.dumps(
             {
-                "report": str(Path(args.output_json).resolve()),
-                "actual_pages": report["stats"]["actual_pages"],
-                "interaction_total": report["stats"]["interaction_total"],
-                "page_top1_name_match_accuracy": report["stats"]["page_top1_name_match_accuracy"],
-                "llm_used": report["stats"]["llm_used"],
-                "llm_error": report.get("llm_error", ""),
-                "elapsed_seconds": report["stats"].get("elapsed_seconds", None),
+                "machine_report": report.get("machine_report_path", ""),
+                "user_report": report.get("user_report_path", ""),
+                "runtime_image_count": report.get("stats", {}).get("runtime_image_count", 0),
+                "reference_image_count": report.get("stats", {}).get("reference_image_count", 0),
+                "matched_count": report.get("stats", {}).get("matched_count", 0),
+                "avg_top1_score": report.get("stats", {}).get("avg_top1_score", 0),
+                "llm_used": report.get("stats", {}).get("llm_used", False),
+                "elapsed_seconds": report.get("stats", {}).get("elapsed_seconds", None),
             },
             ensure_ascii=False,
             indent=2,

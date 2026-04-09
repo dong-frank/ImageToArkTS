@@ -10,5 +10,11 @@ dependencies = [
     "dotenv>=0.9.9",
     "langchain[openai]>=1.2.12",
     "langgraph-checkpoint-sqlite>=3.0.3",
+    "lpips>=0.1.4",
+    "open-clip-torch>=3.3.0",
     "pexpect>=4.9.0",
+    "pillow>=12.2.0",
+    "scikit-image>=0.26.0",
+    "torch>=2.11.0",
+    "torchvision>=0.26.0",
 ]

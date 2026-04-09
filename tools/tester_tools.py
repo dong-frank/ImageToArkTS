@@ -1629,11 +1629,11 @@ def compare_ui_pair_with_mini_agent(
     compare_prompt = (
         "你是移动端 UI 快速验收助手。"
         "只判断是否“大致相似”，不要做像素级或过度细节分析。"
-        f"当前页面/模块名：{page_name or 'unknown'}。\n"
         "判定标准：\n"
         "1) 页面主结构是否一致（头部/主体/底部、主要分区）。\n"
         "2) 关键组件是否存在（核心按钮、输入区、列表/卡片）。\n"
         "3) 主要文案语义是否一致。\n"
+        "4) 忽略状态栏信息。\n"
         "可忽略：小间距、小字号差异、轻微颜色偏差、圆角细节。\n"
         "输出严格 JSON："
         '{"overall":"PASS|FAIL","similarity_score":0-100,'
@@ -1752,6 +1752,187 @@ def _resolve_review_output_dir(review_output_dir: str) -> tuple[Optional[Path], 
         )
     latest = sorted(candidates, key=lambda path: path.stat().st_mtime, reverse=True)[0]
     return latest, ""
+
+
+def _extract_page_key_from_review_dir_name(name: str) -> str:
+    markers = [
+        "EntryAbility_page_pages_",
+        "EntryAbility_pages_",
+        "_pages_",
+    ]
+    for marker in markers:
+        if marker in name:
+            return name.split(marker, 1)[-1]
+    return name
+
+
+def _scan_runtime_page_keys(review_output_dir: Path) -> List[str]:
+    keys: List[str] = []
+    for path in sorted(review_output_dir.iterdir(), key=lambda item: item.name.lower()):
+        if not path.is_dir():
+            continue
+        init_candidates = [
+            path / "init_screen.jpeg",
+            path / "init_screen.jpg",
+            path / "init_screen.png",
+            path / "init_screen.webp",
+        ]
+        if not any(candidate.exists() for candidate in init_candidates):
+            continue
+        page_key = _extract_page_key_from_review_dir_name(path.name).strip()
+        if page_key and page_key not in keys:
+            keys.append(page_key)
+    return keys
+
+
+def _infer_page_key_for_reference(image_stem: str, runtime_page_keys: List[str]) -> str:
+    keys = [str(item).strip() for item in runtime_page_keys if str(item).strip()]
+    if not keys:
+        return image_stem
+
+    stem_norm = _normalize_match_key(image_stem)
+    if not stem_norm:
+        return keys[0]
+
+    for key in keys:
+        key_norm = _normalize_match_key(key)
+        if stem_norm == key_norm or stem_norm in key_norm or key_norm in stem_norm:
+            return key
+
+    scored = sorted(
+        keys,
+        key=lambda key: difflib.SequenceMatcher(None, stem_norm, _normalize_match_key(key)).ratio(),
+        reverse=True,
+    )
+    return scored[0]
+
+
+def _looks_like_overlay_reference(file_name: str, description: str) -> bool:
+    text = f"{file_name} {description}".lower()
+    overlay_keywords = [
+        "弹窗",
+        "菜单",
+        "下拉",
+        "浮层",
+        "popup",
+        "overlay",
+        "dialog",
+        "sheet",
+        "menu",
+        "list",
+    ]
+    return any(keyword in text for keyword in overlay_keywords)
+
+
+def _load_user_input_metadata(user_input_dir: Path) -> Dict[str, Any]:
+    metadata_path = user_input_dir / "user_input_metadata.json"
+    if not metadata_path.exists() or not metadata_path.is_file():
+        return {}
+    try:
+        payload = json.loads(metadata_path.read_text(encoding="utf-8", errors="ignore"))
+    except Exception:  # noqa: BLE001
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _extract_state_from_architect_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+    if isinstance(payload.get("final_state"), dict):
+        return payload["final_state"]
+    if isinstance(payload.get("state"), dict):
+        return payload["state"]
+    return payload
+
+
+def _architect_has_image_assets(architect_path: Path) -> bool:
+    if not architect_path.exists() or not architect_path.is_file():
+        return False
+    try:
+        payload = json.loads(architect_path.read_text(encoding="utf-8", errors="ignore"))
+    except Exception:  # noqa: BLE001
+        return False
+    if not isinstance(payload, dict):
+        return False
+    state = _extract_state_from_architect_payload(payload)
+    assets = state.get("image_assets", []) if isinstance(state, dict) else []
+    if not isinstance(assets, list):
+        return False
+    for item in assets:
+        if not isinstance(item, dict):
+            continue
+        image_data = str(item.get("image_data", "")).strip()
+        image_path = str(item.get("image_path", "")).strip()
+        if image_data and image_path:
+            return True
+    return False
+
+
+def _build_visual_expected_assets_from_user_input(
+    user_input_dir: Path,
+    runtime_page_keys: List[str],
+) -> Tuple[List[Dict[str, str]], List[str]]:
+    metadata = _load_user_input_metadata(user_input_dir)
+    file_metas = metadata.get("files", {}) if isinstance(metadata, dict) else {}
+    if not isinstance(file_metas, dict):
+        file_metas = {}
+
+    entries: List[Dict[str, str]] = []
+    debug_lines: List[str] = []
+    image_files = sorted(
+        [
+            path
+            for path in user_input_dir.iterdir()
+            if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
+        ],
+        key=lambda path: path.name.lower(),
+    )
+
+    for image_path in image_files:
+        raw_meta = file_metas.get(image_path.name, {}) if isinstance(file_metas, dict) else {}
+        if not isinstance(raw_meta, dict):
+            raw_meta = {}
+        description = str(raw_meta.get("description", "")).strip()
+        page_key = _infer_page_key_for_reference(image_path.stem, runtime_page_keys)
+        is_overlay = _looks_like_overlay_reference(image_path.name, description)
+        logical_path = (
+            f"pages/{page_key}/Interaction/{image_path.name}"
+            if is_overlay
+            else f"pages/{page_key}/{image_path.name}"
+        )
+
+        image_b64 = base64.b64encode(image_path.read_bytes()).decode("ascii")
+        entries.append(
+            {
+                "image_path": logical_path,
+                "image_data": image_b64,
+            }
+        )
+        debug_lines.append(
+            f"- {image_path.name} => {logical_path} (overlay={str(is_overlay).lower()}, desc={'yes' if description else 'no'})"
+        )
+
+    return entries, debug_lines
+
+
+def _build_derived_architect_payload_file(
+    review_output_dir: Path,
+    user_input_dir: Path,
+    runtime_page_keys: List[str],
+) -> Tuple[Optional[Path], str, List[str]]:
+    assets, debug_lines = _build_visual_expected_assets_from_user_input(
+        user_input_dir=user_input_dir,
+        runtime_page_keys=runtime_page_keys,
+    )
+    if not assets:
+        return None, "no image files found under user_input", debug_lines
+
+    payload = {
+        "state": {
+            "image_assets": assets,
+        }
+    }
+    target_path = review_output_dir / "visual_review_expected_assets.generated.json"
+    target_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    return target_path, "", debug_lines
 
 
 def _select_summary_images(image_paths: List[Path], max_images: int) -> List[Path]:
@@ -2081,6 +2262,87 @@ def summarize_review_features_by_page(
             markdown,
         ]
     )
+
+
+@tool
+def run_visual_review_with_inputs(
+    review_output_dir: str = "/reports",
+    architect_output_path: str = "/designs/architect.json",
+    user_input_dir: str = "/user_input",
+    output_file_name: str = "visual_review_output.json",
+    use_llm: bool = True,
+    llm_model: str = "qwen-vl-max",
+    show_progress: bool = False,
+    force_rebuild_expected_assets: bool = False,
+) -> str:
+    """
+    Run visual review by matching each runtime screenshot to top1 user_input reference image.
+    New logic does not rely on architect image_assets.
+    """
+    print("start running visual review")
+
+    resolved_review_dir, resolve_error = _resolve_review_output_dir(review_output_dir)
+    if resolve_error or not resolved_review_dir:
+        return f"status: FAILED\nreason: {resolve_error or 'review output dir resolve failed'}"
+
+    _ = architect_output_path
+    _ = force_rebuild_expected_assets
+    resolved_user_input_dir = resolve_workspace_path(user_input_dir)
+    if not resolved_user_input_dir.exists() or not resolved_user_input_dir.is_dir():
+        return f"status: FAILED\nreason: user_input dir not found: {resolved_user_input_dir}"
+
+    safe_name = Path(output_file_name).name or "visual_review_page_elem_output.json"
+    if not safe_name.lower().endswith(".json"):
+        safe_name = f"{safe_name}.json"
+    output_json_path = resolved_review_dir / safe_name
+
+    try:
+        from visual_review_node_v3 import run_visual_review_page_elem
+    except Exception as exc:  # noqa: BLE001
+        return (
+            "status: FAILED\n"
+            "reason: import visual_review_node_v3 failed\n"
+            f"error: {exc}"
+        )
+
+    try:
+        report = run_visual_review_page_elem(
+            review_output_dir=resolved_review_dir,
+            output_json_path=output_json_path,
+            user_input_dir=resolved_user_input_dir,
+            show_progress=bool(show_progress),
+            use_llm=bool(use_llm),
+            llm_model=str(llm_model or "qwen-vl-max").strip() or "qwen-vl-max",
+            architect_output_path=None,
+        )
+    except Exception as exc:  # noqa: BLE001
+        return (
+            "status: FAILED\n"
+            "reason: run_visual_review_page_elem execution failed\n"
+            f"review_output_dir: {resolved_review_dir}\n"
+            f"user_input_dir: {resolved_user_input_dir}\n"
+            f"error: {exc}"
+        )
+
+    stats = report.get("stats", {}) if isinstance(report, dict) else {}
+    machine_report_path = str(report.get("machine_report_path", output_json_path))
+    user_report_path = str(report.get("user_report_path", "")).strip()
+
+    lines = [
+        "status: SUCCESS",
+        f"review_output_dir: {resolved_review_dir}",
+        f"review_output_dir_rel: {_workspace_relative_display(resolved_review_dir)}",
+        f"visual_review_machine_json_path: {machine_report_path}",
+        f"visual_review_machine_json_path_rel: {_workspace_relative_display(Path(machine_report_path))}",
+        f"visual_review_user_path: {user_report_path or '(none)'}",
+        f"runtime_image_count: {stats.get('runtime_image_count', 0)}",
+        f"reference_image_count: {stats.get('reference_image_count', 0)}",
+        f"matched_count: {stats.get('matched_count', 0)}",
+        f"avg_top1_score: {stats.get('avg_top1_score', 0)}",
+        f"llm_used: {stats.get('llm_used', False)}",
+        f"elapsed_seconds: {stats.get('elapsed_seconds', 0)}",
+    ]
+    return "\n".join(lines)
 
 
 
@@ -2659,6 +2921,7 @@ TESTER_TOOLS = [
     pair_reference_pages_with_runtime,
     compare_ui_pair_with_mini_agent,
     evaluate_test_coverage,
+    run_visual_review_with_inputs,
     save_tester_report,
 ]
 

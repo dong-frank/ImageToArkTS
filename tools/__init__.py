@@ -17,6 +17,7 @@ from tools.tester_tools import (
     pair_reference_pages_with_runtime,
     press_back,
     read_description_baseline,
+    run_visual_review_with_inputs,
     save_tester_report,
     summarize_review_features_by_page,
     start_harmony_app,
@@ -29,6 +30,7 @@ from tools.tool_sets import (
     FLOW_SUMMARY_SUBAGENT_TOOLS,
     MAIN_AGENT_TOOLS,
     TESTER_SUBAGENT_TOOLS,
+    VISUAL_REVIEW_SUBAGENT_TOOLS,
 )
 
 __all__ = [
@@ -39,6 +41,7 @@ __all__ = [
     "TESTER_SCRIPT_EXECUTION_TOOLS",
     "TESTER_SUBAGENT_TOOLS",
     "TESTER_TOOLS",
+    "VISUAL_REVIEW_SUBAGENT_TOOLS",
     "assert_state",
     "build_test_plan_from_inputs",
     "capture_app_screenshot",
@@ -55,6 +58,7 @@ __all__ = [
     "press_back",
     "request_human_guidance",
     "read_description_baseline",
+    "run_visual_review_with_inputs",
     "save_architect_design",
     "save_tester_report",
     "summarize_review_features_by_page",
