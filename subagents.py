@@ -47,6 +47,7 @@ CODER_SKELETON_WORKER_SPEC = {
     "description": "Plan shared project skeleton and page tasks from architect design.",
     "model": base_model,
     "system_prompt": load_prompt("coder_skeleton_system_prompt.md"),
+    "skills": ["/skills"],
     "tools": CODER_SKELETON_WORKER_TOOLS,
 }
 

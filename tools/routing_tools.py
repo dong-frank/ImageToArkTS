@@ -26,14 +26,23 @@ from schemas import (
     CoderSkeletonOutput,
     TesterReportOutput,
 )
-from subagents import build_coder_page_worker, get_coder_integration_worker, get_coder_orchestrator, get_tester_agent
+from subagents import (
+    build_coder_page_worker,
+    get_coder_integration_worker,
+    get_coder_orchestrator,
+    get_coder_skeleton_worker,
+    get_tester_agent,
+)
 from tools.architect_tools import build_architect_image_facts_bundle_payload, save_architect_design_payload
 from tools.coder_tools import (
+    append_coder_compile_fix_attempt,
+    build_coder_compile_fix_attempt_payload,
     load_coder_integration_report_payload,
     load_coder_page_worker_results_payload,
     load_coder_page_task_bundle_payload,
     load_coder_skeleton_plan_payload,
     materialize_coder_skeleton,
+    save_coder_compile_fix_trace_payload,
     save_coder_integration_report_payload,
     save_coder_page_worker_results_payload,
     save_coder_skeleton_plan_payload,
@@ -57,6 +66,28 @@ def build_architect_dispatch_description() -> str:
 
 def build_coder_dispatch_description(task_type: Literal["implementation", "fix_from_test"]) -> str:
     return build_coder_dispatch_contract(task_type=task_type).render()
+
+
+def build_coder_integration_dispatch_description(task_type: Literal["implementation", "fix_from_test"]) -> str:
+    return "\n".join(
+        [
+            f"task_type: {task_type}",
+            "trigger: page_worker_results_ready",
+            "inputs:",
+            "- /designs/coder_skeleton_plan.json",
+            "- /logs/coder/page_worker_results.json",
+            "- /logs/tester/latest_tester_report.json (only for fix_from_test)",
+            "required_outputs:",
+            "- /logs/coder/integration_report.json",
+            "done_criteria:",
+            "- resolve imports, dependencies, interface mismatches, and naming inconsistencies",
+            "- compile the project and capture remaining blockers when compilation fails",
+            "- preserve UI fidelity and allow minimal or placeholder functionality when needed",
+            "fallback:",
+            "- if repeated compile errors do not change => need_human_guidance",
+            "- if task mismatch => wrong_agent",
+        ]
+    )
 
 
 def build_tester_dispatch_description() -> str:
@@ -163,6 +194,20 @@ def invoke_architect_aggregator(metadata_payload: dict, facts_bundle: dict) -> d
 
 
 def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Literal["implementation", "fix_from_test"]) -> str:
+    skill_brief = {
+        "required_skill": "/skills/harmony-next/SKILL.md",
+        "workflow": [
+            "Read /skills/harmony-next/SKILL.md before planning multi-page skeleton artifacts.",
+            "Use the skill's progressive disclosure flow to locate the smallest relevant set of docs for page organization, routing, and shared navigation scaffold design.",
+            "Prefer shared navigation scaffold decisions in skeleton instead of pushing them to page workers.",
+        ],
+        "recommended_lookup_order": [
+            "/skills/harmony-next/SKILL.md",
+            "/skills/harmony-next/references/TASK_MAP.md",
+            "/skills/harmony-next/references/INDEX.md",
+            "/skills/harmony-next/references/JsEtsAPIReference/INDEX.md",
+        ],
+    }
     return "\n".join(
         [
             build_coder_dispatch_description(task_type=task_type),
@@ -170,6 +215,10 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
             "You are planning the skeleton stage only.",
             "Return only structured CoderSkeletonOutput.",
             "Do not write files and do not claim the project is complete.",
+            "Unified navigation belongs to skeleton when the project has multiple pages.",
+            "",
+            "Materialized input: required skill brief",
+            json.dumps(skill_brief, ensure_ascii=False, indent=2),
             "",
             "Materialized input: /designs/architect.json",
             json.dumps(architect_payload, ensure_ascii=False, indent=2),
@@ -241,6 +290,70 @@ def _normalize_coder_skeleton_paths(payload: dict) -> dict:
     return normalized
 
 
+def _ensure_navigation_scaffold(payload: dict) -> dict:
+    normalized = dict(payload)
+    project_name = str(normalized.get("project_name") or "").strip()
+    route_table = list(normalized.get("route_table") or [])
+    if not project_name or len(route_table) <= 1:
+        return normalized
+
+    navigation_component = {
+        "name": "BottomNavBar",
+        "file_path": f"/projects/{project_name}/entry/src/main/ets/common/components/BottomNavBar.ets",
+        "description": "Shared bottom navigation scaffold for primary multi-page navigation.",
+    }
+    navigation_service = {
+        "name": "NavigationService",
+        "file_path": f"/projects/{project_name}/entry/src/main/ets/common/services/NavigationService.ets",
+        "description": "Shared navigation registry and route helper for skeleton-generated pages.",
+    }
+
+    shared_components = list(normalized.get("shared_components") or [])
+    if not any(str(item.get("name") or "") == "BottomNavBar" for item in shared_components):
+        shared_components.append(navigation_component)
+    normalized["shared_components"] = shared_components
+
+    public_interfaces = list(normalized.get("public_interfaces") or [])
+    if not any(str(item.get("name") or "") == "NavigationService" for item in public_interfaces):
+        public_interfaces.append(navigation_service)
+    normalized["public_interfaces"] = public_interfaces
+
+    page_tasks = []
+    for task in normalized.get("page_tasks", []) or []:
+        item = dict(task)
+        shared_dependencies = list(item.get("shared_dependencies") or [])
+        for dependency in ("BottomNavBar", "NavigationService"):
+            if dependency not in shared_dependencies:
+                shared_dependencies.append(dependency)
+        item["shared_dependencies"] = shared_dependencies
+        page_tasks.append(item)
+    normalized["page_tasks"] = page_tasks
+    return normalized
+
+
+def _normalize_coder_skeleton_tool_args(tool_args: dict) -> dict:
+    normalized_tool_args = dict(tool_args)
+    state_management = normalized_tool_args.get("state_management")
+    if isinstance(state_management, str):
+        text = state_management.strip()
+        if text:
+            try:
+                parsed = json.loads(text)
+            except json.JSONDecodeError:
+                parsed = state_management
+            if isinstance(parsed, dict):
+                normalized_tool_args["state_management"] = parsed
+    normalized_tool_args = _normalize_coder_skeleton_paths(normalized_tool_args)
+    normalized_tool_args = _ensure_navigation_scaffold(normalized_tool_args)
+    try:
+        return CoderSkeletonOutput.model_validate(normalized_tool_args).model_dump(mode="json", exclude_none=True)
+    except Exception as exc:  # noqa: BLE001
+        error_text = str(exc)
+        if "state_management" in error_text:
+            raise ValueError("Coder skeleton output missing state_management") from exc
+        raise ValueError(f"Coder skeleton output is invalid: {error_text}") from exc
+
+
 def invoke_coder_skeleton_planner(architect_payload: dict, task_type: Literal["implementation", "fix_from_test"]) -> dict:
     tool_name = "CoderSkeletonOutput"
     llm_response = invoke_with_tool(
@@ -254,26 +367,71 @@ def invoke_coder_skeleton_planner(architect_payload: dict, task_type: Literal["i
     )
     tool_args = extract_tool_call_args(llm_response, tool_name)
     if tool_args is not None:
-        normalized_tool_args = dict(tool_args)
-        state_management = normalized_tool_args.get("state_management")
-        if isinstance(state_management, str):
-            text = state_management.strip()
-            if text:
-                try:
-                    parsed = json.loads(text)
-                except json.JSONDecodeError:
-                    parsed = state_management
-                if isinstance(parsed, dict):
-                    normalized_tool_args["state_management"] = parsed
-        normalized_tool_args = _normalize_coder_skeleton_paths(normalized_tool_args)
-        try:
-            return CoderSkeletonOutput.model_validate(normalized_tool_args).model_dump(mode="json", exclude_none=True)
-        except Exception as exc:  # noqa: BLE001
-            error_text = str(exc)
-            if "state_management" in error_text:
-                raise ValueError("Coder skeleton output missing state_management") from exc
-            raise ValueError(f"Coder skeleton output is invalid: {error_text}") from exc
+        return _normalize_coder_skeleton_tool_args(tool_args)
     raise ValueError("Coder skeleton stage requires tool-call output from CoderSkeletonOutput")
+
+
+def _build_coder_skeleton_result_prompt(architect_payload: dict, task_type: Literal["implementation", "fix_from_test"], agent_summary: str) -> str:
+    return "\n".join(
+        [
+            "Summarize the skeleton worker result into structured CoderSkeletonOutput.",
+            "Use the architect payload as the source of truth for pages and product structure.",
+            "Preserve unified navigation scaffolding for multi-page projects.",
+            "",
+            f"task_type: {task_type}",
+            "",
+            "Architect payload:",
+            json.dumps(architect_payload, ensure_ascii=False, indent=2),
+            "",
+            "Skeleton worker summary:",
+            agent_summary or "(empty)",
+        ]
+    )
+
+
+def invoke_coder_skeleton_result_formatter(
+    architect_payload: dict,
+    task_type: Literal["implementation", "fix_from_test"],
+    agent_summary: str,
+) -> dict:
+    tool_name = "CoderSkeletonOutput"
+    llm_response = invoke_with_tool(
+        base_model,
+        [
+            SystemMessage(content=_CODER_SKELETON_SYSTEM_PROMPT),
+            HumanMessage(
+                content=_build_coder_skeleton_result_prompt(
+                    architect_payload=architect_payload,
+                    task_type=task_type,
+                    agent_summary=agent_summary,
+                )
+            ),
+        ],
+        tool_name,
+        normalize_tool_schema(CoderSkeletonOutput.model_json_schema()),
+    )
+    tool_args = extract_tool_call_args(llm_response, tool_name)
+    if tool_args is not None:
+        return _normalize_coder_skeleton_tool_args(tool_args)
+    raise ValueError("Coder skeleton stage requires tool-call output from CoderSkeletonOutput")
+
+
+def run_coder_skeleton_stage(
+    *,
+    architect_payload: dict,
+    task_type: Literal["implementation", "fix_from_test"],
+    runtime: ToolRuntime,
+) -> dict:
+    result = _invoke_subagent(
+        get_coder_skeleton_worker(),
+        build_coder_skeleton_planning_prompt(architect_payload=architect_payload, task_type=task_type),
+        runtime,
+    )
+    return invoke_coder_skeleton_result_formatter(
+        architect_payload=architect_payload,
+        task_type=task_type,
+        agent_summary=_result_text(result),
+    )
 
 
 def _build_page_task_prompt(
@@ -283,12 +441,44 @@ def _build_page_task_prompt(
     task_type: Literal["implementation", "fix_from_test"],
     tester_report_payload: dict | None = None,
 ) -> str:
+    skill_brief = {
+        "required_skill": "/skills/harmony-next/SKILL.md",
+        "workflow": [
+            "Read /skills/harmony-next/SKILL.md before writing ArkTS code.",
+            "Use the skill's progressive disclosure flow to narrow scope first.",
+            "Open only 1-2 reference documents that are directly relevant to the current page task.",
+            "When API signatures, decorators, layout APIs, routing, or lifecycle behavior are uncertain, check the referenced docs before coding.",
+        ],
+        "recommended_lookup_order": [
+            "/skills/harmony-next/SKILL.md",
+            "/skills/harmony-next/references/KITS.md",
+            "/skills/harmony-next/references/TASK_MAP.md",
+            "/skills/harmony-next/references/INDEX.md",
+            "/skills/harmony-next/references/JsEtsAPIReference/INDEX.md",
+        ],
+    }
+    execution_priority = {
+        "primary_goal": "Reconstruct the UI as faithfully as possible.",
+        "secondary_goal": "Implement only minimal functionality needed to support the visible UI.",
+        "allowed_tradeoffs": [
+            "Use placeholder handlers when full business logic is complex.",
+            "Use static mock data when real data flow would block UI delivery.",
+            "Prefer visually correct sections over deep functional completeness.",
+        ],
+    }
     sections = [
         build_coder_dispatch_description(task_type=task_type),
         "",
         "You are executing one page implementation task only.",
+        "Skill usage is mandatory before code generation for ArkTS / ArkUI details.",
         "Respect allowed_write_paths and page-local component boundaries.",
         "Do not compile the whole project and do not edit shared skeleton files directly.",
+        "",
+        "Materialized input: execution priority",
+        json.dumps(execution_priority, ensure_ascii=False, indent=2),
+        "",
+        "Materialized input: required skill brief",
+        json.dumps(skill_brief, ensure_ascii=False, indent=2),
         "",
         "Materialized input: page task",
         json.dumps(task_payload, ensure_ascii=False, indent=2),
@@ -348,21 +538,47 @@ def invoke_coder_page_result_formatter(task_payload: dict, modified_files: list[
 
 def _build_integration_prompt(
     task_type: Literal["implementation", "fix_from_test"],
-    architect_payload: dict,
     skeleton_payload: dict,
     page_results_payload: dict,
     tester_report_payload: dict | None = None,
     compile_feedback: str | None = None,
 ) -> str:
+    skill_brief = {
+        "required_skill": "/skills/harmony-next/SKILL.md",
+        "workflow": [
+            "Read /skills/harmony-next/SKILL.md before fixing ArkTS / ArkUI compile issues.",
+            "Use the skill's progressive disclosure flow to find the smallest relevant reference set.",
+            "Check referenced docs before modifying decorators, route configuration, lifecycle code, imports, or component APIs.",
+        ],
+        "recommended_lookup_order": [
+            "/skills/harmony-next/SKILL.md",
+            "/skills/harmony-next/references/TASK_MAP.md",
+            "/skills/harmony-next/references/INDEX.md",
+            "/skills/harmony-next/references/JsEtsAPIReference/INDEX.md",
+        ],
+    }
+    execution_priority = {
+        "primary_goal": "Preserve and stabilize UI fidelity first.",
+        "secondary_goal": "Keep functionality at a minimal compile-safe level when necessary.",
+        "allowed_tradeoffs": [
+            "Do not rewrite visually accurate pages just to chase nonessential behavior.",
+            "Prefer compile-safe placeholders over risky feature-heavy rewrites.",
+            "Protect layout, styling, and visible section structure unless a change is required to compile.",
+        ],
+    }
     sections = [
-        build_coder_dispatch_description(task_type=task_type),
+        build_coder_integration_dispatch_description(task_type=task_type),
         "",
         "You are executing the integration stage only.",
+        "Skill usage is mandatory before fixing ArkTS / ArkUI engineering issues.",
         "Resolve shared contract mismatches, import/export issues, route registration gaps, and naming inconsistencies.",
         "The orchestration layer will compile after your edits and may give you compile feedback for another pass.",
         "",
-        "Materialized input: /designs/architect.json",
-        json.dumps(architect_payload, ensure_ascii=False, indent=2),
+        "Materialized input: execution priority",
+        json.dumps(execution_priority, ensure_ascii=False, indent=2),
+        "",
+        "Materialized input: required skill brief",
+        json.dumps(skill_brief, ensure_ascii=False, indent=2),
         "",
         "Materialized input: /designs/coder_skeleton_plan.json",
         json.dumps(skeleton_payload, ensure_ascii=False, indent=2),
@@ -606,21 +822,49 @@ def _parse_compile_output(compile_output: str) -> dict[str, Any]:
 def run_coder_integration(
     *,
     task_type: Literal["implementation", "fix_from_test"],
-    architect_payload: dict,
     skeleton_payload: dict,
     page_results_payload: dict,
     runtime: ToolRuntime,
     tester_report_payload: dict | None = None,
 ) -> dict:
-    compile_feedback: str | None = None
+    compile_feedback: str | None = compile_project.func(skeleton_payload["project_name"])
     last_signature = ""
     worker_summaries: list[str] = []
+    attempt_records: list[dict[str, Any]] = []
+    modified_files = sorted(
+        {
+            path
+            for result in list(page_results_payload.get("results") or [])
+            for path in list(result.get("modified_files") or [])
+        }
+    )
+    initial_parsed_compile = _parse_compile_output(compile_feedback)
+    initial_signature = _compile_status_signature(compile_feedback)
+    attempt_records.append(
+        build_coder_compile_fix_attempt_payload(
+            attempt_index=1,
+            task_type=task_type,
+            project_name=skeleton_payload["project_name"],
+            compile_status=initial_parsed_compile["compile_status"],
+            error_signature=initial_signature,
+            key_errors=initial_parsed_compile["key_errors"],
+            worker_summary="baseline compile before integration fixes",
+            worker_summaries_so_far=[],
+            modified_files=modified_files,
+            fixes_applied=[],
+            skills_referenced=["/skills/harmony-next/SKILL.md"],
+        )
+    )
+    if "compile_status: SUCCESS" not in compile_feedback:
+        last_signature = initial_signature
+
     for _ in range(2):
+        if compile_feedback and "compile_status: SUCCESS" in compile_feedback:
+            break
         result = _invoke_subagent(
             get_coder_integration_worker(),
             _build_integration_prompt(
                 task_type=task_type,
-                architect_payload=architect_payload,
                 skeleton_payload=skeleton_payload,
                 page_results_payload=page_results_payload,
                 tester_report_payload=tester_report_payload,
@@ -634,6 +878,22 @@ def run_coder_integration(
 
         compile_feedback = compile_project.func(skeleton_payload["project_name"])
         signature = _compile_status_signature(compile_feedback)
+        parsed_compile = _parse_compile_output(compile_feedback)
+        attempt_records.append(
+            build_coder_compile_fix_attempt_payload(
+                attempt_index=len(attempt_records) + 1,
+                task_type=task_type,
+                project_name=skeleton_payload["project_name"],
+                compile_status=parsed_compile["compile_status"],
+                error_signature=signature,
+                key_errors=parsed_compile["key_errors"],
+                worker_summary=summary,
+                worker_summaries_so_far=worker_summaries,
+                modified_files=modified_files,
+                fixes_applied=worker_summaries,
+                skills_referenced=["/skills/harmony-next/SKILL.md"],
+            )
+        )
         if "compile_status: SUCCESS" in compile_feedback:
             break
         if signature == last_signature:
@@ -644,6 +904,29 @@ def run_coder_integration(
         project_name=skeleton_payload["project_name"],
         compile_output=compile_feedback or "",
         worker_summaries=worker_summaries,
+    )
+    final_success = report["compile_status"] == "SUCCESS"
+    for index, attempt in enumerate(attempt_records):
+        updated_attempt = dict(attempt)
+        updated_attempt["final_success"] = final_success
+        if index + 1 < len(attempt_records):
+            next_attempt = attempt_records[index + 1]
+            updated_attempt["resolved_in_next_attempt"] = next_attempt.get("compile_status") == "SUCCESS" or (
+                next_attempt.get("error_signature") != attempt.get("error_signature")
+            )
+        else:
+            updated_attempt["resolved_in_next_attempt"] = None
+        append_coder_compile_fix_attempt(updated_attempt)
+        attempt_records[index] = updated_attempt
+
+    save_coder_compile_fix_trace_payload(
+        {
+            "project_name": skeleton_payload["project_name"],
+            "task_type": task_type,
+            "attempts": attempt_records,
+            "final_compile_status": report["compile_status"],
+            "final_success": final_success,
+        }
     )
     save_coder_integration_report_payload(report)
     return report
@@ -664,7 +947,11 @@ def run_coder_pipeline(
         skeleton_payload = None
 
     if skeleton_payload is None:
-        skeleton_payload = invoke_coder_skeleton_planner(architect_payload=architect_payload, task_type=task_type)
+        skeleton_payload = run_coder_skeleton_stage(
+            architect_payload=architect_payload,
+            task_type=task_type,
+            runtime=runtime,
+        )
         save_coder_skeleton_plan_payload(skeleton_payload)
         materialize_coder_skeleton(skeleton_payload)
 
@@ -686,7 +973,6 @@ def run_coder_pipeline(
     )
     integration_report = run_coder_integration(
         task_type=task_type,
-        architect_payload=architect_payload,
         skeleton_payload=skeleton_payload,
         page_results_payload=page_results_payload,
         runtime=runtime,
@@ -707,7 +993,11 @@ def dispatch_coder_skeleton(
         raise ValueError("Tool call ID is required for coder skeleton dispatch")
 
     architect_payload = load_architect_design_payload()
-    skeleton_payload = invoke_coder_skeleton_planner(architect_payload=architect_payload, task_type=task_type)
+    skeleton_payload = run_coder_skeleton_stage(
+        architect_payload=architect_payload,
+        task_type=task_type,
+        runtime=runtime,
+    )
     save_coder_skeleton_plan_payload(skeleton_payload)
     project_path = resolve_workspace_path(f"/projects/{skeleton_payload['project_name']}")
     if project_path.exists():
@@ -780,7 +1070,6 @@ def dispatch_coder_integration(
     tester_report_payload = load_tester_report_payload() if task_type == "fix_from_test" else None
     integration_report = run_coder_integration(
         task_type=task_type,
-        architect_payload=architect_payload,
         skeleton_payload=skeleton_payload,
         page_results_payload=page_results_payload,
         runtime=runtime,

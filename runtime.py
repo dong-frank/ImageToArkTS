@@ -20,7 +20,11 @@ from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, Huma
 from langgraph.types import Command
 
 from agent import graph
-from utils.session_backend import sync_backend_outputs_to_local, sync_local_user_input_to_backend
+from utils.session_backend import (
+    ensure_session_backend_initialized,
+    sync_backend_outputs_to_local,
+    sync_local_user_input_to_backend,
+)
 from utils.session_context import reset_current_session_id, set_current_session_id
 from utils.user_input_preparation import (
     load_user_input_metadata_payload,
@@ -390,6 +394,7 @@ async def query_func(
     session_token = set_current_session_id(session_id)
     resume_value = _extract_resume_value(request)
     graph_input: Any = Command(resume=resume_value) if resume_value is not None else {"messages": msgs}
+    ensure_session_backend_initialized(session_id)
     if resume_value is None:
         refresh_user_input_artifacts(PROJECT_ROOT, session_id)
         graph_input = {"messages": prepend_user_input_instruction(PROJECT_ROOT, msgs, session_id)}
@@ -515,6 +520,7 @@ async def upload_user_input(
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
     metadata_payload = load_user_input_metadata_payload(PROJECT_ROOT, normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
@@ -599,6 +605,7 @@ async def list_user_input_files(session_id: str = DEFAULT_SESSION_ID):
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
     metadata_payload = load_user_input_metadata_payload(PROJECT_ROOT, normalized_session_id)
     files_metadata = metadata_payload.get("files", {})
     if not isinstance(files_metadata, dict):
@@ -633,6 +640,7 @@ async def delete_user_input_file(file_name: str, session_id: str = DEFAULT_SESSI
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
 
     safe_name = Path(file_name).name
     if safe_name != file_name:
@@ -785,6 +793,7 @@ async def process_simple(request: Request, payload: dict[str, Any] = Body(defaul
 
     config = {"configurable": {"thread_id": session_id}}
     graph_input: Any = Command(resume=resume_raw) if has_resume else {"messages": msgs}
+    ensure_session_backend_initialized(session_id)
     if not has_resume:
         refresh_user_input_artifacts(PROJECT_ROOT, session_id)
         graph_input = {"messages": prepend_user_input_instruction(PROJECT_ROOT, msgs, session_id)}
@@ -935,6 +944,7 @@ async def preview_user_input_file(file_name: str, session_id: str = DEFAULT_SESS
     normalized_session_id = _resolve_session_id(session_id)
     user_input_dir = session_user_input_dir(PROJECT_ROOT, normalized_session_id)
     user_input_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
 
     safe_name = Path(file_name).name
     if safe_name != file_name:
@@ -955,8 +965,10 @@ async def preview_user_input_file(file_name: str, session_id: str = DEFAULT_SESS
 
 @agent_app.endpoint("/workspace/tree", methods=["GET"])
 async def get_workspace_tree(session_id: str = DEFAULT_SESSION_ID):
-    session_dir = session_workspace_dir(PROJECT_ROOT, _resolve_session_id(session_id))
+    normalized_session_id = _resolve_session_id(session_id)
+    session_dir = session_workspace_dir(PROJECT_ROOT, normalized_session_id)
     session_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
     tree = _build_tree_node(session_dir, session_dir)
     return {
         "root": tree,
@@ -968,6 +980,7 @@ async def preview_workspace_file(workspace_path: str, session_id: str = DEFAULT_
     normalized_session_id = _resolve_session_id(session_id)
     session_dir = session_workspace_dir(PROJECT_ROOT, normalized_session_id)
     session_dir.mkdir(parents=True, exist_ok=True)
+    ensure_session_backend_initialized(normalized_session_id)
 
     normalized_path = (workspace_path or "").strip()
     if not normalized_path or normalized_path == "/":
@@ -1003,6 +1016,7 @@ async def reset_agent_workspace(session_id: str = Form(DEFAULT_SESSION_ID)):
         if session_dir.exists():
             shutil.rmtree(session_dir)
         session_user_input_dir(PROJECT_ROOT, normalized_session_id).mkdir(parents=True, exist_ok=True)
+        ensure_session_backend_initialized(normalized_session_id)
         return {
             "ok": True,
             "code": 0,

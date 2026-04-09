@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import json
 import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from pydantic import BaseModel, ValidationError
 
 from schemas import (
+    CoderCompileFixAttempt,
+    CoderCompileFixTrace,
     CoderIntegrationReport,
     CoderPageTaskBundle,
     CoderPageWorkerResultBundle,
@@ -38,6 +41,14 @@ def _coder_page_worker_results_path(project_root: Path | None = None) -> Path:
 
 def _coder_integration_report_path(project_root: Path | None = None) -> Path:
     return _resolve_session_path("/logs/coder/integration_report.json", project_root=project_root)
+
+
+def _coder_compile_fix_history_path(project_root: Path | None = None) -> Path:
+    return _resolve_session_path("/logs/coder/compile_fix_history.jsonl", project_root=project_root)
+
+
+def _coder_latest_compile_fix_trace_path(project_root: Path | None = None) -> Path:
+    return _resolve_session_path("/logs/coder/latest_compile_fix_trace.json", project_root=project_root)
 
 
 def _workspace_root(project_root: Path | None = None) -> Path:
@@ -109,6 +120,68 @@ def load_coder_integration_report_payload(project_root: Path | None = None) -> d
     return json.loads(_coder_integration_report_path(project_root=project_root).read_text(encoding="utf-8"))
 
 
+def append_coder_compile_fix_attempt(payload: Any, project_root: Path | None = None) -> str:
+    normalized = _normalize_payload(payload, CoderCompileFixAttempt)
+    path = _ensure_parent(_coder_compile_fix_history_path(project_root=project_root))
+    with path.open("a", encoding="utf-8") as fp:
+        fp.write(json.dumps(normalized, ensure_ascii=False) + "\n")
+    return f"coder compile fix attempt appended to {path}"
+
+
+def save_coder_compile_fix_trace_payload(payload: Any, project_root: Path | None = None) -> str:
+    normalized = _normalize_payload(payload, CoderCompileFixTrace)
+    path = _ensure_parent(_coder_latest_compile_fix_trace_path(project_root=project_root))
+    path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
+    return f"coder compile fix trace saved to {path}"
+
+
+def load_coder_compile_fix_trace_payload(project_root: Path | None = None) -> dict[str, Any]:
+    return json.loads(_coder_latest_compile_fix_trace_path(project_root=project_root).read_text(encoding="utf-8"))
+
+
+def load_coder_compile_fix_history_payload(project_root: Path | None = None) -> list[dict[str, Any]]:
+    path = _coder_compile_fix_history_path(project_root=project_root)
+    if not path.exists():
+        return []
+    lines = [line.strip() for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    return [json.loads(line) for line in lines]
+
+
+def build_coder_compile_fix_attempt_payload(
+    *,
+    attempt_index: int,
+    task_type: str,
+    project_name: str,
+    compile_status: str,
+    error_signature: str,
+    key_errors: list[str],
+    worker_summary: str,
+    worker_summaries_so_far: list[str],
+    modified_files: list[str],
+    fixes_applied: list[str],
+    skills_referenced: list[str],
+    resolved_in_next_attempt: bool | None = None,
+    final_success: bool | None = None,
+) -> dict[str, Any]:
+    payload = {
+        "attempt_index": attempt_index,
+        "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
+        "task_type": task_type,
+        "project_name": project_name,
+        "compile_status": compile_status,
+        "error_signature": error_signature or "unknown",
+        "key_errors": list(key_errors or []),
+        "worker_summary": worker_summary or "",
+        "worker_summaries_so_far": list(worker_summaries_so_far or []),
+        "modified_files": list(modified_files or []),
+        "fixes_applied": list(fixes_applied or []),
+        "skills_referenced": list(skills_referenced or []),
+        "resolved_in_next_attempt": resolved_in_next_attempt,
+        "final_success": final_success,
+    }
+    return CoderCompileFixAttempt.model_validate(payload).model_dump(mode="json", exclude_none=True)
+
+
 def _copy_template_project(project_name: str, project_root: Path | None = None) -> Path:
     target_dir = _projects_root(project_root) / project_name
     if target_dir.exists():
@@ -142,10 +215,31 @@ def _page_component_name(page_name: str) -> str:
     return "".join(part for part in str(page_name or "Page").split() if part) or "Page"
 
 
-def _render_page_placeholder(page_name: str, responsibilities: str, app_display_name: str) -> str:
+def _render_navigation_import_block(include_navigation: bool) -> str:
+    if not include_navigation:
+        return ""
+    return (
+        "import { BottomNavBar } from '../common/components/BottomNavBar';\n"
+        "import { NavigationService } from '../common/services/NavigationService';\n\n"
+    )
+
+
+def _render_navigation_usage(page_name: str, include_navigation: bool) -> str:
+    if not include_navigation:
+        return ""
+    return (
+        "      Blank()\n"
+        "      BottomNavBar({\n"
+        f"        currentPage: '{page_name}',\n"
+        "        tabs: NavigationService.primaryPageNames()\n"
+        "      })\n"
+    )
+
+
+def _render_page_placeholder(page_name: str, responsibilities: str, app_display_name: str, include_navigation: bool = False) -> str:
     component_name = _page_component_name(page_name)
     title = responsibilities or f"{page_name} page"
-    return f"""@Component
+    return f"""{_render_navigation_import_block(include_navigation)}@Component
 struct {component_name} {{
   build() {{
     Column({{ space: 12 }}) {{
@@ -155,6 +249,7 @@ struct {component_name} {{
       Text('{title}')
         .fontSize(16)
         .fontColor('#666666')
+{_render_navigation_usage(page_name, include_navigation)}\
     }}
     .width('100%')
     .height('100%')
@@ -165,10 +260,10 @@ struct {component_name} {{
 """
 
 
-def _render_entry_page(page_name: str, responsibilities: str, app_display_name: str) -> str:
+def _render_entry_page(page_name: str, responsibilities: str, app_display_name: str, include_navigation: bool = False) -> str:
     component_name = _page_component_name(page_name)
     title = responsibilities or f"{page_name} page"
-    return f"""@Entry
+    return f"""{_render_navigation_import_block(include_navigation)}@Entry
 @Component
 struct {component_name} {{
   build() {{
@@ -179,6 +274,7 @@ struct {component_name} {{
       Text('{title}')
         .fontSize(16)
         .fontColor('#666666')
+{_render_navigation_usage(page_name, include_navigation)}\
     }}
     .width('100%')
     .height('100%')
@@ -192,6 +288,27 @@ struct {component_name} {{
 def _render_shared_component(name: str, description: str) -> str:
     component_name = _page_component_name(name)
     text = description or name
+    if component_name == "BottomNavBar":
+        return """@Component
+export struct BottomNavBar {
+  @Prop currentPage: string = '';
+  @Prop tabs: string[] = [];
+
+  build() {
+    Row({ space: 8 }) {
+      ForEach(this.tabs, (tab: string) => {
+        Text(tab)
+          .fontSize(14)
+          .fontWeight(this.currentPage === tab ? FontWeight.Bold : FontWeight.Regular)
+          .fontColor(this.currentPage === tab ? '#111111' : '#888888')
+      })
+    }
+    .width('100%')
+    .justifyContent(FlexAlign.SpaceAround)
+    .padding({ top: 12, bottom: 12 })
+  }
+}
+"""
     return f"""@Component
 export struct {component_name} {{
   build() {{
@@ -209,9 +326,41 @@ export struct {component_name} {{
 def _render_service_interface(name: str, description: str) -> str:
     interface_name = _page_component_name(name)
     text = description or name
+    if interface_name == "NavigationService":
+        return _render_navigation_service([])
     return f"""export class {interface_name} {{
   summary(): string {{
     return '{text}';
+  }}
+}}
+"""
+
+
+def _render_navigation_service(route_table: list[dict[str, Any]]) -> str:
+    tabs = [str(item.get("page_name") or "") for item in route_table if str(item.get("page_name") or "").strip()]
+    unique_tabs: list[str] = []
+    for tab in tabs:
+        if tab not in unique_tabs:
+            unique_tabs.append(tab)
+    tab_lines = ",\n".join(f"      '{tab}'" for tab in unique_tabs) or "      'Index'"
+    cases = "\n".join(
+        f"      case '{str(item.get('page_name') or '')}':\n        return '{str(item.get('route') or '')}';"
+        for item in route_table
+        if str(item.get("page_name") or "").strip() and str(item.get("route") or "").strip()
+    ) or "      default:\n        return 'pages/Index';"
+    return f"""export class NavigationService {{
+  static primaryPageNames(): string[] {{
+    return [
+{tab_lines}
+    ];
+  }}
+
+  static routeFor(pageName: string): string {{
+    switch (pageName) {{
+{cases}
+      default:
+        return 'pages/Index';
+    }}
   }}
 }}
 """
@@ -248,8 +397,50 @@ def _render_data_model_file(models: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+def _ensure_navigation_scaffold_payload(normalized: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(normalized)
+    project_name = str(payload.get("project_name") or "").strip()
+    route_table = list(payload.get("route_table") or [])
+    if not project_name or len(route_table) <= 1:
+        return payload
+
+    shared_components = list(payload.get("shared_components") or [])
+    if not any(str(item.get("name") or "") == "BottomNavBar" for item in shared_components):
+        shared_components.append(
+            {
+                "name": "BottomNavBar",
+                "file_path": f"/projects/{project_name}/entry/src/main/ets/common/components/BottomNavBar.ets",
+                "description": "Shared bottom navigation scaffold for primary multi-page navigation.",
+            }
+        )
+    payload["shared_components"] = shared_components
+
+    public_interfaces = list(payload.get("public_interfaces") or [])
+    if not any(str(item.get("name") or "") == "NavigationService" for item in public_interfaces):
+        public_interfaces.append(
+            {
+                "name": "NavigationService",
+                "file_path": f"/projects/{project_name}/entry/src/main/ets/common/services/NavigationService.ets",
+                "description": "Shared navigation registry and route helper for skeleton-generated pages.",
+            }
+        )
+    payload["public_interfaces"] = public_interfaces
+
+    page_tasks = []
+    for task in payload.get("page_tasks", []) or []:
+        item = dict(task)
+        dependencies = list(item.get("shared_dependencies") or [])
+        for dependency in ("BottomNavBar", "NavigationService"):
+            if dependency not in dependencies:
+                dependencies.append(dependency)
+        item["shared_dependencies"] = dependencies
+        page_tasks.append(item)
+    payload["page_tasks"] = page_tasks
+    return payload
+
+
 def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderSkeletonOutput)
+    normalized = _ensure_navigation_scaffold_payload(_normalize_payload(payload, CoderSkeletonOutput))
     project_name = normalized["project_name"]
     app_display_name = normalized["app_display_name"]
     project_dir = _copy_template_project(project_name, project_root=project_root)
@@ -267,6 +458,7 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
     shared_models_dir.mkdir(parents=True, exist_ok=True)
 
     route_entries: list[str] = []
+    include_navigation = len(normalized.get("route_table", [])) > 1
     for index, route_item in enumerate(normalized.get("route_table", [])):
         route = str(route_item.get("route") or f"pages/{route_item.get('page_name')}")
         route_entries.append(route)
@@ -277,9 +469,9 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
             {},
         )
         content = (
-            _render_entry_page(page_name, str(page_task.get("responsibilities") or ""), app_display_name)
+            _render_entry_page(page_name, str(page_task.get("responsibilities") or ""), app_display_name, include_navigation=include_navigation)
             if index == 0
-            else _render_page_placeholder(page_name, str(page_task.get("responsibilities") or ""), app_display_name)
+            else _render_page_placeholder(page_name, str(page_task.get("responsibilities") or ""), app_display_name, include_navigation=include_navigation)
         )
         _write_text(page_file_path, content)
 
@@ -292,7 +484,13 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
 
     for interface in normalized.get("public_interfaces", []):
         target = _resolve_session_path(str(interface.get("file_path")), project_root=project_root)
-        _write_text(target, _render_service_interface(str(interface.get("name") or "SharedService"), str(interface.get("description") or "")))
+        interface_name = str(interface.get("name") or "SharedService")
+        content = (
+            _render_navigation_service(list(normalized.get("route_table") or []))
+            if interface_name == "NavigationService"
+            else _render_service_interface(interface_name, str(interface.get("description") or ""))
+        )
+        _write_text(target, content)
 
     state_management = normalized.get("state_management", {})
     state_target = _resolve_session_path(str(state_management.get("file_path")), project_root=project_root)

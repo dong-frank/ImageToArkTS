@@ -84,6 +84,11 @@ class AgentContractsTests(unittest.TestCase):
         self.assertEqual(CODER_PAGE_WORKER_SPEC["name"], "coder_page_worker")
         self.assertEqual(CODER_INTEGRATION_WORKER_SPEC["name"], "coder_integration_worker")
 
+    def test_coder_skeleton_worker_uses_skills(self) -> None:
+        from subagents import CODER_SKELETON_WORKER_SPEC
+
+        self.assertEqual(CODER_SKELETON_WORKER_SPEC.get("skills"), ["/skills"])
+
 
 if __name__ == "__main__":
     unittest.main()

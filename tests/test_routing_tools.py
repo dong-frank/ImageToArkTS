@@ -55,6 +55,16 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("page implementation stage", description)
         self.assertIn("integration stage", description)
 
+    def test_coder_integration_dispatch_description_excludes_architect_input(self) -> None:
+        from tools.routing_tools import build_coder_integration_dispatch_description
+
+        description = build_coder_integration_dispatch_description(task_type="implementation")
+
+        self.assertIn("task_type: implementation", description)
+        self.assertIn("- /designs/coder_skeleton_plan.json", description)
+        self.assertIn("- /logs/coder/page_worker_results.json", description)
+        self.assertNotIn("/designs/architect.json", description)
+
     def test_main_tools_use_routing_tools(self) -> None:
         from tools.tool_sets import ORCHESTRATOR_AGENT_TOOLS
 
@@ -198,6 +208,40 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("Calculator", prompt)
         self.assertIn("display and keypad", prompt)
 
+    def test_page_task_prompt_includes_required_skill_brief(self) -> None:
+        from tools.routing_tools import _build_page_task_prompt
+
+        prompt = _build_page_task_prompt(
+            task_payload={"page_name": "Index", "allowed_write_paths": ["/projects/demo/entry/src/main/ets/pages/Index.ets"]},
+            architect_page_payload={"name": "Index"},
+            skeleton_payload={"project_name": "demo"},
+            task_type="implementation",
+        )
+
+        self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
+        self.assertIn("Skill usage is mandatory before code generation", prompt)
+        self.assertIn("Materialized input: execution priority", prompt)
+        self.assertIn("Reconstruct the UI as faithfully as possible", prompt)
+
+    def test_integration_prompt_includes_required_skill_brief(self) -> None:
+        from tools.routing_tools import _build_integration_prompt
+
+        prompt = _build_integration_prompt(
+            task_type="implementation",
+            skeleton_payload={"project_name": "demo"},
+            page_results_payload={"results": []},
+        )
+
+        self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
+        self.assertIn("Skill usage is mandatory before fixing ArkTS / ArkUI", prompt)
+        self.assertIn("Materialized input: execution priority", prompt)
+        self.assertIn("Preserve and stabilize UI fidelity first", prompt)
+        self.assertIn("/designs/coder_skeleton_plan.json", prompt)
+        self.assertIn("/logs/coder/page_worker_results.json", prompt)
+        self.assertNotIn("/designs/architect.json", prompt)
+
     def test_dispatch_tester_reads_saved_json_report(self) -> None:
         from tools.routing_tools import dispatch_tester
 
@@ -293,13 +337,13 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         with (
             unittest.mock.patch("tools.routing_tools.load_architect_design_payload") as load_architect_design_payload,
-            unittest.mock.patch("tools.routing_tools.invoke_coder_skeleton_planner") as invoke_coder_skeleton_planner,
+            unittest.mock.patch("tools.routing_tools.run_coder_skeleton_stage") as run_coder_skeleton_stage,
             unittest.mock.patch("tools.routing_tools.save_coder_skeleton_plan_payload") as save_coder_skeleton_plan_payload,
             unittest.mock.patch("tools.routing_tools.create_project") as create_project,
             unittest.mock.patch("tools.routing_tools.materialize_coder_skeleton") as materialize_coder_skeleton,
         ):
             load_architect_design_payload.return_value = {"project_name": "damai_app", "app_display_name": "大麦", "pages": []}
-            invoke_coder_skeleton_planner.return_value = skeleton_payload
+            run_coder_skeleton_stage.return_value = skeleton_payload
             create_project.func.return_value = "项目创建完成"
             materialize_coder_skeleton.return_value = "status: SUCCESS"
 
@@ -308,6 +352,180 @@ class RoutingToolsContractTests(unittest.TestCase):
         create_project.func.assert_called_once_with("damai_app")
         materialize_coder_skeleton.assert_called_once_with(skeleton_payload)
         self.assertIn('"project_name": "damai_app"', command.update["messages"][0].content)
+
+    def test_run_coder_skeleton_stage_invokes_subagent_then_formats(self) -> None:
+        from tools.routing_tools import run_coder_skeleton_stage
+
+        runtime = Mock()
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        skeleton_payload = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [],
+            "shared_data_models": [],
+            "shared_components": [],
+            "public_interfaces": [],
+            "state_management": {
+                "store_name": "AppStore",
+                "file_path": "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+                "responsibilities": "管理全局共享状态",
+                "exposed_state": [],
+                "exposed_actions": [],
+            },
+            "page_tasks": [],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.get_coder_skeleton_worker") as get_coder_skeleton_worker,
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
+            unittest.mock.patch("tools.routing_tools.invoke_coder_skeleton_result_formatter") as formatter,
+        ):
+            get_coder_skeleton_worker.return_value = Mock()
+            invoke_subagent.return_value = {"messages": [Mock(text="skeleton summary")]}
+            formatter.return_value = skeleton_payload
+
+            result = run_coder_skeleton_stage(
+                architect_payload={"project_name": "damai_app", "pages": []},
+                task_type="implementation",
+                runtime=runtime,
+            )
+
+        self.assertEqual(result["project_name"], "damai_app")
+        called_agent = invoke_subagent.call_args.args[0]
+        self.assertIs(called_agent, get_coder_skeleton_worker.return_value)
+        formatter.assert_called_once()
+
+    def test_run_coder_integration_persists_compile_fix_logs(self) -> None:
+        from tools.routing_tools import run_coder_integration
+
+        runtime = Mock()
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        skeleton_payload = {
+            "project_name": "damai_app",
+        }
+        page_results_payload = {
+            "results": [
+                {
+                    "page_name": "Index",
+                    "modified_files": ["/projects/damai_app/entry/src/main/ets/pages/Index.ets"],
+                }
+            ]
+        }
+        compile_output = "\n".join(
+            [
+                "compile_status: SUCCESS",
+                "project_name: damai_app",
+                "project_path: /projects/damai_app",
+                "key_errors:",
+                "- none",
+                "recent_log_tail:",
+                "done",
+            ]
+        )
+        integration_report = {
+            "compile_status": "SUCCESS",
+            "project_name": "damai_app",
+            "project_path": "/projects/damai_app",
+            "ready_for_tester": True,
+            "fixes_applied": ["fixed imports"],
+            "remaining_errors": [],
+            "blocker": "none",
+            "next_recommended_agent": "tester",
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.get_coder_integration_worker") as get_coder_integration_worker,
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
+            unittest.mock.patch("tools.routing_tools.compile_project") as compile_project,
+            unittest.mock.patch("tools.routing_tools.invoke_coder_integration_report_formatter") as formatter,
+            unittest.mock.patch("tools.routing_tools.append_coder_compile_fix_attempt") as append_attempt,
+            unittest.mock.patch("tools.routing_tools.save_coder_compile_fix_trace_payload") as save_trace,
+            unittest.mock.patch("tools.routing_tools.save_coder_integration_report_payload") as save_report,
+        ):
+            get_coder_integration_worker.return_value = Mock()
+            invoke_subagent.return_value = {"messages": [Mock(text="fixed imports")]}
+            compile_project.func.return_value = compile_output
+            formatter.return_value = integration_report
+
+            result = run_coder_integration(
+                task_type="implementation",
+                skeleton_payload=skeleton_payload,
+                page_results_payload=page_results_payload,
+                runtime=runtime,
+            )
+
+        self.assertEqual(result["compile_status"], "SUCCESS")
+        invoke_subagent.assert_not_called()
+        append_attempt.assert_called_once()
+        save_trace.assert_called_once()
+        save_report.assert_called_once_with(integration_report)
+
+    def test_run_coder_integration_compiles_first_then_invokes_worker_on_failure(self) -> None:
+        from tools.routing_tools import run_coder_integration
+
+        runtime = Mock()
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        failed_compile = "\n".join(
+            [
+                "compile_status: FAILED",
+                "project_name: damai_app",
+                "project_path: /projects/damai_app",
+                "key_errors:",
+                "- Cannot find module './Foo'",
+                "recent_log_tail:",
+                "fail",
+            ]
+        )
+        success_compile = "\n".join(
+            [
+                "compile_status: SUCCESS",
+                "project_name: damai_app",
+                "project_path: /projects/damai_app",
+                "key_errors:",
+                "- none",
+                "recent_log_tail:",
+                "done",
+            ]
+        )
+
+        with (
+            unittest.mock.patch("tools.routing_tools.get_coder_integration_worker") as get_coder_integration_worker,
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
+            unittest.mock.patch("tools.routing_tools.compile_project") as compile_project,
+            unittest.mock.patch("tools.routing_tools.invoke_coder_integration_report_formatter") as formatter,
+            unittest.mock.patch("tools.routing_tools.append_coder_compile_fix_attempt") as append_attempt,
+            unittest.mock.patch("tools.routing_tools.save_coder_compile_fix_trace_payload"),
+            unittest.mock.patch("tools.routing_tools.save_coder_integration_report_payload"),
+        ):
+            get_coder_integration_worker.return_value = Mock()
+            invoke_subagent.return_value = {"messages": [Mock(text="fixed imports after compile failure")]}
+            compile_project.func.side_effect = [failed_compile, success_compile]
+            formatter.return_value = {
+                "compile_status": "SUCCESS",
+                "project_name": "damai_app",
+                "project_path": "/projects/damai_app",
+                "ready_for_tester": True,
+                "fixes_applied": ["fixed imports after compile failure"],
+                "remaining_errors": [],
+                "blocker": "none",
+                "next_recommended_agent": "tester",
+            }
+
+            run_coder_integration(
+                task_type="implementation",
+                skeleton_payload={"project_name": "damai_app"},
+                page_results_payload={"results": []},
+                runtime=runtime,
+            )
+
+        invoke_subagent.assert_called_once()
+        self.assertEqual(append_attempt.call_count, 2)
 
     def test_invoke_coder_skeleton_planner_extracts_tool_args(self) -> None:
         from tools.routing_tools import invoke_coder_skeleton_planner
@@ -525,6 +743,81 @@ class RoutingToolsContractTests(unittest.TestCase):
             result["page_tasks"][0]["allowed_write_paths"][0],
             "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
         )
+
+    def test_invoke_coder_skeleton_planner_adds_navigation_scaffold_for_multi_page_app(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_planner
+
+        llm_response = Mock()
+        payload = {
+            "project_name": "damai_app",
+            "app_display_name": "大麦",
+            "route_table": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+                },
+                {
+                    "page_name": "Profile",
+                    "route": "pages/Profile",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Profile.ets",
+                },
+            ],
+            "shared_data_models": [],
+            "shared_components": [],
+            "public_interfaces": [],
+            "state_management": {
+                "store_name": "AppStore",
+                "file_path": "/projects/damai_app/entry/src/main/ets/common/store/AppStore.ets",
+                "responsibilities": "管理全局共享状态",
+                "exposed_state": ["city"],
+                "exposed_actions": ["setCity"],
+            },
+            "page_tasks": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+                    "component_files": [],
+                    "allowed_write_paths": ["/projects/damai_app/entry/src/main/ets/pages/Index.ets"],
+                    "shared_dependencies": [],
+                    "responsibilities": "首页",
+                    "primary_actions": ["open_detail"],
+                },
+                {
+                    "page_name": "Profile",
+                    "route": "pages/Profile",
+                    "page_file": "/projects/damai_app/entry/src/main/ets/pages/Profile.ets",
+                    "component_files": [],
+                    "allowed_write_paths": ["/projects/damai_app/entry/src/main/ets/pages/Profile.ets"],
+                    "shared_dependencies": [],
+                    "responsibilities": "我的页面",
+                    "primary_actions": ["open_settings"],
+                },
+            ],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool") as invoke_with_tool,
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args") as extract_tool_call_args,
+        ):
+            invoke_with_tool.return_value = llm_response
+            extract_tool_call_args.return_value = payload
+
+            result = invoke_coder_skeleton_planner(
+                architect_payload={
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [{"name": "Index"}, {"name": "Profile"}],
+                },
+                task_type="implementation",
+            )
+
+        self.assertTrue(any(item["name"] == "BottomNavBar" for item in result["shared_components"]))
+        self.assertTrue(any(item["name"] == "NavigationService" for item in result["public_interfaces"]))
+        for task in result["page_tasks"]:
+            self.assertIn("BottomNavBar", task["shared_dependencies"])
+            self.assertIn("NavigationService", task["shared_dependencies"])
 
 
 if __name__ == "__main__":

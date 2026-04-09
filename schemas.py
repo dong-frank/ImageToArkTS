@@ -207,6 +207,31 @@ class CoderIntegrationReport(BaseModel):
     )
 
 
+class CoderCompileFixAttempt(BaseModel):
+    attempt_index: int = Field(..., description="1-based compile attempt index within the integration stage.")
+    timestamp: str = Field(..., description="UTC ISO timestamp for this attempt record.")
+    task_type: Literal["implementation", "fix_from_test"] = Field(..., description="Coder task type.")
+    project_name: str = Field(..., description="Project name.")
+    compile_status: Literal["SUCCESS", "FAILED"] = Field(..., description="Compile verdict for this attempt.")
+    error_signature: str = Field(..., description="Normalized signature for the primary compile error.")
+    key_errors: List[str] = Field(default_factory=list, description="Extracted key compile errors.")
+    worker_summary: str = Field(..., description="Integration worker summary for this attempt.")
+    worker_summaries_so_far: List[str] = Field(default_factory=list, description="Cumulative integration worker summaries so far.")
+    modified_files: List[str] = Field(default_factory=list, description="Files modified by page workers before integration.")
+    fixes_applied: List[str] = Field(default_factory=list, description="Fix summaries known at this point.")
+    skills_referenced: List[str] = Field(default_factory=list, description="Skills or references intentionally used for this attempt.")
+    resolved_in_next_attempt: Optional[bool] = Field(None, description="Whether the next attempt resolved this attempt's primary issue.")
+    final_success: Optional[bool] = Field(None, description="Whether the overall integration run eventually succeeded.")
+
+
+class CoderCompileFixTrace(BaseModel):
+    project_name: str = Field(..., description="Project name.")
+    task_type: Literal["implementation", "fix_from_test"] = Field(..., description="Coder task type.")
+    attempts: List[CoderCompileFixAttempt] = Field(default_factory=list, description="Ordered compile/fix attempts.")
+    final_compile_status: Literal["SUCCESS", "FAILED"] = Field(..., description="Final compile verdict.")
+    final_success: bool = Field(..., description="Whether the overall integration run succeeded.")
+
+
 class TesterChecklistItem(BaseModel):
 	name: str = Field(..., description="Checklist item or page/module name.")
 	status: Literal["PASS", "FAIL", "UNKNOWN"] = Field(..., description="Validation status.")
