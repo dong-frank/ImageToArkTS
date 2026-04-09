@@ -5,6 +5,7 @@ import time
 import os
 import re
 import json
+import argparse
 from datetime import datetime
 import shutil
 from collections import defaultdict
@@ -959,12 +960,22 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
         elem_dir = os.path.join(page_dir, f"elem{elem_index}")
         os.makedirs(elem_dir, exist_ok=True)
 
-        # 操作前截图
+        # 操作前先落盘当前页面证据（layout + screenshot），后续仅基于 before/after 对比过滤
+        before_layout_path = os.path.join(elem_dir, "before_layout.json")
         before_click_screenshot = os.path.join(elem_dir, "before.jpeg")
+        if not dump_layout(before_layout_path):
+            print("❌ 无法获取操作前布局，跳过该元素")
+            if os.path.isdir(elem_dir):
+                shutil.rmtree(elem_dir, ignore_errors=True)
+            page_elem_count -= 1
+            continue
         take_screenshot(before_click_screenshot)
 
+        with open(before_layout_path, "r", encoding="utf-8") as f:
+            before_data = json.load(f)
+
         # 执行操作（正向）
-        op_success = perform_action(elem_info, current_layout, direction='forward')
+        op_success = perform_action(elem_info, before_layout_path, direction='forward')
         time.sleep(2)
 
         # 操作后截图
@@ -981,7 +992,7 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
             else:
                 print("⚠️ 滚动位置复位失败")
 
-        # 获取操作后布局（用于判断页面变化），保存到页面目录临时文件
+        # 获取操作后布局（用于判断页面变化）
         after_layout_path = os.path.join(elem_dir, "after_layout.json")
         after_page_id = None
         after_page_context = None
@@ -1002,8 +1013,8 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
                 new_layout_path = os.path.join(new_page_dir, "layout.json")
                 shutil.copy2(after_layout_path, new_layout_path)
 
-        # 过滤无效点击：忽略系统状态栏后，前后主布局无变化则跳过。
-        if after_data is not None and _is_layout_effectively_same(data, after_data):
+        # 过滤无效点击：忽略系统状态栏后，before/after 主布局无变化则跳过。
+        if after_data is not None and _is_layout_effectively_same(before_data, after_data):
             print(f"⏭️ 跳过无效点击（主布局无变化）: {elem_info['id']}")
             if os.path.isdir(elem_dir):
                 shutil.rmtree(elem_dir, ignore_errors=True)
@@ -1028,6 +1039,7 @@ def explore_page(current_layout_path, visited_pages, depth, max_depth, output_di
             'return_success': None,
             'evidence': {
                 'element_dir': elem_dir,
+                'before_layout': before_layout_path,
                 'before_screenshot': before_click_screenshot,
                 'after_screenshot': after_click_screenshot,
                 'after_layout': after_layout_path if os.path.exists(after_layout_path) else None,
@@ -2050,8 +2062,125 @@ def run_review_workflow(
     }
 
 
+def _extract_bundle_name_from_appscope(app_json_path: str) -> str:
+    if not app_json_path or not os.path.isfile(app_json_path):
+        return ""
+
+    try:
+        with open(app_json_path, "r", encoding="utf-8") as f:
+            raw = f.read()
+    except Exception:
+        return ""
+
+    try:
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            app = parsed.get("app")
+            if isinstance(app, dict):
+                value = str(app.get("bundleName", "")).strip()
+                if value:
+                    return value
+    except Exception:
+        pass
+
+    match = re.search(r'"bundleName"\s*:\s*"([^"]+)"', raw)
+    if match:
+        return match.group(1).strip()
+    return ""
+
+
+def _find_best_hap_under(outputs_dir: str) -> str:
+    if not outputs_dir or not os.path.isdir(outputs_dir):
+        return ""
+
+    hap_files: List[str] = []
+    for root, _, files in os.walk(outputs_dir):
+        for name in files:
+            if name.lower().endswith(".hap"):
+                hap_files.append(os.path.join(root, name))
+
+    if not hap_files:
+        return ""
+
+    def _score(path: str) -> Tuple[int, float]:
+        name = os.path.basename(path).lower()
+        unsigned_bonus = 1 if "unsigned" in name else 0
+        mtime = os.path.getmtime(path)
+        return unsigned_bonus, mtime
+
+    return sorted(hap_files, key=_score, reverse=True)[0]
+
+
+def _build_cli_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run review node workflow from CLI")
+    parser.add_argument("--project-dir", default="", help="Project root path, e.g. .../projects/calculator_app")
+    parser.add_argument("--hap-path", default="", help="Path to .hap file")
+    parser.add_argument("--bundle-name", default="", help="Bundle name; auto-read from AppScope/app.json5 if omitted")
+    parser.add_argument("--ability-name", default="EntryAbility", help="Entry ability name")
+    parser.add_argument("--max-depth", type=int, default=5, help="Max recursive depth")
+    parser.add_argument("--output-root", default="output", help="Output root directory")
+    parser.add_argument(
+        "--architect-output-path",
+        default=os.path.join("designs", "architect.json"),
+        help="Architect JSON path",
+    )
+    parser.add_argument("--run-jump-compare", dest="run_jump_compare", action="store_true", help="Enable jump compare")
+    parser.add_argument("--no-run-jump-compare", dest="run_jump_compare", action="store_false", help="Disable jump compare")
+    parser.add_argument("--install-hap", dest="install_hap", action="store_true", help="Install hap before review")
+    parser.add_argument("--no-install-hap", dest="install_hap", action="store_false", help="Skip hap install")
+    parser.add_argument("--print-json", action="store_true", help="Print final result JSON")
+    parser.set_defaults(run_jump_compare=True, install_hap=True)
+    return parser
+
+
 def main():
-    return
+    parser = _build_cli_parser()
+    args = parser.parse_args()
+
+    project_dir = _normalize_host_path(str(args.project_dir or "").strip())
+    hap_path = _normalize_host_path(str(args.hap_path or "").strip())
+    bundle_name_cli = str(args.bundle_name or "").strip()
+
+    if not hap_path:
+        if not project_dir:
+            parser.error("Either --hap-path or --project-dir must be provided")
+        outputs_dir = os.path.join(project_dir, "entry", "build", "default", "outputs", "default")
+        best_hap = _find_best_hap_under(outputs_dir)
+        if not best_hap:
+            parser.error(f"No .hap found under expected output dir: {outputs_dir}")
+        hap_path = best_hap
+
+    if not bundle_name_cli:
+        if project_dir:
+            app_json_path = os.path.join(project_dir, "AppScope", "app.json5")
+            bundle_name_cli = _extract_bundle_name_from_appscope(app_json_path)
+        if not bundle_name_cli:
+            parser.error("--bundle-name is required when bundleName cannot be inferred from AppScope/app.json5")
+
+    result = run_review_workflow(
+        hap_path=hap_path,
+        bundle_name_value=bundle_name_cli,
+        ability_name_value=str(args.ability_name or "").strip() or "EntryAbility",
+        max_depth=max(1, int(args.max_depth or 1)),
+        output_root=str(args.output_root or "output"),
+        architect_output_path=str(args.architect_output_path or os.path.join("designs", "architect.json")),
+        run_jump_compare=bool(args.run_jump_compare),
+        install_hap=bool(args.install_hap),
+    )
+
+    if args.print_json:
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+    else:
+        print("status: SUCCESS")
+        print(f"hap_path: {result.get('hap_path', '')}")
+        print(f"bundle_name: {result.get('bundle_name', '')}")
+        print(f"ability_name: {result.get('ability_name', '')}")
+        print(f"output_dir: {result.get('output_dir', '')}")
+        print(f"report_path: {result.get('report_path', '')}")
+        print(f"review_detailed_output_path: {result.get('review_detailed_output_path', '')}")
+        print(f"jump_transition_candidates_path: {result.get('jump_transition_candidates_path', '')}")
+        print(f"jump_action_diff_path: {result.get('jump_action_diff_path', '')}")
+        print(f"jump_action_summary_path: {result.get('jump_action_summary_path', '')}")
 
 if __name__ == "__main__":
     main()

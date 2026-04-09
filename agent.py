@@ -1,12 +1,12 @@
 from deepagents import create_deep_agent
 
 from models import architect_vision_model, base_model, vision_model
-from schemas import ArchitectOutput
 from tools.tool_sets import (
     ARCHITECT_SUBAGENT_TOOLS,
     CODER_SUBAGENT_TOOLS,
+    FLOW_SUMMARY_SUBAGENT_TOOLS,
     MAIN_AGENT_TOOLS,
-    TESTER_SUBAGENT_TOOLS,
+    REVIEW_EXECUTOR_SUBAGENT_TOOLS,
 )
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
@@ -15,7 +15,7 @@ from utils.utils import load_prompt
 
 architect_subagent = {
     "name": "architect",
-    "description": "架构师 Agent，负责拆解用户意图并生成结构化设计方案。",
+    "description": "Generate a structured implementation design from user input materials.",
     "model": architect_vision_model,
     "system_prompt": load_prompt("architect_system_prompt.md"),
     "tools": ARCHITECT_SUBAGENT_TOOLS,
@@ -23,22 +23,35 @@ architect_subagent = {
 
 coding_subagent = {
     "name": "coder",
-    "description": "编码 Agent，负责将架构方案转化为可编译的项目实现。",
+    "description": "Implement the HarmonyOS project from the saved architecture design.",
     "model": base_model,
     "system_prompt": load_prompt("coder_system_prompt.md"),
     "skills": ["/skills"],
     "tools": CODER_SUBAGENT_TOOLS,
 }
 
-test_subagent = {
-    "name": "tester",
-    "description": "测试验收 Agent，负责启动 app、按坐标点击验证流程并基于 description 做功能与静态 UI 完整性验收。",
+review_executor_subagent = {
+    "name": "review_executor",
+    "description": "Run review node full-flow testing right after coder finishes.",
     "model": vision_model,
-    "system_prompt": load_prompt("tester_system_prompt.md"),
-    "tools": TESTER_SUBAGENT_TOOLS,
+    "system_prompt": load_prompt("review_executor_system_prompt.md"),
+    "tools": REVIEW_EXECUTOR_SUBAGENT_TOOLS,
 }
 
-subagents = [architect_subagent, coding_subagent, test_subagent]
+flow_summary_subagent = {
+    "name": "flow_summary",
+    "description": "Summarize implemented popup/state-change behaviors and implemented navigation paths from review outputs.",
+    "model": vision_model,
+    "system_prompt": load_prompt("flow_summary_system_prompt.md"),
+    "tools": FLOW_SUMMARY_SUBAGENT_TOOLS,
+}
+
+subagents = [
+    architect_subagent,
+    coding_subagent,
+    review_executor_subagent,
+    flow_summary_subagent,
+]
 
 agent = create_deep_agent(
     model=base_model,
@@ -58,7 +71,7 @@ def run_agent():
             "messages": [
                 {
                     "role": "user",
-                    "content": "用户输入资料都在 /user_input 目录下，请只将该目录内容视为用户输入并开始工作。",
+                    "content": "User input artifacts are under /user_input. Start the orchestration workflow.",
                 }
             ]
         }

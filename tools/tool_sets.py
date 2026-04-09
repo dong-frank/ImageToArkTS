@@ -9,7 +9,7 @@ from tools.tester_tools import (
     resolve_review_target,
     run_review_node_with_inputs,
     save_tester_report,
-    summarize_flow_from_screenshots,
+    summarize_review_features_by_page,
 )
 
 ARCHITECT_SUBAGENT_TOOLS = [request_human_guidance]
@@ -19,6 +19,12 @@ TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, request_human_guidance]
 REVIEW_EXECUTOR_SUBAGENT_TOOLS = [
     resolve_review_target,
     run_review_node_with_inputs,
+    request_human_guidance,
+]
+
+
+FLOW_SUMMARY_SUBAGENT_TOOLS = [
+    summarize_review_features_by_page,
     request_human_guidance,
 ]
 

@@ -1806,6 +1806,283 @@ def _describe_screenshot_for_summary(image_path: Path) -> str:
     return first_line or "(empty_vision_summary)"
 
 
+def _normalize_external_evidence_path(raw_path: str) -> Optional[Path]:
+    text = str(raw_path or "").strip()
+    if not text:
+        return None
+
+    # Convert WSL style paths from review artifacts to local Windows paths when needed.
+    mount_match = re.match(r"^/mnt/([a-zA-Z])/(.*)$", text)
+    if mount_match:
+        drive = mount_match.group(1).upper()
+        tail = mount_match.group(2).replace("/", "\\")
+        candidate = Path(f"{drive}:\\{tail}")
+        if candidate.exists():
+            return candidate
+
+    direct = Path(text)
+    if direct.is_absolute() and direct.exists():
+        return direct
+
+    resolved = resolve_workspace_path(text)
+    if resolved.exists():
+        return resolved
+    return None
+
+
+def _safe_first_image_in_dir(page_dir: Path) -> Optional[Path]:
+    for name in ["init_screen.jpeg", "init_screen.jpg", "init_screen.png", "init_screen.webp"]:
+        path = page_dir / name
+        if path.exists() and path.is_file():
+            return path
+    images = sorted(path for path in page_dir.glob("*") if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES)
+    return images[0] if images else None
+
+
+def _folder_name_from_page_id(page_id: str) -> str:
+    token = re.sub(r"[^a-zA-Z0-9]+", "_", str(page_id or "").strip())
+    token = re.sub(r"_+", "_", token).strip("_")
+    return token
+
+
+def _extract_jump_lines_from_report(report_text: str) -> List[str]:
+    lines: List[str] = []
+    for raw_line in str(report_text or "").splitlines():
+        line = raw_line.strip()
+        if "→" in line and "触发元素" in line:
+            line = re.sub(r"^\d+[\.、]\s*", "", line)
+            lines.append(line)
+    deduped: List[str] = []
+    seen = set()
+    for item in lines:
+        if item in seen:
+            continue
+        seen.add(item)
+        deduped.append(item)
+    return deduped
+
+
+def _fallback_feature_name_from_action(action: Dict[str, Any]) -> str:
+    element = action.get("element", {}) if isinstance(action, dict) else {}
+    element_type = str(element.get("type", "")).strip()
+    element_text = str(element.get("text", "")).strip()
+    action_type = str(action.get("action_type", "click")).strip().lower()
+    if action_type == "input":
+        return "支持输入内容并更新界面状态"
+    if action_type in {"switch", "click"} and element_text:
+        return f"支持点击“{element_text}”触发界面状态变化"
+    if action_type in {"switch", "click"} and element_type:
+        return f"支持点击{element_type}组件触发界面状态变化"
+    return "支持交互操作后更新当前页面状态"
+
+
+def _vision_infer_feature_from_images(
+    page_id: str,
+    action: Dict[str, Any],
+    init_image: Optional[Path],
+    before_image: Optional[Path],
+    after_image: Optional[Path],
+) -> Dict[str, Any]:
+    element = action.get("element", {}) if isinstance(action, dict) else {}
+    page_changed = bool(action.get("page_changed", False))
+    prompt = (
+        "你是移动端验收总结助手。"
+        "请根据同一页面的截图对比，判断本次操作实现了什么用户可感知功能。"
+        "重点观察 init_screen 与 elem 的 before/after 变化。"
+        "如果变化本质是页面跳转，请标记 is_navigation=true 并不要输出页面功能。"
+        "输出严格 JSON: "
+        '{"feature":"...","confidence":"high|medium|low","is_navigation":true|false,"reason":"..."}'
+        "。feature 用中文短句，面向用户。"
+        f"\npage_id={page_id}"
+        f"\naction_type={action.get('action_type', '')}"
+        f"\npage_changed={page_changed}"
+        f"\nelement_type={element.get('type', '')}"
+        f"\nelement_text={element.get('text', '')}"
+        f"\nelement_id={element.get('id', '')}"
+    )
+
+    content_items: List[Dict[str, Any]] = [{"type": "text", "text": prompt}]
+    for tag, image_path in [("init", init_image), ("before", before_image), ("after", after_image)]:
+        if not image_path:
+            continue
+        try:
+            data_url = _encode_image_as_data_url(image_path)
+        except Exception:  # noqa: BLE001
+            continue
+        content_items.append({"type": "text", "text": f"image_tag={tag}"})
+        content_items.append({"type": "image_url", "image_url": {"url": data_url}})
+
+    try:
+        response = vision_model.invoke([HumanMessage(content=content_items)])
+    except Exception as exc:  # noqa: BLE001
+        return {
+            "feature": _fallback_feature_name_from_action(action),
+            "confidence": "low",
+            "is_navigation": page_changed,
+            "reason": f"vision_invoke_failed: {exc}",
+            "source": "fallback",
+        }
+
+    raw = _extract_message_text(getattr(response, "content", ""))
+    parsed = _extract_json_like_object(raw)
+    if not isinstance(parsed, dict):
+        return {
+            "feature": _fallback_feature_name_from_action(action),
+            "confidence": "low",
+            "is_navigation": page_changed,
+            "reason": "vision_output_invalid_json",
+            "source": "fallback",
+        }
+
+    feature = str(parsed.get("feature", "")).strip() or _fallback_feature_name_from_action(action)
+    confidence = str(parsed.get("confidence", "medium")).strip().lower()
+    if confidence not in {"high", "medium", "low"}:
+        confidence = "medium"
+    is_navigation = bool(parsed.get("is_navigation", False))
+    reason = str(parsed.get("reason", "")).strip()
+    return {
+        "feature": feature,
+        "confidence": confidence,
+        "is_navigation": is_navigation,
+        "reason": reason,
+        "source": "vision",
+    }
+
+
+@tool
+def summarize_review_features_by_page(
+    review_output_dir: str = "/reports",
+    output_file_name: str = "flow_summary_user.md",
+) -> str:
+    """
+    Summarize review output into two sections:
+    1) page features inferred from init_screen vs elem screenshots (ignore navigation),
+    2) navigation features extracted from report.txt.
+    """
+    print("start summarizing review features by page")
+    resolved_dir, resolve_error = _resolve_review_output_dir(review_output_dir)
+    if resolve_error or not resolved_dir:
+        return f"status: FAILED\nreason: {resolve_error or 'review output dir resolve failed'}"
+
+    detail_path = resolved_dir / "review_detailed_output.json"
+    report_txt_path = resolved_dir / "report.txt"
+    detail_payload = _safe_load_json_path(detail_path)
+    if not detail_payload:
+        return f"status: FAILED\nreason: review_detailed_output.json not found or invalid\npath: {detail_path}"
+
+    raw_results = detail_payload.get("results", []) if isinstance(detail_payload, dict) else []
+    if not isinstance(raw_results, list):
+        raw_results = []
+
+    actions_by_page: Dict[str, List[Dict[str, Any]]] = {}
+    for item in raw_results:
+        if not isinstance(item, dict):
+            continue
+        if not bool(item.get("action_success", False)):
+            continue
+        page_id = str(item.get("page_before", "")).strip() or "unknown_page"
+        actions_by_page.setdefault(page_id, []).append(item)
+
+    page_feature_rows: List[Dict[str, Any]] = []
+    for page_id in sorted(actions_by_page.keys()):
+        page_dir = resolved_dir / _folder_name_from_page_id(page_id)
+        init_image = _safe_first_image_in_dir(page_dir) if page_dir.exists() else None
+
+        inferred_features: List[Dict[str, str]] = []
+        seen_feature = set()
+        for action in actions_by_page.get(page_id, []):
+            evidence = action.get("evidence", {}) if isinstance(action.get("evidence"), dict) else {}
+            before_image = _normalize_external_evidence_path(str(evidence.get("before_screenshot", "")))
+            after_image = _normalize_external_evidence_path(str(evidence.get("after_screenshot", "")))
+
+            inference = _vision_infer_feature_from_images(
+                page_id=page_id,
+                action=action,
+                init_image=init_image,
+                before_image=before_image,
+                after_image=after_image,
+            )
+
+            if bool(action.get("page_changed", False)) or bool(inference.get("is_navigation", False)):
+                continue
+
+            feature = str(inference.get("feature", "")).strip()
+            if not feature or feature in seen_feature:
+                continue
+            seen_feature.add(feature)
+            inferred_features.append(
+                {
+                    "feature": feature,
+                    "confidence": str(inference.get("confidence", "medium")),
+                    "reason": str(inference.get("reason", "")).strip(),
+                }
+            )
+
+        page_feature_rows.append(
+            {
+                "page_id": page_id,
+                "feature_count": len(inferred_features),
+                "features": inferred_features,
+                "note": "未观察到可确认的非跳转交互功能" if not inferred_features else "",
+            }
+        )
+
+    report_text = report_txt_path.read_text(encoding="utf-8", errors="ignore") if report_txt_path.exists() else ""
+    jump_features = _extract_jump_lines_from_report(report_text)
+
+    md_lines: List[str] = ["# 功能总结", "", "## 页面功能"]
+    for row in page_feature_rows:
+        md_lines.append(f"### {row['page_id']}")
+        features = row.get("features", [])
+        if isinstance(features, list) and features:
+            for feature_item in features:
+                confidence = str(feature_item.get("confidence", "medium"))
+                md_lines.append(f"- {feature_item.get('feature', '')}（置信度: {confidence}）")
+        else:
+            md_lines.append("- 未观察到可确认的非跳转交互功能")
+        md_lines.append("")
+
+    md_lines.append("## 跳转功能")
+    if jump_features:
+        for item in jump_features:
+            md_lines.append(f"- {item}")
+    else:
+        md_lines.append("- 未从 report.txt 提取到跳转路径")
+    md_lines.append("")
+
+    markdown = "\n".join(md_lines).strip() + "\n"
+
+    safe_name = Path(output_file_name).name or "flow_summary_user.md"
+    if not safe_name.lower().endswith(".md"):
+        safe_name = f"{safe_name}.md"
+    summary_md_path = resolved_dir / safe_name
+    summary_json_path = resolved_dir / (Path(safe_name).stem + ".json")
+
+    summary_payload = {
+        "review_output_dir": str(resolved_dir),
+        "generated_at": datetime.now().isoformat(timespec="seconds"),
+        "page_features": page_feature_rows,
+        "jump_features": jump_features,
+        "summary_markdown_path": str(summary_md_path),
+    }
+
+    summary_md_path.write_text(markdown, encoding="utf-8")
+    summary_json_path.write_text(json.dumps(summary_payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"review_output_dir: {resolved_dir}",
+            f"summary_markdown_path: {summary_md_path}",
+            f"summary_json_path: {summary_json_path}",
+            f"page_count: {len(page_feature_rows)}",
+            f"jump_feature_count: {len(jump_features)}",
+            "summary_markdown:",
+            markdown,
+        ]
+    )
+
+
 
 
 @tool

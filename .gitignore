@@ -7,6 +7,8 @@ dist/
 wheels/
 *.egg-info
 .DS_Store
+output/
+frontend/
 
 # Virtual environments
 .venv
