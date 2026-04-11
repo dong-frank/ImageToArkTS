@@ -195,13 +195,20 @@ def invoke_architect_aggregator(metadata_payload: dict, facts_bundle: dict) -> d
 
 def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Literal["implementation", "fix_from_test"]) -> str:
     skill_brief = {
-        "required_skill": "/skills/harmony-next/SKILL.md",
+        "required_skills": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-next/SKILL.md",
+        ],
         "workflow": [
+            "Read /skills/harmony-coding-guardrails/SKILL.md first before making page registration, startup page, @Entry, EntryAbility.loadContent(...), or main_pages.json decisions.",
             "Read /skills/harmony-next/SKILL.md before planning multi-page skeleton artifacts.",
+            "Use the guardrails skill to eliminate startup-page and page-registration mismatches before finalizing the skeleton plan.",
             "Use the skill's progressive disclosure flow to locate the smallest relevant set of docs for page organization, routing, and shared navigation scaffold design.",
             "Prefer shared navigation scaffold decisions in skeleton instead of pushing them to page workers.",
         ],
         "recommended_lookup_order": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-coding-guardrails/references/common-guardrails.md",
             "/skills/harmony-next/SKILL.md",
             "/skills/harmony-next/references/TASK_MAP.md",
             "/skills/harmony-next/references/INDEX.md",
@@ -216,6 +223,7 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
             "Return only structured CoderSkeletonOutput.",
             "Do not write files and do not claim the project is complete.",
             "Unified navigation belongs to skeleton when the project has multiple pages.",
+            "Page registration, startup page alignment, and avoiding stale template entry pages also belong to skeleton.",
             "",
             "Materialized input: required skill brief",
             json.dumps(skill_brief, ensure_ascii=False, indent=2),
@@ -442,14 +450,20 @@ def _build_page_task_prompt(
     tester_report_payload: dict | None = None,
 ) -> str:
     skill_brief = {
-        "required_skill": "/skills/harmony-next/SKILL.md",
+        "required_skills": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-next/SKILL.md",
+        ],
         "workflow": [
+            "Read /skills/harmony-coding-guardrails/SKILL.md first when the page task touches routing, startup pages, navigation, page registration, or any runtime white-screen risk.",
             "Read /skills/harmony-next/SKILL.md before writing ArkTS code.",
             "Use the skill's progressive disclosure flow to narrow scope first.",
             "Open only 1-2 reference documents that are directly relevant to the current page task.",
             "When API signatures, decorators, layout APIs, routing, or lifecycle behavior are uncertain, check the referenced docs before coding.",
         ],
         "recommended_lookup_order": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-coding-guardrails/references/common-guardrails.md",
             "/skills/harmony-next/SKILL.md",
             "/skills/harmony-next/references/KITS.md",
             "/skills/harmony-next/references/TASK_MAP.md",
@@ -544,13 +558,19 @@ def _build_integration_prompt(
     compile_feedback: str | None = None,
 ) -> str:
     skill_brief = {
-        "required_skill": "/skills/harmony-next/SKILL.md",
+        "required_skills": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-next/SKILL.md",
+        ],
         "workflow": [
+            "Read /skills/harmony-coding-guardrails/SKILL.md first when compile-pass/runtime-fail, startup-page mismatch, page registration drift, or white-screen symptoms are involved.",
             "Read /skills/harmony-next/SKILL.md before fixing ArkTS / ArkUI compile issues.",
             "Use the skill's progressive disclosure flow to find the smallest relevant reference set.",
             "Check referenced docs before modifying decorators, route configuration, lifecycle code, imports, or component APIs.",
         ],
         "recommended_lookup_order": [
+            "/skills/harmony-coding-guardrails/SKILL.md",
+            "/skills/harmony-coding-guardrails/references/common-guardrails.md",
             "/skills/harmony-next/SKILL.md",
             "/skills/harmony-next/references/TASK_MAP.md",
             "/skills/harmony-next/references/INDEX.md",

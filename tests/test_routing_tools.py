@@ -219,6 +219,8 @@ class RoutingToolsContractTests(unittest.TestCase):
         )
 
         self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
         self.assertIn("/skills/harmony-next/SKILL.md", prompt)
         self.assertIn("Skill usage is mandatory before code generation", prompt)
         self.assertIn("Materialized input: execution priority", prompt)
@@ -234,6 +236,8 @@ class RoutingToolsContractTests(unittest.TestCase):
         )
 
         self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
         self.assertIn("/skills/harmony-next/SKILL.md", prompt)
         self.assertIn("Skill usage is mandatory before fixing ArkTS / ArkUI", prompt)
         self.assertIn("Materialized input: execution priority", prompt)
@@ -581,6 +585,22 @@ class RoutingToolsContractTests(unittest.TestCase):
             )
 
         self.assertEqual(result["project_name"], "damai_app")
+
+    def test_skeleton_planning_prompt_includes_guardrail_skill(self) -> None:
+        from tools.routing_tools import build_coder_skeleton_planning_prompt
+
+        prompt = build_coder_skeleton_planning_prompt(
+            architect_payload={
+                "project_name": "damai_app",
+                "app_display_name": "大麦",
+                "pages": [{"name": "Index", "responsibilities": "首页"}],
+            },
+            task_type="implementation",
+        )
+
+        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
+        self.assertIn("EntryAbility.loadContent", prompt)
 
     def test_invoke_coder_skeleton_planner_validates_required_fields_immediately(self) -> None:
         from tools.routing_tools import invoke_coder_skeleton_planner
