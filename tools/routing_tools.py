@@ -41,14 +41,12 @@ from tools.coder_tools import (
     load_coder_page_worker_results_payload,
     load_coder_page_task_bundle_payload,
     load_coder_skeleton_plan_payload,
-    materialize_coder_skeleton,
     save_coder_compile_fix_trace_payload,
     save_coder_integration_report_payload,
     save_coder_page_worker_results_payload,
     save_coder_skeleton_plan_payload,
 )
 from tools.common import resolve_workspace_path
-from tools.project_tools import compile_project, create_project
 from utils.llm_utils import extract_tool_call_args, invoke_with_tool, normalize_tool_schema
 from utils.session_context import reset_current_session_id, set_current_session_id
 from utils.utils import load_prompt
@@ -81,7 +79,8 @@ def build_coder_integration_dispatch_description(task_type: Literal["implementat
             "- /logs/coder/integration_report.json",
             "done_criteria:",
             "- resolve imports, dependencies, interface mismatches, and naming inconsistencies",
-            "- compile the project and capture remaining blockers when compilation fails",
+            "- own the compile-fix loop inside integration: compile, fix when needed, and compile again",
+            "- capture remaining blockers when compilation still fails",
             "- preserve UI fidelity and allow minimal or placeholder functionality when needed",
             "fallback:",
             "- if repeated compile errors do not change => need_human_guidance",
@@ -219,9 +218,10 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
         [
             build_coder_dispatch_description(task_type=task_type),
             "",
-            "You are planning the skeleton stage only.",
-            "Return only structured CoderSkeletonOutput.",
-            "Do not write files and do not claim the project is complete.",
+            "You own the skeleton stage.",
+            "You must both plan the skeleton and execute project bootstrap work that belongs to the skeleton stage.",
+            "Use create_project and materialize_coder_skeleton_artifacts when needed, then summarize what you did.",
+            "Do not claim the full app is complete.",
             "Unified navigation belongs to skeleton when the project has multiple pages.",
             "Page registration, startup page alignment, and avoiding stale template entry pages also belong to skeleton.",
             "",
@@ -251,44 +251,11 @@ def _normalize_coder_skeleton_paths(payload: dict) -> dict:
     if not project_name:
         return normalized
 
-    route_table = []
-    for route_item in normalized.get("route_table", []) or []:
-        item = dict(route_item)
-        if item.get("page_file"):
-            item["page_file"] = _normalize_project_relative_path(project_name, str(item["page_file"]))
-        route_table.append(item)
-    normalized["route_table"] = route_table
-
-    shared_components = []
-    for component in normalized.get("shared_components", []) or []:
-        item = dict(component)
-        if item.get("file_path"):
-            item["file_path"] = _normalize_project_relative_path(project_name, str(item["file_path"]))
-        shared_components.append(item)
-    normalized["shared_components"] = shared_components
-
-    public_interfaces = []
-    for interface in normalized.get("public_interfaces", []) or []:
-        item = dict(interface)
-        if item.get("file_path"):
-            item["file_path"] = _normalize_project_relative_path(project_name, str(item["file_path"]))
-        public_interfaces.append(item)
-    normalized["public_interfaces"] = public_interfaces
-
-    state_management = dict(normalized.get("state_management") or {})
-    if state_management.get("file_path"):
-        state_management["file_path"] = _normalize_project_relative_path(project_name, str(state_management["file_path"]))
-    normalized["state_management"] = state_management
-
     page_tasks = []
     for task in normalized.get("page_tasks", []) or []:
         item = dict(task)
         if item.get("page_file"):
             item["page_file"] = _normalize_project_relative_path(project_name, str(item["page_file"]))
-        item["component_files"] = [
-            _normalize_project_relative_path(project_name, str(path))
-            for path in (item.get("component_files") or [])
-        ]
         item["allowed_write_paths"] = [
             _normalize_project_relative_path(project_name, str(path))
             for path in (item.get("allowed_write_paths") or [])
@@ -300,65 +267,33 @@ def _normalize_coder_skeleton_paths(payload: dict) -> dict:
 
 def _ensure_navigation_scaffold(payload: dict) -> dict:
     normalized = dict(payload)
-    project_name = str(normalized.get("project_name") or "").strip()
-    route_table = list(normalized.get("route_table") or [])
-    if not project_name or len(route_table) <= 1:
+    page_tasks = list(normalized.get("page_tasks") or [])
+    if len(page_tasks) <= 1:
         return normalized
 
-    navigation_component = {
-        "name": "BottomNavBar",
-        "file_path": f"/projects/{project_name}/entry/src/main/ets/common/components/BottomNavBar.ets",
-        "description": "Shared bottom navigation scaffold for primary multi-page navigation.",
-    }
-    navigation_service = {
-        "name": "NavigationService",
-        "file_path": f"/projects/{project_name}/entry/src/main/ets/common/services/NavigationService.ets",
-        "description": "Shared navigation registry and route helper for skeleton-generated pages.",
-    }
-
-    shared_components = list(normalized.get("shared_components") or [])
-    if not any(str(item.get("name") or "") == "BottomNavBar" for item in shared_components):
-        shared_components.append(navigation_component)
-    normalized["shared_components"] = shared_components
-
-    public_interfaces = list(normalized.get("public_interfaces") or [])
-    if not any(str(item.get("name") or "") == "NavigationService" for item in public_interfaces):
-        public_interfaces.append(navigation_service)
-    normalized["public_interfaces"] = public_interfaces
-
-    page_tasks = []
-    for task in normalized.get("page_tasks", []) or []:
+    normalized_tasks = []
+    for task in page_tasks:
         item = dict(task)
         shared_dependencies = list(item.get("shared_dependencies") or [])
         for dependency in ("BottomNavBar", "NavigationService"):
             if dependency not in shared_dependencies:
                 shared_dependencies.append(dependency)
         item["shared_dependencies"] = shared_dependencies
-        page_tasks.append(item)
-    normalized["page_tasks"] = page_tasks
+        normalized_tasks.append(item)
+    normalized["page_tasks"] = normalized_tasks
     return normalized
 
 
 def _normalize_coder_skeleton_tool_args(tool_args: dict) -> dict:
     normalized_tool_args = dict(tool_args)
-    state_management = normalized_tool_args.get("state_management")
-    if isinstance(state_management, str):
-        text = state_management.strip()
-        if text:
-            try:
-                parsed = json.loads(text)
-            except json.JSONDecodeError:
-                parsed = state_management
-            if isinstance(parsed, dict):
-                normalized_tool_args["state_management"] = parsed
     normalized_tool_args = _normalize_coder_skeleton_paths(normalized_tool_args)
     normalized_tool_args = _ensure_navigation_scaffold(normalized_tool_args)
     try:
         return CoderSkeletonOutput.model_validate(normalized_tool_args).model_dump(mode="json", exclude_none=True)
     except Exception as exc:  # noqa: BLE001
         error_text = str(exc)
-        if "state_management" in error_text:
-            raise ValueError("Coder skeleton output missing state_management") from exc
+        if "page_tasks" in error_text:
+            raise ValueError("Coder skeleton output missing or invalid page_tasks") from exc
         raise ValueError(f"Coder skeleton output is invalid: {error_text}") from exc
 
 
@@ -429,17 +364,19 @@ def run_coder_skeleton_stage(
     architect_payload: dict,
     task_type: Literal["implementation", "fix_from_test"],
     runtime: ToolRuntime,
-) -> dict:
+) -> tuple[dict, str]:
     result = _invoke_subagent(
         get_coder_skeleton_worker(),
         build_coder_skeleton_planning_prompt(architect_payload=architect_payload, task_type=task_type),
         runtime,
     )
-    return invoke_coder_skeleton_result_formatter(
+    agent_summary = _result_text(result)
+    payload = invoke_coder_skeleton_result_formatter(
         architect_payload=architect_payload,
         task_type=task_type,
-        agent_summary=_result_text(result),
+        agent_summary=agent_summary,
     )
+    return payload, agent_summary
 
 
 def _build_page_task_prompt(
@@ -514,48 +451,11 @@ def _build_page_task_prompt(
     return "\n".join(sections)
 
 
-def _build_page_result_prompt(task_payload: dict, modified_files: list[str], agent_summary: str) -> str:
-    return "\n".join(
-        [
-            "Summarize the page worker result into structured CoderPageWorkerResult.",
-            "Use the task payload for page_name and intended boundaries.",
-            "Use modified_files as the canonical modified file list.",
-            "",
-            "Task payload:",
-            json.dumps(task_payload, ensure_ascii=False, indent=2),
-            "",
-            "Modified files:",
-            json.dumps(modified_files, ensure_ascii=False, indent=2),
-            "",
-            "Worker summary:",
-            agent_summary or "(empty)",
-        ]
-    )
-
-
-def invoke_coder_page_result_formatter(task_payload: dict, modified_files: list[str], agent_summary: str) -> dict:
-    tool_name = "CoderPageWorkerResult"
-    llm_response = invoke_with_tool(
-        base_model,
-        [
-            SystemMessage(content=_CODER_PAGE_SYSTEM_PROMPT),
-            HumanMessage(content=_build_page_result_prompt(task_payload, modified_files, agent_summary)),
-        ],
-        tool_name,
-        normalize_tool_schema(CoderPageWorkerResult.model_json_schema()),
-    )
-    tool_args = extract_tool_call_args(llm_response, tool_name)
-    if tool_args is not None:
-        return tool_args
-    raise ValueError("Coder page worker result requires tool-call output from CoderPageWorkerResult")
-
-
 def _build_integration_prompt(
     task_type: Literal["implementation", "fix_from_test"],
     skeleton_payload: dict,
     page_results_payload: dict,
     tester_report_payload: dict | None = None,
-    compile_feedback: str | None = None,
 ) -> str:
     skill_brief = {
         "required_skills": [
@@ -592,7 +492,9 @@ def _build_integration_prompt(
         "You are executing the integration stage only.",
         "Skill usage is mandatory before fixing ArkTS / ArkUI engineering issues.",
         "Resolve shared contract mismatches, import/export issues, route registration gaps, and naming inconsistencies.",
-        "The orchestration layer will compile after your edits and may give you compile feedback for another pass.",
+        "You own the compile-fix loop in this stage.",
+        "Run compile_project yourself first. If compile fails, fix the issue and compile again until success or until the main error stops changing.",
+        "Your final response must include a short human summary and a final compile output block wrapped exactly with <<FINAL_COMPILE_OUTPUT>> and <<END_FINAL_COMPILE_OUTPUT>>.",
         "",
         "Materialized input: execution priority",
         json.dumps(execution_priority, ensure_ascii=False, indent=2),
@@ -614,15 +516,44 @@ def _build_integration_prompt(
                 json.dumps(tester_report_payload, ensure_ascii=False, indent=2),
             ]
         )
-    if compile_feedback:
-        sections.extend(
-            [
-                "",
-                "Compile feedback from the last orchestration pass:",
-                compile_feedback,
-            ]
-        )
     return "\n".join(sections)
+
+
+def _build_page_result_prompt(task_payload: dict, modified_files: list[str], agent_summary: str) -> str:
+    return "\n".join(
+        [
+            "Summarize the page worker result into structured CoderPageWorkerResult.",
+            "Use the task payload for page_name and intended boundaries.",
+            "Use modified_files as the canonical modified file list.",
+            "Keep the result minimal: focus on completion status, modified files, blockers, and a short summary.",
+            "",
+            "Task payload:",
+            json.dumps(task_payload, ensure_ascii=False, indent=2),
+            "",
+            "Modified files:",
+            json.dumps(modified_files, ensure_ascii=False, indent=2),
+            "",
+            "Worker summary:",
+            agent_summary or "(empty)",
+        ]
+    )
+
+
+def invoke_coder_page_result_formatter(task_payload: dict, modified_files: list[str], agent_summary: str) -> dict:
+    tool_name = "CoderPageWorkerResult"
+    llm_response = invoke_with_tool(
+        base_model,
+        [
+            SystemMessage(content=_CODER_PAGE_SYSTEM_PROMPT),
+            HumanMessage(content=_build_page_result_prompt(task_payload, modified_files, agent_summary)),
+        ],
+        tool_name,
+        normalize_tool_schema(CoderPageWorkerResult.model_json_schema()),
+    )
+    tool_args = extract_tool_call_args(llm_response, tool_name)
+    if tool_args is not None:
+        return tool_args
+    raise ValueError("Coder page worker result requires tool-call output from CoderPageWorkerResult")
 
 
 def _build_integration_report_prompt(
@@ -706,6 +637,29 @@ def _result_text(result: dict) -> str:
         return ""
     message = result["messages"][-1]
     return getattr(message, "text", "") or getattr(message, "content", "") or ""
+
+
+def _extract_final_compile_output(agent_summary: str) -> str:
+    text = str(agent_summary or "")
+    match = re.search(
+        r"<<FINAL_COMPILE_OUTPUT>>\s*(.*?)\s*<<END_FINAL_COMPILE_OUTPUT>>",
+        text,
+        re.DOTALL,
+    )
+    if not match:
+        raise ValueError("Integration worker summary missing final compile output block")
+    return match.group(1).strip()
+
+
+def _strip_compile_output_block(agent_summary: str) -> str:
+    text = str(agent_summary or "")
+    stripped = re.sub(
+        r"<<FINAL_COMPILE_OUTPUT>>\s*.*?\s*<<END_FINAL_COMPILE_OUTPUT>>",
+        "",
+        text,
+        flags=re.DOTALL,
+    ).strip()
+    return stripped
 
 
 def _select_page_tasks(task_bundle: dict, tester_report_payload: dict | None = None) -> list[dict]:
@@ -847,10 +801,7 @@ def run_coder_integration(
     runtime: ToolRuntime,
     tester_report_payload: dict | None = None,
 ) -> dict:
-    compile_feedback: str | None = compile_project.func(skeleton_payload["project_name"])
-    last_signature = ""
     worker_summaries: list[str] = []
-    attempt_records: list[dict[str, Any]] = []
     modified_files = sorted(
         {
             path
@@ -858,67 +809,37 @@ def run_coder_integration(
             for path in list(result.get("modified_files") or [])
         }
     )
-    initial_parsed_compile = _parse_compile_output(compile_feedback)
-    initial_signature = _compile_status_signature(compile_feedback)
-    attempt_records.append(
+    result = _invoke_subagent(
+        get_coder_integration_worker(),
+        _build_integration_prompt(
+            task_type=task_type,
+            skeleton_payload=skeleton_payload,
+            page_results_payload=page_results_payload,
+            tester_report_payload=tester_report_payload,
+        ),
+        runtime,
+    )
+    raw_summary = _result_text(result).strip()
+    if raw_summary:
+        worker_summaries.append(_strip_compile_output_block(raw_summary))
+    compile_feedback = _extract_final_compile_output(raw_summary)
+    parsed_compile = _parse_compile_output(compile_feedback)
+    signature = _compile_status_signature(compile_feedback)
+    attempt_records: list[dict[str, Any]] = [
         build_coder_compile_fix_attempt_payload(
             attempt_index=1,
             task_type=task_type,
             project_name=skeleton_payload["project_name"],
-            compile_status=initial_parsed_compile["compile_status"],
-            error_signature=initial_signature,
-            key_errors=initial_parsed_compile["key_errors"],
-            worker_summary="baseline compile before integration fixes",
-            worker_summaries_so_far=[],
+            compile_status=parsed_compile["compile_status"],
+            error_signature=signature,
+            key_errors=parsed_compile["key_errors"],
+            worker_summary=_strip_compile_output_block(raw_summary) or "integration worker executed compile-fix loop",
+            worker_summaries_so_far=[summary for summary in worker_summaries if summary],
             modified_files=modified_files,
-            fixes_applied=[],
+            fixes_applied=[summary for summary in worker_summaries if summary],
             skills_referenced=["/skills/harmony-next/SKILL.md"],
         )
-    )
-    if "compile_status: SUCCESS" not in compile_feedback:
-        last_signature = initial_signature
-
-    for _ in range(2):
-        if compile_feedback and "compile_status: SUCCESS" in compile_feedback:
-            break
-        result = _invoke_subagent(
-            get_coder_integration_worker(),
-            _build_integration_prompt(
-                task_type=task_type,
-                skeleton_payload=skeleton_payload,
-                page_results_payload=page_results_payload,
-                tester_report_payload=tester_report_payload,
-                compile_feedback=compile_feedback,
-            ),
-            runtime,
-        )
-        summary = _result_text(result).strip()
-        if summary:
-            worker_summaries.append(summary)
-
-        compile_feedback = compile_project.func(skeleton_payload["project_name"])
-        signature = _compile_status_signature(compile_feedback)
-        parsed_compile = _parse_compile_output(compile_feedback)
-        attempt_records.append(
-            build_coder_compile_fix_attempt_payload(
-                attempt_index=len(attempt_records) + 1,
-                task_type=task_type,
-                project_name=skeleton_payload["project_name"],
-                compile_status=parsed_compile["compile_status"],
-                error_signature=signature,
-                key_errors=parsed_compile["key_errors"],
-                worker_summary=summary,
-                worker_summaries_so_far=worker_summaries,
-                modified_files=modified_files,
-                fixes_applied=worker_summaries,
-                skills_referenced=["/skills/harmony-next/SKILL.md"],
-            )
-        )
-        if "compile_status: SUCCESS" in compile_feedback:
-            break
-        if signature == last_signature:
-            break
-        last_signature = signature
+    ]
 
     report = invoke_coder_integration_report_formatter(
         project_name=skeleton_payload["project_name"],
@@ -967,13 +888,12 @@ def run_coder_pipeline(
         skeleton_payload = None
 
     if skeleton_payload is None:
-        skeleton_payload = run_coder_skeleton_stage(
+        skeleton_payload, _ = run_coder_skeleton_stage(
             architect_payload=architect_payload,
             task_type=task_type,
             runtime=runtime,
         )
         save_coder_skeleton_plan_payload(skeleton_payload)
-        materialize_coder_skeleton(skeleton_payload)
 
     try:
         task_bundle = load_coder_page_task_bundle_payload()
@@ -1007,30 +927,23 @@ def dispatch_coder_skeleton(
     runtime: ToolRuntime = None,
 ) -> Command:
     """
-    Run the coder skeleton stage: plan the skeleton, create the project, and materialize routes/shared scaffolding.
+    Run the coder skeleton stage and let the skeleton worker own project bootstrap work.
     """
     if runtime is None or not runtime.tool_call_id:
         raise ValueError("Tool call ID is required for coder skeleton dispatch")
 
     architect_payload = load_architect_design_payload()
-    skeleton_payload = run_coder_skeleton_stage(
+    skeleton_payload, worker_summary = run_coder_skeleton_stage(
         architect_payload=architect_payload,
         task_type=task_type,
         runtime=runtime,
     )
     save_coder_skeleton_plan_payload(skeleton_payload)
-    project_path = resolve_workspace_path(f"/projects/{skeleton_payload['project_name']}")
-    if project_path.exists():
-        create_result = f"project already exists at /projects/{skeleton_payload['project_name']}"
-    else:
-        create_result = create_project.func(skeleton_payload["project_name"])
-    materialize_result = materialize_coder_skeleton(skeleton_payload)
     final_message = json.dumps(
         {
             "project_name": skeleton_payload["project_name"],
             "skeleton_plan_saved": True,
-            "create_project_result": create_result,
-            "materialize_result": materialize_result,
+            "worker_execution_summary": worker_summary,
         },
         ensure_ascii=False,
         indent=2,

@@ -4,6 +4,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
+from pydantic import ValidationError
+
 
 class ArchitectImageFactsTests(unittest.TestCase):
     def test_normalize_architect_payload_loads_nested_json_strings(self) -> None:
@@ -16,7 +18,18 @@ class ArchitectImageFactsTests(unittest.TestCase):
                 "pages": [
                     {
                         "name": "Index",
-                        "responsibilities": "展示首页",
+                        "summary": "展示首页",
+                        "root": {
+                            "id": "page_root",
+                            "component_type": "Column",
+                            "children": [
+                                {
+                                    "id": "hero_title",
+                                    "component_type": "Text",
+                                    "text": "大麦首页",
+                                }
+                            ],
+                        },
                     }
                 ],
                 "visual_style": json.dumps(
@@ -37,32 +50,87 @@ class ArchitectImageFactsTests(unittest.TestCase):
                     ],
                     ensure_ascii=False,
                 ),
-                "data_model": json.dumps(
-                    [
+            }
+        )
+
+        self.assertIsInstance(normalized["visual_style"], dict)
+        self.assertIsInstance(normalized["navigation"], list)
+        self.assertEqual(normalized["pages"][0]["root"]["children"][0]["text"], "大麦首页")
+
+    def test_normalize_architect_payload_rejects_business_fields(self) -> None:
+        from tools.architect_tools import _normalize_architect_payload
+
+        with self.assertRaises(ValidationError):
+            _normalize_architect_payload(
+                {
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [
+                        {
+                            "name": "Index",
+                            "summary": "展示首页",
+                            "root": {
+                                "id": "page_root",
+                                "component_type": "Column",
+                            },
+                        }
+                    ],
+                    "data_model": [
                         {
                             "field": "city",
                             "type": "string",
                             "description": "城市",
                         }
                     ],
-                    ensure_ascii=False,
-                ),
-                "interactions": json.dumps(
-                    [
-                        {
-                            "event": "search",
-                            "description": "执行搜索",
-                        }
-                    ],
-                    ensure_ascii=False,
-                ),
+                }
+            )
+
+    def test_normalize_architect_payload_accepts_recursive_overlay_tree(self) -> None:
+        from tools.architect_tools import _normalize_architect_payload
+
+        normalized = _normalize_architect_payload(
+            {
+                "project_name": "damai_app",
+                "app_display_name": "大麦",
+                "pages": [
+                    {
+                        "name": "Index",
+                        "summary": "展示首页和筛选浮层",
+                        "root": {
+                            "id": "page_root",
+                            "component_type": "Column",
+                            "children": [
+                                {
+                                    "id": "filter_button",
+                                    "component_type": "IconButton",
+                                    "icon": "⚙️",
+                                    "overlay": {
+                                        "id": "filter_sheet",
+                                        "name": "筛选弹层",
+                                        "presentation": "bottom_sheet",
+                                        "content": {
+                                            "id": "sheet_root",
+                                            "component_type": "Column",
+                                            "children": [
+                                                {
+                                                    "id": "sheet_title",
+                                                    "component_type": "Text",
+                                                    "text": "筛选",
+                                                }
+                                            ],
+                                        },
+                                    },
+                                }
+                            ],
+                        },
+                    }
+                ],
             }
         )
 
-        self.assertIsInstance(normalized["visual_style"], dict)
-        self.assertIsInstance(normalized["navigation"], list)
-        self.assertIsInstance(normalized["data_model"], list)
-        self.assertIsInstance(normalized["interactions"], list)
+        overlay = normalized["pages"][0]["root"]["children"][0]["overlay"]
+        self.assertEqual(overlay["presentation"], "bottom_sheet")
+        self.assertEqual(overlay["content"]["children"][0]["text"], "筛选")
 
     def test_build_architect_image_facts_bundle_saves_bundle(self) -> None:
         from tools.architect_tools import build_architect_image_facts_bundle_payload

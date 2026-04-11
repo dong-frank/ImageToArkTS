@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from langchain.tools import tool
 from pydantic import BaseModel, ValidationError
 
 from schemas import (
@@ -399,44 +400,34 @@ def _render_data_model_file(models: list[dict[str, Any]]) -> str:
 
 def _ensure_navigation_scaffold_payload(normalized: dict[str, Any]) -> dict[str, Any]:
     payload = dict(normalized)
-    project_name = str(payload.get("project_name") or "").strip()
-    route_table = list(payload.get("route_table") or [])
-    if not project_name or len(route_table) <= 1:
+    page_tasks = list(payload.get("page_tasks") or [])
+    if len(page_tasks) <= 1:
         return payload
 
-    shared_components = list(payload.get("shared_components") or [])
-    if not any(str(item.get("name") or "") == "BottomNavBar" for item in shared_components):
-        shared_components.append(
-            {
-                "name": "BottomNavBar",
-                "file_path": f"/projects/{project_name}/entry/src/main/ets/common/components/BottomNavBar.ets",
-                "description": "Shared bottom navigation scaffold for primary multi-page navigation.",
-            }
-        )
-    payload["shared_components"] = shared_components
-
-    public_interfaces = list(payload.get("public_interfaces") or [])
-    if not any(str(item.get("name") or "") == "NavigationService" for item in public_interfaces):
-        public_interfaces.append(
-            {
-                "name": "NavigationService",
-                "file_path": f"/projects/{project_name}/entry/src/main/ets/common/services/NavigationService.ets",
-                "description": "Shared navigation registry and route helper for skeleton-generated pages.",
-            }
-        )
-    payload["public_interfaces"] = public_interfaces
-
-    page_tasks = []
-    for task in payload.get("page_tasks", []) or []:
+    normalized_tasks = []
+    for task in page_tasks:
         item = dict(task)
         dependencies = list(item.get("shared_dependencies") or [])
         for dependency in ("BottomNavBar", "NavigationService"):
             if dependency not in dependencies:
                 dependencies.append(dependency)
         item["shared_dependencies"] = dependencies
-        page_tasks.append(item)
-    payload["page_tasks"] = page_tasks
+        normalized_tasks.append(item)
+    payload["page_tasks"] = normalized_tasks
     return payload
+
+
+def _route_table_from_page_tasks(page_tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    route_table: list[dict[str, Any]] = []
+    for task in page_tasks:
+        route_table.append(
+            {
+                "page_name": str(task.get("page_name") or ""),
+                "route": str(task.get("route") or f"pages/{task.get('page_name')}"),
+                "page_file": str(task.get("page_file") or ""),
+            }
+        )
+    return route_table
 
 
 def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -> str:
@@ -449,23 +440,21 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
     pages_dir = project_dir / "entry/src/main/ets/pages"
     shared_components_dir = project_dir / "entry/src/main/ets/common/components"
     shared_services_dir = project_dir / "entry/src/main/ets/common/services"
-    shared_store_dir = project_dir / "entry/src/main/ets/common/store"
-    shared_models_dir = project_dir / "entry/src/main/ets/common/models"
     pages_dir.mkdir(parents=True, exist_ok=True)
     shared_components_dir.mkdir(parents=True, exist_ok=True)
     shared_services_dir.mkdir(parents=True, exist_ok=True)
-    shared_store_dir.mkdir(parents=True, exist_ok=True)
-    shared_models_dir.mkdir(parents=True, exist_ok=True)
 
+    page_tasks = list(normalized.get("page_tasks") or [])
+    route_table = _route_table_from_page_tasks(page_tasks)
     route_entries: list[str] = []
-    include_navigation = len(normalized.get("route_table", [])) > 1
-    for index, route_item in enumerate(normalized.get("route_table", [])):
+    include_navigation = len(page_tasks) > 1
+    for index, route_item in enumerate(route_table):
         route = str(route_item.get("route") or f"pages/{route_item.get('page_name')}")
         route_entries.append(route)
         page_file_path = _resolve_session_path(str(route_item.get("page_file") or f"/projects/{project_name}/entry/src/main/ets/{route}.ets"), project_root=project_root)
         page_name = str(route_item.get("page_name") or Path(route).name)
         page_task = next(
-            (task for task in normalized.get("page_tasks", []) if str(task.get("page_name")) == page_name),
+            (task for task in page_tasks if str(task.get("page_name")) == page_name),
             {},
         )
         content = (
@@ -478,38 +467,18 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
     main_pages_path = project_dir / "entry/src/main/resources/base/profile/main_pages.json"
     _write_text(main_pages_path, json.dumps({"src": route_entries}, ensure_ascii=False, indent=2))
 
-    for component in normalized.get("shared_components", []):
-        target = _resolve_session_path(str(component.get("file_path")), project_root=project_root)
-        _write_text(target, _render_shared_component(str(component.get("name") or "SharedComponent"), str(component.get("description") or "")))
-
-    for interface in normalized.get("public_interfaces", []):
-        target = _resolve_session_path(str(interface.get("file_path")), project_root=project_root)
-        interface_name = str(interface.get("name") or "SharedService")
-        content = (
-            _render_navigation_service(list(normalized.get("route_table") or []))
-            if interface_name == "NavigationService"
-            else _render_service_interface(interface_name, str(interface.get("description") or ""))
+    if include_navigation:
+        bottom_nav_target = project_dir / "entry/src/main/ets/common/components/BottomNavBar.ets"
+        navigation_service_target = project_dir / "entry/src/main/ets/common/services/NavigationService.ets"
+        _write_text(
+            bottom_nav_target,
+            _render_shared_component("BottomNavBar", "Shared bottom navigation scaffold for primary multi-page navigation."),
         )
-        _write_text(target, content)
-
-    state_management = normalized.get("state_management", {})
-    state_target = _resolve_session_path(str(state_management.get("file_path")), project_root=project_root)
-    _write_text(
-        state_target,
-        _render_store_file(
-            str(state_management.get("store_name") or "AppStore"),
-            list(state_management.get("exposed_state") or []),
-            list(state_management.get("exposed_actions") or []),
-            str(state_management.get("responsibilities") or ""),
-        ),
-    )
-
-    model_target = shared_models_dir / "AppDataModel.ets"
-    _write_text(model_target, _render_data_model_file(list(normalized.get("shared_data_models") or [])))
+        _write_text(navigation_service_target, _render_navigation_service(route_table))
 
     page_task_bundle = {
         "project_name": project_name,
-        "tasks": normalized.get("page_tasks", []),
+        "tasks": page_tasks,
     }
     save_coder_page_task_bundle_payload(page_task_bundle, project_root=project_root)
 
@@ -522,3 +491,11 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
             f"page_task_count: {len(page_task_bundle['tasks'])}",
         ]
     )
+
+
+@tool
+def materialize_coder_skeleton_artifacts(payload: dict[str, Any]) -> str:
+    """
+    Materialize the planned skeleton into project files, including page registration and shared scaffolding.
+    """
+    return materialize_coder_skeleton(payload)

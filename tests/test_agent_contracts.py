@@ -89,6 +89,13 @@ class AgentContractsTests(unittest.TestCase):
 
         self.assertEqual(CODER_SKELETON_WORKER_SPEC.get("skills"), ["/skills"])
 
+    def test_coder_skeleton_worker_has_bootstrap_tools(self) -> None:
+        from subagents import CODER_SKELETON_WORKER_TOOLS
+
+        tool_names = [tool.name for tool in CODER_SKELETON_WORKER_TOOLS]
+        self.assertIn("create_project", tool_names)
+        self.assertIn("materialize_coder_skeleton_artifacts", tool_names)
+
 
 if __name__ == "__main__":
     unittest.main()

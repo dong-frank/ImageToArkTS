@@ -256,8 +256,6 @@ def _normalize_architect_payload(payload: Any) -> dict:
         nested_field_types: dict[str, type] = {
             "visual_style": dict,
             "navigation": list,
-            "data_model": list,
-            "interactions": list,
         }
         for field_name, expected_type in nested_field_types.items():
             if field_name not in normalized:

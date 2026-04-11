@@ -1,8 +1,14 @@
+from __future__ import annotations
+
 from typing import Dict, List, Optional, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class VisualStyle(BaseModel):
+class ArchitectBaseModel(BaseModel):
+	model_config = ConfigDict(extra="forbid")
+
+
+class VisualStyle(ArchitectBaseModel):
 	design_tone: str = Field(..., description="整体视觉调性，如简洁、卡片化、科技感、拟物化")
 	primary_color: Optional[str] = Field(None, description="主色，如 #007DFF")
 	background_color: Optional[str] = Field(None, description="主背景色，如 #F5F5F5")
@@ -15,44 +21,75 @@ class VisualStyle(BaseModel):
 	)
 
 
-class InteractiveComponent(BaseModel):
-	name: str = Field(..., description="可交互组件名称，如 数字按钮、返回图标、菜单项")
-	component_type: str = Field(..., description="组件类型，如 Button、IconButton、Card、MenuItem")
-	action: str = Field(..., description="动作标识/函数名，如 append_digit、clear_all、open_conversion_menu")
-	style: Optional[Dict[str, str]] = Field(
-		None,
-		description="组件原子化样式键值，如 {'width': '72', 'height': '72', 'bg_color': '#E0E0E0'}",
+class UIStyle(ArchitectBaseModel):
+	background_color: Optional[str] = Field(None, description="背景色，如 #FFFFFF")
+	font_color: Optional[str] = Field(None, description="字体颜色，如 #333333")
+	border_color: Optional[str] = Field(None, description="边框颜色，如 #E5E5E5")
+	border_radius: Optional[str] = Field(None, description="圆角，如 12 或 12vp")
+	font_size: Optional[str] = Field(None, description="字号，如 16fp")
+	font_weight: Optional[str] = Field(None, description="字重，如 Medium、Bold、700")
+	text_align: Optional[Literal["start", "center", "end", "justify"]] = Field(
+		None, description="文本对齐方式"
 	)
-
-
-class PageSection(BaseModel):
-	name: str = Field(..., description="页面区块名称，如 顶部栏、Banner、列表区、底部操作区")
-	purpose: str = Field(..., description="该区块承担的展示或交互职责")
-	layout: str = Field(..., description="区块布局方式，如 纵向列表、双列网格、顶部横滑卡片")
-	components: List[str] = Field(..., description="该区块的核心组件列表，如 Text、Image、Button、Tabs、List")
-	style_notes: Optional[str] = Field(None, description="该区块的样式补充，如颜色、字号、边框、圆角、对齐方式")
-	interactive_components: Optional[List[InteractiveComponent]] = Field(
-		None,
-		description="区块内可交互组件及其 action 绑定",
-	)
+	padding: Optional[str] = Field(None, description="内边距，如 16vp 20vp")
+	margin: Optional[str] = Field(None, description="外边距，如 12vp 16vp")
+	gap: Optional[str] = Field(None, description="子元素间距，如 8vp")
+	width: Optional[str] = Field(None, description="相对宽度表达，如 match_parent、80%、auto")
+	height: Optional[str] = Field(None, description="相对高度表达，如 auto、56vp")
+	opacity: Optional[str] = Field(None, description="透明度，如 0.6")
 	style_tokens: Optional[Dict[str, str]] = Field(
 		None,
-		description="区块级原子化样式键值，如 {'padding': '16', 'margin_top': '12'}",
+		description="补充样式键值，如 {'shadow': 'soft', 'divider_color': '#F2F2F2'}",
 	)
 
 
-class Page(BaseModel):
-	name: str = Field(..., description="页面名称，如 Index")
-	responsibilities: str = Field(..., description="页面职责描述")
+class UINavigationTarget(ArchitectBaseModel):
+	transition: Literal["push", "replace", "switch_tab", "modal", "popup", "back"] = Field(
+		..., description="视觉跳转类型"
+	)
+	target_page: Optional[str] = Field(None, description="目标页面名称；back 场景可为空")
+	trigger_label: Optional[str] = Field(None, description="触发文案或控件标签")
+	notes: Optional[str] = Field(None, description="仅描述视觉反馈或跳转语义，不涉及业务逻辑")
+
+
+class UIOverlay(ArchitectBaseModel):
+	id: str = Field(..., description="弹层唯一标识，如 sort_menu")
+	name: Optional[str] = Field(None, description="弹层名称，如 排序菜单、筛选底部弹窗")
+	presentation: Literal["popup", "modal", "bottom_sheet", "dropdown", "drawer", "tooltip", "context_menu"] = Field(
+		..., description="弹层呈现形式"
+	)
+	summary: Optional[str] = Field(None, description="弹层视觉摘要")
+	content: "UINode" = Field(..., description="弹层内部的递归 UI 树")
+
+
+class UINode(ArchitectBaseModel):
+	id: str = Field(..., description="节点唯一标识，如 header_title、product_card")
+	name: Optional[str] = Field(None, description="节点名称，如 顶部栏、商品卡片")
+	component_type: str = Field(..., description="ArkUI 语义组件类型，如 Column、Row、Text、Image、Button、List")
+	layout: Optional[Literal["column", "row", "stack", "flex", "grid", "list", "tabs", "scroll", "none"]] = Field(
+		None, description="节点自身对子节点的布局方式"
+	)
+	semantic_role: Optional[str] = Field(None, description="视觉语义角色，如 header、hero、tab_bar、list_item")
+	text: Optional[str] = Field(None, description="节点上的可见文本")
+	icon: Optional[str] = Field(None, description="图标或 emoji，如 ←、⋯、⭐")
+	image_ref: Optional[str] = Field(None, description="图片引用名或素材标识")
+	summary: Optional[str] = Field(None, description="节点视觉摘要")
+	style: Optional[UIStyle] = Field(None, description="节点样式")
+	children: List["UINode"] = Field(default_factory=list, description="子节点列表")
+	overlay: Optional[UIOverlay] = Field(None, description="由当前节点触发并承载的弹层")
+	navigation: Optional[UINavigationTarget] = Field(None, description="由当前节点触发的页面跳转")
+
+
+class Page(ArchitectBaseModel):
+	name: str = Field(..., description="页面名称，如 home_page、detail_page")
+	summary: str = Field(..., description="页面视觉摘要")
 	role: Optional[Literal["entry", "primary", "secondary", "detail", "modal", "popup"]] = Field(
 		None, description="页面在产品中的角色"
 	)
-	route: Optional[str] = Field(None, description="页面路由标识，如 index、detail、profile")
-	layout_summary: Optional[str] = Field(None, description="页面整体布局摘要，如 顶部导航 + 中部卡片列表 + 底部Tab")
-	key_sections: Optional[List[PageSection]] = Field(None, description="页面关键区块拆解")
-	primary_actions: Optional[List[str]] = Field(None, description="页面上最重要的操作，如 搜索、提交、切换Tab")
-	state_notes: Optional[str] = Field(None, description="页面状态说明，如 空态、加载态、选中态、展开态")
-	images: Optional[List[int]] = Field(None, description="该页面关联的图片下标列表（与 images/image_descriptions 一一对应）")
+	route: Optional[str] = Field(None, description="页面路由标识，如 home_page、detail_page")
+	layout_summary: Optional[str] = Field(None, description="页面整体布局摘要，如 顶部栏 + 列表区 + 底部Tab")
+	root: UINode = Field(..., description="页面主视图的递归 UI 树")
+	source_images: Optional[List[int]] = Field(None, description="该页面关联的图片下标列表")
 
 
 class DataModelField(BaseModel):
@@ -61,26 +98,18 @@ class DataModelField(BaseModel):
 	description: str = Field(..., description="字段说明")
 
 
-class Interaction(BaseModel):
-	event: str = Field(..., description="用户事件名称")
-	description: str = Field(..., description="事件说明")
-	target: Optional[str] = Field(None, description="事件目标组件，如 equals_button、conversion_card")
-	handler: Optional[str] = Field(None, description="事件处理函数名，应与组件 action 语义一致")
-	state_change: Optional[str] = Field(None, description="触发后状态变化，如 切换到 result 状态")
-
-
-class NavigationFlow(BaseModel):
+class NavigationFlow(ArchitectBaseModel):
 	from_page: str = Field(..., description="起始页面名称")
-	trigger: str = Field(..., description="触发跳转的动作，如 点击商品卡片、点击底部Tab、点击返回")
+	trigger: str = Field(..., description="触发跳转的视觉动作，如 点击商品卡片、点击底部Tab、点击返回")
+	trigger_node_id: Optional[str] = Field(None, description="触发节点 id，如 product_card_1")
 	to_page: str = Field(..., description="目标页面名称")
 	transition: Literal["push", "replace", "switch_tab", "modal", "popup", "back"] = Field(
 		..., description="跳转类型"
 	)
-	params: Optional[List[str]] = Field(None, description="跳转需要携带的参数名列表")
 	ui_feedback: Optional[str] = Field(None, description="跳转前后的界面反馈，如 高亮切换、弹层出现、返回上一页")
 
 
-class ArchitectOutput(BaseModel):
+class ArchitectOutput(ArchitectBaseModel):
 	project_name: str = Field(
 		...,
 		pattern=r"^[a-z][a-z0-9_]{0,199}$",
@@ -88,10 +117,14 @@ class ArchitectOutput(BaseModel):
 	)
 	app_display_name: str = Field(..., description="用户可见的应用名称（可为中文）")
 	visual_style: Optional[VisualStyle] = Field(None, description="全局视觉风格说明")
-	pages: List[Page] = Field(..., description="页面列表及职责")
+	pages: List[Page] = Field(..., description="页面列表及其递归 UI 树")
 	navigation: Optional[List[NavigationFlow]] = Field(None, description="页面间跳转与切换关系")
-	data_model: Optional[List[DataModelField]] = Field(None, description="数据模型字段及说明")
-	interactions: Optional[List[Interaction]] = Field(None, description="用户交互事件及说明")
+
+
+UIOverlay.model_rebuild()
+UINode.model_rebuild()
+Page.model_rebuild()
+ArchitectOutput.model_rebuild()
 
 
 class ArchitectImageFactsOutput(BaseModel):
@@ -149,7 +182,6 @@ class CoderPageTask(BaseModel):
     page_name: str = Field(..., description="Page name assigned to the worker.")
     route: str = Field(..., description="Harmony page route such as pages/Index.")
     page_file: str = Field(..., description="Workspace-relative primary page file path.")
-    component_files: List[str] = Field(default_factory=list, description="Page-local component file paths.")
     allowed_write_paths: List[str] = Field(default_factory=list, description="Workspace-relative file paths the page worker may edit.")
     shared_dependencies: List[str] = Field(default_factory=list, description="Shared components, stores, or interfaces the page uses.")
     responsibilities: str = Field(..., description="Page responsibility summary.")
@@ -165,12 +197,7 @@ class CoderSkeletonOutput(BaseModel):
         description="Project directory name.",
     )
     app_display_name: str = Field(..., description="User-visible app name.")
-    route_table: List[CoderRouteSpec] = Field(default_factory=list, description="Initial route table.")
-    shared_data_models: List[DataModelField] = Field(default_factory=list, description="Shared data model definitions.")
-    shared_components: List[CoderSharedArtifact] = Field(default_factory=list, description="Shared component artifacts.")
-    public_interfaces: List[CoderSharedArtifact] = Field(default_factory=list, description="Shared interface/service artifacts.")
-    state_management: CoderStateConvention = Field(..., description="Shared state management convention.")
-    page_tasks: List[CoderPageTask] = Field(default_factory=list, description="Page implementation tasks.")
+    page_tasks: List[CoderPageTask] = Field(..., min_length=1, description="Page implementation tasks.")
 
 
 class CoderPageTaskBundle(BaseModel):

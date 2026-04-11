@@ -11,6 +11,7 @@ from contracts.agent_contracts import ARCHITECT_DEFINITION, CODER_DEFINITION, TE
 from deepagents.middleware.patch_tool_calls import PatchToolCallsMiddleware
 from deepagents.middleware.summarization import create_summarization_middleware
 from models import base_model, vision_model
+from tools.coder_tools import materialize_coder_skeleton_artifacts
 from tools.human_guidance import request_human_guidance
 from tools.project_tools import CODER_TOOLS
 from tools.tester_tools import TESTER_TOOLS
@@ -20,7 +21,7 @@ from utils.utils import load_prompt
 
 ARCHITECT_SUBAGENT_TOOLS = [request_human_guidance]
 CODER_ORCHESTRATOR_TOOLS = []
-CODER_SKELETON_WORKER_TOOLS = [request_human_guidance]
+CODER_SKELETON_WORKER_TOOLS = [*CODER_TOOLS, materialize_coder_skeleton_artifacts, request_human_guidance]
 CODER_PAGE_WORKER_TOOLS = [request_human_guidance]
 CODER_INTEGRATION_WORKER_TOOLS = [*CODER_TOOLS, request_human_guidance]
 TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, request_human_guidance]

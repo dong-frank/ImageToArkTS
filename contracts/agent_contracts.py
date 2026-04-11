@@ -131,7 +131,7 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
                 "run page implementation stage on impacted pages or fall back to all page tasks when impact is unclear",
                 "run integration stage and save /logs/coder/integration_report.json",
                 "address tester failures and fix suggestions",
-                "integration stage compiles the project and records remaining blockers when compilation fails",
+                "integration stage owns the compile-fix loop and records remaining blockers when compilation fails",
             ],
             fallback=[
                 FallbackRule(condition="repeated compile errors do not change", action="need_human_guidance"),
@@ -150,9 +150,9 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
             "/logs/coder/integration_report.json",
         ],
         done_criteria=[
-            "skeleton stage creates project structure, route table, shared models, interfaces, shared components, and state conventions",
+            "skeleton stage owns project bootstrap, page registration, and page-task planning",
             "page implementation stage dispatches page workers from /designs/coder_page_tasks.json",
-            "integration stage resolves imports, dependencies, interface mismatches, and compiles the project",
+            "integration stage resolves imports, dependencies, interface mismatches, and owns the compile-fix loop",
             "save /designs/coder_skeleton_plan.json and /designs/coder_page_tasks.json before page implementation begins",
             "save /logs/coder/page_worker_results.json and /logs/coder/integration_report.json before returning",
         ],

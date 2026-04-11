@@ -18,52 +18,11 @@ class CoderPipelineTests(unittest.TestCase):
                 skeleton_payload = {
                     "project_name": "calculator_app",
                     "app_display_name": "计算器",
-                    "route_table": [
-                        {
-                            "page_name": "Index",
-                            "route": "pages/Index",
-                            "page_file": "/projects/calculator_app/entry/src/main/ets/pages/Index.ets",
-                        },
-                        {
-                            "page_name": "History",
-                            "route": "pages/History",
-                            "page_file": "/projects/calculator_app/entry/src/main/ets/pages/History.ets",
-                        },
-                    ],
-                    "shared_data_models": [
-                        {
-                            "field": "expression",
-                            "type": "string",
-                            "description": "当前表达式",
-                        }
-                    ],
-                    "shared_components": [
-                        {
-                            "name": "AppHeader",
-                            "file_path": "/projects/calculator_app/entry/src/main/ets/common/components/AppHeader.ets",
-                            "description": "通用头部",
-                        }
-                    ],
-                    "public_interfaces": [
-                        {
-                            "name": "CalculatorService",
-                            "file_path": "/projects/calculator_app/entry/src/main/ets/common/services/CalculatorService.ets",
-                            "description": "计算服务接口",
-                        }
-                    ],
-                    "state_management": {
-                        "store_name": "CalculatorStore",
-                        "file_path": "/projects/calculator_app/entry/src/main/ets/common/store/CalculatorStore.ets",
-                        "responsibilities": "管理表达式与结果状态",
-                        "exposed_state": ["expression", "result"],
-                        "exposed_actions": ["setExpression", "setResult", "clearAll"],
-                    },
                     "page_tasks": [
                         {
                             "page_name": "Index",
                             "route": "pages/Index",
                             "page_file": "/projects/calculator_app/entry/src/main/ets/pages/Index.ets",
-                            "component_files": [],
                             "allowed_write_paths": ["/projects/calculator_app/entry/src/main/ets/pages/Index.ets"],
                             "shared_dependencies": ["AppHeader", "CalculatorStore"],
                             "responsibilities": "主计算页面",
@@ -73,7 +32,6 @@ class CoderPipelineTests(unittest.TestCase):
                             "page_name": "History",
                             "route": "pages/History",
                             "page_file": "/projects/calculator_app/entry/src/main/ets/pages/History.ets",
-                            "component_files": [],
                             "allowed_write_paths": ["/projects/calculator_app/entry/src/main/ets/pages/History.ets"],
                             "shared_dependencies": ["AppHeader", "CalculatorStore"],
                             "responsibilities": "历史记录页面",
@@ -94,8 +52,6 @@ class CoderPipelineTests(unittest.TestCase):
 
                 project_dir = workspace / "projects" / "calculator_app"
                 self.assertTrue((project_dir / "entry/src/main/ets/pages/History.ets").exists())
-                self.assertTrue((project_dir / "entry/src/main/ets/common/store/CalculatorStore.ets").exists())
-                self.assertTrue((project_dir / "entry/src/main/ets/common/components/AppHeader.ets").exists())
                 main_pages_path = project_dir / "entry/src/main/resources/base/profile/main_pages.json"
                 self.assertTrue(main_pages_path.exists())
                 main_pages = json.loads(main_pages_path.read_text(encoding="utf-8"))
