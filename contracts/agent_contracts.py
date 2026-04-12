@@ -60,11 +60,11 @@ class SubagentDefinition(BaseModel):
 
 ARCHITECT_DEFINITION = SubagentDefinition(
     name="architect",
-    description="Read materialized architect inputs and return structured architecture JSON.",
+    description="Read materialized architect inputs and save architecture design to /designs/architect.json.",
     owned_task_types=["architecture"],
     required_inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
-    primary_outputs=["ArchitectOutput"],
-    structured_output_schema="ArchitectOutput",
+    primary_outputs=["/designs/architect.json"],
+    structured_output_schema=None,
 )
 
 
@@ -74,7 +74,6 @@ CODER_DEFINITION = SubagentDefinition(
     owned_task_types=["implementation", "fix_from_test"],
     required_inputs=["/designs/architect.json"],
     primary_outputs=[
-        "/designs/coder_skeleton_plan.json",
         "/designs/coder_page_tasks.json",
         "/logs/coder/page_worker_results.json",
         "/logs/coder/integration_report.json",
@@ -97,12 +96,11 @@ ARCHITECT_DISPATCH_CONTRACT = DispatchContract(
     task_type="architecture",
     trigger="new_user_input_ready",
     inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
-    required_outputs=["/designs/architect_image_facts.json", "ArchitectOutput"],
+    required_outputs=["/designs/architect_image_facts.json", "/designs/architect.json"],
     done_criteria=[
         "build /designs/architect_image_facts.json from per-image grounded facts before final aggregation",
-        "return valid JSON matching ArchitectOutput",
+        "save final design to /designs/architect.json",
         "aggregate final design from metadata and image facts bundle instead of feeding all raw images into the final generation step",
-        "orchestration persists /designs/architect.json after receiving ArchitectOutput",
     ],
     fallback=[
         FallbackRule(condition="missing critical inputs", action="need_human_guidance"),
@@ -119,7 +117,6 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
             inputs=[
                 "/designs/architect.json",
                 "/logs/tester/latest_tester_report.json",
-                "/designs/coder_skeleton_plan.json",
                 "/designs/coder_page_tasks.json",
             ],
             required_outputs=[
@@ -144,7 +141,6 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
         trigger="architect_design_ready",
         inputs=["/designs/architect.json"],
         required_outputs=[
-            "/designs/coder_skeleton_plan.json",
             "/designs/coder_page_tasks.json",
             "/logs/coder/page_worker_results.json",
             "/logs/coder/integration_report.json",
@@ -153,7 +149,7 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
             "skeleton stage owns project bootstrap, page registration, and page-task planning",
             "page implementation stage dispatches page workers from /designs/coder_page_tasks.json",
             "integration stage resolves imports, dependencies, interface mismatches, and owns the compile-fix loop",
-            "save /designs/coder_skeleton_plan.json and /designs/coder_page_tasks.json before page implementation begins",
+            "save /designs/coder_page_tasks.json before page implementation begins",
             "save /logs/coder/page_worker_results.json and /logs/coder/integration_report.json before returning",
         ],
         fallback=[

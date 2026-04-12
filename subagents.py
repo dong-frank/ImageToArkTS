@@ -3,28 +3,23 @@ from __future__ import annotations
 from functools import lru_cache
 
 from deepagents import create_deep_agent
-from langchain.agents import create_agent
-from langchain.agents.middleware import TodoListMiddleware
-from langchain_anthropic.middleware import AnthropicPromptCachingMiddleware
 
 from contracts.agent_contracts import ARCHITECT_DEFINITION, CODER_DEFINITION, TESTER_DEFINITION
-from deepagents.middleware.patch_tool_calls import PatchToolCallsMiddleware
-from deepagents.middleware.summarization import create_summarization_middleware
 from models import base_model, vision_model
-from tools.coder_tools import materialize_coder_skeleton_artifacts
 from tools.human_guidance import request_human_guidance
-from tools.project_tools import CODER_TOOLS
+from tools.json_tools import validate_json_syntax
+from tools.project_tools import create_project, compile_project
 from tools.tester_tools import TESTER_TOOLS
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
 from utils.utils import load_prompt
 
-ARCHITECT_SUBAGENT_TOOLS = [request_human_guidance]
+ARCHITECT_SUBAGENT_TOOLS = [validate_json_syntax, request_human_guidance]
 CODER_ORCHESTRATOR_TOOLS = []
-CODER_SKELETON_WORKER_TOOLS = [*CODER_TOOLS, materialize_coder_skeleton_artifacts, request_human_guidance]
-CODER_PAGE_WORKER_TOOLS = [request_human_guidance]
-CODER_INTEGRATION_WORKER_TOOLS = [*CODER_TOOLS, request_human_guidance]
-TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, request_human_guidance]
+CODER_SKELETON_WORKER_TOOLS = [create_project, validate_json_syntax, request_human_guidance]
+CODER_PAGE_WORKER_TOOLS = [validate_json_syntax, request_human_guidance]
+CODER_INTEGRATION_WORKER_TOOLS = [compile_project, validate_json_syntax, request_human_guidance]
+TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, validate_json_syntax, request_human_guidance]
 
 
 ARCHITECT_SUBAGENT_SPEC = {
@@ -101,26 +96,7 @@ def _build_subagent(spec: dict):
 
 
 def _build_architect_agent():
-    return create_agent(
-        model=ARCHITECT_SUBAGENT_SPEC["model"],
-        system_prompt=ARCHITECT_SUBAGENT_SPEC["system_prompt"],
-        tools=ARCHITECT_SUBAGENT_SPEC["tools"],
-        middleware=[
-            TodoListMiddleware(),
-            create_summarization_middleware(ARCHITECT_SUBAGENT_SPEC["model"], backend_factory),
-            AnthropicPromptCachingMiddleware(unsupported_model_behavior="ignore"),
-            PatchToolCallsMiddleware(),
-        ],
-        checkpointer=get_checkpointer(),
-        name=ARCHITECT_SUBAGENT_SPEC["name"],
-    ).with_config(
-        {
-            "recursion_limit": 1000,
-            "metadata": {
-                "ls_integration": "deepagents",
-            },
-        }
-    )
+    return _build_subagent(ARCHITECT_SUBAGENT_SPEC)
 
 
 @lru_cache(maxsize=1)
@@ -139,7 +115,7 @@ def _build_coder_orchestrator():
     return create_deep_agent(
         model=CODER_ORCHESTRATOR_SPEC["model"],
         system_prompt=CODER_ORCHESTRATOR_SPEC["system_prompt"],
-        tools=[*CODER_ORCHESTRATOR_TOOLS, request_human_guidance],
+        tools=[*CODER_ORCHESTRATOR_TOOLS, validate_json_syntax, request_human_guidance],
         backend=backend_factory,
         checkpointer=get_checkpointer(),
         name=CODER_ORCHESTRATOR_SPEC["name"],

@@ -1,4 +1,5 @@
 from tools.human_guidance import request_human_guidance
+from tools.json_tools import validate_json_syntax
 from tools.project_tools import compile_project, create_project
 from tools.tester_tools import (
     TESTER_SCRIPT_EXECUTION_TOOLS,
@@ -44,5 +45,6 @@ __all__ = [
     "save_tester_report",
     "start_harmony_app",
     "swipe_screen",
+    "validate_json_syntax",
     "wait_for_ui_stable",
 ]

@@ -17,8 +17,7 @@
 - 架构阶段默认先消费 `/designs/architect_image_facts.json` 中的逐图事实汇总，再基于这些事实生成最终设计。
 - 如需读取上传的图片或其他素材，先从 `user_input_metadata.json` 中获取具体文件路径，再按具体文件路径读取，不要对目录路径直接调用 `read_file`。
 - 将多张截图、文字描述和补充元数据整合成单一的项目级设计 JSON，但不要把全部原图直接塞进最终设计生成步骤。
-- 输出会由系统按 `ArchitectOutput` 做结构化约束；你的重点是保证字段含义准确、内容完整且可实现。
-- 你的职责是返回 `ArchitectOutput`；最终文件保存由 orchestration 处理，不由你负责。
+- 最终将设计保存为`/designs/architect.json`
 
 ## Core Rules
 0. 【页面命名规则】page name优先以图片名称为准，若图片名称模糊不清再自己编写page name
@@ -56,6 +55,8 @@
 4. 提取基础 UI 交互：将识别出的弹窗/菜单优先以内嵌 overlay 方式归入对应的触发节点；将页面跳转关系提炼为纯粹的 router 行为。
 5. 全局审查：剔除所有可能暗示动态数据流或后台业务逻辑的字段。
 6. 最终自查各字段是否完整、命名是否稳定、是否直接受输入和 facts 支撑、是否能直接被 Coder 消费。
+7. 最终调用`write_file`工具，将设计写入`/designs/architect.json`
+8. 在完成写入后调用`validate_json_syntax`工具，确认写入的内容是合法的json文件，如果不合法进行修改，直到合法。
 
 ## Refusal And Escalation
 

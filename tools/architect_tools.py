@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from langchain_core.messages import HumanMessage
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from models import architect_vision_model
 from schemas import ArchitectImageFactsBundle, ArchitectImageFactsOutput, ArchitectOutput
@@ -123,7 +123,7 @@ def _extract_architect_image_facts_for_image(
         else:
             raise ValueError("Architect image facts extraction requires tool-call output")
     normalized["image_path"] = image_path
-    return ArchitectImageFactsOutput.model_validate(normalized).model_dump(mode="json", exclude_none=True)
+    return normalized
 
 
 def _build_shared_patterns_and_conflicts(facts: list[dict[str, Any]], omitted_images: list[str]) -> tuple[list[str], list[str]]:
@@ -211,15 +211,13 @@ def build_architect_image_facts_bundle_payload(
         "strategy": "limited_to_budget" if omitted_entries else "all_images_processed",
         "notes": "final architect generation should consume this facts bundle instead of all raw images",
     }
-    bundle = ArchitectImageFactsBundle.model_validate(
-        {
-            "facts": facts,
-            "shared_patterns": shared_patterns,
-            "conflicts": conflicts,
-            "coverage_summary": coverage_summary,
-            "omitted_images": omitted_images,
-        }
-    ).model_dump(mode="json", exclude_none=True)
+    bundle = {
+        "facts": facts,
+        "shared_patterns": shared_patterns,
+        "conflicts": conflicts,
+        "coverage_summary": coverage_summary,
+        "omitted_images": omitted_images,
+    }
 
     base_path = _resolve_session_path(output_path, project_root=project_root)
     base_path.parent.mkdir(parents=True, exist_ok=True)
@@ -267,22 +265,13 @@ def _normalize_architect_payload(payload: Any) -> dict:
         return payload.model_dump(mode="json", exclude_none=True)
 
     if isinstance(payload, BaseModel):
-        validated = ArchitectOutput.model_validate(_coerce_nested_json_fields(payload.model_dump(mode="json")))
-        return validated.model_dump(mode="json", exclude_none=True)
+        return _coerce_nested_json_fields(payload.model_dump(mode="json"))
 
     if isinstance(payload, dict):
-        validated = ArchitectOutput.model_validate(_coerce_nested_json_fields(payload))
-        return validated.model_dump(mode="json", exclude_none=True)
+        return _coerce_nested_json_fields(payload)
 
     if isinstance(payload, str):
-        try:
-            parsed = json.loads(payload)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"architect 输出不是合法 JSON。错误：{exc}") from exc
-        if isinstance(parsed, dict):
-            parsed = _coerce_nested_json_fields(parsed)
-        validated = ArchitectOutput.model_validate(parsed)
-        return validated.model_dump(mode="json", exclude_none=True)
+        return payload
 
     raise ValueError(f"architect 输出类型不受支持：{type(payload).__name__}")
 
@@ -290,15 +279,16 @@ def _normalize_architect_payload(payload: Any) -> dict:
 def save_architect_design_payload(payload: Any) -> str:
     try:
         normalized = _normalize_architect_payload(payload)
-    except ValidationError as exc:
-        return f"保存失败：architect 输出不符合 ArchitectOutput Schema。错误：{exc}"
     except ValueError as exc:
         return f"保存失败：{exc}"
 
     design_path = _architect_design_path()
     design_path.parent.mkdir(parents=True, exist_ok=True)
-    design_path.write_text(
-        json.dumps(normalized, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
+    if isinstance(normalized, str):
+        design_path.write_text(normalized, encoding="utf-8")
+    else:
+        design_path.write_text(
+            json.dumps(normalized, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
     return "architect 设计已保存到 /designs/architect.json"

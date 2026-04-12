@@ -53,7 +53,6 @@
 
 - 该工具会向 Architect 发送固定的架构阶段契约。
 - Architect 只返回 `ArchitectOutput` 结构化结果。
-- 该工具会在 Architect 返回后将结果保存到 `/designs/architect.json`。
 
 ### Coder Stage
 

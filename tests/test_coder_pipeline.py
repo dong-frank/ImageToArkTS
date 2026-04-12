@@ -6,7 +6,7 @@ from pathlib import Path
 
 class CoderPipelineTests(unittest.TestCase):
     def test_materialize_coder_skeleton_creates_artifacts(self) -> None:
-        from tools.coder_tools import materialize_coder_skeleton, save_coder_skeleton_plan_payload
+        from tools.coder_tools import materialize_coder_skeleton
         from utils.session_context import reset_current_session_id, set_current_session_id
         from utils.session_workspace import session_workspace_dir
 
@@ -40,33 +40,18 @@ class CoderPipelineTests(unittest.TestCase):
                     ],
                 }
 
-                save_coder_skeleton_plan_payload(skeleton_payload, project_root=project_root)
                 result = materialize_coder_skeleton(skeleton_payload, project_root=project_root)
 
                 self.assertIn("status: SUCCESS", result)
+                self.assertIn("route_count: 2", result)
+                self.assertIn("page_task_count: 2", result)
                 workspace = session_workspace_dir(project_root, session_id)
                 self.assertTrue((workspace / "designs" / "coder_page_tasks.json").exists())
 
                 page_tasks = json.loads((workspace / "designs" / "coder_page_tasks.json").read_text(encoding="utf-8"))
                 self.assertEqual(len(page_tasks["tasks"]), 2)
-
-                project_dir = workspace / "projects" / "calculator_app"
-                self.assertTrue((project_dir / "entry/src/main/ets/pages/History.ets").exists())
-                main_pages_path = project_dir / "entry/src/main/resources/base/profile/main_pages.json"
-                self.assertTrue(main_pages_path.exists())
-                main_pages = json.loads(main_pages_path.read_text(encoding="utf-8"))
-                self.assertEqual(main_pages["src"], ["pages/Index", "pages/History"])
-
-                index_page_text = (project_dir / "entry/src/main/ets/pages/Index.ets").read_text(encoding="utf-8")
-                history_page_text = (project_dir / "entry/src/main/ets/pages/History.ets").read_text(encoding="utf-8")
-                self.assertIn("BottomNavBar", index_page_text)
-                self.assertIn("BottomNavBar", history_page_text)
-
-                navigation_service_path = project_dir / "entry/src/main/ets/common/services/NavigationService.ets"
-                bottom_nav_path = project_dir / "entry/src/main/ets/common/components/BottomNavBar.ets"
-                self.assertTrue(navigation_service_path.exists())
-                self.assertTrue(bottom_nav_path.exists())
-                self.assertIn("routeFor", navigation_service_path.read_text(encoding="utf-8"))
+                self.assertEqual(page_tasks["tasks"][0]["route"], "pages/Index")
+                self.assertEqual(page_tasks["tasks"][1]["route"], "pages/History")
             finally:
                 reset_current_session_id(token)
 
@@ -117,6 +102,47 @@ class CoderPipelineTests(unittest.TestCase):
                 self.assertEqual(history[0]["error_signature"], "missing-import")
                 self.assertEqual(trace["project_name"], "calculator_app")
                 self.assertEqual(trace["attempts"][0]["compile_status"], "FAILED")
+            finally:
+                reset_current_session_id(token)
+
+    def test_load_coder_page_task_bundle_payload_accepts_legacy_page_tasks_shape(self) -> None:
+        from tools.coder_tools import load_coder_page_task_bundle_payload
+        from utils.session_context import reset_current_session_id, set_current_session_id
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            project_root = Path(tmpdir)
+            token = set_current_session_id("session-page-task-compat")
+            try:
+                workspace = project_root / "agent_workspace" / "sessions" / "session-page-task-compat"
+                task_file = workspace / "designs" / "coder_page_tasks.json"
+                task_file.parent.mkdir(parents=True, exist_ok=True)
+                task_file.write_text(
+                    json.dumps(
+                        {
+                            "project_name": "calculator_app",
+                            "page_tasks": [
+                                {
+                                    "page_name": "Index",
+                                    "route": "pages/Index",
+                                    "page_file": "/projects/calculator_app/entry/src/main/ets/pages/Index.ets",
+                                    "allowed_write_paths": [
+                                        "/projects/calculator_app/entry/src/main/ets/pages/Index.ets"
+                                    ],
+                                    "responsibilities": "主页面",
+                                }
+                            ],
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                    encoding="utf-8",
+                )
+
+                payload = load_coder_page_task_bundle_payload(project_root=project_root)
+
+                self.assertEqual(payload["project_name"], "calculator_app")
+                self.assertEqual(len(payload["tasks"]), 1)
+                self.assertEqual(payload["tasks"][0]["page_name"], "Index")
             finally:
                 reset_current_session_id(token)
 

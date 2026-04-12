@@ -12,12 +12,13 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("task_type: architecture", description)
         self.assertIn("- /user_input/user_input_metadata.json", description)
         self.assertIn("- /designs/architect_image_facts.json", description)
-        self.assertIn("- ArchitectOutput", description)
+        self.assertIn("- /designs/architect.json", description)
         self.assertNotIn("- /user_input/description.md", description)
         self.assertNotIn("- /user_input_metadata.json", description)
         self.assertNotIn("\n- /user_input\n", f"\n{description}\n")
         self.assertIn("build /designs/architect_image_facts.json", description)
-        self.assertIn("orchestration persists /designs/architect.json", description)
+        self.assertIn("save final design to /designs/architect.json", description)
+        self.assertNotIn("orchestration persists /designs/architect.json", description)
         self.assertNotIn("帮我实现", description)
 
     def test_tester_dispatch_contract_requires_test_description(self) -> None:
@@ -39,7 +40,7 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("task_type: fix_from_test", description)
         self.assertIn("- /logs/tester/latest_tester_report.json", description)
         self.assertIn("need_human_guidance", description)
-        self.assertIn("- /designs/coder_skeleton_plan.json", description)
+        self.assertIn("- /designs/coder_page_tasks.json", description)
         self.assertIn("- /logs/coder/integration_report.json", description)
 
     def test_coder_implementation_dispatch_contract_mentions_three_stages(self) -> None:
@@ -47,7 +48,6 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         description = build_coder_dispatch_description(task_type="implementation")
 
-        self.assertIn("- /designs/coder_skeleton_plan.json", description)
         self.assertIn("- /designs/coder_page_tasks.json", description)
         self.assertIn("- /logs/coder/page_worker_results.json", description)
         self.assertIn("- /logs/coder/integration_report.json", description)
@@ -63,7 +63,7 @@ class RoutingToolsContractTests(unittest.TestCase):
         description = build_coder_integration_dispatch_description(task_type="implementation")
 
         self.assertIn("task_type: implementation", description)
-        self.assertIn("- /designs/coder_skeleton_plan.json", description)
+        self.assertIn("- /designs/coder_page_tasks.json", description)
         self.assertIn("- /logs/coder/page_worker_results.json", description)
         self.assertIn("compile-fix loop", description)
         self.assertNotIn("/designs/architect.json", description)
@@ -113,27 +113,48 @@ class RoutingToolsContractTests(unittest.TestCase):
         }
 
         with (
-            unittest.mock.patch("tools.routing_tools.invoke_architect_aggregator") as invoke_architect_aggregator,
-            unittest.mock.patch("tools.routing_tools.save_architect_design_payload") as save_payload,
+            unittest.mock.patch("tools.routing_tools.get_architect_agent", return_value=Mock()),
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
             unittest.mock.patch("tools.routing_tools.build_architect_image_facts_bundle_payload") as build_facts,
-            unittest.mock.patch("tools.routing_tools.load_architect_materialized_inputs") as load_inputs,
         ):
-            invoke_architect_aggregator.return_value = structured
-            save_payload.return_value = "architect 设计已保存到 /designs/architect.json"
+            invoke_subagent.return_value = {"messages": [Mock(text=json.dumps(structured, ensure_ascii=False))]}
             build_facts.return_value = "status: SUCCESS"
-            load_inputs.return_value = (
-                {"files": {"a.png": {"path": "/user_input/a.png"}}},
-                {"facts": [], "shared_patterns": [], "conflicts": [], "coverage_summary": {"total_image_count": 0, "processed_image_count": 0, "omitted_image_count": 0, "failed_image_count": 0, "strategy": "all_images_processed"}, "omitted_images": []},
-            )
 
             command = dispatch_architect.func(runtime=runtime)
 
         build_facts.assert_called_once()
-        save_payload.assert_called_once_with(structured)
         tool_message = command.update["messages"][0]
         self.assertIn('"project_name": "calculator_app"', tool_message.content)
 
-    def test_dispatch_architect_requires_tool_output(self) -> None:
+    def test_dispatch_architect_reads_materialized_inputs_in_runtime_thread_session(self) -> None:
+        from tools.routing_tools import dispatch_architect
+        from utils.session_context import get_current_session_id, reset_current_session_id, set_current_session_id
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-architect-session"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-architect-123"}}
+
+        observed_sessions: list[str] = []
+        structured = {"project_name": "demo_app", "app_display_name": "演示", "pages": []}
+        outer_token = set_current_session_id("another-session")
+        try:
+            def _build_facts():
+                observed_sessions.append(get_current_session_id())
+                return "status: SUCCESS"
+
+            with (
+                unittest.mock.patch("tools.routing_tools.build_architect_image_facts_bundle_payload", side_effect=_build_facts),
+                unittest.mock.patch("tools.routing_tools.get_architect_agent", return_value=Mock()),
+                unittest.mock.patch("tools.routing_tools._invoke_subagent", return_value={"messages": [Mock(text=json.dumps(structured, ensure_ascii=False))]}),
+            ):
+                dispatch_architect.func(runtime=runtime)
+        finally:
+            reset_current_session_id(outer_token)
+
+        self.assertEqual(observed_sessions, ["session-architect-123"])
+
+    def test_dispatch_architect_does_not_save_subagent_output(self) -> None:
         from tools.routing_tools import dispatch_architect
 
         runtime = Mock()
@@ -142,19 +163,16 @@ class RoutingToolsContractTests(unittest.TestCase):
         runtime.config = {"configurable": {"thread_id": "session-123"}}
 
         with (
-            unittest.mock.patch("tools.routing_tools.invoke_architect_aggregator") as invoke_architect_aggregator,
+            unittest.mock.patch("tools.routing_tools.get_architect_agent", return_value=Mock()),
+            unittest.mock.patch("tools.routing_tools._invoke_subagent") as invoke_subagent,
             unittest.mock.patch("tools.routing_tools.build_architect_image_facts_bundle_payload") as build_facts,
-            unittest.mock.patch("tools.routing_tools.load_architect_materialized_inputs") as load_inputs,
         ):
-            invoke_architect_aggregator.side_effect = ValueError("Architect dispatch requires tool-call output from ArchitectOutput")
+            invoke_subagent.return_value = {"messages": [Mock(text="not-json")]}
             build_facts.return_value = "status: SUCCESS"
-            load_inputs.return_value = (
-                {"files": {}},
-                {"facts": [], "shared_patterns": [], "conflicts": [], "coverage_summary": {"total_image_count": 0, "processed_image_count": 0, "omitted_image_count": 0, "failed_image_count": 0, "strategy": "all_images_processed"}, "omitted_images": []},
-            )
 
-            with self.assertRaisesRegex(ValueError, "tool-call output"):
-                dispatch_architect.func(runtime=runtime)
+            command = dispatch_architect.func(runtime=runtime)
+
+        self.assertIn("not-json", command.update["messages"][0].content)
 
     def test_invoke_architect_aggregator_extracts_tool_args(self) -> None:
         from tools.routing_tools import invoke_architect_aggregator
@@ -208,8 +226,9 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         self.assertIn("/user_input/user_input_metadata.json", prompt)
         self.assertIn("/designs/architect_image_facts.json", prompt)
-        self.assertIn("Calculator", prompt)
-        self.assertIn("display and keypad", prompt)
+        self.assertIn("Read the required input files yourself", prompt)
+        self.assertNotIn("Calculator", prompt)
+        self.assertNotIn("display and keypad", prompt)
 
     def test_page_task_prompt_includes_required_skill_brief(self) -> None:
         from tools.routing_tools import _build_page_task_prompt
@@ -221,13 +240,17 @@ class RoutingToolsContractTests(unittest.TestCase):
             task_type="implementation",
         )
 
-        self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("Read required skills yourself before coding:", prompt)
         self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
         self.assertIn("/skills/harmony-next/SKILL.md", prompt)
         self.assertIn("Skill usage is mandatory before code generation", prompt)
-        self.assertIn("Materialized input: execution priority", prompt)
+        self.assertIn("Execution priority:", prompt)
         self.assertIn("Reconstruct the UI as faithfully as possible", prompt)
+        self.assertIn("target_page_name: Index", prompt)
+        self.assertIn("/designs/coder_page_tasks.json", prompt)
+        self.assertIn("/designs/architect.json", prompt)
+        self.assertNotIn("/designs/coder_skeleton_plan.json", prompt)
+        self.assertNotIn('/projects/demo/entry/src/main/ets/pages/Index.ets', prompt)
 
     def test_run_single_page_worker_formats_worker_summary_into_structured_result(self) -> None:
         from tools.routing_tools import _run_single_page_worker
@@ -273,8 +296,28 @@ class RoutingToolsContractTests(unittest.TestCase):
             )
 
         self.assertEqual(result["status"], "done")
-        self.assertEqual(result["modified_files"], ["/projects/demo/entry/src/main/ets/pages/Index.ets"])
+        self.assertEqual(result["modified_files"], [])
         formatter.assert_called_once()
+        _, formatter_kwargs = formatter.call_args
+        self.assertEqual(formatter_kwargs["modified_files"], ["/projects/demo/entry/src/main/ets/pages/Index.ets"])
+
+    def test_select_page_tasks_accepts_legacy_page_tasks_field(self) -> None:
+        from tools.routing_tools import _select_page_tasks
+
+        selected = _select_page_tasks(
+            {
+                "project_name": "demo",
+                "page_tasks": [
+                    {
+                        "page_name": "Index",
+                        "route": "pages/Index",
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0]["page_name"], "Index")
 
     def test_integration_prompt_includes_required_skill_brief(self) -> None:
         from tools.routing_tools import _build_integration_prompt
@@ -285,14 +328,13 @@ class RoutingToolsContractTests(unittest.TestCase):
             page_results_payload={"results": []},
         )
 
-        self.assertIn("Materialized input: required skill brief", prompt)
+        self.assertIn("Read required skills yourself before fixing:", prompt)
         self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
         self.assertIn("/skills/harmony-next/SKILL.md", prompt)
         self.assertIn("Skill usage is mandatory before fixing ArkTS / ArkUI", prompt)
-        self.assertIn("Materialized input: execution priority", prompt)
+        self.assertIn("Execution priority:", prompt)
         self.assertIn("Preserve and stabilize UI fidelity first", prompt)
-        self.assertIn("/designs/coder_skeleton_plan.json", prompt)
+        self.assertIn("/designs/coder_page_tasks.json", prompt)
         self.assertIn("/logs/coder/page_worker_results.json", prompt)
         self.assertNotIn("/designs/architect.json", prompt)
 
@@ -364,6 +406,71 @@ class RoutingToolsContractTests(unittest.TestCase):
         called_agent = invoke_subagent.call_args.args[0]
         self.assertIs(called_agent, get_coder_orchestrator.return_value)
 
+    def test_dispatch_page_coder_tasks_reads_payloads_in_runtime_thread_session(self) -> None:
+        from tools.routing_tools import dispatch_page_coder_tasks
+        from utils.session_context import get_current_session_id, reset_current_session_id, set_current_session_id
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-page"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        outer_token = set_current_session_id("another-session")
+        observed_sessions: list[str] = []
+        try:
+            def _load_tasks():
+                observed_sessions.append(get_current_session_id())
+                return {"project_name": "demo", "tasks": [{"page_name": "Index"}]}
+
+            with (
+                unittest.mock.patch("tools.routing_tools.load_coder_page_task_bundle_payload", side_effect=_load_tasks),
+                unittest.mock.patch("tools.routing_tools.load_architect_design_payload", return_value={"pages": []}),
+                unittest.mock.patch("tools.routing_tools.dispatch_page_coders", return_value={"project_name": "demo", "results": []}),
+            ):
+                dispatch_page_coder_tasks.func(task_type="implementation", runtime=runtime)
+        finally:
+            reset_current_session_id(outer_token)
+
+        self.assertEqual(observed_sessions, ["session-123"])
+
+    def test_dispatch_page_coder_tasks_uses_tasks_array_from_task_bundle(self) -> None:
+        from tools.routing_tools import dispatch_page_coder_tasks
+
+        runtime = Mock()
+        runtime.tool_call_id = "tool-page"
+        runtime.state = {}
+        runtime.config = {"configurable": {"thread_id": "session-123"}}
+
+        task_bundle = {
+            "project_name": "demo",
+            "tasks": [
+                {
+                    "page_name": "TaskOnlyPage",
+                    "route": "pages/TaskOnlyPage",
+                    "page_file": "/projects/demo/entry/src/main/ets/pages/TaskOnlyPage.ets",
+                    "allowed_write_paths": ["/projects/demo/entry/src/main/ets/pages/TaskOnlyPage.ets"],
+                }
+            ],
+            "page_tasks": [
+                {
+                    "page_name": "LegacyPage",
+                    "route": "pages/LegacyPage",
+                    "page_file": "/projects/demo/entry/src/main/ets/pages/LegacyPage.ets",
+                    "allowed_write_paths": ["/projects/demo/entry/src/main/ets/pages/LegacyPage.ets"],
+                }
+            ],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.load_coder_page_task_bundle_payload", return_value=task_bundle),
+            unittest.mock.patch("tools.routing_tools.load_architect_design_payload", return_value={"pages": []}),
+            unittest.mock.patch("tools.routing_tools.dispatch_page_coders", return_value={"project_name": "demo", "results": []}) as dispatch_page_coders,
+        ):
+            dispatch_page_coder_tasks.func(task_type="implementation", runtime=runtime)
+
+        _, kwargs = dispatch_page_coders.call_args
+        self.assertEqual(kwargs["task_bundle"]["tasks"][0]["page_name"], "TaskOnlyPage")
+
     def test_dispatch_coder_skeleton_relies_on_worker_owned_bootstrap(self) -> None:
         from tools.routing_tools import dispatch_coder_skeleton
 
@@ -389,16 +496,15 @@ class RoutingToolsContractTests(unittest.TestCase):
         with (
             unittest.mock.patch("tools.routing_tools.load_architect_design_payload") as load_architect_design_payload,
             unittest.mock.patch("tools.routing_tools.run_coder_skeleton_stage") as run_coder_skeleton_stage,
-            unittest.mock.patch("tools.routing_tools.save_coder_skeleton_plan_payload") as save_coder_skeleton_plan_payload,
         ):
             load_architect_design_payload.return_value = {"project_name": "damai_app", "app_display_name": "大麦", "pages": []}
             run_coder_skeleton_stage.return_value = (skeleton_payload, "worker created project and registered pages")
 
             command = dispatch_coder_skeleton.func(task_type="implementation", runtime=runtime)
 
-        save_coder_skeleton_plan_payload.assert_called_once_with(skeleton_payload)
         self.assertIn('"project_name": "damai_app"', command.update["messages"][0].content)
         self.assertIn('"worker_execution_summary": "worker created project and registered pages"', command.update["messages"][0].content)
+        self.assertIn('"skeleton_plan_saved": false', command.update["messages"][0].content)
 
     def test_run_coder_skeleton_stage_invokes_subagent_then_formats(self) -> None:
         from tools.routing_tools import run_coder_skeleton_stage
@@ -624,10 +730,17 @@ class RoutingToolsContractTests(unittest.TestCase):
         )
 
         self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-coding-guardrails/references/common-guardrails.md", prompt)
-        self.assertIn("EntryAbility.loadContent", prompt)
+        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
+        self.assertIn("- /designs/coder_page_tasks.json", prompt)
+        self.assertIn("- /designs/architect.json", prompt)
+        self.assertIn("write /designs/coder_page_tasks.json yourself", prompt)
+        self.assertNotIn("materialize_coder_skeleton_artifacts", prompt)
+        self.assertNotIn("/logs/coder/page_worker_results.json", prompt)
+        self.assertNotIn("/logs/coder/integration_report.json", prompt)
+        self.assertNotIn("integration stage", prompt)
+        self.assertNotIn('"project_name": "damai_app"', prompt)
 
-    def test_invoke_coder_skeleton_planner_validates_required_fields_immediately(self) -> None:
+    def test_invoke_coder_skeleton_planner_allows_incomplete_page_tasks_without_revalidation(self) -> None:
         from tools.routing_tools import invoke_coder_skeleton_planner
 
         llm_response = Mock()
@@ -644,15 +757,16 @@ class RoutingToolsContractTests(unittest.TestCase):
             invoke_with_tool.return_value = llm_response
             extract_tool_call_args.return_value = incomplete
 
-            with self.assertRaisesRegex(ValueError, "page_tasks"):
-                invoke_coder_skeleton_planner(
-                    architect_payload={
-                        "project_name": "damai_app",
-                        "app_display_name": "大麦",
-                        "pages": [{"name": "Index", "responsibilities": "首页"}],
-                    },
-                    task_type="implementation",
-                )
+            result = invoke_coder_skeleton_planner(
+                architect_payload={
+                    "project_name": "damai_app",
+                    "app_display_name": "大麦",
+                    "pages": [{"name": "Index", "responsibilities": "首页"}],
+                },
+                task_type="implementation",
+            )
+
+        self.assertEqual(result["page_tasks"], [])
 
     def test_invoke_coder_skeleton_planner_accepts_minimal_page_task_only_payload(self) -> None:
         from tools.routing_tools import invoke_coder_skeleton_planner

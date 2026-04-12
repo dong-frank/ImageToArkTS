@@ -13,7 +13,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 from langchain.tools import tool
 from langchain_core.messages import HumanMessage
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from models import small_model, vision_model
 from schemas import TesterReportOutput
@@ -298,18 +298,15 @@ def _normalize_tester_report_payload(payload: Any) -> dict:
     if isinstance(payload, TesterReportOutput):
         return payload.model_dump(mode="json", exclude_none=True)
     if isinstance(payload, BaseModel):
-        validated = TesterReportOutput.model_validate(payload.model_dump(mode="json"))
-        return validated.model_dump(mode="json", exclude_none=True)
+        return payload.model_dump(mode="json", exclude_none=True)
     if isinstance(payload, dict):
-        validated = TesterReportOutput.model_validate(payload)
-        return validated.model_dump(mode="json", exclude_none=True)
+        return payload
     if isinstance(payload, str):
         text = str(payload or "").strip()
         if not text:
             raise ValueError("empty report content")
         parsed = json.loads(text)
-        validated = TesterReportOutput.model_validate(parsed)
-        return validated.model_dump(mode="json", exclude_none=True)
+        return parsed
     raise ValueError(f"tester report type not supported: {type(payload).__name__}")
 
 
@@ -323,8 +320,6 @@ def save_tester_report_payload(
         normalized = _normalize_tester_report_payload(payload)
     except json.JSONDecodeError as exc:
         return f"status: FAILED\nreason: tester report is not valid JSON: {exc}"
-    except ValidationError as exc:
-        return f"status: FAILED\nreason: tester report does not match TesterReportOutput schema: {exc}"
     except ValueError as exc:
         return f"status: FAILED\nreason: {exc}"
 

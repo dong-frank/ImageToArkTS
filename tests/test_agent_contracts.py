@@ -29,15 +29,15 @@ class AgentContractsTests(unittest.TestCase):
         self.assertEqual(CODER_DEFINITION.owned_task_types, ["implementation", "fix_from_test"])
         self.assertEqual(TESTER_DEFINITION.owned_task_types, ["validation"])
 
-    def test_architect_definition_has_structured_output_schema_name(self) -> None:
+    def test_architect_definition_does_not_require_structured_output_schema(self) -> None:
         from contracts.agent_contracts import ARCHITECT_DEFINITION
 
-        self.assertEqual(ARCHITECT_DEFINITION.structured_output_schema, "ArchitectOutput")
+        self.assertIsNone(ARCHITECT_DEFINITION.structured_output_schema)
 
-    def test_architect_definition_declares_image_facts_artifact(self) -> None:
+    def test_architect_definition_declares_architect_json_artifact(self) -> None:
         from contracts.agent_contracts import ARCHITECT_DEFINITION
 
-        self.assertEqual(ARCHITECT_DEFINITION.primary_outputs, ["ArchitectOutput"])
+        self.assertEqual(ARCHITECT_DEFINITION.primary_outputs, ["/designs/architect.json"])
 
     def test_architect_subagent_uses_non_vision_final_model(self) -> None:
         from models import base_model
@@ -49,7 +49,8 @@ class AgentContractsTests(unittest.TestCase):
         from subagents import ARCHITECT_SUBAGENT_TOOLS
 
         tool_names = [tool.name for tool in ARCHITECT_SUBAGENT_TOOLS]
-        self.assertEqual(tool_names, ["request_human_guidance"])
+        self.assertIn("request_human_guidance", tool_names)
+        self.assertIn("validate_json_syntax", tool_names)
         self.assertNotIn("save_architect_design", tool_names)
 
     def test_tester_definition_has_structured_output_schema_name(self) -> None:
@@ -63,7 +64,6 @@ class AgentContractsTests(unittest.TestCase):
         self.assertEqual(
             CODER_DEFINITION.primary_outputs,
             [
-                "/designs/coder_skeleton_plan.json",
                 "/designs/coder_page_tasks.json",
                 "/logs/coder/page_worker_results.json",
                 "/logs/coder/integration_report.json",
@@ -94,7 +94,28 @@ class AgentContractsTests(unittest.TestCase):
 
         tool_names = [tool.name for tool in CODER_SKELETON_WORKER_TOOLS]
         self.assertIn("create_project", tool_names)
-        self.assertIn("materialize_coder_skeleton_artifacts", tool_names)
+        self.assertIn("validate_json_syntax", tool_names)
+        self.assertNotIn("materialize_coder_skeleton_artifacts", tool_names)
+
+    def test_all_subagents_expose_json_validation_tool(self) -> None:
+        from subagents import (
+            ARCHITECT_SUBAGENT_TOOLS,
+            CODER_INTEGRATION_WORKER_TOOLS,
+            CODER_PAGE_WORKER_TOOLS,
+            CODER_SKELETON_WORKER_TOOLS,
+            TESTER_SUBAGENT_TOOLS,
+        )
+
+        tool_groups = [
+            ARCHITECT_SUBAGENT_TOOLS,
+            CODER_SKELETON_WORKER_TOOLS,
+            CODER_PAGE_WORKER_TOOLS,
+            CODER_INTEGRATION_WORKER_TOOLS,
+            TESTER_SUBAGENT_TOOLS,
+        ]
+
+        for tools in tool_groups:
+            self.assertIn("validate_json_syntax", [tool.name for tool in tools])
 
 
 if __name__ == "__main__":

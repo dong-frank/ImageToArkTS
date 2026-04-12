@@ -7,15 +7,11 @@ from pathlib import Path
 from typing import Any
 
 from langchain.tools import tool
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel
 
 from schemas import (
     CoderCompileFixAttempt,
     CoderCompileFixTrace,
-    CoderIntegrationReport,
-    CoderPageTaskBundle,
-    CoderPageWorkerResultBundle,
-    CoderSkeletonOutput,
 )
 from tools.common import PROJECT_ROOT, resolve_workspace_path, workspace_root
 from tools.project_tools import TEMPLATE_IGNORE_PATTERNS, TEMPLATE_PROJECT_DIR
@@ -26,10 +22,6 @@ def _resolve_session_path(raw_path: str, project_root: Path | None = None) -> Pa
     if project_root is None:
         return resolve_workspace_path(raw_path)
     return project_root / "agent_workspace" / "sessions" / get_current_session_id() / raw_path.lstrip("/")
-
-
-def _coder_skeleton_plan_path(project_root: Path | None = None) -> Path:
-    return _resolve_session_path("/designs/coder_skeleton_plan.json", project_root=project_root)
 
 
 def _coder_page_tasks_path(project_root: Path | None = None) -> Path:
@@ -67,50 +59,49 @@ def _ensure_parent(path: Path) -> Path:
     return path
 
 
-def _normalize_payload(payload: Any, model_type: type[BaseModel]) -> dict[str, Any]:
-    if isinstance(payload, model_type):
+def _coerce_payload(payload: Any) -> dict[str, Any]:
+    if isinstance(payload, BaseModel):
         return payload.model_dump(mode="json", exclude_none=True)
     if isinstance(payload, str):
         payload = json.loads(payload)
     if isinstance(payload, dict):
-        return model_type.model_validate(payload).model_dump(mode="json", exclude_none=True)
-    raise ValidationError.from_exception_data(model_type.__name__, [])
-
-
-def save_coder_skeleton_plan_payload(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderSkeletonOutput)
-    path = _ensure_parent(_coder_skeleton_plan_path(project_root=project_root))
-    path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
-    return f"coder skeleton plan saved to {path}"
+        return payload
+    raise ValueError(f"Unsupported payload type: {type(payload).__name__}")
 
 
 def save_coder_page_task_bundle_payload(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderPageTaskBundle)
+    normalized = _coerce_payload(payload)
     path = _ensure_parent(_coder_page_tasks_path(project_root=project_root))
     path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     return f"coder page task bundle saved to {path}"
 
 
 def save_coder_page_worker_results_payload(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderPageWorkerResultBundle)
+    normalized = _coerce_payload(payload)
     path = _ensure_parent(_coder_page_worker_results_path(project_root=project_root))
     path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     return f"coder page worker results saved to {path}"
 
 
 def save_coder_integration_report_payload(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderIntegrationReport)
+    normalized = _coerce_payload(payload)
     path = _ensure_parent(_coder_integration_report_path(project_root=project_root))
     path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     return f"coder integration report saved to {path}"
 
 
-def load_coder_skeleton_plan_payload(project_root: Path | None = None) -> dict[str, Any]:
-    return json.loads(_coder_skeleton_plan_path(project_root=project_root).read_text(encoding="utf-8"))
-
-
 def load_coder_page_task_bundle_payload(project_root: Path | None = None) -> dict[str, Any]:
-    return json.loads(_coder_page_tasks_path(project_root=project_root).read_text(encoding="utf-8"))
+    payload = json.loads(_coder_page_tasks_path(project_root=project_root).read_text(encoding="utf-8"))
+    if "tasks" in payload:
+        payload["tasks"] = list(payload.get("tasks") or [])
+    elif "page_tasks" in payload:
+        payload = {
+            **payload,
+            "tasks": list(payload.get("page_tasks") or []),
+        }
+    else:
+        payload["tasks"] = []
+    return payload
 
 
 def load_coder_page_worker_results_payload(project_root: Path | None = None) -> dict[str, Any]:
@@ -122,7 +113,7 @@ def load_coder_integration_report_payload(project_root: Path | None = None) -> d
 
 
 def append_coder_compile_fix_attempt(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderCompileFixAttempt)
+    normalized = _coerce_payload(payload)
     path = _ensure_parent(_coder_compile_fix_history_path(project_root=project_root))
     with path.open("a", encoding="utf-8") as fp:
         fp.write(json.dumps(normalized, ensure_ascii=False) + "\n")
@@ -130,7 +121,7 @@ def append_coder_compile_fix_attempt(payload: Any, project_root: Path | None = N
 
 
 def save_coder_compile_fix_trace_payload(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _normalize_payload(payload, CoderCompileFixTrace)
+    normalized = _coerce_payload(payload)
     path = _ensure_parent(_coder_latest_compile_fix_trace_path(project_root=project_root))
     path.write_text(json.dumps(normalized, ensure_ascii=False, indent=2), encoding="utf-8")
     return f"coder compile fix trace saved to {path}"
@@ -164,7 +155,7 @@ def build_coder_compile_fix_attempt_payload(
     resolved_in_next_attempt: bool | None = None,
     final_success: bool | None = None,
 ) -> dict[str, Any]:
-    payload = {
+    return {
         "attempt_index": attempt_index,
         "timestamp": datetime.now(timezone.utc).isoformat(timespec="milliseconds"),
         "task_type": task_type,
@@ -180,7 +171,6 @@ def build_coder_compile_fix_attempt_payload(
         "resolved_in_next_attempt": resolved_in_next_attempt,
         "final_success": final_success,
     }
-    return CoderCompileFixAttempt.model_validate(payload).model_dump(mode="json", exclude_none=True)
 
 
 def _copy_template_project(project_name: str, project_root: Path | None = None) -> Path:
@@ -398,25 +388,6 @@ def _render_data_model_file(models: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def _ensure_navigation_scaffold_payload(normalized: dict[str, Any]) -> dict[str, Any]:
-    payload = dict(normalized)
-    page_tasks = list(payload.get("page_tasks") or [])
-    if len(page_tasks) <= 1:
-        return payload
-
-    normalized_tasks = []
-    for task in page_tasks:
-        item = dict(task)
-        dependencies = list(item.get("shared_dependencies") or [])
-        for dependency in ("BottomNavBar", "NavigationService"):
-            if dependency not in dependencies:
-                dependencies.append(dependency)
-        item["shared_dependencies"] = dependencies
-        normalized_tasks.append(item)
-    payload["page_tasks"] = normalized_tasks
-    return payload
-
-
 def _route_table_from_page_tasks(page_tasks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     route_table: list[dict[str, Any]] = []
     for task in page_tasks:
@@ -431,50 +402,13 @@ def _route_table_from_page_tasks(page_tasks: list[dict[str, Any]]) -> list[dict[
 
 
 def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _ensure_navigation_scaffold_payload(_normalize_payload(payload, CoderSkeletonOutput))
+    normalized = _coerce_payload(payload)
     project_name = normalized["project_name"]
-    app_display_name = normalized["app_display_name"]
-    project_dir = _copy_template_project(project_name, project_root=project_root)
-    _update_app_strings(project_dir, app_display_name)
-
-    pages_dir = project_dir / "entry/src/main/ets/pages"
-    shared_components_dir = project_dir / "entry/src/main/ets/common/components"
-    shared_services_dir = project_dir / "entry/src/main/ets/common/services"
-    pages_dir.mkdir(parents=True, exist_ok=True)
-    shared_components_dir.mkdir(parents=True, exist_ok=True)
-    shared_services_dir.mkdir(parents=True, exist_ok=True)
-
     page_tasks = list(normalized.get("page_tasks") or [])
     route_table = _route_table_from_page_tasks(page_tasks)
-    route_entries: list[str] = []
-    include_navigation = len(page_tasks) > 1
-    for index, route_item in enumerate(route_table):
-        route = str(route_item.get("route") or f"pages/{route_item.get('page_name')}")
-        route_entries.append(route)
-        page_file_path = _resolve_session_path(str(route_item.get("page_file") or f"/projects/{project_name}/entry/src/main/ets/{route}.ets"), project_root=project_root)
-        page_name = str(route_item.get("page_name") or Path(route).name)
-        page_task = next(
-            (task for task in page_tasks if str(task.get("page_name")) == page_name),
-            {},
-        )
-        content = (
-            _render_entry_page(page_name, str(page_task.get("responsibilities") or ""), app_display_name, include_navigation=include_navigation)
-            if index == 0
-            else _render_page_placeholder(page_name, str(page_task.get("responsibilities") or ""), app_display_name, include_navigation=include_navigation)
-        )
-        _write_text(page_file_path, content)
-
-    main_pages_path = project_dir / "entry/src/main/resources/base/profile/main_pages.json"
-    _write_text(main_pages_path, json.dumps({"src": route_entries}, ensure_ascii=False, indent=2))
-
-    if include_navigation:
-        bottom_nav_target = project_dir / "entry/src/main/ets/common/components/BottomNavBar.ets"
-        navigation_service_target = project_dir / "entry/src/main/ets/common/services/NavigationService.ets"
-        _write_text(
-            bottom_nav_target,
-            _render_shared_component("BottomNavBar", "Shared bottom navigation scaffold for primary multi-page navigation."),
-        )
-        _write_text(navigation_service_target, _render_navigation_service(route_table))
+    route_entries: list[str] = [
+        str(route_item.get("route") or f"pages/{route_item.get('page_name')}") for route_item in route_table
+    ]
 
     page_task_bundle = {
         "project_name": project_name,

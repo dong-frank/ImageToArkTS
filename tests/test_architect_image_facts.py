@@ -4,8 +4,6 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from pydantic import ValidationError
-
 
 class ArchitectImageFactsTests(unittest.TestCase):
     def test_normalize_architect_payload_loads_nested_json_strings(self) -> None:
@@ -57,33 +55,34 @@ class ArchitectImageFactsTests(unittest.TestCase):
         self.assertIsInstance(normalized["navigation"], list)
         self.assertEqual(normalized["pages"][0]["root"]["children"][0]["text"], "大麦首页")
 
-    def test_normalize_architect_payload_rejects_business_fields(self) -> None:
+    def test_normalize_architect_payload_preserves_business_fields_without_revalidation(self) -> None:
         from tools.architect_tools import _normalize_architect_payload
 
-        with self.assertRaises(ValidationError):
-            _normalize_architect_payload(
-                {
-                    "project_name": "damai_app",
-                    "app_display_name": "大麦",
-                    "pages": [
-                        {
-                            "name": "Index",
-                            "summary": "展示首页",
-                            "root": {
-                                "id": "page_root",
-                                "component_type": "Column",
-                            },
-                        }
-                    ],
-                    "data_model": [
-                        {
-                            "field": "city",
-                            "type": "string",
-                            "description": "城市",
-                        }
-                    ],
-                }
-            )
+        normalized = _normalize_architect_payload(
+            {
+                "project_name": "damai_app",
+                "app_display_name": "大麦",
+                "pages": [
+                    {
+                        "name": "Index",
+                        "summary": "展示首页",
+                        "root": {
+                            "id": "page_root",
+                            "component_type": "Column",
+                        },
+                    }
+                ],
+                "data_model": [
+                    {
+                        "field": "city",
+                        "type": "string",
+                        "description": "城市",
+                    }
+                ],
+            }
+        )
+
+        self.assertIn("data_model", normalized)
 
     def test_normalize_architect_payload_accepts_recursive_overlay_tree(self) -> None:
         from tools.architect_tools import _normalize_architect_payload
