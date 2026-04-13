@@ -17,6 +17,11 @@ from tools.common import PROJECT_ROOT, resolve_workspace_path, workspace_root
 from tools.project_tools import TEMPLATE_IGNORE_PATTERNS, TEMPLATE_PROJECT_DIR
 from utils.session_context import get_current_session_id
 
+_LEGACY_PAGE_PREFIXES = (
+    "entry/src/main/ets/pages/",
+    "/entry/src/main/ets/pages/",
+)
+
 
 def _resolve_session_path(raw_path: str, project_root: Path | None = None) -> Path:
     if project_root is None:
@@ -67,6 +72,80 @@ def _coerce_payload(payload: Any) -> dict[str, Any]:
     if isinstance(payload, dict):
         return payload
     raise ValueError(f"Unsupported payload type: {type(payload).__name__}")
+
+
+def _default_uni_page_relative_path(page_name: str = "", route: str = "") -> str:
+    normalized_route = str(route or "").strip().replace("\\", "/").lstrip("/")
+    if normalized_route.startswith("pages/"):
+        return f"src/{normalized_route}.vue"
+
+    normalized_page_name = str(page_name or "").strip()
+    fallback_name = normalized_page_name or "Index"
+    return f"src/pages/{fallback_name}.vue"
+
+
+def normalize_project_page_path(project_name: str, raw_path: str, *, page_name: str = "", route: str = "") -> str:
+    raw = str(raw_path or "").strip().replace("\\", "/")
+    project_prefix = f"/projects/{project_name}/"
+
+    if not raw:
+        return f"/projects/{project_name}/{_default_uni_page_relative_path(page_name=page_name, route=route)}"
+
+    relative = raw
+    if raw.startswith(project_prefix):
+        relative = raw[len(project_prefix) :]
+    elif raw.startswith(f"/projects/{project_name}"):
+        relative = raw[len(f"/projects/{project_name}") :].lstrip("/")
+    elif raw.startswith("/projects/"):
+        return raw
+    elif raw.startswith("/"):
+        relative = raw.lstrip("/")
+
+    for legacy_prefix in _LEGACY_PAGE_PREFIXES:
+        if relative.startswith(legacy_prefix.lstrip("/")):
+            relative = "src/pages/" + relative[len(legacy_prefix.lstrip("/")) :]
+            break
+
+    if relative.startswith("src/pages/") or relative.startswith("src/views/"):
+        if relative.endswith(".ets"):
+            relative = relative[: -len(".ets")] + ".vue"
+        return f"/projects/{project_name}/{relative}"
+
+    if relative.endswith(".ets") and relative.startswith("pages/"):
+        relative = f"src/{relative[: -len('.ets')]}.vue"
+        return f"/projects/{project_name}/{relative}"
+
+    return f"/projects/{project_name}/{relative}"
+
+
+def normalize_page_task_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    project_name = str(normalized.get("project_name") or "").strip()
+    if not project_name:
+        return normalized
+
+    tasks = []
+    for task in normalized.get("page_tasks", []) or normalized.get("tasks", []) or []:
+        item = dict(task)
+        page_name = str(item.get("page_name") or "")
+        route = str(item.get("route") or "")
+        item["page_file"] = normalize_project_page_path(
+            project_name,
+            str(item.get("page_file") or ""),
+            page_name=page_name,
+            route=route,
+        )
+        item["allowed_write_paths"] = [
+            normalize_project_page_path(project_name, str(path), page_name=page_name, route=route)
+            for path in (item.get("allowed_write_paths") or [item["page_file"]])
+        ]
+        tasks.append(item)
+
+    if "page_tasks" in normalized:
+        normalized["page_tasks"] = tasks
+    if "tasks" in normalized:
+        normalized["tasks"] = tasks
+    return normalized
 
 
 def save_coder_page_task_bundle_payload(payload: Any, project_root: Path | None = None) -> str:
@@ -210,8 +289,8 @@ def _render_navigation_import_block(include_navigation: bool) -> str:
     if not include_navigation:
         return ""
     return (
-        "import { BottomNavBar } from '../common/components/BottomNavBar';\n"
-        "import { NavigationService } from '../common/services/NavigationService';\n\n"
+        "import AppTabBar from '../components/AppTabBar.vue';\n"
+        "import { usePageNavigation } from '../composables/usePageNavigation';\n\n"
     )
 
 
@@ -219,109 +298,144 @@ def _render_navigation_usage(page_name: str, include_navigation: bool) -> str:
     if not include_navigation:
         return ""
     return (
-        "      Blank()\n"
-        "      BottomNavBar({\n"
-        f"        currentPage: '{page_name}',\n"
-        "        tabs: NavigationService.primaryPageNames()\n"
-        "      })\n"
+        f"const navigation = usePageNavigation('{page_name}')\n"
     )
 
 
 def _render_page_placeholder(page_name: str, responsibilities: str, app_display_name: str, include_navigation: bool = False) -> str:
-    component_name = _page_component_name(page_name)
     title = responsibilities or f"{page_name} page"
-    return f"""{_render_navigation_import_block(include_navigation)}@Component
-struct {component_name} {{
-  build() {{
-    Column({{ space: 12 }}) {{
-      Text('{app_display_name}')
-        .fontSize(24)
-        .fontWeight(FontWeight.Bold)
-      Text('{title}')
-        .fontSize(16)
-        .fontColor('#666666')
-{_render_navigation_usage(page_name, include_navigation)}\
-    }}
-    .width('100%')
-    .height('100%')
-    .padding(16)
-    .justifyContent(FlexAlign.Start)
-  }}
+    navigation_setup = _render_navigation_usage(page_name, include_navigation)
+    return f"""<script setup>
+{_render_navigation_import_block(include_navigation)}definePageConfig({{
+  navigationBarTitleText: '{app_display_name}'
+}})
+{navigation_setup if include_navigation else ''}</script>
+
+<template>
+  <view class="page-shell">
+    <view class="page-copy">
+      <text class="page-title">{app_display_name}</text>
+      <text class="page-subtitle">{title}</text>
+    </view>
+    <AppTabBar
+      v-if="{str(include_navigation).lower()}"
+      :current-page="navigation.currentPage"
+      :tabs="navigation.tabs"
+    />
+  </view>
+</template>
+
+<style scoped>
+.page-shell {{
+  min-height: 100vh;
+  padding: 32rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  background: #f7f8fa;
 }}
+
+.page-copy {{
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}}
+
+.page-title {{
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #111827;
+}}
+
+.page-subtitle {{
+  font-size: 28rpx;
+  color: #6b7280;
+}}
+</style>
 """
 
 
 def _render_entry_page(page_name: str, responsibilities: str, app_display_name: str, include_navigation: bool = False) -> str:
-    component_name = _page_component_name(page_name)
-    title = responsibilities or f"{page_name} page"
-    return f"""{_render_navigation_import_block(include_navigation)}@Entry
-@Component
-struct {component_name} {{
-  build() {{
-    Column({{ space: 12 }}) {{
-      Text('{app_display_name}')
-        .fontSize(24)
-        .fontWeight(FontWeight.Bold)
-      Text('{title}')
-        .fontSize(16)
-        .fontColor('#666666')
-{_render_navigation_usage(page_name, include_navigation)}\
-    }}
-    .width('100%')
-    .height('100%')
-    .padding(16)
-    .justifyContent(FlexAlign.Start)
-  }}
-}}
-"""
+    return _render_page_placeholder(page_name, responsibilities, app_display_name, include_navigation=include_navigation)
 
 
 def _render_shared_component(name: str, description: str) -> str:
     component_name = _page_component_name(name)
     text = description or name
-    if component_name == "BottomNavBar":
-        return """@Component
-export struct BottomNavBar {
-  @Prop currentPage: string = '';
-  @Prop tabs: string[] = [];
-
-  build() {
-    Row({ space: 8 }) {
-      ForEach(this.tabs, (tab: string) => {
-        Text(tab)
-          .fontSize(14)
-          .fontWeight(this.currentPage === tab ? FontWeight.Bold : FontWeight.Regular)
-          .fontColor(this.currentPage === tab ? '#111111' : '#888888')
-      })
-    }
-    .width('100%')
-    .justifyContent(FlexAlign.SpaceAround)
-    .padding({ top: 12, bottom: 12 })
+    if component_name == "AppTabBar":
+        return """<script setup>
+defineProps({
+  currentPage: {
+    type: String,
+    default: ''
+  },
+  tabs: {
+    type: Array,
+    default: () => []
   }
+})
+</script>
+
+<template>
+  <view class="tab-bar">
+    <view
+      v-for="tab in tabs"
+      :key="tab.name"
+      class="tab-item"
+      :class="{ active: currentPage === tab.name }"
+    >
+      <text>{{ tab.label || tab.name }}</text>
+    </view>
+  </view>
+</template>
+
+<style scoped>
+.tab-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120rpx, 1fr));
+  gap: 16rpx;
+  padding: 16rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
 }
+
+.tab-item {
+  padding: 18rpx 12rpx;
+  text-align: center;
+  border-radius: 18rpx;
+  color: #6b7280;
+  background: #f3f4f6;
+}
+
+.tab-item.active {
+  color: #111827;
+  background: #dbeafe;
+  font-weight: 600;
+}
+</style>
 """
-    return f"""@Component
-export struct {component_name} {{
-  build() {{
-    Row() {{
-      Text('{text}')
-        .fontSize(18)
-        .fontWeight(FontWeight.Medium)
-    }}
-    .width('100%')
-  }}
+    return f"""<template>
+  <view class="{component_name.lower()}">
+    <text>{text}</text>
+  </view>
+</template>
+
+<style scoped>
+.{component_name.lower()} {{
+  width: 100%;
 }}
+</style>
 """
 
 
 def _render_service_interface(name: str, description: str) -> str:
     interface_name = _page_component_name(name)
     text = description or name
-    if interface_name == "NavigationService":
+    if interface_name == "UsePageNavigation":
         return _render_navigation_service([])
-    return f"""export class {interface_name} {{
-  summary(): string {{
-    return '{text}';
+    return f"""export function {interface_name[0].lower()}{interface_name[1:]}() {{
+  return {{
+    summary: '{text}'
   }}
 }}
 """
@@ -333,43 +447,42 @@ def _render_navigation_service(route_table: list[dict[str, Any]]) -> str:
     for tab in tabs:
         if tab not in unique_tabs:
             unique_tabs.append(tab)
-    tab_lines = ",\n".join(f"      '{tab}'" for tab in unique_tabs) or "      'Index'"
-    cases = "\n".join(
-        f"      case '{str(item.get('page_name') or '')}':\n        return '{str(item.get('route') or '')}';"
-        for item in route_table
-        if str(item.get("page_name") or "").strip() and str(item.get("route") or "").strip()
-    ) or "      default:\n        return 'pages/Index';"
-    return f"""export class NavigationService {{
-  static primaryPageNames(): string[] {{
-    return [
+    tab_lines = ",\n".join(
+        f"    {{ name: '{tab}', label: '{tab}', route: '{next((str(item.get('route') or '') for item in route_table if str(item.get('page_name') or '') == tab), f'pages/{tab}')}' }}"
+        for tab in unique_tabs
+    ) or "    { name: 'Index', label: 'Index', route: 'pages/Index' }"
+    return f"""const tabs = [
 {tab_lines}
-    ];
-  }}
+]
 
-  static routeFor(pageName: string): string {{
-    switch (pageName) {{
-{cases}
-      default:
-        return 'pages/Index';
-    }}
+export function usePageNavigation(currentPage = 'Index') {{
+  return {{
+    currentPage,
+    tabs
   }}
 }}
 """
 
 
 def _render_store_file(store_name: str, state: list[str], actions: list[str], responsibilities: str) -> str:
-    state_lines = "\n".join(f"  @State {name}: string = '';" for name in state) or "  @State status: string = '';"
+    state_lines = "\n".join(f"    {name}: ''" for name in state) or "    status: ''"
     action_lines = "\n".join(
-        f"  {action}(value: string): void {{\n    this.{state[0] if state else 'status'} = value;\n  }}"
+        f"  function {action}(value) {{\n    state.{state[0] if state else 'status'} = value\n  }}"
         for action in actions
-    ) or "  setStatus(value: string): void {\n    this.status = value;\n  }"
-    return f"""@Observed
-export class {store_name} {{
+    ) or "  function setStatus(value) {\n    state.status = value\n  }"
+    return f"""import {{ reactive }} from 'vue'
+
+const state = reactive({{
 {state_lines}
+}})
 
-  readonly responsibilities: string = '{responsibilities or "manage shared state"}';
-
+export function {store_name}() {{
 {action_lines}
+  return {{
+    state,
+    responsibilities: '{responsibilities or "manage shared state"}',
+    {', '.join(actions) if actions else 'setStatus'}
+  }}
 }}
 """
 
@@ -402,7 +515,7 @@ def _route_table_from_page_tasks(page_tasks: list[dict[str, Any]]) -> list[dict[
 
 
 def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -> str:
-    normalized = _coerce_payload(payload)
+    normalized = normalize_page_task_payload(_coerce_payload(payload))
     project_name = normalized["project_name"]
     page_tasks = list(normalized.get("page_tasks") or [])
     route_table = _route_table_from_page_tasks(page_tasks)

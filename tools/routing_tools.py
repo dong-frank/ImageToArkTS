@@ -41,6 +41,7 @@ from tools.coder_tools import (
     load_coder_integration_report_payload,
     load_coder_page_worker_results_payload,
     load_coder_page_task_bundle_payload,
+    normalize_page_task_payload,
     save_coder_compile_fix_trace_payload,
     save_coder_integration_report_payload,
     save_coder_page_worker_results_payload,
@@ -218,12 +219,8 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
             "You must both plan the skeleton and execute project bootstrap work that belongs to the skeleton stage.",
             "Use create_project when needed, and write /designs/coder_page_tasks.json yourself before returning.",
             "Do not claim the full app is complete.",
-            "Unified navigation belongs to skeleton when the project has multiple pages.",
-            "Page registration, startup page alignment, and avoiding stale template entry pages also belong to skeleton.",
-            "",
-            "Read required skills yourself before planning:",
-            "- /skills/harmony-coding-guardrails/SKILL.md",
-            "- /skills/harmony-next/SKILL.md",
+            "Unified navigation and page registration belong to skeleton when the project has multiple pages.",
+            "Keep the project ready for both npm run dev:h5 preview and npm run build:harmony:cli packaging.",
             "",
             "Read required input file yourself:",
             "- /designs/architect.json",
@@ -232,34 +229,24 @@ def build_coder_skeleton_planning_prompt(architect_payload: dict, task_type: Lit
 
 
 def _normalize_project_relative_path(project_name: str, raw_path: str) -> str:
-    raw = str(raw_path or "").strip().replace("\\", "/")
-    if not raw:
-        return raw
-    if raw.startswith("/projects/"):
-        return raw
-    if raw.startswith("/"):
-        return f"/projects/{project_name}{raw}"
-    return f"/projects/{project_name}/{raw.lstrip('/')}"
+    normalized = normalize_page_task_payload(
+        {
+            "project_name": project_name,
+            "page_tasks": [
+                {
+                    "page_name": "",
+                    "route": "",
+                    "page_file": raw_path,
+                    "allowed_write_paths": [raw_path],
+                }
+            ],
+        }
+    )
+    return str(normalized["page_tasks"][0]["page_file"])
 
 
 def _normalize_coder_skeleton_paths(payload: dict) -> dict:
-    normalized = dict(payload)
-    project_name = str(normalized.get("project_name") or "").strip()
-    if not project_name:
-        return normalized
-
-    page_tasks = []
-    for task in normalized.get("page_tasks", []) or []:
-        item = dict(task)
-        if item.get("page_file"):
-            item["page_file"] = _normalize_project_relative_path(project_name, str(item["page_file"]))
-        item["allowed_write_paths"] = [
-            _normalize_project_relative_path(project_name, str(path))
-            for path in (item.get("allowed_write_paths") or [])
-        ]
-        page_tasks.append(item)
-    normalized["page_tasks"] = page_tasks
-    return normalized
+    return normalize_page_task_payload(dict(payload))
 
 
 def _ensure_navigation_scaffold(payload: dict) -> dict:
@@ -272,7 +259,7 @@ def _ensure_navigation_scaffold(payload: dict) -> dict:
     for task in page_tasks:
         item = dict(task)
         shared_dependencies = list(item.get("shared_dependencies") or [])
-        for dependency in ("BottomNavBar", "NavigationService"):
+        for dependency in ("AppTabBar", "usePageNavigation"):
             if dependency not in shared_dependencies:
                 shared_dependencies.append(dependency)
         item["shared_dependencies"] = shared_dependencies
@@ -391,17 +378,13 @@ def _build_page_task_prompt(
         "",
         "You are executing one page implementation task only.",
         f"target_page_name: {str(task_payload.get('page_name') or '')}",
-        "Skill usage is mandatory before code generation for ArkTS / ArkUI details.",
         "Respect allowed_write_paths and page-local component boundaries.",
         "Do not compile the whole project and do not edit shared skeleton files directly.",
         "Read the relevant task and design files yourself before coding.",
+        "Keep browser preview compatibility and avoid breaking npm run dev:h5.",
         "",
         "Execution priority:",
         json.dumps(execution_priority, ensure_ascii=False, indent=2),
-        "",
-        "Read required skills yourself before coding:",
-        "- /skills/harmony-coding-guardrails/SKILL.md",
-        "- /skills/harmony-next/SKILL.md",
         "",
         "Required input paths:",
         "- /designs/coder_page_tasks.json",
@@ -437,18 +420,15 @@ def _build_integration_prompt(
         build_coder_integration_dispatch_description(task_type=task_type),
         "",
         "You are executing the integration stage only.",
-        "Skill usage is mandatory before fixing ArkTS / ArkUI engineering issues.",
         "Resolve shared contract mismatches, import/export issues, route registration gaps, and naming inconsistencies.",
         "You own the compile-fix loop in this stage.",
         "Run compile_project yourself first. If compile fails, fix the issue and compile again until success or until the main error stops changing.",
+        "The target compile flow is npm run build:harmony:cli followed by hdc install -r for the generated hap.",
+        "Preserve npm run dev:h5 previewability whenever possible.",
         "Your final response must include a short human summary and a final compile output block wrapped exactly with <<FINAL_COMPILE_OUTPUT>> and <<END_FINAL_COMPILE_OUTPUT>>.",
         "",
         "Execution priority:",
         json.dumps(execution_priority, ensure_ascii=False, indent=2),
-        "",
-        "Read required skills yourself before fixing:",
-        "- /skills/harmony-coding-guardrails/SKILL.md",
-        "- /skills/harmony-next/SKILL.md",
         "",
         "Required input paths:",
         "- /designs/coder_page_tasks.json",

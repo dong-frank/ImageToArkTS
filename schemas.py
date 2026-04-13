@@ -160,19 +160,19 @@ class ArchitectImageFactsBundle(BaseModel):
 
 class CoderRouteSpec(BaseModel):
     page_name: str = Field(..., description="Page name.")
-    route: str = Field(..., description="Harmony page route such as pages/Index.")
-    page_file: str = Field(..., description="Workspace-relative page file path.")
+    route: str = Field(..., description="uni-app page route such as pages/Index.")
+    page_file: str = Field(..., description="Project-relative page component path, typically under src/pages.")
 
 
 class CoderSharedArtifact(BaseModel):
     name: str = Field(..., description="Shared artifact name.")
-    file_path: str = Field(..., description="Workspace-relative file path.")
+    file_path: str = Field(..., description="Project-relative shared module or component path.")
     description: str = Field(..., description="Artifact responsibility summary.")
 
 
 class CoderStateConvention(BaseModel):
     store_name: str = Field(..., description="Primary shared store name.")
-    file_path: str = Field(..., description="Workspace-relative store file path.")
+    file_path: str = Field(..., description="Project-relative store or composable path.")
     responsibilities: str = Field(..., description="What the store manages.")
     exposed_state: List[str] = Field(default_factory=list, description="Shared state keys exposed to pages.")
     exposed_actions: List[str] = Field(default_factory=list, description="Shared actions exposed to pages.")
@@ -180,10 +180,10 @@ class CoderStateConvention(BaseModel):
 
 class CoderPageTask(BaseModel):
     page_name: str = Field(..., description="Page name assigned to the worker.")
-    route: str = Field(..., description="Harmony page route such as pages/Index.")
-    page_file: str = Field(..., description="Workspace-relative primary page file path.")
-    allowed_write_paths: List[str] = Field(default_factory=list, description="Workspace-relative file paths the page worker may edit.")
-    shared_dependencies: List[str] = Field(default_factory=list, description="Shared components, stores, or interfaces the page uses.")
+    route: str = Field(..., description="uni-app page route such as pages/Index.")
+    page_file: str = Field(..., description="Project-relative primary page component path, usually a .vue file under src/pages.")
+    allowed_write_paths: List[str] = Field(default_factory=list, description="Project-relative file paths the page worker may edit for this task.")
+    shared_dependencies: List[str] = Field(default_factory=list, description="Shared components, composables, stores, or utilities the page uses.")
     responsibilities: str = Field(..., description="Page responsibility summary.")
     primary_actions: List[str] = Field(default_factory=list, description="Primary handlers or user actions for the page.")
     state_notes: Optional[str] = Field(None, description="Relevant page state notes.")
@@ -223,7 +223,7 @@ class CoderPageWorkerResultBundle(BaseModel):
 class CoderIntegrationReport(BaseModel):
     compile_status: Literal["SUCCESS", "FAILED"] = Field(..., description="Compilation verdict after integration.")
     project_name: str = Field(..., description="Project name.")
-    project_path: str = Field(..., description="Workspace-relative project path.")
+    project_path: str = Field(..., description="Project path inside the workspace, such as /projects/<project_name>.")
     ready_for_tester: bool = Field(..., description="Whether the project is ready for tester validation.")
     fixes_applied: List[str] = Field(default_factory=list, description="Integration fixes applied.")
     remaining_errors: List[str] = Field(default_factory=list, description="Remaining errors after integration.")

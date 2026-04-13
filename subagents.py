@@ -8,7 +8,7 @@ from contracts.agent_contracts import ARCHITECT_DEFINITION, CODER_DEFINITION, TE
 from models import base_model, vision_model
 from tools.human_guidance import request_human_guidance
 from tools.json_tools import validate_json_syntax
-from tools.project_tools import create_project, compile_project
+from tools.project_tools import add_project_dependency, create_project, compile_project
 from tools.tester_tools import TESTER_TOOLS
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
@@ -18,7 +18,7 @@ ARCHITECT_SUBAGENT_TOOLS = [validate_json_syntax, request_human_guidance]
 CODER_ORCHESTRATOR_TOOLS = []
 CODER_SKELETON_WORKER_TOOLS = [create_project, validate_json_syntax, request_human_guidance]
 CODER_PAGE_WORKER_TOOLS = [validate_json_syntax, request_human_guidance]
-CODER_INTEGRATION_WORKER_TOOLS = [compile_project, validate_json_syntax, request_human_guidance]
+CODER_INTEGRATION_WORKER_TOOLS = [add_project_dependency, compile_project, validate_json_syntax, request_human_guidance]
 TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, validate_json_syntax, request_human_guidance]
 
 

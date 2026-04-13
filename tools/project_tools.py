@@ -14,6 +14,7 @@ from tools.common import PROJECT_ROOT, projects_root
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
 TEMPLATE_ROOT = PROJECT_ROOT / "template"
 TEMPLATE_PROJECT_DIR = TEMPLATE_ROOT / "MyApplication"
+CREATE_PROJECT_SCRIPT = PROJECT_ROOT / "scripts" / "create_project.sh"
 INSTALL_DEPENDENCIES_SCRIPT = PROJECT_ROOT / "scripts" / "install_dependencies.sh"
 COMPILE_SCRIPT = PROJECT_ROOT / "scripts" / "compile.sh"
 TEMPLATE_IGNORE_PATTERNS = shutil.ignore_patterns(
@@ -111,45 +112,75 @@ def _install_project_dependencies(target_dir: Path) -> tuple[int, str]:
     return result.returncode, output
 
 
+def _run_create_project_script(project_name: str, target_root: Path) -> tuple[int, str]:
+    result = subprocess.run(
+        ["bash", str(CREATE_PROJECT_SCRIPT), project_name],
+        cwd=target_root,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="ignore",
+    )
+    output = "\n".join(part for part in [result.stdout, result.stderr] if part).strip()
+    return result.returncode, output
+
+
+def _run_npm_install_package(target_dir: Path, package_name: str, dev_dependency: bool) -> tuple[int, str]:
+    cmd = ["npm", "install"]
+    if dev_dependency:
+        cmd.append("-D")
+    cmd.append(package_name)
+    result = subprocess.run(
+        cmd,
+        cwd=target_dir,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="ignore",
+    )
+    output = "\n".join(part for part in [result.stdout, result.stderr] if part).strip()
+    return result.returncode, output
+
+
 @tool
 def create_project(project_name: str) -> str:
     """
-    Create a HarmonyOS project by copying from local template.
+    Create a project through the unified CLI bootstrap script.
     """
-    print("start creating project from template")
+    print("start creating project via unified create script")
     if not PROJECT_NAME_PATTERN.fullmatch(project_name):
         return (
             "项目名不合法。必须以小写字母开头，只能包含小写字母、数字和下划线(_)；长度 1-200。"
             "合法示例: calculator_app；非法示例: calc-app、my app、计算器、CalculatorApp。"
         )
 
-    if not TEMPLATE_PROJECT_DIR.exists():
-        return "项目创建失败：未找到模板工程。请确认目录存在：/template/MyApplication"
-
     root = projects_root()
     target_dir = root / project_name
     if target_dir.exists():
         return f"项目创建失败：目标目录已存在 /projects/{project_name}。请更换项目名或先清理目录。"
 
-    root.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(TEMPLATE_PROJECT_DIR, target_dir, ignore=TEMPLATE_IGNORE_PATTERNS)
-    _configure_project_metadata(project_name, target_dir)
+    if not CREATE_PROJECT_SCRIPT.exists():
+        return "项目创建失败：未找到统一创建脚本。请确认目录存在：/scripts/create_project.sh"
 
-    install_exit_code, install_output = _install_project_dependencies(target_dir)
-    if install_exit_code != 0:
-        install_tail = "\n".join(install_output.splitlines()[-20:]) if install_output else "(no output)"
+    root.mkdir(parents=True, exist_ok=True)
+    create_exit_code, create_output = _run_create_project_script(project_name, root)
+    if create_exit_code != 0:
+        create_tail = "\n".join(create_output.splitlines()[-20:]) if create_output else "(no output)"
         return (
-            f"项目模板已复制到 /projects/{project_name}，但依赖安装失败。\n"
-            f"install_exit_code: {install_exit_code}\n"
-            "recent_install_log_tail:\n"
-            f"{install_tail}"
+            f"项目创建失败：统一脚本执行异常 /projects/{project_name}\n"
+            f"create_exit_code: {create_exit_code}\n"
+            "recent_create_log_tail:\n"
+            f"{create_tail}"
         )
 
     return (
         f"项目创建完成，路径为: /projects/{project_name}\n"
-        "create_mode: template-copy\n"
-        "template_source: /template/MyApplication\n"
-        "dependencies: installed with ohpm install --all"
+        f"project_path: /projects/{project_name}\n"
+        "create_mode: script\n"
+        "template_source: /template/uni-preset-vue-vite\n"
+        "runtime_shell_template: /template/uni-harmony-shell-template\n"
+        "dependencies: pending (run npm install manually)\n"
+        "build_flow: npm run build:harmony:cli"
     )
 
 
@@ -176,8 +207,44 @@ def compile_project(project_name: str) -> str:
     )
 
 
+@tool
+def add_project_dependency(project_name: str, package_name: str, dev_dependency: bool = True) -> str:
+    """
+    Add a specific npm dependency inside a project so integration can resolve missing packages on demand.
+    """
+    print("start adding project npm dependency")
+    project_dir = projects_root() / project_name
+    if not project_dir.exists():
+        return f"依赖添加失败：项目目录不存在 /projects/{project_name}"
+
+    package_json = project_dir / "package.json"
+    if not package_json.exists():
+        return f"依赖添加失败：未找到 package.json /projects/{project_name}/package.json"
+
+    package_name = str(package_name or "").strip()
+    if not package_name:
+        return "依赖添加失败：package_name 不能为空"
+
+    exit_code, output = _run_npm_install_package(project_dir, package_name, dev_dependency)
+    install_tail = "\n".join(output.splitlines()[-30:]) if output else "(no output)"
+    status = "SUCCESS" if exit_code == 0 else "FAILED"
+    return "\n".join(
+        [
+            f"dependency_add_status: {status}",
+            f"project_name: {project_name}",
+            f"project_path: /projects/{project_name}",
+            f"package_name: {package_name}",
+            f"dependency_scope: {'devDependency' if dev_dependency else 'dependency'}",
+            f"exit_code: {exit_code}",
+            "recent_dependency_log_tail:",
+            install_tail,
+        ]
+    )
+
+
 CODER_TOOLS = [
     create_project,
+    add_project_dependency,
     compile_project,
 ]
 

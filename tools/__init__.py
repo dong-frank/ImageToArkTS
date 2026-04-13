@@ -1,6 +1,6 @@
 from tools.human_guidance import request_human_guidance
 from tools.json_tools import validate_json_syntax
-from tools.project_tools import compile_project, create_project
+from tools.project_tools import add_project_dependency, compile_project, create_project
 from tools.tester_tools import (
     TESTER_SCRIPT_EXECUTION_TOOLS,
     TESTER_TOOLS,
@@ -34,6 +34,7 @@ __all__ = [
     "compare_ui_pair_with_mini_agent",
     "compile_project",
     "create_project",
+    "add_project_dependency",
     "dump_app_layout",
     "evaluate_test_coverage",
     "ensure_emulator_ready",

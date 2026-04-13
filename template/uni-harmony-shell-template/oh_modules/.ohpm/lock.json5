@@ -1,0 +1,154 @@
+{
+  "lockVersion": "1.0",
+  "settings": {
+    "resolveConflict": true,
+    "resolveConflictStrict": false,
+    "installAll": true
+  },
+  "overrides": {},
+  "overrideDependencyMap": {},
+  "modules": {
+    ".": {
+      "name": "",
+      "dependencies": {
+        "@dcloudio/uni-app-runtime": {
+          "specifier": "file:libs/UniAppRuntime.har",
+          "version": "file:libs/UniAppRuntime.har"
+        },
+        "@uni_modules/hmr-for-uni-app": {
+          "specifier": "file:libs/uni_modules__hmr_for_uni_app.har",
+          "version": "file:libs/uni_modules__hmr_for_uni_app.har"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.19",
+          "version": "1.0.19"
+        },
+        "@ohos/hamock": {
+          "specifier": "1.0.0",
+          "version": "1.0.0"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "entry": {
+      "name": "entry",
+      "dependencies": {},
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    }
+  },
+  "packages": {
+    "@ohos/hypium@1.0.19": {
+      "integrity": "sha512-cEjDgLFCm3cWZDeRXk7agBUkPqjWxUo6AQeiu0gEkb3J8ESqlduQLSIXeo3cCsm8U/asL7iKjF85ZyOuufAGSQ==",
+      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.19",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/hamock@1.0.0": {
+      "integrity": "sha512-K6lDPYc6VkKe6ZBNQa9aoG+ZZMiwqfcR/7yAVFSUGIuOAhPvCJAo9+t1fZnpe0dBRBPxj2bxPPbKh69VuyAtDg==",
+      "storePath": "oh_modules/.ohpm/@ohos+hamock@1.0.0",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@uni_modules/hmr-for-uni-app@file:libs/uni_modules__hmr_for_uni_app.har": {
+      "storePath": "oh_modules/.ohpm/@uni_modules+hmr-for-uni-app@2lsbadsaze7+d++pyv7ov2y+2dsu6kkk+jzrobeoan8=",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@dcloudio/uni-app-runtime@file:libs/UniAppRuntime.har": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=",
+      "dependencies": {
+        "libjsruntime.so": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/cpp/types/libjsruntime",
+        "@dcloudio/uni-app-harmony": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-app-harmony",
+        "@dcloudio/uni-app-modules": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/modules",
+        "@dcloudio/uni-mp-sdk": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-mp-sdk",
+        "@dcloudio/uni-app-framework": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/framework",
+        "@ohos/videocompressor": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/libs/videoCompressor.har",
+        "uni_modules__uni_crash_lib": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/libs/uni_modules__uni_crash_lib.har"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/videocompressor@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/libs/videoCompressor.har": {
+      "storePath": "oh_modules/.ohpm/@ohos+videocompressor@soegz02lhnnihit14ad03wcy4dhlg8y+cdslhkqxb5s=",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "uni_modules__uni_crash_lib@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/libs/uni_modules__uni_crash_lib.har": {
+      "storePath": "oh_modules/.ohpm/uni_modules__uni_crash_lib@52lbsbiymmolbsgju3dusxipv9esdf4ryhndsun2mk8=",
+      "dependencies": {
+        "libuni_modules__uni_crash_lib.so": "oh_modules/.ohpm/uni_modules__uni_crash_lib@52lbsbiymmolbsgju3dusxipv9esdf4ryhndsun2mk8=/oh_modules/uni_modules__uni_crash_lib/src/main/cpp/types/libuni_modules__uni_crash_lib"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "libjsruntime.so@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/cpp/types/libjsruntime": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/cpp/types/libjsruntime",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@dcloudio/uni-app-harmony@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-app-harmony": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-app-harmony",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@dcloudio/uni-mp-sdk@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-mp-sdk": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/uni-mp-sdk",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@dcloudio/uni-app-framework@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/framework": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/framework",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "libuni_modules__uni_crash_lib.so@file:oh_modules/.ohpm/uni_modules__uni_crash_lib@52lbsbiymmolbsgju3dusxipv9esdf4ryhndsun2mk8=/oh_modules/uni_modules__uni_crash_lib/src/main/cpp/types/libuni_modules__uni_crash_lib": {
+      "storePath": "oh_modules/.ohpm/uni_modules__uni_crash_lib@52lbsbiymmolbsgju3dusxipv9esdf4ryhndsun2mk8=/oh_modules/uni_modules__uni_crash_lib/src/main/cpp/types/libuni_modules__uni_crash_lib",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@dcloudio/uni-app-modules@file:oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/modules": {
+      "storePath": "oh_modules/.ohpm/@dcloudio+uni-app-runtime@il6soybpliuvq+pf2zgw2jzvvgdrdc7+zfihqweihuc=/oh_modules/@dcloudio/uni-app-runtime/src/main/ets/modules",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    }
+  }
+}

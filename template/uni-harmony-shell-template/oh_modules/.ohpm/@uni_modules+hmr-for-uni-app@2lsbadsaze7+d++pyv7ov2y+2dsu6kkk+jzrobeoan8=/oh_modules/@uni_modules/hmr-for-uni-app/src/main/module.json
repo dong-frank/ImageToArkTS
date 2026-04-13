@@ -1,0 +1,32 @@
+{
+	"app": {
+		"bundleName": "com.example.test.harmonypackages",
+		"debug": true,
+		"versionCode": 1000000,
+		"versionName": "1.0.0",
+		"minAPIVersion": 50000012,
+		"targetAPIVersion": 60001021,
+		"apiReleaseType": "Release",
+		"targetMinorAPIVersion": 0,
+		"targetPatchAPIVersion": 0,
+		"compileSdkVersion": "6.0.1.112",
+		"compileSdkType": "HarmonyOS",
+		"appEnvironments": [],
+		"bundleType": "app",
+		"buildMode": "debug"
+	},
+	"module": {
+		"name": "uni_modules__hmr_for_uni_app",
+		"type": "har",
+		"deviceTypes": [
+			"default",
+			"tablet",
+			"2in1"
+		],
+		"packageName": "@uni_modules/hmr-for-uni-app",
+		"installationFree": false,
+		"virtualMachine": "ark12.0.6.0",
+		"compileMode": "esmodule",
+		"dependencies": []
+	}
+}

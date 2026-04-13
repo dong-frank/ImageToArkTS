@@ -24,7 +24,7 @@ class CoderPipelineTests(unittest.TestCase):
                             "route": "pages/Index",
                             "page_file": "/projects/calculator_app/entry/src/main/ets/pages/Index.ets",
                             "allowed_write_paths": ["/projects/calculator_app/entry/src/main/ets/pages/Index.ets"],
-                            "shared_dependencies": ["AppHeader", "CalculatorStore"],
+                            "shared_dependencies": ["AppHeader", "useCalculatorStore"],
                             "responsibilities": "主计算页面",
                             "primary_actions": ["append_digit", "evaluate"],
                         },
@@ -33,7 +33,7 @@ class CoderPipelineTests(unittest.TestCase):
                             "route": "pages/History",
                             "page_file": "/projects/calculator_app/entry/src/main/ets/pages/History.ets",
                             "allowed_write_paths": ["/projects/calculator_app/entry/src/main/ets/pages/History.ets"],
-                            "shared_dependencies": ["AppHeader", "CalculatorStore"],
+                            "shared_dependencies": ["AppHeader", "useCalculatorStore"],
                             "responsibilities": "历史记录页面",
                             "primary_actions": ["open_record"],
                         },
@@ -52,6 +52,8 @@ class CoderPipelineTests(unittest.TestCase):
                 self.assertEqual(len(page_tasks["tasks"]), 2)
                 self.assertEqual(page_tasks["tasks"][0]["route"], "pages/Index")
                 self.assertEqual(page_tasks["tasks"][1]["route"], "pages/History")
+                self.assertEqual(page_tasks["tasks"][0]["page_file"], "/projects/calculator_app/src/pages/Index.vue")
+                self.assertEqual(page_tasks["tasks"][1]["page_file"], "/projects/calculator_app/src/pages/History.vue")
             finally:
                 reset_current_session_id(token)
 

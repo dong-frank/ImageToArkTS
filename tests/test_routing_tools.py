@@ -68,6 +68,32 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("compile-fix loop", description)
         self.assertNotIn("/designs/architect.json", description)
 
+    def test_coder_skeleton_planning_prompt_mentions_dual_build_workflow(self) -> None:
+        from tools.routing_tools import build_coder_skeleton_planning_prompt
+
+        prompt = build_coder_skeleton_planning_prompt(
+            architect_payload={"project_name": "demo_app"},
+            task_type="implementation",
+        )
+
+        self.assertIn("Keep the project ready for both npm run dev:h5 preview and npm run build:harmony:cli packaging.", prompt)
+        self.assertNotIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertNotIn("/skills/harmony-next/SKILL.md", prompt)
+
+    def test_integration_prompt_mentions_harmony_build_and_install_flow(self) -> None:
+        from tools.routing_tools import _build_integration_prompt
+
+        prompt = _build_integration_prompt(
+            task_type="implementation",
+            skeleton_payload={"project_name": "demo_app"},
+            page_results_payload={"results": []},
+        )
+
+        self.assertIn("npm run build:harmony:cli", prompt)
+        self.assertIn("hdc install -r", prompt)
+        self.assertIn("Preserve npm run dev:h5 previewability whenever possible.", prompt)
+        self.assertNotIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+
     def test_main_tools_use_routing_tools(self) -> None:
         from tools.tool_sets import ORCHESTRATOR_AGENT_TOOLS
 
@@ -240,10 +266,7 @@ class RoutingToolsContractTests(unittest.TestCase):
             task_type="implementation",
         )
 
-        self.assertIn("Read required skills yourself before coding:", prompt)
-        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
-        self.assertIn("Skill usage is mandatory before code generation", prompt)
+        self.assertIn("Keep browser preview compatibility and avoid breaking npm run dev:h5.", prompt)
         self.assertIn("Execution priority:", prompt)
         self.assertIn("Reconstruct the UI as faithfully as possible", prompt)
         self.assertIn("target_page_name: Index", prompt)
@@ -251,6 +274,8 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("/designs/architect.json", prompt)
         self.assertNotIn("/designs/coder_skeleton_plan.json", prompt)
         self.assertNotIn('/projects/demo/entry/src/main/ets/pages/Index.ets', prompt)
+        self.assertNotIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertNotIn("/skills/harmony-next/SKILL.md", prompt)
 
     def test_run_single_page_worker_formats_worker_summary_into_structured_result(self) -> None:
         from tools.routing_tools import _run_single_page_worker
@@ -319,7 +344,7 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertEqual(len(selected), 1)
         self.assertEqual(selected[0]["page_name"], "Index")
 
-    def test_integration_prompt_includes_required_skill_brief(self) -> None:
+    def test_integration_prompt_includes_preview_and_device_build_brief(self) -> None:
         from tools.routing_tools import _build_integration_prompt
 
         prompt = _build_integration_prompt(
@@ -328,15 +353,15 @@ class RoutingToolsContractTests(unittest.TestCase):
             page_results_payload={"results": []},
         )
 
-        self.assertIn("Read required skills yourself before fixing:", prompt)
-        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
-        self.assertIn("Skill usage is mandatory before fixing ArkTS / ArkUI", prompt)
+        self.assertIn("The target compile flow is npm run build:harmony:cli followed by hdc install -r for the generated hap.", prompt)
+        self.assertIn("Preserve npm run dev:h5 previewability whenever possible.", prompt)
         self.assertIn("Execution priority:", prompt)
         self.assertIn("Preserve and stabilize UI fidelity first", prompt)
         self.assertIn("/designs/coder_page_tasks.json", prompt)
         self.assertIn("/logs/coder/page_worker_results.json", prompt)
         self.assertNotIn("/designs/architect.json", prompt)
+        self.assertNotIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
+        self.assertNotIn("/skills/harmony-next/SKILL.md", prompt)
 
     def test_dispatch_tester_reads_saved_json_report(self) -> None:
         from tools.routing_tools import dispatch_tester
@@ -717,7 +742,7 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         self.assertEqual(result["project_name"], "damai_app")
 
-    def test_skeleton_planning_prompt_includes_guardrail_skill(self) -> None:
+    def test_skeleton_planning_prompt_includes_dual_workflow_guidance(self) -> None:
         from tools.routing_tools import build_coder_skeleton_planning_prompt
 
         prompt = build_coder_skeleton_planning_prompt(
@@ -729,8 +754,7 @@ class RoutingToolsContractTests(unittest.TestCase):
             task_type="implementation",
         )
 
-        self.assertIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
-        self.assertIn("/skills/harmony-next/SKILL.md", prompt)
+        self.assertIn("Keep the project ready for both npm run dev:h5 preview and npm run build:harmony:cli packaging.", prompt)
         self.assertIn("- /designs/coder_page_tasks.json", prompt)
         self.assertIn("- /designs/architect.json", prompt)
         self.assertIn("write /designs/coder_page_tasks.json yourself", prompt)
@@ -739,6 +763,7 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertNotIn("/logs/coder/integration_report.json", prompt)
         self.assertNotIn("integration stage", prompt)
         self.assertNotIn('"project_name": "damai_app"', prompt)
+        self.assertNotIn("/skills/harmony-coding-guardrails/SKILL.md", prompt)
 
     def test_invoke_coder_skeleton_planner_allows_incomplete_page_tasks_without_revalidation(self) -> None:
         from tools.routing_tools import invoke_coder_skeleton_planner
@@ -821,7 +846,7 @@ class RoutingToolsContractTests(unittest.TestCase):
                         "entry/src/main/ets/pages/Index.ets",
                         "entry/src/main/ets/pages/components/IndexHeader.ets",
                     ],
-                    "shared_dependencies": ["BottomNavBar", "AppStore"],
+                    "shared_dependencies": ["AppTabBar", "useAppStore"],
                     "responsibilities": "首页",
                     "primary_actions": ["open_detail"],
                 }
@@ -846,7 +871,15 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         self.assertEqual(
             result["page_tasks"][0]["allowed_write_paths"][0],
-            "/projects/damai_app/entry/src/main/ets/pages/Index.ets",
+            "/projects/damai_app/src/pages/Index.vue",
+        )
+        self.assertEqual(
+            result["page_tasks"][0]["allowed_write_paths"][1],
+            "/projects/damai_app/src/pages/components/IndexHeader.vue",
+        )
+        self.assertEqual(
+            result["page_tasks"][0]["page_file"],
+            "/projects/damai_app/src/pages/Index.vue",
         )
 
     def test_invoke_coder_skeleton_planner_adds_navigation_dependencies_for_multi_page_app(self) -> None:
@@ -895,8 +928,9 @@ class RoutingToolsContractTests(unittest.TestCase):
             )
 
         for task in result["page_tasks"]:
-            self.assertIn("BottomNavBar", task["shared_dependencies"])
-            self.assertIn("NavigationService", task["shared_dependencies"])
+            self.assertIn("AppTabBar", task["shared_dependencies"])
+            self.assertIn("usePageNavigation", task["shared_dependencies"])
+            self.assertTrue(task["page_file"].startswith("/projects/damai_app/src/pages/"))
 
 
 if __name__ == "__main__":

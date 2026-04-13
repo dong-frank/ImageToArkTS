@@ -97,6 +97,13 @@ class AgentContractsTests(unittest.TestCase):
         self.assertIn("validate_json_syntax", tool_names)
         self.assertNotIn("materialize_coder_skeleton_artifacts", tool_names)
 
+    def test_coder_integration_worker_can_add_project_dependency(self) -> None:
+        from subagents import CODER_INTEGRATION_WORKER_TOOLS
+
+        tool_names = [tool.name for tool in CODER_INTEGRATION_WORKER_TOOLS]
+        self.assertIn("add_project_dependency", tool_names)
+        self.assertIn("compile_project", tool_names)
+
     def test_all_subagents_expose_json_validation_tool(self) -> None:
         from subagents import (
             ARCHITECT_SUBAGENT_TOOLS,
