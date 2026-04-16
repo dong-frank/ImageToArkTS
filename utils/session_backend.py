@@ -6,7 +6,7 @@ from pathlib import Path
 from threading import Lock
 from typing import Any
 
-from deepagents.backends import FilesystemBackend
+from deepagents.backends import CompositeBackend, FilesystemBackend
 from deepagents.backends.protocol import BackendProtocol
 from langchain.tools import ToolRuntime
 
@@ -52,9 +52,19 @@ class SessionBackendManager:
     def _build_backend(self, session_id: str) -> BackendProtocol:
         provider = str(self.provider or "filesystem").strip().lower()
         if provider in {"filesystem", "local"}:
-            root = session_workspace_dir(self.project_root, session_id)
-            root.mkdir(parents=True, exist_ok=True)
-            return FilesystemBackend(root_dir=root, virtual_mode=True)
+            session_root = session_workspace_dir(self.project_root, session_id)
+            session_root.mkdir(parents=True, exist_ok=True)
+            session_backend = FilesystemBackend(root_dir=session_root, virtual_mode=True)
+
+            shared_skills_root = self.project_root / "agent_workspace" / "skills"
+            if shared_skills_root.exists():
+                skills_backend = FilesystemBackend(root_dir=shared_skills_root, virtual_mode=True)
+                return CompositeBackend(
+                    default=session_backend,
+                    routes={"/skills/": skills_backend},
+                )
+
+            return session_backend
 
         raise ValueError(
             f"Unsupported SANDBOX_PROVIDER: {provider}. "
