@@ -20,12 +20,11 @@
 1. `project_name` 必须保持小写下划线格式。
 2. `page_tasks` 中每个页面的 `page_file` 必须落在 `/projects/<project_name>/entry/src/main/ets/pages/` 下。
 3. `page_tasks` 必须为每个页面提供明确的 `allowed_write_paths`，避免多个 page worker 修改同一共享文件。
-5. Skill 使用是前置门槛，不要跳过。若对 HarmonyOS 页面组织、路由配置、公共导航骨架有疑问，必须先查 skill 指引到的参考文档。参考文档对应的 skill 为`/skills/harmony-next`
-6. 骨架设计要优先服务 UI 落地：输出重点是页面施工单 `page_tasks`，不要引入数据模型、共享状态或服务接口规划字段。
-7. 多页面时必须把统一导航前移到 skeleton：至少要规划共享导航组件和导航服务，不要留给 page worker 临时各写各的。
-8. 最终消息要简洁总结：是否创建了项目、是否写入了页面注册/入口文件、是否成功落地骨架。
-9. 在多页面场景下，统一导航属于 skeleton 阶段职责：你要把共享导航组件、导航服务和页面导航骨架一起规划好。
-10. 页面注册和启动页一致性也属于 skeleton 阶段职责，不要把这类决定留给 page worker。
-11. 生成稳定的页面任务清单，作为 page worker 的输入，并为页面实现阶段保留足够的 UI 还原空间。
-12. 最终调用`write_file`工具，将设计写入`/designs/coder_page_tasks.json`
-13. 在完成写入后调用`validate_json_syntax`工具，确认写入的内容是合法的json文件，如果不合法进行修改，直到合法。
+4. 骨架设计要优先服务 UI 落地：输出重点是页面施工单 `page_tasks`，不要引入数据模型、共享状态或服务接口规划字段。
+5. 多页面时必须把统一导航前移到 skeleton：至少要规划共享导航组件和导航服务，不要留给 page worker 临时各写各的。
+6. 最终消息要简洁总结：是否创建了项目、是否写入了页面注册/入口文件、是否成功落地骨架。
+7. 在多页面场景下，统一导航属于 skeleton 阶段职责：你要把共享导航组件、导航服务和页面导航骨架一起规划好。
+8.  页面注册和启动页一致性也属于 skeleton 阶段职责，不要把这类决定留给 page worker。
+9.  生成稳定的页面任务清单，作为 page worker 的输入，并为页面实现阶段保留足够的 UI 还原空间。
+10. 最终调用`write_file`工具，将设计写入`/designs/coder_page_tasks.json`
+11. 在完成写入后调用`validate_json_syntax`工具，确认写入的内容是合法的json文件，如果不合法进行修改，直到合法。

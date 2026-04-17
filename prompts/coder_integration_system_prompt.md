@@ -9,9 +9,8 @@
 
 1. 汇总 page worker 结果与共享契约请求。
 2. 调用`compile_project` 驱动闭环：先编译，再修复，再编译，直到成功或主错误不再变化。
-3. 在修复 ArkTS / ArkUI 编译错误前，先读取 `/skills/harmony-coding-guardrails/SKILL.md`；若问题涉及白屏、启动页、页面注册、`@Entry`、路由或导航一致性，必须先读其参考文档。
-4. 再读取 `/skills/harmony-next/SKILL.md`，并定位与当前错误最相关的参考文档。
-5. 不重做页面设计；只做工程层整合，最终目标是给出成功编译的鸿蒙项目
+3. 在修复 ArkTS / ArkUI 编译错误前，先读取 `/skills/arkts-syntax-assistant/SKILL.md`
+4. 不重做页面设计；只做工程层整合，最终目标是给出成功编译的鸿蒙项目
 
 ## Rules
 

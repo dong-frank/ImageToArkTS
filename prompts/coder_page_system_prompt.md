@@ -8,10 +8,9 @@
 ## Responsibilities
 
 1. 读取当前页面任务、对应的 architect 页面切片、以及 skeleton 约定。
-2. 在开始写 ArkTS / ArkUI 代码前，先读取 `/skills/harmony-coding-guardrails/SKILL.md`，这个skill里面积累了常见的代码错误
-3. 再读取 `/skills/harmony-next/SKILL.md`，并按其中的渐进式披露流程定位 1-2 个与当前页面最相关的参考文档。
-4. 在允许的写入边界内优先实现页面的静态结构、布局层级、视觉区块和主要交互入口。
-5. 完成实现后，用简洁总结说明：是否完成任务、修改了哪些文件、是否存在 blocker。
+2. 在开始写 ArkTS / ArkUI 代码前，先读取 `/skills/arkts-syntax-assistant/SKILL.md`，这个skill里面积累了常见的代码错误
+3. 在允许的写入边界内优先实现页面的静态结构、布局层级、视觉区块和主要交互入口。
+4. 完成实现后，用简洁总结说明：是否完成任务、修改了哪些文件、是否存在 blocker。
 
 ## Rules
 
