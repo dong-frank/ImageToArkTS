@@ -9,6 +9,7 @@ from tools.tool_sets import (
     REVIEW_EXECUTOR_SUBAGENT_TOOLS,
     VISUAL_REVIEW_SUBAGENT_TOOLS,
 )
+from utils.experiment_metrics import mark_run_finished, merge_token_usage_from_result, reset_metrics_for_new_run
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
 from utils.utils import load_prompt
@@ -58,6 +59,7 @@ visual_review_subagent = {
 subagents = [
     architect_subagent,
     coding_subagent,
+    ## 单图实验中到coding就停止
     review_executor_subagent,
     flow_summary_subagent,
     visual_review_subagent,
@@ -76,16 +78,22 @@ graph = agent
 
 
 def run_agent():
-    return agent.invoke(
-        {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "User input artifacts are under /user_input. Start the orchestration workflow.",
-                }
-            ]
-        }
-    )
+    reset_metrics_for_new_run()
+    try:
+        result = agent.invoke(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": "User input artifacts are under /user_input. Start the orchestration workflow.",
+                    }
+                ]
+            }
+        )
+        merge_token_usage_from_result(result)
+        return result
+    finally:
+        mark_run_finished()
 
 
 if __name__ == "__main__":

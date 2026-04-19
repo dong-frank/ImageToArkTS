@@ -89,3 +89,13 @@ uv run python runtime.py
 前端每个 `session_id` 会映射到独立本地目录：
 
 `agent_workspace/sessions/<session_id>/...`
+
+
+uv run python /Users/dong/2026/ImageToArkTS-DeepAgents/scripts/run_all_process_simple.py \
+  --prompt "单页面生成APP实验：请根据用户上传的图片，生成APP，严格 遵守一个图片对应一个界面" \
+  --session-ids  0043
+
+
+  uv run python /Users/dong/2026/ImageToArkTS-DeepAgents/scripts/run_all_process_simple.py \
+  --prompt "完整APP生成实验：请根据用户上传的图片，生成APP，严格 遵守一个图片对应一个界面" \
+  --session-ids  0043

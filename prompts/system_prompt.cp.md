@@ -16,8 +16,7 @@
 1. `task architect`
    指令：
    "用户材料在 `/user_input`，请自行读取并完成设计。"
-   
-   architect返回后，你作为主agent要调用`save_architect_design`将产物保存到路径：`/designs/architect.json`
+   产物路径：`/designs/architect.json`
 
 2. `task coder`
    指令：
@@ -47,7 +46,6 @@
     优先使用 `/designs/architect.json` 的 image_assets；若缺失则从 `/user_input` 图片重建 expected assets 再比对。
     输出 visual review 报告到 review 目录。"
    约束：必须调用 `run_visual_review_with_inputs(...)`。
-
 
 6. 最终返回
    返回：review 输出目录、功能总结 markdown 路径、visual review 报告路径、流程总结（都用相对路径）。

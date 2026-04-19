@@ -35,3 +35,7 @@ def session_user_input_meta_path(project_root: Path, session_id: str | None) -> 
 
 def session_description_md_path(project_root: Path, session_id: str | None) -> Path:
     return session_user_input_dir(project_root, session_id) / "description.md"
+
+
+def session_user_input_md_path(project_root: Path, session_id: str | None) -> Path:
+    return session_user_input_dir(project_root, session_id) / "user_input.md"

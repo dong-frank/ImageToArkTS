@@ -10,6 +10,7 @@ from typing import List
 from langchain.tools import tool
 
 from tools.common import PROJECT_ROOT, projects_root
+from utils.experiment_metrics import increment_compile_count
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-z][a-z0-9_]{0,199}$")
 TEMPLATE_ROOT = PROJECT_ROOT / "template"
@@ -159,6 +160,7 @@ def compile_project(project_name: str) -> str:
     Compile a HarmonyOS project and return a summarized output.
     """
     print("start compiling project by hdc build")
+    increment_compile_count()
     project_path = str((projects_root() / project_name).resolve())
     result = subprocess.run(
         ["bash", str(COMPILE_SCRIPT), project_path],

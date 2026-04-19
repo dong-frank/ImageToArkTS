@@ -21,12 +21,14 @@ from langchain_core.messages import AIMessage, AIMessageChunk, BaseMessage, Huma
 from langgraph.types import Command
 
 from agent import graph
+from utils.experiment_metrics import ensure_metrics_file, mark_run_finished, merge_token_usage, reset_metrics_for_new_run
 from utils.session_backend import sync_backend_outputs_to_local, sync_local_user_input_to_backend
 from utils.session_context import reset_current_session_id, set_current_session_id
 from utils.session_workspace import (
     DEFAULT_SESSION_ID,
     normalize_session_id,
     session_description_md_path,
+    session_user_input_md_path,
     session_user_input_dir,
     session_user_input_meta_path,
     session_workspace_dir,
@@ -400,11 +402,11 @@ def _extract_tool_event_payload(chunk: BaseMessage, meta_data: Any) -> dict[str,
 
 
 def _prepend_user_input_instruction(msgs: List[BaseMessage], session_id: str) -> List[BaseMessage]:
-    def _persist_description_md(content: str) -> None:
+    def _persist_user_input_md(content: str) -> None:
         user_input_dir = session_user_input_dir(PROJECT_ROOT, session_id)
-        description_path = session_description_md_path(PROJECT_ROOT, session_id)
+        user_input_path = session_user_input_md_path(PROJECT_ROOT, session_id)
         user_input_dir.mkdir(parents=True, exist_ok=True)
-        description_path.write_text(content, encoding="utf-8")
+        user_input_path.write_text(content, encoding="utf-8")
 
     metadata_payload = _load_user_input_metadata_payload(session_id)
     metadata_json = json.dumps(metadata_payload, ensure_ascii=False, indent=2)
@@ -422,7 +424,7 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage], session_id: str) ->
                 "以下是用户在主聊天框中的本次输入：\n"
                 f"{user_text or '(empty)'}"
             )
-            _persist_description_md(combined_text)
+            _persist_user_input_md(combined_text)
             merged[idx] = HumanMessage(content=combined_text)
             return merged
 
@@ -432,7 +434,7 @@ def _prepend_user_input_instruction(msgs: List[BaseMessage], session_id: str) ->
         "尤其是图片的 description，它是你理解用户意图的重要依据。\n\n"
         f"user_input_metadata.json:\n{metadata_json}"
     )
-    _persist_description_md(fallback_text)
+    _persist_user_input_md(fallback_text)
     return [HumanMessage(content=fallback_text), *merged]
 
 
@@ -503,6 +505,9 @@ async def query_func(
     graph_input: Any = Command(resume=resume_value) if resume_value is not None else {"messages": msgs}
     if resume_value is None:
         graph_input = {"messages": _prepend_user_input_instruction(msgs, session_id)}
+        reset_metrics_for_new_run(session_id)
+    else:
+        ensure_metrics_file(session_id)
     sync_local_user_input_to_backend(session_id)
     _append_stream_timing_log(session_id, "query_start", f"resume={resume_value is not None}")
     _record_runtime_status_event(
@@ -535,6 +540,7 @@ async def query_func(
                 continue
 
             should_forward, reason, preview = _should_forward_chunk_to_frontend(chunk)
+            merge_token_usage(chunk, session_id)
             _record_runtime_status_event(
                 session_id,
                 stage="chunk",
@@ -618,6 +624,7 @@ async def query_func(
             reset_current_session_id(session_token)
         except ValueError:
             _append_stream_timing_log(session_id, "session_token_reset_skipped", "reason=context_mismatch")
+        mark_run_finished(session_id)
         _append_stream_timing_log(session_id, "query_end")
         _record_runtime_status_event(
             session_id,
@@ -694,6 +701,10 @@ async def process_simple(request: Request, payload: dict[str, Any] = Body(defaul
 
     config = {"configurable": {"thread_id": session_id}}
     graph_input: Any = Command(resume=resume_raw) if has_resume else {"messages": _prepend_user_input_instruction(msgs, session_id)}
+    if has_resume:
+        ensure_metrics_file(session_id)
+    else:
+        reset_metrics_for_new_run(session_id)
     sync_local_user_input_to_backend(session_id)
     _append_stream_timing_log(session_id, "simple_query_start", f"resume={has_resume}")
 
@@ -726,6 +737,7 @@ async def process_simple(request: Request, payload: dict[str, Any] = Body(defaul
                 msg_id = getattr(chunk, "id", None)
                 msg_id_text = msg_id if isinstance(msg_id, str) and msg_id else None
                 text_kind = _classify_stream_event_kind(chunk, meta_data)
+                merge_token_usage(chunk, session_id)
                 should_forward, reason, preview = _should_forward_chunk_to_frontend(chunk)
                 if text_kind == "tool_call_update":
                     should_forward = True
@@ -802,6 +814,7 @@ async def process_simple(request: Request, payload: dict[str, Any] = Body(defaul
                 reset_current_session_id(session_token)
             except ValueError:
                 _append_stream_timing_log(session_id, "simple_session_token_reset_skipped", "reason=context_mismatch")
+            mark_run_finished(session_id)
             _append_stream_timing_log(session_id, "simple_query_end")
             if not client_disconnected:
                 yield _format_sse_event({"kind": "done"})
