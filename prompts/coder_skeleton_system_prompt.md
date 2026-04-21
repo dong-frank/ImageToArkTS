@@ -28,6 +28,7 @@
 | 每个页面 `.ets` | 只包含 `@Entry @Component struct` 空壳 + 必要 import 占位，不含任何 UI 布局 |
 | `BottomNavBar.ets` | 共享导航组件完整实现，由 Skeleton 负责，Page Worker 只读不写 |
 | `NavigationService.ets` | 导航服务完整实现，由 Skeleton 负责，Page Worker 只读不写 |
+| `pages/Index.ets` | 鸿蒙固定入口文件，必须覆写为导航跳板，不可保留默认 Hello World 模板内容 |
 
 ## 导航组件归属规则（多页面必读）
 
@@ -83,3 +84,25 @@
 7. 页面注册、入口页选择和导航骨架规划必须在此阶段完成，不留给 Page Worker。
 8. 有效输入为 `/designs/architect_index.json` 与 `/designs/pages/*.json`，
    不要依赖其他文件。
+9. `pages/Index.ets` 是鸿蒙工程的固定启动入口，其默认模板内容必须在骨架阶段被覆写。
+   从 `architect_index.json` 的 `navigation_graph` 中识别入口页面（标记为 entry 或
+   无其他页面指向它的页面），将 `pages/Index.ets` 覆写为如下跳板结构：
+
+   import router from '@ohos.router';
+
+   @Entry
+   @Component
+   struct Index {
+     aboutToAppear() {
+       router.replaceUrl({ url: 'pages/<入口页面route>' })
+     }
+     build() {
+       Column()
+         .width('100%')
+         .height('100%')
+         .backgroundColor('#FFFFFF')
+     }
+   }
+
+10. `pages/Index.ets` 由 Skeleton Worker 负责覆写，不得列入任何 Page Worker 的
+    `allowed_write_paths`。
