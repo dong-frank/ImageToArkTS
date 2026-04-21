@@ -75,7 +75,10 @@ class RoutingToolsContractTests(unittest.TestCase):
 
         self.assertIn("dispatch_architect", tool_names)
         self.assertIn("dispatch_coder", tool_names)
-        self.assertIn("dispatch_tester", tool_names)
+        self.assertIn("dispatch_review_executor", tool_names)
+        self.assertIn("dispatch_flow_summary", tool_names)
+        self.assertIn("dispatch_visual_review", tool_names)
+        self.assertNotIn("dispatch_tester", tool_names)
         self.assertNotIn("save_architect_design", tool_names)
 
     def test_invoke_subagent_forwards_runtime_config(self) -> None:

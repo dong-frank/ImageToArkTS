@@ -31,7 +31,10 @@ from subagents import (
     get_coder_integration_worker,
     get_coder_orchestrator,
     get_coder_skeleton_worker,
+    get_flow_summary_agent,
+    get_review_executor_agent,
     get_tester_agent,
+    get_visual_review_agent,
 )
 from tools.architect_tools import (
     ArchitectPersistPayload,
@@ -436,6 +439,50 @@ def build_coder_integration_dispatch_description(
 
 def build_tester_dispatch_description() -> str:
     return TESTER_DISPATCH_CONTRACT.render()
+
+
+def build_review_executor_dispatch_description() -> str:
+    return "\n".join(
+        [
+            "Run execute-test stage right after coder integration is successful.",
+            "Input roots:",
+            "- /user_input",
+            "- /projects",
+            "Requirements:",
+            "- infer bundle_name from /projects/<project>/AppScope/app.json5 when not provided",
+            "- infer ability_name from /projects/<project>/entry/src/main/module.json5 when possible",
+            "- infer hap path under /projects/<project>/entry/build/default/outputs/default when not provided",
+            "- must call run_review_node_with_inputs(...)",
+            "Expected output:",
+            "- /reports/test_result.json",
+        ]
+    )
+
+
+def build_flow_summary_dispatch_description() -> str:
+    return "\n".join(
+        [
+            "Run flow summary stage from latest review outputs.",
+            "Requirements:",
+            "- must call summarize_review_features_by_page(review_output_dir='/reports')",
+            "- summarize per-page features first, then navigation/jump features from report.txt",
+            "Expected output:",
+            "- summary markdown path under latest review output directory",
+        ]
+    )
+
+
+def build_visual_review_dispatch_description() -> str:
+    return "\n".join(
+        [
+            "Run visual review stage after flow summary.",
+            "Requirements:",
+            "- must call run_visual_review_with_inputs(review_output_dir='/reports', architect_output_path='/designs/architect.json', user_input_dir='/user_input')",
+            "- prefer expected assets from architect image_assets, fallback to rebuilding from /user_input",
+            "Expected output:",
+            "- visual review json path under latest review output directory",
+        ]
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1366,6 +1413,48 @@ def dispatch_tester(runtime: ToolRuntime) -> Command:
     )
 
 
+@tool
+def dispatch_review_executor(runtime: ToolRuntime) -> Command:
+    """Dispatch execute-test stage using deepagents review executor logic."""
+    if not runtime.tool_call_id:
+        raise ValueError("Tool call ID is required for review executor dispatch")
+
+    result = _invoke_subagent(
+        get_review_executor_agent(),
+        build_review_executor_dispatch_description(),
+        runtime,
+    )
+    return _command_from_result(result, runtime.tool_call_id)
+
+
+@tool
+def dispatch_flow_summary(runtime: ToolRuntime) -> Command:
+    """Dispatch flow summary stage based on latest review outputs."""
+    if not runtime.tool_call_id:
+        raise ValueError("Tool call ID is required for flow summary dispatch")
+
+    result = _invoke_subagent(
+        get_flow_summary_agent(),
+        build_flow_summary_dispatch_description(),
+        runtime,
+    )
+    return _command_from_result(result, runtime.tool_call_id)
+
+
+@tool
+def dispatch_visual_review(runtime: ToolRuntime) -> Command:
+    """Dispatch visual review stage based on latest review outputs."""
+    if not runtime.tool_call_id:
+        raise ValueError("Tool call ID is required for visual review dispatch")
+
+    result = _invoke_subagent(
+        get_visual_review_agent(),
+        build_visual_review_dispatch_description(),
+        runtime,
+    )
+    return _command_from_result(result, runtime.tool_call_id)
+
+
 # ---------------------------------------------------------------------------
 # Tool registries
 # ---------------------------------------------------------------------------
@@ -1379,5 +1468,7 @@ CODER_ORCHESTRATOR_TOOLS = [
 ROUTING_TOOLS = [
     dispatch_architect,
     dispatch_coder,
-    dispatch_tester,
+    dispatch_review_executor,
+    dispatch_flow_summary,
+    dispatch_visual_review,
 ]

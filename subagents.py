@@ -9,6 +9,11 @@ from models import base_model, vision_model
 from tools.human_guidance import request_human_guidance
 from tools.json_tools import validate_json_syntax
 from tools.project_tools import create_project, compile_project
+from tools.review_flow_tools import (
+    run_review_node_with_inputs,
+    run_visual_review_with_inputs,
+    summarize_review_features_by_page,
+)
 from tools.tester_tools import TESTER_TOOLS
 from utils.checkpointing import get_checkpointer
 from utils.session_backend import backend_factory
@@ -20,6 +25,9 @@ CODER_SKELETON_WORKER_TOOLS = [create_project, validate_json_syntax, request_hum
 CODER_PAGE_WORKER_TOOLS = [validate_json_syntax, request_human_guidance]
 CODER_INTEGRATION_WORKER_TOOLS = [compile_project, validate_json_syntax, request_human_guidance]
 TESTER_SUBAGENT_TOOLS = [*TESTER_TOOLS, validate_json_syntax, request_human_guidance]
+REVIEW_EXECUTOR_SUBAGENT_TOOLS = [run_review_node_with_inputs, validate_json_syntax, request_human_guidance]
+FLOW_SUMMARY_SUBAGENT_TOOLS = [summarize_review_features_by_page, validate_json_syntax, request_human_guidance]
+VISUAL_REVIEW_SUBAGENT_TOOLS = [run_visual_review_with_inputs, validate_json_syntax, request_human_guidance]
 
 
 ARCHITECT_SUBAGENT_SPEC = {
@@ -73,6 +81,30 @@ TESTER_SUBAGENT_SPEC = {
     "tools": TESTER_SUBAGENT_TOOLS,
 }
 
+REVIEW_EXECUTOR_SUBAGENT_SPEC = {
+    "name": "review_executor",
+    "description": "Run review node full-flow testing right after coder finishes.",
+    "model": vision_model,
+    "system_prompt": load_prompt("review_executor_system_prompt.md"),
+    "tools": REVIEW_EXECUTOR_SUBAGENT_TOOLS,
+}
+
+FLOW_SUMMARY_SUBAGENT_SPEC = {
+    "name": "flow_summary",
+    "description": "Summarize implemented popup/state-change behaviors and navigation paths from review outputs.",
+    "model": vision_model,
+    "system_prompt": load_prompt("flow_summary_system_prompt.md"),
+    "tools": FLOW_SUMMARY_SUBAGENT_TOOLS,
+}
+
+VISUAL_REVIEW_SUBAGENT_SPEC = {
+    "name": "visual_review",
+    "description": "Run visual matching between user input references and runtime screenshots after flow summary.",
+    "model": vision_model,
+    "system_prompt": load_prompt("visual_review_system_prompt.md"),
+    "tools": VISUAL_REVIEW_SUBAGENT_TOOLS,
+}
+
 SUBAGENT_SPECS = [
     ARCHITECT_SUBAGENT_SPEC,
     CODER_ORCHESTRATOR_SPEC,
@@ -80,6 +112,9 @@ SUBAGENT_SPECS = [
     CODER_PAGE_WORKER_SPEC,
     CODER_INTEGRATION_WORKER_SPEC,
     TESTER_SUBAGENT_SPEC,
+    REVIEW_EXECUTOR_SUBAGENT_SPEC,
+    FLOW_SUMMARY_SUBAGENT_SPEC,
+    VISUAL_REVIEW_SUBAGENT_SPEC,
 ]
 
 
@@ -139,3 +174,18 @@ def get_coder_integration_worker():
 @lru_cache(maxsize=1)
 def get_tester_agent():
     return _build_subagent(TESTER_SUBAGENT_SPEC)
+
+
+@lru_cache(maxsize=1)
+def get_review_executor_agent():
+    return _build_subagent(REVIEW_EXECUTOR_SUBAGENT_SPEC)
+
+
+@lru_cache(maxsize=1)
+def get_flow_summary_agent():
+    return _build_subagent(FLOW_SUMMARY_SUBAGENT_SPEC)
+
+
+@lru_cache(maxsize=1)
+def get_visual_review_agent():
+    return _build_subagent(VISUAL_REVIEW_SUBAGENT_SPEC)
