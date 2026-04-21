@@ -15,7 +15,7 @@ from langchain.tools import tool
 from langchain_core.messages import HumanMessage
 from pydantic import BaseModel
 
-from models import small_model, vision_model
+from models import small_model, architect_model
 from schemas import TesterReportOutput
 from tools.common import (
     PROJECT_ROOT,
@@ -1437,7 +1437,7 @@ def compare_ui_pair_with_mini_agent(
 
     try:
         response = invoke_with_tool(
-            vision_model,
+            architect_model,
             [
                 HumanMessage(
                     content=[

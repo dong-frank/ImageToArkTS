@@ -60,10 +60,21 @@ class SubagentDefinition(BaseModel):
 
 ARCHITECT_DEFINITION = SubagentDefinition(
     name="architect",
-    description="Read materialized architect inputs and save architecture design to /designs/architect.json.",
+    description=(
+        "Stage 1: extract per-image UI tree drafts concurrently and save them. "
+        "Stage 2: merge drafts, infer navigation, and save final architecture files."
+    ),
     owned_task_types=["architecture"],
-    required_inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
-    primary_outputs=["/designs/architect.json"],
+    required_inputs=[
+        "/user_input/user_input_metadata.json",
+        "/designs/page_drafts_index.json",          # 阶段二归并决策用
+    ],
+    primary_outputs=[
+        "/designs/page_drafts/page_draft_{n}.json", # 阶段一产出
+        "/designs/page_drafts_index.json",          # 阶段一产出
+        "/designs/architect_index.json",            # 阶段二产出
+        "/designs/pages/{page_id}.json",            # 阶段二产出
+    ],
     structured_output_schema=None,
 )
 
@@ -72,7 +83,10 @@ CODER_DEFINITION = SubagentDefinition(
     name="coder",
     description="Run the staged coding pipeline from structured design artifacts to an integration report.",
     owned_task_types=["implementation", "fix_from_test"],
-    required_inputs=["/designs/architect.json"],
+    required_inputs=[
+        "/designs/architect_index.json",
+        "/designs/pages/{page_id}.json",
+    ],
     primary_outputs=[
         "/designs/coder_page_tasks.json",
         "/logs/coder/page_worker_results.json",
@@ -86,7 +100,11 @@ TESTER_DEFINITION = SubagentDefinition(
     name="tester",
     description="Validate compiled HarmonyOS projects and produce tester reports.",
     owned_task_types=["validation"],
-    required_inputs=["/designs/architect.json", "/user_input/user_input_metadata.json"],
+    required_inputs=[
+        "/designs/architect_index.json",
+        "/designs/pages/{page_id}.json",
+        "/user_input/user_input_metadata.json",
+    ],
     primary_outputs=["/logs/tester/latest_tester_report.json"],
     structured_output_schema="TesterReportOutput",
 )
@@ -95,12 +113,30 @@ TESTER_DEFINITION = SubagentDefinition(
 ARCHITECT_DISPATCH_CONTRACT = DispatchContract(
     task_type="architecture",
     trigger="new_user_input_ready",
-    inputs=["/user_input/user_input_metadata.json", "/designs/architect_image_facts.json"],
-    required_outputs=["/designs/architect_image_facts.json", "/designs/architect.json"],
+    inputs=[
+        "/user_input/user_input_metadata.json",
+    ],
+    required_outputs=[
+        "/designs/page_drafts/page_draft_{n}.json",
+        "/designs/page_drafts_index.json",
+        "/designs/architect_index.json",
+        "/designs/pages/{page_id}.json",
+    ],
     done_criteria=[
-        "build /designs/architect_image_facts.json from per-image grounded facts before final aggregation",
-        "save final design to /designs/architect.json",
-        "aggregate final design from metadata and image facts bundle instead of feeding all raw images into the final generation step",
+        # 阶段一已由代码完成，无需 Agent 执行
+        # 阶段二
+        "stage 2: read /designs/page_drafts_index.json first to make merge decisions "
+        "without loading all full drafts at once",
+        "stage 2: call read_page_draft only for drafts that need to be merged, "
+        "do not load all drafts at once",
+        "stage 2: identify overlays, state variants, and independent pages from "
+        "lightweight summaries before reading full drafts",
+        "stage 2: infer navigate actions only when cross-image evidence exists",
+        # 最终产物
+        "save final project index to /designs/architect_index.json",
+        "save at least one page design file to /designs/pages/{page_id}.json",
+        "ensure index page list matches the actual per-page files",
+        "write global validation results into /designs/architect_index.json",
     ],
     fallback=[
         FallbackRule(condition="missing critical inputs", action="need_human_guidance"),
@@ -115,7 +151,8 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
             task_type="fix_from_test",
             trigger="tester_report_fail",
             inputs=[
-                "/designs/architect.json",
+                "/designs/architect_index.json",
+                "/designs/pages/{page_id}.json",
                 "/logs/tester/latest_tester_report.json",
                 "/designs/coder_page_tasks.json",
             ],
@@ -125,6 +162,7 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
             ],
             done_criteria=[
                 "reuse existing skeleton stage artifacts when still valid before dispatching page implementation work",
+                "read architecture from /designs/architect_index.json and /designs/pages/{page_id}.json",
                 "run page implementation stage on impacted pages or fall back to all page tasks when impact is unclear",
                 "run integration stage and save /logs/coder/integration_report.json",
                 "address tester failures and fix suggestions",
@@ -139,13 +177,17 @@ def build_coder_dispatch_contract(task_type: Literal["implementation", "fix_from
     return DispatchContract(
         task_type="implementation",
         trigger="architect_design_ready",
-        inputs=["/designs/architect.json"],
+        inputs=[
+            "/designs/architect_index.json",
+            "/designs/pages/{page_id}.json",
+        ],
         required_outputs=[
             "/designs/coder_page_tasks.json",
             "/logs/coder/page_worker_results.json",
             "/logs/coder/integration_report.json",
         ],
         done_criteria=[
+            "read architecture from /designs/architect_index.json and /designs/pages/{page_id}.json",
             "skeleton stage owns project bootstrap, page registration, and page-task planning",
             "page implementation stage dispatches page workers from /designs/coder_page_tasks.json",
             "integration stage resolves imports, dependencies, interface mismatches, and owns the compile-fix loop",
@@ -164,7 +206,8 @@ TESTER_DISPATCH_CONTRACT = DispatchContract(
     trigger="compiled_project_ready",
     inputs=[
         "/user_input/user_input_metadata.json",
-        "/designs/architect.json",
+        "/designs/architect_index.json",
+        "/designs/pages/{page_id}.json",
         "/projects",
     ],
     required_outputs=[
@@ -173,6 +216,7 @@ TESTER_DISPATCH_CONTRACT = DispatchContract(
     ],
     done_criteria=[
         "request or create /user_input/description.md before building the functional checklist",
+        "read architecture from /designs/architect_index.json and /designs/pages/{page_id}.json when needed for validation context",
         "save tester report to /logs/tester/latest_tester_report.json",
         "include PASS or FAIL verdict and fix suggestions",
         "use metadata file to discover uploaded reference asset file paths before reading asset files",
