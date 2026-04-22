@@ -16,7 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from utils.experiment_metrics import experiment_metrics_path  # noqa: E402
 from utils.session_workspace import normalize_session_id  # noqa: E402
 
-DEFAULT_PROMPT = "User input artifacts are under /user_input. Start the orchestration workflow."
+DEFAULT_PROMPT = "User input artifacts are under /user_input. Start the coding workflow."
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -155,8 +155,16 @@ def main() -> int:
         print(f"request failed: {exc}")
         return 1
 
+    metrics_text = read_metrics_text(session_id, pretty_json=args.print_metrics_json)
     print("\n=== Experiment Metrics ===")
-    print(read_metrics_text(session_id, pretty_json=args.print_metrics_json))
+    print(metrics_text)
+
+    try:
+        metrics = json.loads(read_metrics_text(session_id, pretty_json=False))
+        compile_count = int(metrics.get("compile_count", 0))
+    except Exception:
+        compile_count = 0
+    print(f"compile_count: {max(0, compile_count)}")
     return 0
 
 

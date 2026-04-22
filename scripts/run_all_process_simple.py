@@ -95,10 +95,15 @@ def read_metrics_json(session_id: str) -> dict[str, Any]:
 
 def build_summary_row(session_id: str, status: str, metrics: dict[str, Any], error_text: str = "") -> dict[str, Any]:
     token_usage = metrics.get("token_usage", {}) if isinstance(metrics, dict) else {}
+    compile_count = metrics.get("compile_count", 0) if isinstance(metrics, dict) else 0
+    try:
+        compile_count = int(compile_count)
+    except (TypeError, ValueError):
+        compile_count = 0
     return {
         "session_id": session_id,
         "status": status,
-        "compile_count": metrics.get("compile_count"),
+        "compile_count": max(0, compile_count),
         "total_elapsed_seconds": metrics.get("total_elapsed_seconds"),
         "total_tokens": token_usage.get("total_tokens"),
         "error": error_text,
