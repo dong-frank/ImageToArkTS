@@ -12,6 +12,13 @@ architect_vision_model = ChatOpenAI(
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
 )
 
+architect_model = ChatOpenAI(
+        model="qwen3-vl-plus",
+        api_key=os.getenv("DASHSCOPE_API_KEY"),
+        base_url=os.getenv("DASHSCOPE_BASE_URL"),
+)
+
+
 vision_model = ChatOpenAI(
         model="qwen3-vl-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
@@ -26,7 +33,7 @@ small_model = ChatOpenAI(
 )
 
 base_model = ChatOpenAI(
-        model="qwen-plus-latest",
+        model="qwen3.5-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
         extra_body={"enable_thinking": False},
@@ -35,6 +42,12 @@ base_model = ChatOpenAI(
 
 # claude-sonnet-4.6
 # architect_vision_model = ChatOpenAI(
+#         model="anthropic/claude-sonnet-4.6",
+#         api_key=os.getenv("OPENROUTER_API_KEY"),
+#         base_url=os.getenv("OPENROUTER_BASE_URL"),
+# )
+
+# architect_model = ChatOpenAI(
 #         model="anthropic/claude-sonnet-4.6",
 #         api_key=os.getenv("OPENROUTER_API_KEY"),
 #         base_url=os.getenv("OPENROUTER_BASE_URL"),
