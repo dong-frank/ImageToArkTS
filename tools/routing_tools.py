@@ -4,12 +4,13 @@ import concurrent.futures
 import hashlib
 import json
 import re
+from pathlib import Path
 from typing import Any, Literal
 
 from langchain.tools import ToolRuntime, tool
 from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langgraph.types import Command
-from tools.architect_tools import batch_extract_page_drafts
+
 from contracts.agent_contracts import (
     ARCHITECT_DISPATCH_CONTRACT,
     TESTER_DISPATCH_CONTRACT,
@@ -18,35 +19,30 @@ from contracts.agent_contracts import (
 from models import base_model
 from schemas import (
     CoderIntegrationReport,
-    CoderPageTask,
-    CoderPageTaskBundle,
     CoderPageWorkerResult,
-    CoderPageWorkerResultBundle,
     CoderSkeletonOutput,
-    TesterReportOutput,
 )
 from subagents import (
     build_coder_page_worker,
-    get_architect_agent,
+    get_architect_navigation_planner,
+    get_architect_page_merger,
     get_coder_integration_worker,
     get_coder_orchestrator,
     get_coder_skeleton_worker,
-    get_flow_summary_agent,
-    get_review_executor_agent,
     get_tester_agent,
-    get_visual_review_agent,
 )
 from tools.architect_tools import (
-    ArchitectPersistPayload,
-    save_page_draft,
-    save_page_drafts_index,
-    read_page_draft,
-    save_architect_design,
+    batch_extract_page_drafts,
+    check_stage1_artifacts,
+    check_stage2_artifacts,
+    check_stage3_artifacts,
+    inspect_architect_artifacts,
 )
 from tools.coder_tools import (
     _coder_page_tasks_path,
     append_coder_compile_fix_attempt,
     build_coder_compile_fix_attempt_payload,
+    build_coder_skeleton_seed_from_architect,
     load_coder_integration_report_payload,
     load_coder_page_task_bundle_payload,
     load_coder_page_worker_results_payload,
@@ -55,7 +51,12 @@ from tools.coder_tools import (
     save_coder_page_worker_results_payload,
 )
 from tools.common import resolve_workspace_path
-from utils.llm_utils import extract_tool_call_args, invoke_with_tool, normalize_tool_schema
+from utils.llm_utils import (
+    extract_json_object_from_text,
+    extract_tool_call_args,
+    invoke_with_tool,
+    normalize_tool_schema,
+)
 from utils.session_context import reset_current_session_id, set_current_session_id
 from utils.utils import load_prompt
 
@@ -75,7 +76,6 @@ _EXCLUDED_STATE_KEYS = {
 # Prompt loading
 # ---------------------------------------------------------------------------
 
-_ARCHITECT_SYSTEM_PROMPT = load_prompt("architect_system_prompt.md")
 _CODER_SKELETON_SYSTEM_PROMPT = load_prompt("coder_skeleton_system_prompt.md")
 _CODER_PAGE_SYSTEM_PROMPT = load_prompt("coder_page_system_prompt.md")
 _CODER_INTEGRATION_SYSTEM_PROMPT = load_prompt("coder_integration_system_prompt.md")
@@ -105,15 +105,6 @@ def _safe_identifier(value: str | None, fallback: str = "page") -> str:
 
 
 def _normalize_route(route: str | None, page_name: str, page_id: str) -> str:
-    """
-    Normalize an architect-provided route value into a valid HarmonyOS page route.
-
-    Rules:
-    - Must start with "pages/" (case-insensitive prefix is accepted and corrected)
-    - Tail after "pages/" must be a valid identifier (PascalCase preferred)
-    - Leading slashes are stripped
-    - Fallback: derive from page_id or page_name using PascalCase
-    """
     raw = str(route or "").strip()
 
     if raw:
@@ -130,35 +121,79 @@ def _normalize_route(route: str | None, page_name: str, page_id: str) -> str:
             tail_clean = "".join(w.capitalize() for w in base.split("_") if w)
         return f"{prefix}{tail_clean}"
 
-    # Fallback: derive PascalCase name from page_id or page_name
     base = _safe_identifier(page_id or page_name, fallback="index")
     pascal = "".join(w.capitalize() for w in base.split("_") if w)
     return f"pages/{pascal}"
 
 
-def _infer_entry_task(page_tasks: list[dict[str, Any]]) -> dict[str, Any] | None:
-    """
-    Select the entry page task from a list of page tasks.
-
-    Priority:
-    1. role == "entry"  (Schema-defined canonical value)
-    2. route matches known entry route patterns
-    3. First task as final fallback
-    """
-    if not page_tasks:
+def _infer_entry_task(tasks: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not tasks:
         return None
 
-    for task in page_tasks:
+    for task in tasks:
         role = str(task.get("role") or "").strip().lower()
         if role in _ENTRY_ROLES:
             return task
 
-    for task in page_tasks:
+    for task in tasks:
         route = str(task.get("route") or "").strip().lower()
         if route in _ENTRY_ROUTES:
             return task
 
-    return page_tasks[0]
+    return tasks[0]
+
+
+# ---------------------------------------------------------------------------
+# Architect-stage helpers
+# ---------------------------------------------------------------------------
+
+
+def _stage1_result_is_success(stage1_result: str) -> bool:
+    return "status: SUCCESS" in str(stage1_result or "")
+
+
+def _architect_workspace_root() -> Path:
+    from utils.session_context import get_current_session_id
+
+    session_id = get_current_session_id()
+    if not session_id:
+        raise ValueError("current session id is missing")
+
+    return (
+        Path(__file__).resolve().parents[1]
+        / "agent_workspace"
+        / "sessions"
+        / session_id
+    ).resolve()
+
+
+def _architect_resolve_path(raw_path: str) -> Path:
+    return (_architect_workspace_root() / raw_path.lstrip("/")).resolve()
+
+
+def _parse_json_text_or_empty_dict(text: str) -> dict[str, Any]:
+    try:
+        data = json.loads(text)
+        return data if isinstance(data, dict) else {}
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def _architect_artifact_status() -> dict[str, Any]:
+    return _parse_json_text_or_empty_dict(inspect_architect_artifacts())
+
+
+def _stage_status(stage_status: dict[str, Any] | None) -> bool:
+    return bool(isinstance(stage_status, dict) and stage_status.get("is_complete"))
+
+
+def _require_architect_stage3_complete() -> None:
+    status = _architect_artifact_status()
+    stage3 = status.get("stage3") if isinstance(status, dict) else {}
+    if not _stage_status(stage3):
+        raise ValueError(
+            "architect artifacts incomplete: stage3 navigation design is required before coder stage"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -177,14 +212,30 @@ def _normalize_project_relative_path(project_name: str, raw_path: str) -> str:
     return f"/projects/{project_name}/{raw.lstrip('/')}"
 
 
-def _normalize_coder_skeleton_paths(payload: dict) -> dict:
+def _normalize_shared_dependencies(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    tasks = list(normalized.get("tasks") or normalized.get("page_tasks") or [])
+
+    normalized_tasks = []
+    for task in tasks:
+        item = dict(task)
+        item["shared_dependencies"] = list(item.get("shared_dependencies") or [])
+        normalized_tasks.append(item)
+
+    normalized["tasks"] = normalized_tasks
+    normalized.pop("page_tasks", None)
+    return normalized
+
+
+def _normalize_coder_skeleton_paths(payload: dict[str, Any]) -> dict[str, Any]:
     normalized = dict(payload)
     project_name = str(normalized.get("project_name") or "").strip()
     if not project_name:
         return normalized
 
-    page_tasks = []
-    for task in normalized.get("page_tasks", []) or []:
+    tasks = list(normalized.get("tasks") or normalized.get("page_tasks") or [])
+    normalized_tasks = []
+    for task in tasks:
         item = dict(task)
         if item.get("page_file"):
             item["page_file"] = _normalize_project_relative_path(
@@ -194,39 +245,17 @@ def _normalize_coder_skeleton_paths(payload: dict) -> dict:
             _normalize_project_relative_path(project_name, str(p))
             for p in (item.get("allowed_write_paths") or [])
         ]
-        page_tasks.append(item)
-    normalized["page_tasks"] = page_tasks
-    return normalized
-
-
-def _ensure_navigation_scaffold(payload: dict) -> dict:
-    """
-    Inject shared navigation dependencies into every page task when the project
-    has more than one page.  Skeleton owns shared navigation; page workers only
-    consume it.
-    """
-    normalized = dict(payload)
-    page_tasks = list(normalized.get("page_tasks") or [])
-    if len(page_tasks) <= 1:
-        return normalized
-
-    normalized_tasks = []
-    for task in page_tasks:
-        item = dict(task)
-        shared_deps = list(item.get("shared_dependencies") or [])
-        for dep in ("BottomNavBar", "NavigationService"):
-            if dep not in shared_deps:
-                shared_deps.append(dep)
-        item["shared_dependencies"] = shared_deps
         normalized_tasks.append(item)
-    normalized["page_tasks"] = normalized_tasks
+
+    normalized["tasks"] = normalized_tasks
+    normalized.pop("page_tasks", None)
     return normalized
 
 
-def _normalize_coder_skeleton_tool_args(tool_args: dict) -> dict:
+def _normalize_coder_skeleton_tool_args(tool_args: dict[str, Any]) -> dict[str, Any]:
     result = dict(tool_args)
     result = _normalize_coder_skeleton_paths(result)
-    result = _ensure_navigation_scaffold(result)
+    result = _normalize_shared_dependencies(result)
     return result
 
 
@@ -301,27 +330,86 @@ def _extract_structured_response(result: dict) -> Any:
 # ---------------------------------------------------------------------------
 
 
-def _compile_status_signature(compile_output: str) -> str:
-    """
-    Derive a stable one-line signature from compile output for stall detection.
-    Priority: failed_step line > first error bullet > first non-empty line.
-    """
-    text = str(compile_output or "")
-    m = re.search(r"^failed_step:\s*(.+)$", text, re.MULTILINE)
-    if m:
-        return m.group(1).strip()
-    m = re.search(r"^- (.+)$", text, re.MULTILINE)
-    if m:
-        return m.group(1).strip()
-    first_line = text.strip().splitlines()[0] if text.strip() else ""
-    return first_line or "unknown"
+def _classify_compile_error_line(line: str) -> tuple[str, str]:
+    text = str(line or "").strip()
+    lowered = text.lower()
+
+    file_match = re.search(r"(/projects/[^\s:]+|entry/src/[^\s:]+\.ets|[A-Za-z0-9_./-]+\.ets)", text)
+    file_key = file_match.group(1) if file_match else "unknown_file"
+
+    if any(token in lowered for token in ("cannot find module", "module not found", "import")):
+        return "import_resolution_error", file_key
+    if any(token in lowered for token in ("export", "not exported")):
+        return "export_visibility_error", file_key
+    if any(token in lowered for token in ("cannot find name", "unresolved", "symbol")):
+        return "symbol_not_found_error", file_key
+    if any(token in lowered for token in ("type", "assignable", "incompatible")):
+        return "type_mismatch_error", file_key
+    if any(token in lowered for token in ("@component", "@entry", "@builder", "decorator")):
+        return "decorator_usage_error", file_key
+    if any(token in lowered for token in ("resource", "media", "$r(", "string.json")):
+        return "resource_reference_error", file_key
+    if any(token in lowered for token in ("route", "entry", "pages.json", "module.json", "main_pages.json")):
+        return "route_or_entry_config_error", file_key
+    return "unknown_error", file_key
+
+
+def _build_compile_fingerprint(compile_output: str) -> dict[str, Any]:
+    parsed = _parse_compile_output(compile_output)
+    key_errors = list(parsed.get("key_errors") or [])
+
+    normalized_error_groups: list[str] = []
+    primary_blockers: list[dict[str, str]] = []
+
+    for line in key_errors:
+        error_type, file_key = _classify_compile_error_line(line)
+        if error_type not in normalized_error_groups:
+            normalized_error_groups.append(error_type)
+
+        blocker = {
+            "file": file_key,
+            "type": error_type,
+        }
+        if blocker not in primary_blockers:
+            primary_blockers.append(blocker)
+
+    primary_blockers = primary_blockers[:8]
+
+    return {
+        "normalized_error_groups": normalized_error_groups,
+        "primary_blockers": primary_blockers,
+    }
+
+
+def _compile_fingerprint_stalled(
+    previous: dict[str, Any] | None,
+    current: dict[str, Any] | None,
+) -> bool:
+    if not previous or not current:
+        return False
+
+    prev_groups = sorted(set(previous.get("normalized_error_groups") or []))
+    curr_groups = sorted(set(current.get("normalized_error_groups") or []))
+
+    prev_blockers = sorted(
+        {
+            (str(item.get("file") or ""), str(item.get("type") or ""))
+            for item in (previous.get("primary_blockers") or [])
+            if isinstance(item, dict)
+        }
+    )
+    curr_blockers = sorted(
+        {
+            (str(item.get("file") or ""), str(item.get("type") or ""))
+            for item in (current.get("primary_blockers") or [])
+            if isinstance(item, dict)
+        }
+    )
+
+    return prev_groups == curr_groups and prev_blockers == curr_blockers
 
 
 def _parse_compile_output(compile_output: str) -> dict[str, Any]:
-    """
-    Parse a structured compile output block into a typed dict.
-    Handles empty input gracefully.
-    """
     if not compile_output or not compile_output.strip():
         return {
             "compile_status": "FAILED",
@@ -360,14 +448,6 @@ def _parse_compile_output(compile_output: str) -> dict[str, Any]:
 
 
 def _extract_final_compile_output(agent_summary: str) -> str:
-    """
-    Extract the compile output block from an integration worker summary.
-
-    Fallback levels:
-    1. Standard <<FINAL_COMPILE_OUTPUT>> ... <<END_FINAL_COMPILE_OUTPUT>> block
-    2. Raw text that contains "compile_status:" line
-    3. Synthetic FAILED placeholder
-    """
     text = str(agent_summary or "")
 
     m = re.search(
@@ -403,7 +483,28 @@ def _strip_compile_output_block(agent_summary: str) -> str:
 
 
 def build_architect_dispatch_description() -> str:
-    return ARCHITECT_DISPATCH_CONTRACT.render()
+    return "\n".join(
+        [
+            ARCHITECT_DISPATCH_CONTRACT.render(),
+            "",
+            "Architect internal pipeline contract:",
+            "stage1: single-image observation extraction",
+            "- extract per-image observation drafts from screenshots",
+            "- preserve page identity, visible page frame, visible UI structure, interaction clues, navigation clues, merge clues, subpage clues, overlay clues, state clues, and lightweight visual semantics",
+            "- stay faithful to screenshot facts and avoid fabricating unseen or unsupported deep structure",
+            "",
+            "stage2: final page set construction",
+            "- merge related observation drafts into the final page set",
+            "- distinguish same-page drafts, state variants, overlays, and standalone pages",
+            "- preserve implementation-useful page structure, merged ui_tree, interaction clues, and visual/implementation hints",
+            "- do not finalize global navigation relations in this stage",
+            "",
+            "stage3: hierarchy and navigation inference",
+            "- infer page hierarchy and navigation relations from merged pages",
+            "- determine entry page and validate global consistency",
+            "- save navigation-only design artifact without rewriting stage2 page files",
+        ]
+    )
 
 
 def build_coder_dispatch_description(
@@ -431,7 +532,7 @@ def build_coder_integration_dispatch_description(
             "- capture remaining blockers when compilation still fails",
             "- preserve UI fidelity and allow minimal or placeholder functionality when needed",
             "fallback:",
-            "- if repeated compile errors do not change => need_human_guidance",
+            "- if repeated compile blockers do not materially change => need_human_guidance",
             "- if task mismatch => wrong_agent",
         ]
     )
@@ -441,54 +542,9 @@ def build_tester_dispatch_description() -> str:
     return TESTER_DISPATCH_CONTRACT.render()
 
 
-def build_review_executor_dispatch_description() -> str:
-    return "\n".join(
-        [
-            "Run execute-test stage right after coder integration is successful.",
-            "Input roots:",
-            "- /user_input",
-            "- /projects",
-            "Requirements:",
-            "- infer bundle_name from /projects/<project>/AppScope/app.json5 when not provided",
-            "- infer ability_name from /projects/<project>/entry/src/main/module.json5 when possible",
-            "- infer hap path under /projects/<project>/entry/build/default/outputs/default when not provided",
-            "- must call run_review_node_with_inputs(...)",
-            "Expected output:",
-            "- /reports/test_result.json",
-        ]
-    )
-
-
-def build_flow_summary_dispatch_description() -> str:
-    return "\n".join(
-        [
-            "Run flow summary stage from latest review outputs.",
-            "Requirements:",
-            "- must call summarize_review_features_by_page(review_output_dir='/reports')",
-            "- summarize per-page features first, then navigation/jump features from report.txt",
-            "Expected output:",
-            "- summary markdown path under latest review output directory",
-        ]
-    )
-
-
-def build_visual_review_dispatch_description() -> str:
-    return "\n".join(
-        [
-            "Run visual review stage after flow summary.",
-            "Requirements:",
-            "- must call run_visual_review_with_inputs(review_output_dir='/reports', architect_output_path='/designs/architect.json', user_input_dir='/user_input')",
-            "- prefer expected assets from architect image_assets, fallback to rebuilding from /user_input",
-            "Expected output:",
-            "- visual review json path under latest review output directory",
-        ]
-    )
-
-
 # ---------------------------------------------------------------------------
 # Prompt builders
 # ---------------------------------------------------------------------------
-
 
 
 def build_coder_skeleton_planning_prompt(
@@ -498,33 +554,33 @@ def build_coder_skeleton_planning_prompt(
     return "\n".join(
         [
             f"task_type: {task_type}",
-            "trigger: architect_design_ready",
-            "inputs:",
-            "- /designs/architect_index.json",
-            "- /designs/pages/<page_id>.json  # replace <page_id> with each actual page id",
-            "required_outputs:",
+            "current_stage: coder_skeleton",
+            "You are executing the skeleton stage only.",
+            "Use your system prompt as the primary contract.",
+            "",
+            "Required input files:",
+            "- /designs/page_merge_index.json",
+            "- /designs/navigation_design.json",
+            "- /designs/pages/<page_id>.json  # read page files on demand using actual page ids",
+            "",
+            "Required output files:",
             "- /designs/coder_page_tasks.json",
-            "done_criteria:",
-            "- skeleton stage owns project bootstrap, page registration, and page-task planning",
-            "- save /designs/coder_page_tasks.json before page implementation begins",
-            "fallback:",
-            "- if task mismatch => wrong_agent",
-            "- if missing critical skeleton inputs => need_human_guidance",
             "",
-            "You own the skeleton stage.",
-            "You must both plan the skeleton and execute project bootstrap work that belongs to the skeleton stage.",
-            "Use create_project when needed, and write /designs/coder_page_tasks.json yourself before returning.",
-            "Do not claim the full app is complete.",
-            "Unified navigation belongs to skeleton when the project has multiple pages.",
-            "Page registration, startup page alignment, and avoiding stale template entry pages also belong to skeleton.",
+            "Stage goals:",
+            "- create the HarmonyOS project from the provided template when needed",
+            "- initialize the project skeleton",
+            "- register routes and entry trampoline",
+            "- create shared navigation scaffold only when explicitly justified by navigation/page evidence",
+            "- persist the canonical /designs/coder_page_tasks.json bundle before page workers begin",
             "",
-            "Read required skills yourself before planning:",
-            "- /skills/harmony-coding-guardrails/SKILL.md",
-            "- /skills/harmony-next/SKILL.md",
+            "Execution boundaries:",
+            "- do not implement full page UI in this stage",
+            "- do not declare the whole app complete",
+            "- navigation hierarchy source of truth is /designs/navigation_design.json",
+            "- page structure source of truth is /designs/pages/<page_id>.json",
+            "- do not auto-assign shared_dependencies merely because there are multiple pages",
             "",
-            "Read required input files yourself:",
-            "- /designs/architect_index.json",
-            "- /designs/pages/<page_id>.json  # replace <page_id> with each actual page id from architect_index",
+            "Read required skills and input files yourself before acting.",
         ]
     )
 
@@ -536,15 +592,23 @@ def _build_coder_skeleton_result_prompt(
 ) -> str:
     return "\n".join(
         [
-            "Summarize the skeleton worker result into structured CoderSkeletonOutput.",
-            "Use /designs/architect_index.json and /designs/pages/<page_id>.json as the source of truth for pages and product structure.",
-            "Preserve unified navigation scaffolding for multi-page projects.",
+            "Summarize the skeleton-stage result into structured CoderSkeletonOutput.",
+            "Use the persisted architect design files as the source of truth.",
+            "Use the worker summary only as supporting context.",
             "",
             f"task_type: {task_type}",
             "",
-            "Read required input files yourself:",
-            "- /designs/architect_index.json",
-            "- /designs/pages/<page_id>.json  # replace <page_id> with each actual page id",
+            "Source files:",
+            "- /designs/page_merge_index.json",
+            "- /designs/navigation_design.json",
+            "- /designs/pages/<page_id>.json",
+            "",
+            "Expected emphasis:",
+            "- project_name",
+            "- app_display_name if available",
+            "- canonical tasks for page workers",
+            "- multi-page navigation scaffold expectations only when explicitly supported",
+            "- page-level shared_dependencies must remain explicit and must not be inferred solely from page count",
             "",
             "Skeleton worker summary:",
             agent_summary or "(empty)",
@@ -554,113 +618,104 @@ def _build_coder_skeleton_result_prompt(
 
 def _build_page_task_prompt(
     task_payload: dict,
-    architect_page_payload: dict,
-    skeleton_payload: dict,
     task_type: Literal["implementation", "fix_from_test"],
     tester_report_payload: dict | None = None,
 ) -> str:
-    execution_priority = {
-        "primary_goal": "Reconstruct the UI as faithfully as possible.",
-        "secondary_goal": "Implement only minimal functionality needed to support the visible UI.",
-        "allowed_tradeoffs": [
-            "Use placeholder handlers when full business logic is complex.",
-            "Use static mock data when real data flow would block UI delivery.",
-            "Prefer visually correct sections over deep functional completeness.",
-        ],
-    }
     page_id = str(task_payload.get("page_id") or "")
     sections = [
-        build_coder_dispatch_description(task_type=task_type),
-        "",
+        f"task_type: {task_type}",
+        "current_stage: coder_page_worker",
         "You are executing one page implementation task only.",
+        "Use your system prompt as the primary contract.",
+        "",
         f"target_page_name: {str(task_payload.get('page_name') or '')}",
         f"target_page_id: {page_id}",
-        "Skill usage is mandatory before code generation for ArkTS / ArkUI details.",
-        "Respect allowed_write_paths and page-local component boundaries.",
-        "Do not compile the whole project and do not edit shared skeleton files directly.",
-        "Read the relevant task and design files yourself before coding.",
+        f"target_route: {str(task_payload.get('route') or '')}",
+        f"target_page_file: {str(task_payload.get('page_file') or '')}",
         "",
-        "Execution priority:",
-        json.dumps(execution_priority, ensure_ascii=False, indent=2),
-        "",
-        "Read required skills yourself before coding:",
-        "- /skills/harmony-coding-guardrails/SKILL.md",
-        "- /skills/harmony-next/SKILL.md",
-        "",
-        "Required input paths:",
+        "Required input files:",
         "- /designs/coder_page_tasks.json",
-        "- /designs/architect_index.json",
-        f"- /designs/pages/{page_id}.json  # your assigned page design file",
+        f"- /designs/pages/{page_id}.json",
+        "",
+        "Optional reference files:",
+        "- /designs/page_merge_index.json",
+        "- /designs/navigation_design.json",
     ]
+
     if tester_report_payload is not None:
-        sections.extend(
-            [
-                "",
-                "Optional input path:",
-                "- /logs/tester/latest_tester_report.json",
-            ]
-        )
+        sections.append("- /logs/tester/latest_tester_report.json  # optional reference for fix_from_test")
+
+    sections.extend(
+        [
+            "",
+            "Execution boundaries:",
+            "- only modify allowed_write_paths for this task",
+            "- do not edit shared skeleton files directly",
+            "- do not run project-wide integration work in this stage",
+            "- prioritize UI fidelity over deep functionality",
+            "",
+            "Read required skills and input files yourself before coding.",
+        ]
+    )
     return "\n".join(sections)
 
 
 def _build_integration_prompt(
     task_type: Literal["implementation", "fix_from_test"],
-    skeleton_payload: dict,
-    page_results_payload: dict,
     tester_report_payload: dict | None = None,
     prev_compile_feedback: str | None = None,
     round_idx: int = 1,
 ) -> str:
-    execution_priority = {
-        "primary_goal": "Preserve and stabilize UI fidelity first.",
-        "secondary_goal": "Keep functionality at a minimal compile-safe level when necessary.",
-        "allowed_tradeoffs": [
-            "Do not rewrite visually accurate pages just to chase nonessential behavior.",
-            "Prefer compile-safe placeholders over risky feature-heavy rewrites.",
-            "Protect layout, styling, and visible section structure unless a change is required to compile.",
-        ],
-    }
     sections = [
-        build_coder_integration_dispatch_description(task_type=task_type),
-        "",
+        f"task_type: {task_type}",
         f"integration_round: {round_idx}",
+        "current_stage: coder_integration",
         "You are executing the integration stage only.",
-        "Skill usage is mandatory before fixing ArkTS / ArkUI engineering issues.",
-        "Resolve shared contract mismatches, import/export issues, route registration gaps, and naming inconsistencies.",
-        "You own the compile-fix loop in this stage.",
-        "Run compile_project yourself first. If compile fails, fix the issue and compile again until success or until the main error stops changing.",
-        "Your final response must include a short human summary and a final compile output block "
-        "wrapped exactly with <<FINAL_COMPILE_OUTPUT>> and <<END_FINAL_COMPILE_OUTPUT>>.",
+        "Use your system prompt as the primary contract.",
         "",
-        "Execution priority:",
-        json.dumps(execution_priority, ensure_ascii=False, indent=2),
-        "",
-        "Read required skills yourself before fixing:",
-        "- /skills/harmony-coding-guardrails/SKILL.md",
-        "- /skills/harmony-next/SKILL.md",
-        "",
-        "Required input paths:",
+        "Required input files:",
         "- /designs/coder_page_tasks.json",
         "- /logs/coder/page_worker_results.json",
-        "- /designs/architect_index.json",
-        "- /designs/pages/<page_id>.json  # replace <page_id> with each actual page id",
+        "- /designs/navigation_design.json",
+        "",
+        "Optional reference files:",
+        "- /designs/page_merge_index.json",
+        "- /designs/pages/<page_id>.json",
     ]
+
     if tester_report_payload is not None:
-        sections.extend(
-            [
-                "",
-                "Optional input path:",
-                "- /logs/tester/latest_tester_report.json",
-            ]
-        )
+        sections.append("- /logs/tester/latest_tester_report.json  # optional reference for fix_from_test")
+
+    sections.extend(
+        [
+            "",
+            "Stage goals:",
+            "- resolve compile-blocking engineering issues",
+            "- preserve page identity, navigation intent, and UI fidelity",
+            "- own the compile-fix loop in this stage",
+            "- persist the final integration report",
+            "",
+            "Execution boundaries:",
+            "- do not re-plan the app architecture",
+            "- do not unnecessarily rewrite page UI",
+            "- make the smallest compile-safe fixes first",
+            "",
+            "Your final response must include:",
+            "- a short human-readable summary",
+            "- a compile output block wrapped exactly with <<FINAL_COMPILE_OUTPUT>> and <<END_FINAL_COMPILE_OUTPUT>>",
+            "",
+            "Read required skills and input files yourself before fixing.",
+        ]
+    )
+
     if prev_compile_feedback:
         sections.extend(
             [
                 "",
-                f"Previous round ({round_idx - 1}) compile output (fix these errors in this round):",
-                "```",
+                "Previous round compile output:",
+                "<<PREVIOUS_COMPILE_OUTPUT>>",
                 prev_compile_feedback,
-                "```",
+                "<<END_PREVIOUS_COMPILE_OUTPUT>>",
             ]
         )
     return "\n".join(sections)
@@ -709,54 +764,188 @@ def _build_integration_report_prompt(
 
 
 # ---------------------------------------------------------------------------
+# Structured-output fallback helpers
+# ---------------------------------------------------------------------------
+
+
+def _extract_json_dict_from_response(response: Any) -> dict[str, Any] | None:
+    try:
+        return extract_json_object_from_text(response)
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _load_json_dict_file(path: Path) -> dict[str, Any]:
+    text = path.read_text(encoding="utf-8")
+    try:
+        payload = json.loads(text)
+    except json.JSONDecodeError:
+        payload = extract_json_object_from_text(text)
+        if payload is None:
+            raise
+    if not isinstance(payload, dict):
+        raise ValueError(f"JSON payload in {path} must be an object")
+    return payload
+
+
+def _fallback_coder_skeleton_payload(partial: dict[str, Any] | None = None) -> dict[str, Any]:
+    inferred = build_coder_skeleton_seed_from_architect()
+    if not partial:
+        return _normalize_coder_skeleton_tool_args(inferred)
+
+    merged = {**inferred, **partial}
+    if not merged.get("tasks"):
+        merged["tasks"] = list(inferred.get("tasks") or partial.get("page_tasks") or [])
+    return _normalize_coder_skeleton_tool_args(merged)
+
+
+def _infer_page_worker_status(agent_summary: str, modified_files: list[str]) -> str:
+    text = str(agent_summary or "").lower()
+    if "need_human_guidance" in text or "need human guidance" in text:
+        return "need_human_guidance"
+    if any(token in text for token in ("blocker", "blocked", "wrong_agent", "failed")):
+        return "blocked"
+    if modified_files or any(token in text for token in ("完成", "done", "completed", "implemented")):
+        return "done"
+    return "blocked"
+
+
+def _fallback_page_worker_result(
+    task_payload: dict[str, Any],
+    modified_files: list[str],
+    agent_summary: str,
+    partial: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    partial = dict(partial or {})
+    blockers = partial.get("blockers")
+    if not isinstance(blockers, list):
+        blockers = []
+
+    status = str(partial.get("status") or "").strip().lower()
+    if status not in {"done", "blocked", "need_human_guidance"}:
+        status = _infer_page_worker_status(agent_summary, modified_files)
+
+    return {
+        "status": status,
+        "page_name": str(
+            partial.get("page_name")
+            or task_payload.get("page_name")
+            or task_payload.get("page_id")
+            or ""
+        ),
+        "modified_files": list(modified_files),
+        "exports_added": list(partial.get("exports_added") or []),
+        "shared_contract_requests": list(partial.get("shared_contract_requests") or []),
+        "blockers": blockers,
+        "summary": str(partial.get("summary") or agent_summary or "").strip() or "page worker finished",
+    }
+
+
+def _resolve_project_name_from_payloads(
+    skeleton_payload: dict[str, Any] | None = None,
+    task_bundle: dict[str, Any] | None = None,
+    architect_payload: dict[str, Any] | None = None,
+) -> str:
+    candidates = [
+        (skeleton_payload or {}).get("project_name"),
+        (task_bundle or {}).get("project_name"),
+        ((architect_payload or {}).get("page_merge_index") or {}).get("project_name"),
+        ((architect_payload or {}).get("navigation_design") or {}).get("project_name"),
+    ]
+
+    for value in candidates:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return "app_project"
+
+
+# ---------------------------------------------------------------------------
 # Payload loaders
 # ---------------------------------------------------------------------------
 
 
-
-def load_architect_index_payload() -> dict:
-    return json.loads(
-        resolve_workspace_path("/designs/architect_index.json").read_text(encoding="utf-8")
-    )
+def load_page_merge_index_payload() -> dict[str, Any]:
+    return _load_json_dict_file(_architect_resolve_path("/designs/page_merge_index.json"))
 
 
-def load_architect_page_payloads() -> list[dict]:
-    pages_dir = resolve_workspace_path("/designs/pages")
+def load_navigation_design_payload() -> dict[str, Any]:
+    return _load_json_dict_file(_architect_resolve_path("/designs/navigation_design.json"))
+
+
+def load_architect_page_payloads() -> list[dict[str, Any]]:
+    pages_dir = _architect_resolve_path("/designs/pages")
     if not pages_dir.exists() or not pages_dir.is_dir():
         return []
-    return [
-        json.loads(p.read_text(encoding="utf-8"))
-        for p in sorted(pages_dir.glob("*.json"))
-    ]
+    return [_load_json_dict_file(p) for p in sorted(pages_dir.glob("*.json"))]
 
 
-def load_architect_design_payload() -> dict:
+def load_architect_design_payload() -> dict[str, Any]:
+    """
+    Backward-compatible aggregated architect payload for coder consumption.
+
+    New source of truth:
+    - page index: /designs/page_merge_index.json
+    - navigation: /designs/navigation_design.json
+    - page files: /designs/pages/*.json
+    """
+    _require_architect_stage3_complete()
+    navigation_design = load_navigation_design_payload()
     return {
-        "index": load_architect_index_payload(),
+        "page_merge_index": load_page_merge_index_payload(),
+        "navigation_design": navigation_design,
         "pages": load_architect_page_payloads(),
+        "index": navigation_design,
     }
 
 
-def load_tester_report_payload() -> dict:
-    return json.loads(
-        resolve_workspace_path("/logs/tester/latest_tester_report.json").read_text(
-            encoding="utf-8"
-        )
-    )
+def load_tester_report_payload() -> dict[str, Any]:
+    return _load_json_dict_file(resolve_workspace_path("/logs/tester/latest_tester_report.json"))
+
+
+# ---------------------------------------------------------------------------
+# Coder artifact helpers
+# ---------------------------------------------------------------------------
+
+
+def _coder_page_results_path() -> Path:
+    return resolve_workspace_path("/logs/coder/page_worker_results.json")
+
+
+def _coder_integration_report_path() -> Path:
+    return resolve_workspace_path("/logs/coder/integration_report.json")
+
+
+def _coder_page_results_exist() -> bool:
+    path = _coder_page_results_path()
+    return path.exists() and path.is_file()
+
+
+def _coder_integration_report_exists() -> bool:
+    path = _coder_integration_report_path()
+    return path.exists() and path.is_file()
+
+
+def _coder_integration_success() -> bool:
+    if not _coder_integration_report_exists():
+        return False
+    try:
+        payload = load_coder_integration_report_payload()
+    except Exception:  # noqa: BLE001
+        return False
+    return str(payload.get("compile_status") or "").strip().upper() == "SUCCESS"
+
 
 # ---------------------------------------------------------------------------
 # Coder skeleton stage
 # ---------------------------------------------------------------------------
+
 
 def invoke_coder_skeleton_result_formatter(
     architect_payload: dict,
     task_type: Literal["implementation", "fix_from_test"],
     agent_summary: str,
 ) -> dict:
-    """
-    Fallback: re-format a skeleton worker text summary into CoderSkeletonOutput.
-    Only called when the agent did not emit a structured_response.
-    """
     tool_name = "CoderSkeletonOutput"
     llm_response = invoke_with_tool(
         base_model,
@@ -772,11 +961,18 @@ def invoke_coder_skeleton_result_formatter(
         ],
         tool_name,
         normalize_tool_schema(CoderSkeletonOutput.model_json_schema()),
+        force_tool_choice=False,
     )
     tool_args = extract_tool_call_args(llm_response, tool_name)
     if tool_args is not None:
         return _normalize_coder_skeleton_tool_args(tool_args)
-    raise ValueError("Coder skeleton stage requires tool-call output from CoderSkeletonOutput")
+
+    parsed_json = _extract_json_dict_from_response(llm_response)
+    if parsed_json is not None:
+        return _fallback_coder_skeleton_payload(parsed_json)
+
+    parsed_summary = _extract_json_dict_from_response(agent_summary)
+    return _fallback_coder_skeleton_payload(parsed_summary)
 
 
 def run_coder_skeleton_stage(
@@ -785,12 +981,6 @@ def run_coder_skeleton_stage(
     task_type: Literal["implementation", "fix_from_test"],
     runtime: ToolRuntime,
 ) -> tuple[dict, str]:
-    """
-    Run the skeleton worker subagent and return (skeleton_payload, agent_summary).
-
-    Structured response from the agent is preferred over a secondary LLM
-    re-formatting call to avoid information loss and unnecessary token spend.
-    """
     result = _invoke_subagent(
         get_coder_skeleton_worker(),
         build_coder_skeleton_planning_prompt(
@@ -800,17 +990,15 @@ def run_coder_skeleton_stage(
     )
     agent_summary = _result_text(result)
 
-    # Prefer the structured tool-call output emitted by the agent
     structured = _extract_structured_response(result)
     if (
         structured is not None
         and isinstance(structured, dict)
-        and structured.get("page_tasks")
+        and (structured.get("tasks") or structured.get("page_tasks"))
     ):
         payload = _normalize_coder_skeleton_tool_args(structured)
         return payload, agent_summary
 
-    # Fallback: derive structured output from the text summary via a second LLM call
     payload = invoke_coder_skeleton_result_formatter(
         architect_payload=architect_payload,
         task_type=task_type,
@@ -838,12 +1026,27 @@ def invoke_coder_page_result_formatter(
         ],
         tool_name,
         normalize_tool_schema(CoderPageWorkerResult.model_json_schema()),
+        force_tool_choice=False,
     )
     tool_args = extract_tool_call_args(llm_response, tool_name)
     if tool_args is not None:
         return tool_args
-    raise ValueError(
-        "Coder page worker result requires tool-call output from CoderPageWorkerResult"
+
+    parsed_json = _extract_json_dict_from_response(llm_response)
+    if parsed_json is not None:
+        return _fallback_page_worker_result(
+            task_payload=task_payload,
+            modified_files=modified_files,
+            agent_summary=agent_summary,
+            partial=parsed_json,
+        )
+
+    parsed_summary = _extract_json_dict_from_response(agent_summary)
+    return _fallback_page_worker_result(
+        task_payload=task_payload,
+        modified_files=modified_files,
+        agent_summary=agent_summary,
+        partial=parsed_summary,
     )
 
 
@@ -868,21 +1071,8 @@ def _detect_modified_files(
     ]
 
 
-def _page_slice_for_task(architect_payload: dict, page_name: str) -> dict:
-    for page in architect_payload.get("pages", []) or []:
-        if str(page.get("page_name") or "") == page_name:
-            return page
-        if str(page.get("page_id") or "") == page_name:
-            return page
-        if str(page.get("name") or "") == page_name:
-            return page
-    return {"page_name": page_name}
-
-
 def _run_single_page_worker(
     task_payload: dict,
-    skeleton_payload: dict,
-    architect_payload: dict,
     runtime: ToolRuntime,
     task_type: Literal["implementation", "fix_from_test"],
     tester_report_payload: dict | None = None,
@@ -892,10 +1082,6 @@ def _run_single_page_worker(
         build_coder_page_worker(),
         _build_page_task_prompt(
             task_payload=task_payload,
-            architect_page_payload=_page_slice_for_task(
-                architect_payload, str(task_payload.get("page_name") or "")
-            ),
-            skeleton_payload=skeleton_payload,
             task_type=task_type,
             tester_report_payload=tester_report_payload,
         ),
@@ -912,9 +1098,10 @@ def _run_single_page_worker(
 
 
 def _select_page_tasks(
-    task_bundle: dict, tester_report_payload: dict | None = None
+    task_bundle: dict,
+    tester_report_payload: dict | None = None,
 ) -> list[dict]:
-    tasks = list(task_bundle.get("tasks") or task_bundle.get("page_tasks") or [])
+    tasks = list(task_bundle.get("tasks") or [])
     if not tester_report_payload:
         return tasks
     haystack = json.dumps(tester_report_payload, ensure_ascii=False)
@@ -931,29 +1118,37 @@ def dispatch_page_coders(
     runtime: ToolRuntime,
     tester_report_payload: dict | None = None,
 ) -> dict:
+    # Note:
+    # Page workers are dispatched concurrently.
+    # session_context must remain thread-local / context-local.
+    project_name = _resolve_project_name_from_payloads(
+        skeleton_payload=skeleton_payload,
+        task_bundle=task_bundle,
+        architect_payload=architect_payload,
+    )
     selected_tasks = _select_page_tasks(task_bundle, tester_report_payload=tester_report_payload)
     results: list[dict] = []
 
     if not selected_tasks:
-        bundle = {"project_name": skeleton_payload["project_name"], "results": results}
+        bundle = {"project_name": project_name, "results": results}
         save_coder_page_worker_results_payload(bundle)
         return bundle
 
     max_workers = min(4, max(1, len(selected_tasks)))
     with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
-        futures = {
+        future_to_task = {
             executor.submit(
                 _run_single_page_worker,
                 task_payload=task,
-                skeleton_payload=skeleton_payload,
-                architect_payload=architect_payload,
                 runtime=runtime,
                 task_type=task_type,
                 tester_report_payload=tester_report_payload,
             ): task
             for task in selected_tasks
         }
-        for future, task in futures.items():
+
+        for future in concurrent.futures.as_completed(future_to_task):
+            task = future_to_task[future]
             try:
                 results.append(future.result())
             except Exception as exc:  # noqa: BLE001
@@ -964,12 +1159,17 @@ def dispatch_page_coders(
                         "modified_files": [],
                         "exports_added": [],
                         "shared_contract_requests": [],
-                        "blockers": [str(exc)],
+                        "blockers": [
+                            {
+                                "blocker_type": "worker_execution_error",
+                                "description": str(exc),
+                            }
+                        ],
                         "summary": "page worker failed before returning a structured result",
                     }
                 )
 
-    bundle = {"project_name": skeleton_payload["project_name"], "results": results}
+    bundle = {"project_name": project_name, "results": results}
     save_coder_page_worker_results_payload(bundle)
     return bundle
 
@@ -995,12 +1195,34 @@ def invoke_coder_integration_report_formatter(
         ],
         tool_name,
         normalize_tool_schema(CoderIntegrationReport.model_json_schema()),
+        force_tool_choice=False,
     )
     tool_args = extract_tool_call_args(llm_response, tool_name)
     if tool_args is not None:
         return tool_args
 
-    # Fallback: synthesize report from parsed compile output
+    parsed_json = _extract_json_dict_from_response(llm_response)
+    if parsed_json is not None:
+        parsed = _parse_compile_output(compile_output)
+        success = parsed["compile_status"] == "SUCCESS"
+        return {
+            "compile_status": parsed_json.get("compile_status") or parsed["compile_status"],
+            "project_name": parsed_json.get("project_name") or parsed["project_name"] or project_name,
+            "project_path": parsed_json.get("project_path") or parsed["project_path"] or f"/projects/{project_name}",
+            "ready_for_tester": (
+                parsed_json.get("ready_for_tester")
+                if isinstance(parsed_json.get("ready_for_tester"), bool)
+                else success
+            ),
+            "fixes_applied": list(parsed_json.get("fixes_applied") or [s for s in worker_summaries if s]),
+            "remaining_errors": list(parsed_json.get("remaining_errors") or parsed["key_errors"]),
+            "blocker": str(
+                parsed_json.get("blocker")
+                or ("none" if success else (parsed["key_errors"][0] if parsed["key_errors"] else "compile failed"))
+            ),
+            "next_recommended_agent": parsed_json.get("next_recommended_agent") or ("tester" if success else "coder"),
+        }
+
     parsed = _parse_compile_output(compile_output)
     success = parsed["compile_status"] == "SUCCESS"
     return {
@@ -1015,7 +1237,7 @@ def invoke_coder_integration_report_formatter(
             if success
             else (parsed["key_errors"][0] if parsed["key_errors"] else "compile failed")
         ),
-        "next_recommended_agent": "tester" if success else "human",
+        "next_recommended_agent": "tester" if success else "coder",
     }
 
 
@@ -1027,14 +1249,7 @@ def run_coder_integration(
     runtime: ToolRuntime,
     tester_report_payload: dict | None = None,
 ) -> dict:
-    """
-    Run the integration worker with an outer compile-fix loop.
-
-    Termination conditions (first satisfied wins):
-    1. compile_status == SUCCESS
-    2. Error signature unchanged for STALL_THRESHOLD consecutive rounds
-    3. Round count reaches MAX_ROUNDS
-    """
+    project_name = _resolve_project_name_from_payloads(skeleton_payload=skeleton_payload)
     worker_summaries: list[str] = []
     attempt_records: list[dict[str, Any]] = []
     modified_files = sorted(
@@ -1045,7 +1260,7 @@ def run_coder_integration(
         }
     )
 
-    prev_signature: str | None = None
+    prev_fingerprint: dict[str, Any] | None = None
     stall_count = 0
     compile_feedback = ""
     parsed_compile: dict[str, Any] = {
@@ -1060,8 +1275,6 @@ def run_coder_integration(
             get_coder_integration_worker(),
             _build_integration_prompt(
                 task_type=task_type,
-                skeleton_payload=skeleton_payload,
-                page_results_payload=page_results_payload,
                 tester_report_payload=tester_report_payload,
                 prev_compile_feedback=compile_feedback if round_idx > 1 else None,
                 round_idx=round_idx,
@@ -1074,20 +1287,23 @@ def run_coder_integration(
 
         compile_feedback = _extract_final_compile_output(raw_summary)
         parsed_compile = _parse_compile_output(compile_feedback)
-        signature = _compile_status_signature(compile_feedback)
+        fingerprint = _build_compile_fingerprint(compile_feedback)
 
         attempt = build_coder_compile_fix_attempt_payload(
             attempt_index=round_idx,
             task_type=task_type,
-            project_name=skeleton_payload["project_name"],
+            project_name=project_name,
             compile_status=parsed_compile["compile_status"],
-            error_signature=signature,
+            error_signature=json.dumps(fingerprint, ensure_ascii=False, sort_keys=True),
             key_errors=parsed_compile["key_errors"],
             worker_summary=_strip_compile_output_block(raw_summary) or "integration worker executed",
             worker_summaries_so_far=[s for s in worker_summaries if s],
             modified_files=modified_files,
             fixes_applied=[s for s in worker_summaries if s],
-            skills_referenced=["/skills/harmony-next/SKILL.md"],
+            skills_referenced=[
+                "/skills/arkts-syntax-assistant/SKILL.md",
+                "/skills/harmony-next/SKILL.md",
+            ],
         )
         append_coder_compile_fix_attempt(attempt)
         attempt_records.append(attempt)
@@ -1095,15 +1311,14 @@ def run_coder_integration(
         if parsed_compile["compile_status"] == "SUCCESS":
             break
 
-        if signature == prev_signature:
+        if _compile_fingerprint_stalled(prev_fingerprint, fingerprint):
             stall_count += 1
             if stall_count >= _INTEGRATION_STALL_THRESHOLD:
                 break
         else:
             stall_count = 0
-        prev_signature = signature
+        prev_fingerprint = fingerprint
 
-    # Back-fill resolved_in_next_attempt and final_success
     final_success = parsed_compile["compile_status"] == "SUCCESS"
     for idx, attempt in enumerate(attempt_records):
         updated = dict(attempt)
@@ -1120,7 +1335,7 @@ def run_coder_integration(
 
     save_coder_compile_fix_trace_payload(
         {
-            "project_name": skeleton_payload["project_name"],
+            "project_name": project_name,
             "task_type": task_type,
             "attempts": attempt_records,
             "final_compile_status": parsed_compile["compile_status"],
@@ -1129,7 +1344,7 @@ def run_coder_integration(
     )
 
     report = invoke_coder_integration_report_formatter(
-        project_name=skeleton_payload["project_name"],
+        project_name=project_name,
         compile_output=compile_feedback or "",
         worker_summaries=worker_summaries,
     )
@@ -1152,16 +1367,16 @@ def run_coder_pipeline(
         load_tester_report_payload() if task_type == "fix_from_test" else None
     )
 
-    # Distinguish missing file (re-run skeleton) from corrupted file (hard error)
+    if _coder_integration_success():
+        return load_coder_integration_report_payload()
+
     task_bundle: dict | None = None
     tasks_path = resolve_workspace_path("/designs/coder_page_tasks.json")
     if tasks_path.exists():
         try:
             task_bundle = load_coder_page_task_bundle_payload()
-        except json.JSONDecodeError as exc:
-            raise RuntimeError(
-                f"coder_page_tasks.json exists but contains invalid JSON: {exc}"
-            ) from exc
+        except (json.JSONDecodeError, ValueError):
+            task_bundle = None
 
     if task_bundle is None:
         skeleton_payload, _ = run_coder_skeleton_stage(
@@ -1169,21 +1384,30 @@ def run_coder_pipeline(
             task_type=task_type,
             runtime=runtime,
         )
-        task_bundle = {
-            "project_name": skeleton_payload["project_name"],
-            "tasks": skeleton_payload.get("page_tasks", []),
-        }
-    else:
-        skeleton_payload = task_bundle
 
-    page_results_payload = dispatch_page_coders(
-        task_type=task_type,
-        skeleton_payload=skeleton_payload,
-        task_bundle=task_bundle,
-        architect_payload=architect_payload,
-        runtime=runtime,
-        tester_report_payload=tester_report_payload,
-    )
+        # Strong validation: skeleton stage must have persisted canonical task bundle.
+        if not _coder_page_tasks_path().exists():
+            raise RuntimeError(
+                "coder skeleton stage completed but /designs/coder_page_tasks.json was not persisted"
+            )
+
+        task_bundle = load_coder_page_task_bundle_payload()
+        skeleton_payload = dict(task_bundle)
+    else:
+        skeleton_payload = dict(task_bundle)
+
+    if _coder_page_results_exist():
+        page_results_payload = load_coder_page_worker_results_payload()
+    else:
+        page_results_payload = dispatch_page_coders(
+            task_type=task_type,
+            skeleton_payload=skeleton_payload,
+            task_bundle=task_bundle,
+            architect_payload=architect_payload,
+            runtime=runtime,
+            tester_report_payload=tester_report_payload,
+        )
+
     return run_coder_integration(
         task_type=task_type,
         skeleton_payload=skeleton_payload,
@@ -1202,59 +1426,157 @@ def run_coder_pipeline(
 # ---------------------------------------------------------------------------
 
 
-#j旧版串行得多轮调用，现改为单轮调用，工具内完成串行逻辑
-"""
 @tool
 def dispatch_architect(runtime: ToolRuntime) -> Command:
-    #Dispatch the architect stage: stage 1 (per-image UI tree drafts) then stage 2 (merge + navigation).
+    """Dispatch the architect stage with artifact-aware resume: stage1 observation extraction, stage2 final page set, then stage3 navigation inference."""
     if not runtime.tool_call_id:
         raise ValueError("Tool call ID is required for architect dispatch")
 
     session_token = set_current_session_id(_runtime_thread_id(runtime))
     try:
-        result = _invoke_subagent(
-            get_architect_agent(),
-            build_architect_dispatch_description(),
+        artifact_status = _architect_artifact_status()
+        stage1_complete = _stage_status(artifact_status.get("stage1"))
+        stage2_complete = _stage_status(artifact_status.get("stage2"))
+        stage3_complete = _stage_status(artifact_status.get("stage3"))
+
+        if stage3_complete:
+            final_message = json.dumps(
+                {
+                    "status": "SUCCESS",
+                    "message": "architect artifacts already complete; resume skipped",
+                    "artifact_status": artifact_status,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            return _command_from_result(
+                {"messages": [], "structured_response": artifact_status.get("stage3")},
+                runtime.tool_call_id,
+                final_message_override=final_message,
+            )
+
+        stage1_result = ""
+        stage2_message = ""
+        stage2_structured = None
+
+        if not stage1_complete:
+            stage1_result = batch_extract_page_drafts()
+
+            if not _stage1_result_is_success(stage1_result):
+                return _command_from_result(
+                    {"messages": [], "structured_response": None},
+                    runtime.tool_call_id,
+                    final_message_override=(
+                        "architect stage failed during stage1 observation extraction\n\n"
+                        f"{stage1_result}"
+                    ),
+                )
+
+            stage1_check = _parse_json_text_or_empty_dict(check_stage1_artifacts())
+            if not _stage_status(stage1_check):
+                return _command_from_result(
+                    {"messages": [], "structured_response": stage1_check},
+                    runtime.tool_call_id,
+                    final_message_override=json.dumps(
+                        {
+                            "status": "FAILED",
+                            "message": "stage1 finished but artifacts are incomplete",
+                            "stage1_check": stage1_check,
+                        },
+                        ensure_ascii=False,
+                        indent=2,
+                    ),
+                )
+        else:
+            stage1_result = "status: SUCCESS\nresume: reused existing stage1 artifacts"
+
+        if not stage2_complete:
+            stage2_result = _invoke_subagent(
+                get_architect_page_merger(),
+                "\n\n".join(
+                    [
+                        build_architect_dispatch_description(),
+                        "【阶段一已完成或已存在可复用 artifacts，不要重复执行单图观察提取】",
+                        "你现在只执行阶段二：最终页面集合归并与页面定稿。",
+                        "请先使用 read_page_drafts_index 读取 /designs/page_drafts_index.json。",
+                        "必须先基于 observation drafts 的轻量摘要完成页面归属判断，先识别哪些截图属于同一页面，再区分状态变体、overlay 变体和独立页面。",
+                        "不要一次性读取所有完整草稿；只在归并决策需要时按需使用 read_page_draft 读取必要草稿。",
+                        "你要重点利用 page_identity、page_overview、ui_tree、structural_blocks、key_content、interaction_clues、merge_hints、overlay_hints、state_hints、subpage_hints、raw_preservation 等信息进行归并。",
+                        "本阶段的目标是确定最终页面集合，并输出可供后续实现使用的页面终稿。",
+                        "必须尽量保留 merged ui_tree、frame_blocks、key_texts、key_controls、interactions、state_variants、overlay_summaries、implementation_hints、visual_style_hints 等实现相关信息。",
+                        "本阶段不负责最终全局导航关系定稿，可以保留 target_page_hint 等线索，但不要输出最终导航图。",
+                        "完成页面归并后，必须调用 save_page_merge_result 保存 /designs/page_merge_index.json 和 /designs/pages/*.json。",
+                        f"阶段一结果：\n{stage1_result}",
+                    ]
+                ),
+                runtime,
+            )
+
+            stage2_message = _result_text(stage2_result).strip()
+            stage2_structured = _extract_structured_response(stage2_result)
+
+            stage2_check = _parse_json_text_or_empty_dict(check_stage2_artifacts())
+            if not _stage_status(stage2_check):
+                final_message = json.dumps(
+                    {
+                        "status": "FAILED",
+                        "message": "architect stage failed after stage2: page merge artifacts are incomplete",
+                        "architect_workspace_root": str(_architect_workspace_root()),
+                        "stage1_result": stage1_result,
+                        "stage2_message": stage2_message or "(empty)",
+                        "stage2_check": stage2_check,
+                    },
+                    ensure_ascii=False,
+                    indent=2,
+                )
+                return _command_from_result(
+                    {"messages": [], "structured_response": stage2_structured},
+                    runtime.tool_call_id,
+                    final_message_override=final_message,
+                )
+        else:
+            stage2_message = "status: SUCCESS\nresume: reused existing stage2 artifacts"
+
+        stage3_result = _invoke_subagent(
+            get_architect_navigation_planner(),
+            "\n\n".join(
+                [
+                    build_architect_dispatch_description(),
+                    "【阶段一已完成或已存在可复用 artifacts，不要重复执行单图观察提取】",
+                    "【阶段二已完成并已落盘 page merge 结果，不要重新归并页面】",
+                    "你现在只执行阶段三：页面层级推断、导航关系定稿、全局校验。",
+                    "请先使用 read_page_merge_index 读取 /designs/page_merge_index.json。",
+                    "只在必要时按需使用 read_page_file 读取具体页面文件。",
+                    "你需要基于已归并页面集合，推断主页面、子页面、详情页、设置页、结果页等层级角色，并补全最终导航关系。",
+                    "本阶段重点是 entry_page_id、page_hierarchy、relations 和全局一致性，不要重新做页面归并。",
+                    "不要把 tab 切换、同页状态变化、overlay 开关、局部展开收起误判为页面跳转。",
+                    "不要改写阶段二已定稿的页面文件。",
+                    "完成页面层级、导航关系与全局校验后，必须调用 save_navigation_design 落盘 /designs/navigation_design.json。",
+                    f"阶段一结果：\n{stage1_result}",
+                    f"阶段二结果：\n{stage2_message or '(empty)'}",
+                ]
+            ),
             runtime,
         )
 
-        structured = _extract_structured_response(result)
-        final_message = _result_text(result).strip()
+        structured = _extract_structured_response(stage3_result)
+        final_message = _result_text(stage3_result).strip()
 
-        return _command_from_result(
-            {"messages": [], "structured_response": structured},
-            runtime.tool_call_id,
-            final_message_override=final_message or "architect stage completed",
-        )
-    finally:
-        reset_current_session_id(session_token)
-
-"""
-@tool
-def dispatch_architect(runtime: ToolRuntime) -> Command:
-    """Dispatch the architect stage: stage 1 (per-image UI tree drafts) then stage 2 (merge + navigation)."""
-    if not runtime.tool_call_id:
-        raise ValueError("Tool call ID is required for architect dispatch")
-
-    session_token = set_current_session_id(_runtime_thread_id(runtime))
-    try:
-        # ---- 阶段一：代码并发提取，不经过 Agent ----
-        stage1_result = batch_extract_page_drafts()
-
-        # ---- 阶段二：Agent 驱动归并 ----
-        result = _invoke_subagent(
-            get_architect_agent(),
-            "\n\n".join([
-                build_architect_dispatch_description(),
-                "【阶段一已由代码完成，请直接执行阶段二】",
-                "读取 /designs/page_drafts_index.json，完成页面归并和导航推断，调用 save_architect_design 落盘。",
-                f"阶段一结果：\n{stage1_result}",
-            ]),
-            runtime,
-        )
-
-        structured = _extract_structured_response(result)
-        final_message = _result_text(result).strip()
+        stage3_check = _parse_json_text_or_empty_dict(check_stage3_artifacts())
+        if not _stage_status(stage3_check):
+            final_message = json.dumps(
+                {
+                    "status": "FAILED",
+                    "message": "architect stage finished but stage3 navigation artifact is incomplete",
+                    "architect_workspace_root": str(_architect_workspace_root()),
+                    "stage1_result": stage1_result,
+                    "stage2_result": stage2_message or "(empty)",
+                    "stage3_worker_message": final_message or "(empty)",
+                    "stage3_check": stage3_check,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
 
         return _command_from_result(
             {"messages": [], "structured_response": structured},
@@ -1276,16 +1598,29 @@ def dispatch_coder_skeleton(
 
     session_token = set_current_session_id(_runtime_thread_id(runtime))
     try:
+        _require_architect_stage3_complete()
         architect_payload = load_architect_design_payload()
         skeleton_payload, worker_summary = run_coder_skeleton_stage(
             architect_payload=architect_payload,
             task_type=task_type,
             runtime=runtime,
         )
+
         skeleton_plan_saved = _coder_page_tasks_path().exists()
+        if not skeleton_plan_saved:
+            raise RuntimeError(
+                "coder skeleton worker finished but /designs/coder_page_tasks.json was not persisted"
+            )
+
+        final_task_bundle = load_coder_page_task_bundle_payload()
+        project_name = _resolve_project_name_from_payloads(
+            skeleton_payload=final_task_bundle,
+            architect_payload=architect_payload,
+        )
+
         final_message = json.dumps(
             {
-                "project_name": skeleton_payload["project_name"],
+                "project_name": project_name,
                 "skeleton_plan_saved": skeleton_plan_saved,
                 "worker_execution_summary": worker_summary,
             },
@@ -1293,7 +1628,7 @@ def dispatch_coder_skeleton(
             indent=2,
         )
         return _command_from_result(
-            {"messages": [], "structured_response": skeleton_payload},
+            {"messages": [], "structured_response": final_task_bundle},
             runtime.tool_call_id,
             final_message_override=final_message,
         )
@@ -1312,6 +1647,7 @@ def dispatch_page_coder_tasks(
 
     session_token = set_current_session_id(_runtime_thread_id(runtime))
     try:
+        _require_architect_stage3_complete()
         task_bundle = load_coder_page_task_bundle_payload()
         architect_payload = load_architect_design_payload()
         tester_report_payload = (
@@ -1347,6 +1683,7 @@ def dispatch_coder_integration(
 
     session_token = set_current_session_id(_runtime_thread_id(runtime))
     try:
+        _require_architect_stage3_complete()
         skeleton_payload = load_coder_page_task_bundle_payload()
         page_results_payload = load_coder_page_worker_results_payload()
         tester_report_payload = (
@@ -1379,6 +1716,7 @@ def dispatch_coder(
     if runtime is None or not runtime.tool_call_id:
         raise ValueError("Tool call ID is required for coder dispatch")
 
+    _require_architect_stage3_complete()
     result = _invoke_subagent(
         get_coder_orchestrator(),
         build_coder_dispatch_description(task_type=task_type),
@@ -1386,7 +1724,9 @@ def dispatch_coder(
     )
     try:
         integration_report = load_coder_integration_report_payload()
-        final_message_override = json.dumps(integration_report, ensure_ascii=False, indent=2)
+        final_message_override = json.dumps(
+            integration_report, ensure_ascii=False, indent=2
+        )
     except Exception:  # noqa: BLE001
         final_message_override = None
     return _command_from_result(
@@ -1413,48 +1753,6 @@ def dispatch_tester(runtime: ToolRuntime) -> Command:
     )
 
 
-@tool
-def dispatch_review_executor(runtime: ToolRuntime) -> Command:
-    """Dispatch execute-test stage using deepagents review executor logic."""
-    if not runtime.tool_call_id:
-        raise ValueError("Tool call ID is required for review executor dispatch")
-
-    result = _invoke_subagent(
-        get_review_executor_agent(),
-        build_review_executor_dispatch_description(),
-        runtime,
-    )
-    return _command_from_result(result, runtime.tool_call_id)
-
-
-@tool
-def dispatch_flow_summary(runtime: ToolRuntime) -> Command:
-    """Dispatch flow summary stage based on latest review outputs."""
-    if not runtime.tool_call_id:
-        raise ValueError("Tool call ID is required for flow summary dispatch")
-
-    result = _invoke_subagent(
-        get_flow_summary_agent(),
-        build_flow_summary_dispatch_description(),
-        runtime,
-    )
-    return _command_from_result(result, runtime.tool_call_id)
-
-
-@tool
-def dispatch_visual_review(runtime: ToolRuntime) -> Command:
-    """Dispatch visual review stage based on latest review outputs."""
-    if not runtime.tool_call_id:
-        raise ValueError("Tool call ID is required for visual review dispatch")
-
-    result = _invoke_subagent(
-        get_visual_review_agent(),
-        build_visual_review_dispatch_description(),
-        runtime,
-    )
-    return _command_from_result(result, runtime.tool_call_id)
-
-
 # ---------------------------------------------------------------------------
 # Tool registries
 # ---------------------------------------------------------------------------
@@ -1468,7 +1766,5 @@ CODER_ORCHESTRATOR_TOOLS = [
 ROUTING_TOOLS = [
     dispatch_architect,
     dispatch_coder,
-    dispatch_review_executor,
-    dispatch_flow_summary,
-    dispatch_visual_review,
+    dispatch_tester,
 ]

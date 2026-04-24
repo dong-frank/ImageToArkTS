@@ -1,206 +1,692 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Literal
+from typing import Dict, List, Literal, Optional
+
 from pydantic import BaseModel, ConfigDict, Field
 
+
+# ============================================================
+# Common base / shared style models
+# ============================================================
 
 class ArchitectBaseModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
 class VisualStyle(ArchitectBaseModel):
-    design_tone: str = Field(..., description="整体视觉调性，如简洁、卡片化、科技感、拟物化")
-    primary_color: Optional[str] = Field(None, description="主色，如 #007DFF")
-    background_color: Optional[str] = Field(None, description="主背景色，如 #F5F5F5")
-    accent_colors: Optional[List[str]] = Field(None, description="辅助色列表")
-    typography_notes: Optional[str] = Field(None, description="字体层级、字号倾向、字重说明")
-    spacing_notes: Optional[str] = Field(None, description="整体留白、圆角、阴影、卡片间距等说明")
+    design_tone: str = Field(..., description="Overall visual tone.")
+    primary_color: Optional[str] = Field(None, description="Primary brand color.")
+    background_color: Optional[str] = Field(None, description="Main background color.")
+    accent_colors: Optional[List[str]] = Field(None, description="Accent color list.")
+    typography_notes: Optional[str] = Field(None, description="Typography notes.")
+    spacing_notes: Optional[str] = Field(None, description="Spacing / radius / shadow notes.")
     style_tokens: Optional[Dict[str, str]] = Field(
         None,
-        description="可直接编码的全局样式键值，如 {'grid_gap': '12', 'row_spacing': '16', 'border_radius': '12'}",
+        description="Global reusable style tokens.",
     )
 
 
-class UIStyle(ArchitectBaseModel):
-    background_color: Optional[str] = Field(None, description="背景色，如 #FFFFFF")
-    font_color: Optional[str] = Field(None, description="字体颜色，如 #333333")
-    border_color: Optional[str] = Field(None, description="边框颜色，如 #E5E5E5")
-    border_radius: Optional[str] = Field(None, description="圆角，如 12 或 12vp")
-    font_size: Optional[str] = Field(None, description="字号，如 16fp")
-    font_weight: Optional[str] = Field(None, description="字重，如 Medium、Bold、700")
+class UIStyle(BaseModel):
+    model_config = ConfigDict(extra="allow")
+    background_color: Optional[str] = Field(None, description="Background color.")
+    font_color: Optional[str] = Field(None, description="Font color.")
+    border_color: Optional[str] = Field(None, description="Border color.")
+    border_radius: Optional[str] = Field(None, description="Border radius.")
+    font_size: Optional[str] = Field(None, description="Font size.")
+    font_weight: Optional[str] = Field(None, description="Font weight.")
     text_align: Optional[Literal["start", "center", "end", "justify"]] = Field(
-        None, description="文本对齐方式"
+        None, description="Text alignment."
     )
-    padding: Optional[str] = Field(None, description="内边距，如 16vp 20vp")
-    margin: Optional[str] = Field(None, description="外边距，如 12vp 16vp")
-    gap: Optional[str] = Field(None, description="子元素间距，如 8vp")
-    width: Optional[str] = Field(None, description="相对宽度表达，如 match_parent、80%、auto")
-    height: Optional[str] = Field(None, description="相对高度表达，如 auto、56vp")
-    opacity: Optional[str] = Field(None, description="透明度，如 0.6")
+    padding: Optional[str] = Field(None, description="Padding.")
+    margin: Optional[str] = Field(None, description="Margin.")
+    gap: Optional[str] = Field(None, description="Gap.")
+    width: Optional[str] = Field(None, description="Relative width.")
+    height: Optional[str] = Field(None, description="Relative height.")
+    opacity: Optional[str] = Field(None, description="Opacity.")
     style_tokens: Optional[Dict[str, str]] = Field(
         None,
-        description="补充样式键值，如 {'shadow': 'soft', 'divider_color': '#F2F2F2'}",
+        description="Extra style tokens.",
+    )
+    flex_grow: Optional[str] = Field(None, description="Flex grow.")
+    flex_shrink: Optional[str] = Field(None, description="Flex shrink.")
+    flex_basis: Optional[str] = Field(None, description="Flex basis.")
+    align_self: Optional[str] = Field(None, description="Self alignment.")
+    align_items: Optional[str] = Field(None, description="Cross-axis alignment.")
+    justify_content: Optional[str] = Field(None, description="Main-axis alignment.")
+    border_width: Optional[str] = Field(None, description="Border width.")
+    shadow: Optional[str] = Field(None, description="Shadow.")
+    overflow: Optional[str] = Field(None, description="Overflow handling.")
+
+
+# ============================================================
+# Common literal types
+# ============================================================
+
+PageObservationStatus = Literal["success", "failed"]
+
+BlockRole = Literal[
+    "page_root",
+    "top_bar",
+    "navigation_bar",
+    "title_area",
+    "header",
+    "hero",
+    "banner",
+    "tab_bar",
+    "segment_control",
+    "search_area",
+    "filter_area",
+    "summary_area",
+    "content_area",
+    "list_area",
+    "card_collection",
+    "detail_area",
+    "form_area",
+    "info_section",
+    "action_area",
+    "bottom_action_area",
+    "bottom_navigation",
+    "floating_action_area",
+    "overlay",
+    "modal",
+    "drawer",
+    "bottom_sheet",
+    "popup",
+    "empty_state",
+    "loading_state",
+    "success_state",
+    "error_state",
+    "footer",
+    "section",
+    "settings_group",
+    "promo_section",
+    "carousel",
+    "grid_area",
+    "stats_area",
+    "profile_area",
+    "unknown",
+]
+
+InteractionSourceKind = Literal[
+    "button",
+    "icon_button",
+    "text_button",
+    "link",
+    "list_item",
+    "card",
+    "banner",
+    "tab",
+    "segment",
+    "chip",
+    "menu_item",
+    "nav_item",
+    "cta",
+    "image",
+    "row_item",
+    "input_affordance",
+    "overlay_control",
+    "switch",
+    "checkbox",
+    "radio",
+    "stepper",
+    "dropdown",
+    "slider",
+    "text_input",
+    "search_input",
+    "avatar",
+    "tag",
+    "pill",
+    "tile",
+    "grid_item",
+    "settings_item",
+    "carousel_item",
+    "unknown",
+]
+
+InteractionType = Literal[
+    "navigate",
+    "open_detail",
+    "open_subpage",
+    "open_overlay",
+    "close_overlay",
+    "back",
+    "dismiss",
+    "switch_tab",
+    "switch_segment",
+    "toggle_state",
+    "filter",
+    "search",
+    "expand",
+    "collapse",
+    "submit",
+    "confirm",
+    "cancel",
+    "save",
+    "edit",
+    "delete",
+    "login",
+    "register",
+    "purchase",
+    "pay",
+    "advance_flow",
+    "retreat_flow",
+    "select",
+    "deselect",
+    "enable",
+    "disable",
+    "copy",
+    "share",
+    "call",
+    "download",
+    "upload",
+    "refresh",
+    "interactive_affordance",
+    "unknown",
+]
+
+ImportanceLevel = Literal["critical", "high", "medium", "low"]
+ConfidenceLevel = Literal["high", "medium", "low"]
+
+PageRoleHint = Literal[
+    "home",
+    "dashboard",
+    "list",
+    "detail",
+    "form",
+    "settings",
+    "profile",
+    "login",
+    "register",
+    "search",
+    "result",
+    "checkout",
+    "payment",
+    "success",
+    "error",
+    "modal_like",
+    "overlay_like",
+    "popup_like",
+    "sheet_like",
+    "unknown",
+]
+
+VariantKind = Literal[
+    "independent_page",
+    "page_state_variant",
+    "overlay_state",
+    "tab_variant",
+    "filter_variant",
+    "step_variant",
+    "empty_state_variant",
+    "loading_variant",
+    "success_variant",
+    "error_variant",
+    "editing_variant",
+    "authentication_variant",
+    "unknown",
+]
+
+OverlayType = Literal[
+    "modal",
+    "drawer",
+    "bottom_sheet",
+    "popup",
+    "tooltip",
+    "toast_like",
+    "unknown",
+]
+
+SubpageTargetKind = Literal[
+    "detail_page",
+    "settings_page",
+    "list_page",
+    "result_page",
+    "form_page",
+    "profile_page",
+    "checkout_page",
+    "payment_page",
+    "success_page",
+    "webview_page",
+    "unknown",
+]
+
+LayoutPattern = Literal[
+    "hero_banner",
+    "horizontal_scroll",
+    "vertical_list",
+    "grid",
+    "grid_2x5",
+    "tab_strip",
+    "bottom_tab_bar",
+    "single_panel",
+    "two_column",
+    "form_stack",
+    "settings_list",
+    "icon_grid",
+    "card_stack",
+    "mixed",
+    "unknown",
+]
+
+ContainerStyleHint = Literal[
+    "plain",
+    "card",
+    "rounded_card",
+    "outlined_card",
+    "filled_banner",
+    "floating_panel",
+    "pill_tab",
+    "sheet_panel",
+    "toolbar",
+    "list_row",
+    "unknown",
+]
+
+VisualEmphasisHint = Literal[
+    "primary_focus",
+    "secondary_focus",
+    "supporting_focus",
+    "neutral",
+    "unknown",
+]
+
+SpacingDensityHint = Literal["compact", "medium", "spacious", "unknown"]
+
+
+# ============================================================
+# Shared lightweight visual / implementation hint models
+# ============================================================
+
+class BlockStyleHints(BaseModel):
+    background_hint: Optional[str] = Field(
+        default=None,
+        description="Coarse background/style hint such as light surface, orange banner, purple section."
+    )
+    container_hint: ContainerStyleHint = Field(
+        default="unknown",
+        description="Coarse container style hint."
+    )
+    emphasis_hint: VisualEmphasisHint = Field(
+        default="unknown",
+        description="Whether this block is a primary or secondary visual focus."
+    )
+    text_style_hint: Optional[str] = Field(
+        default=None,
+        description="High-level text style hint such as bold title, price emphasis, muted secondary text."
     )
 
 
-class UINavigationAction(ArchitectBaseModel):
-    action_type: Literal[
-        "router_back",
-        "navigate",
-        "open_overlay",
-        "dismiss_overlay",
-        "switch_tab",
-        "switch_segment",
-        "switch_state",
-    ] = Field(..., description="纯 UI 交互类型")
-    target: Optional[str] = Field(None, description="目标 page_id、overlay_id 或 state_id；router_back 场景可为空")
-    target_type: Optional[Literal["page", "overlay", "state", "back"]] = Field(
-        None, description="目标类型"
+class VisualStyleHints(BaseModel):
+    overall_tone: Optional[str] = Field(
+        default=None,
+        description="Overall visual tone such as minimal, card-based, promotional, settings-like, content-feed."
     )
-    evidence_from: List[str] = Field(default_factory=list, description="证据来源，如图片路径或 facts 引用")
-    confidence: Literal["strong", "medium", "weak"] = Field(..., description="证据强度")
-    trigger_hint: Optional[str] = Field(None, description="触发说明，如 点击排序按钮、点击返回箭头")
-    notes: Optional[str] = Field(None, description="仅描述可见 UI 反馈，不涉及业务逻辑")
-
-
-class UIOverlay(ArchitectBaseModel):
-    overlay_id: str = Field(..., description="弹层唯一标识，如 sort_menu_overlay")
-    name: Optional[str] = Field(None, description="弹层名称，如 排序菜单、筛选底部弹窗")
-    overlay_type: Literal[
-        "menu",
-        "dialog",
-        "bottom_sheet",
-        "drawer",
-        "popover",
-        "dropdown",
-        "tooltip",
-        "context_menu",
-    ] = Field(..., description="弹层类型")
-    summary: Optional[str] = Field(None, description="弹层视觉摘要")
-    source_images: Optional[List[int]] = Field(None, description="该弹层关联的图片下标列表")
-    trigger_node_id: Optional[str] = Field(None, description="触发该弹层的节点 id")
-    layout_tree: "UINode" = Field(..., description="弹层内部的递归 UI 树")
-
-
-class UIStateVariant(ArchitectBaseModel):
-    state_id: str = Field(..., description="状态唯一标识，如 message_tab_selected")
-    name: Optional[str] = Field(None, description="状态名称")
-    summary: Optional[str] = Field(None, description="状态变化摘要")
-    source_images: Optional[List[int]] = Field(None, description="该状态关联的图片下标列表")
-    trigger_node_id: Optional[str] = Field(None, description="触发切换该状态的节点 id")
-    difference_summary: Optional[str] = Field(None, description="与默认态相比的差异摘要")
-
-
-class UINode(ArchitectBaseModel):
-    node_id: str = Field(..., description="节点唯一标识，如 top_back_button、product_card")
-    name: Optional[str] = Field(None, description="节点名称，如 顶部栏、商品卡片")
-    component_type: str = Field(..., description="ArkUI 语义组件类型，如 Column、Row、Text、Image、Button、List")
-    layout: Optional[Literal["column", "row", "stack", "flex", "grid", "list", "tabs", "scroll", "none"]] = Field(
-        None, description="节点自身对子节点的布局方式"
+    primary_color_hint: Optional[str] = Field(
+        default=None,
+        description="Main accent color tendency if visible."
     )
-    semantic_role: Optional[str] = Field(None, description="视觉语义角色，如 header、hero、tab_bar、list_item")
-    text: Optional[str] = Field(None, description="节点上的可见文本")
-    icon: Optional[str] = Field(None, description="图标或 emoji，如 ←、⋯、⭐")
-    image_ref: Optional[str] = Field(None, description="图片引用名或素材标识")
-    summary: Optional[str] = Field(None, description="节点视觉摘要")
-    style: Optional[UIStyle] = Field(None, description="节点样式")
-    interactive_affordance: Optional[bool] = Field(
-        None, description="仅表示有可点击暗示，但证据不足以生成明确 action"
+    background_color_hint: Optional[str] = Field(
+        default=None,
+        description="Dominant page background tendency if visible."
     )
-    affordance_reason: Optional[str] = Field(None, description="弱交互证据原因")
-    evidence_from: Optional[List[str]] = Field(None, description="该节点的证据来源")
-    action: Optional[UINavigationAction] = Field(None, description="由当前节点触发的明确交互")
-    children: List["UINode"] = Field(default_factory=list, description="子节点列表")
-
-
-class ArchitectPageFile(ArchitectBaseModel):
-    page_id: str = Field(..., description="页面唯一标识，如 home_page、detail_page")
-    page_name: str = Field(..., description="页面名称")
-    summary: str = Field(..., description="页面视觉摘要")
-    role: Optional[Literal["entry", "primary", "secondary", "detail", "modal", "popup"]] = Field(
-        None, description="页面在产品中的角色"
-    )
-    route: Optional[str] = Field(None, description="页面路由标识，如 pages/Home")
-    source_images: Optional[List[int]] = Field(None, description="该页面关联的图片下标列表")
-    layout_summary: Optional[str] = Field(None, description="页面整体布局摘要，如 顶部栏 + 列表区 + 底部 Tab")
-    root: UINode = Field(..., description="页面主视图的递归 UI 树")
-    overlays: List[UIOverlay] = Field(default_factory=list, description="本页 overlay 列表")
-    state_variants: List[UIStateVariant] = Field(default_factory=list, description="本页状态变体列表")
-    outbound_navigation: List[UINavigationAction] = Field(
+    surface_style_hints: List[str] = Field(
         default_factory=list,
-        description="从本页发出的交互摘要；跳转信息写在发起页",
+        description="Coarse surface-level style clues such as rounded cards, filled banners, icon grid, fixed light bottom bar."
     )
-    page_file_path: Optional[str] = Field(
-        None, description="页面文件路径，如 /designs/pages/home_page.json"
+    typography_hints: List[str] = Field(
+        default_factory=list,
+        description="High-level typography clues useful for implementation."
+    )
+    spacing_density_hint: SpacingDensityHint = Field(
+        default="unknown",
+        description="Overall spacing density."
+    )
+    visual_focus_summary: Optional[str] = Field(
+        default=None,
+        description="What areas are visually dominant versus secondary."
     )
 
 
-class ArchitectPageIndexItem(ArchitectBaseModel):
-    page_id: str = Field(..., description="页面唯一标识")
-    page_name: str = Field(..., description="页面名称")
-    route: Optional[str] = Field(None, description="页面路由")
-    page_file_path: str = Field(..., description="页面文件路径")
-    role: Optional[str] = Field(None, description="页面角色")
-    summary: Optional[str] = Field(None, description="页面摘要")
-
-
-class NavigationGraphEdge(ArchitectBaseModel):
-    from_page: str = Field(..., description="起始页面 page_id")
-    trigger_node_id: Optional[str] = Field(None, description="触发节点 id")
-    action_type: Literal[
-        "router_back",
-        "navigate",
-        "open_overlay",
-        "dismiss_overlay",
-        "switch_tab",
-        "switch_segment",
-        "switch_state",
-    ] = Field(..., description="动作类型")
-    target: Optional[str] = Field(None, description="目标 page_id、overlay_id 或 state_id")
-    target_type: Optional[Literal["page", "overlay", "state", "back"]] = Field(
-        None, description="目标类型"
+class ImplementationHints(BaseModel):
+    implementation_priority: ImportanceLevel = Field(
+        default="medium",
+        description="How important it is to preserve this page/block faithfully in implementation."
     )
-    confidence: Literal["strong", "medium", "weak"] = Field(..., description="证据强度")
-
-
-class ArchitectValidationSummary(ArchitectBaseModel):
-    all_files_valid_json: bool = Field(..., description="所有文件是否为合法 JSON")
-    page_file_count: int = Field(..., description="页面文件数量")
-    duplicate_page_ids: List[str] = Field(default_factory=list, description="重复的 page_id")
-    missing_page_targets: List[str] = Field(default_factory=list, description="缺失的页面跳转目标")
-    missing_overlay_targets: List[str] = Field(default_factory=list, description="缺失的本页 overlay 目标")
-    missing_state_targets: List[str] = Field(default_factory=list, description="缺失的本页 state 目标")
-    orphan_page_files: List[str] = Field(default_factory=list, description="未纳入索引的页面文件")
-    notes: List[str] = Field(default_factory=list, description="额外校验说明")
-    validation_passed: bool = Field(..., description="全局校验是否通过")
-
-
-class ArchitectIndexOutput(ArchitectBaseModel):
-    project_name: str = Field(
-        ...,
-        pattern=r"^[a-z][a-z0-9_]{0,199}$",
-        description="项目文件夹名称，必须以小写字母开头，只能包含小写字母、数字和下划线，如 calculator_app",
+    implementation_notes: List[str] = Field(
+        default_factory=list,
+        description="Implementation-oriented simplification or preservation notes."
     )
-    app_display_name: str = Field(..., description="用户可见的应用名称，优先使用英文展示名")
-    visual_style: Optional[VisualStyle] = Field(None, description="全局视觉风格说明")
-    page_index: List[ArchitectPageIndexItem] = Field(default_factory=list, description="页面索引列表")
-    navigation_graph: List[NavigationGraphEdge] = Field(
-        default_factory=list, description="页面间与页面内关键交互摘要"
+
+
+# ============================================================
+# Stage 1: Observation draft schema
+# ============================================================
+
+class StructuralBlock(BaseModel):
+    block_id: str = Field(..., description="Stable local identifier for this structural block.")
+    name: str = Field(..., description="Human-readable name of the block.")
+    role: BlockRole = Field(..., description="Coarse-grained role of this block in the page frame.")
+    summary: Optional[str] = Field(default=None, description="Short description of what appears in this block.")
+    key_texts: List[str] = Field(default_factory=list, description="Important visible texts associated with this block.")
+    layout_pattern: LayoutPattern = Field(
+        default="unknown",
+        description="Coarse layout pattern of this block."
     )
-    validation_summary: ArchitectValidationSummary = Field(..., description="全局校验结果")
+    item_template_hint: Optional[str] = Field(
+        default=None,
+        description="High-level repeated item template hint, if this block contains repeated entries."
+    )
+    media_hint: Optional[str] = Field(
+        default=None,
+        description="High-level media/content hint such as product images, icons, promo artwork, avatars."
+    )
+    style_hints: Optional[BlockStyleHints] = Field(
+        default=None,
+        description="Lightweight visual style hints for this block."
+    )
+    implementation_hints: Optional[ImplementationHints] = Field(
+        default=None,
+        description="Implementation-oriented priority and simplification hints."
+    )
+    children: List["StructuralBlock"] = Field(default_factory=list, description="Nested coarse-grained blocks.")
 
 
-class DataModelField(BaseModel):
-    field: str = Field(..., description="数据字段名")
-    type: str = Field(..., description="字段类型")
-    description: str = Field(..., description="字段说明")
+class UIInteractionClue(BaseModel):
+    clue_id: str = Field(..., description="Stable local identifier for the interaction clue.")
+    source_label: Optional[str] = Field(default=None, description="Visible text label of the source element, if any.")
+    source_kind: InteractionSourceKind = Field(..., description="What kind of UI source element this appears to be.")
+    source_location: Optional[str] = Field(default=None, description="Approximate location within the screenshot or page frame.")
+    source_block_id: Optional[str] = Field(default=None, description="Related structural block id if known.")
+    interaction_type: InteractionType = Field(..., description="Best-effort classification of the interaction effect.")
+    target_page_hint: Optional[str] = Field(default=None, description="Semantic hint of the destination page or target context.")
+    target_element_hint: Optional[str] = Field(default=None, description="Target UI element or state hint if not a full page navigation.")
+    effect_summary: Optional[str] = Field(default=None, description="What this interaction likely does.")
+    importance: ImportanceLevel = Field(default="medium", description="Importance for flow reconstruction.")
+    confidence: ConfidenceLevel = Field(default="medium", description="Confidence in interpretation.")
+    is_potential_navigation: bool = Field(default=False, description="Whether this may lead to another page/subpage/detail.")
+    is_weak_affordance: bool = Field(default=False, description="True if it only looks clickable but exact action is uncertain.")
+    reasoning: Optional[str] = Field(default=None, description="Why this clue was inferred.")
 
 
-UIOverlay.model_rebuild()
-UINode.model_rebuild()
-ArchitectPageFile.model_rebuild()
-ArchitectIndexOutput.model_rebuild()
+class PageIdentityHints(BaseModel):
+    candidate_page_name: str = Field(..., description="Best-effort human-readable page name.")
+    candidate_page_id: str = Field(..., description="Best-effort normalized page identifier.")
+    page_role_hint: PageRoleHint = Field(default="unknown", description="Best-effort coarse page role classification.")
+    title_texts: List[str] = Field(default_factory=list, description="Title/header texts that help identify the page.")
+    distinguishing_texts: List[str] = Field(default_factory=list, description="Texts that distinguish this page from others.")
+    page_goal_summary: Optional[str] = Field(default=None, description="What the page is mainly for.")
+    primary_content_summary: Optional[str] = Field(default=None, description="What the main content appears to be.")
 
+
+class PageMergeHints(BaseModel):
+    variant_kind: VariantKind = Field(default="unknown", description="Whether this seems like an independent page or a variant.")
+    likely_same_page_as: List[str] = Field(default_factory=list, description="Candidate page ids/names this may belong with.")
+    shared_frame_signals: List[str] = Field(default_factory=list, description="Evidence of same underlying page frame.")
+    distinguishing_state_signals: List[str] = Field(default_factory=list, description="Evidence of state variant instead of new page.")
+    independent_page_signals: List[str] = Field(default_factory=list, description="Evidence that this should be a separate page.")
+    merge_summary: Optional[str] = Field(default=None, description="Summary of merge/separation judgment.")
+
+
+class SubpageHint(BaseModel):
+    hint_id: str = Field(..., description="Stable local identifier for the subpage hint.")
+    source_label: Optional[str] = Field(default=None, description="Visible text of the source entry.")
+    source_kind: InteractionSourceKind = Field(..., description="Type of source entry.")
+    source_location: Optional[str] = Field(default=None, description="Approximate location of the entry.")
+    source_block_id: Optional[str] = Field(default=None, description="Related structural block id if available.")
+    likely_target_kind: SubpageTargetKind = Field(default="unknown", description="Best-effort classification of likely target.")
+    target_page_hint: Optional[str] = Field(default=None, description="Semantic hint of the destination page.")
+    confidence: ConfidenceLevel = Field(default="medium", description="Confidence that this is a subpage/detail entry.")
+    reasoning: Optional[str] = Field(default=None, description="Why this was inferred.")
+
+
+class OverlayHints(BaseModel):
+    has_overlay: bool = Field(default=False, description="Whether the screenshot appears to include an overlay.")
+    overlay_type: Optional[OverlayType] = Field(default=None, description="Best-effort overlay type.")
+    overlay_summary: Optional[str] = Field(default=None, description="What the overlay appears to contain or do.")
+    open_trigger_hints: List[str] = Field(default_factory=list, description="Hints about what may open this overlay.")
+    close_trigger_hints: List[str] = Field(default_factory=list, description="Hints about what may close this overlay.")
+
+
+class StateHints(BaseModel):
+    tab_labels: List[str] = Field(default_factory=list, description="Visible tab labels.")
+    active_tab_hint: Optional[str] = Field(default=None, description="Which tab appears active.")
+    active_tab_style_hint: Optional[str] = Field(
+        default=None,
+        description="High-level visual cue of the active tab, such as highlighted text, icon change, underline, red dot."
+    )
+    segment_labels: List[str] = Field(default_factory=list, description="Visible segment labels.")
+    active_segment_hint: Optional[str] = Field(default=None, description="Which segment appears active.")
+    active_segment_style_hint: Optional[str] = Field(
+        default=None,
+        description="High-level visual cue of the active segment, such as darker text, filled pill, underline."
+    )
+    filter_hints: List[str] = Field(default_factory=list, description="Visible filters or sorting conditions.")
+    page_state_tags: List[str] = Field(
+        default_factory=list,
+        description="Observed page state tags such as empty, loading, success, member, verified, editing, expanded."
+    )
+    state_summary: Optional[str] = Field(default=None, description="Summary of visible state clues.")
+
+
+class NavigationHints(BaseModel):
+    has_back: bool = Field(default=False, description="Whether a back affordance is visible.")
+    has_close: bool = Field(default=False, description="Whether a close/dismiss control is visible.")
+    primary_ctas: List[str] = Field(default_factory=list, description="Primary visible CTA labels.")
+    likely_entry_points: List[str] = Field(default_factory=list, description="Visible elements likely to lead deeper.")
+    likely_exit_points: List[str] = Field(default_factory=list, description="Visible controls likely to leave current page/state.")
+    navigation_summary: Optional[str] = Field(default=None, description="Summary of major navigation clues.")
+
+
+class ArchitectPageObservationDraft(BaseModel):
+    draft_index: int = Field(..., description="Index of this observation draft.")
+    image_path: str = Field(..., description="Source screenshot path.")
+    draft_status: PageObservationStatus = Field(..., description="Whether observation succeeded.")
+    identity: PageIdentityHints = Field(..., description="Page identity and semantic hints.")
+    layout_summary: str = Field(..., description="Overall summary of the page frame and major regions.")
+    visual_style_hints: Optional[VisualStyleHints] = Field(
+        default=None,
+        description="High-level visual style hints extracted from the screenshot."
+    )
+    implementation_hints: Optional[ImplementationHints] = Field(
+        default=None,
+        description="Implementation-oriented page-level priority and notes."
+    )
+    structural_blocks: List[StructuralBlock] = Field(default_factory=list, description="Coarse-grained structural blocks.")
+    visible_texts: List[str] = Field(default_factory=list, description="Important visible texts useful for identification and merge.")
+    key_controls: List[str] = Field(default_factory=list, description="Important visible controls or CTA labels.")
+    visible_interactions: List[UIInteractionClue] = Field(default_factory=list, description="Important interaction and navigation clues.")
+    subpage_hints: List[SubpageHint] = Field(default_factory=list, description="Hints for subpages or deeper flows.")
+    merge_hints: PageMergeHints = Field(..., description="Hints for page merging and variant detection.")
+    overlay_hints: OverlayHints = Field(default_factory=OverlayHints, description="Overlay-related hints.")
+    state_hints: StateHints = Field(default_factory=StateHints, description="State/tab/segment/filter hints.")
+    navigation_hints: NavigationHints = Field(default_factory=NavigationHints, description="High-level navigation clues.")
+    uncertainties: List[str] = Field(default_factory=list, description="Known ambiguities.")
+    raw_observation: Optional[str] = Field(default=None, description="Free-text summary for debugging or audit.")
+    error: Optional[str] = Field(default=None, description="Failure reason when draft_status='failed'.")
+
+
+class ArchitectObservationBatch(BaseModel):
+    observations: List[ArchitectPageObservationDraft] = Field(
+        default_factory=list,
+        description="Collection of stage 1 page observation drafts."
+    )
+
+
+class ArchitectDraftIndexSummary(BaseModel):
+    draft_index: int = Field(..., description="Index of this draft.")
+    image_path: str = Field(..., description="Source image path.")
+    draft_status: PageObservationStatus = Field(..., description="Observation status.")
+    candidate_page_id: str = Field(..., description="Candidate page id from identity hints.")
+    candidate_page_name: str = Field(..., description="Candidate page name from identity hints.")
+    layout_summary: str = Field(..., description="Compact layout summary.")
+    draft_file: str = Field(..., description="Persisted full draft file path.")
+    page_role_hint: PageRoleHint = Field(default="unknown", description="Candidate page role.")
+    variant_kind: VariantKind = Field(default="unknown", description="Candidate merge variant kind.")
+    has_overlay: bool = Field(default=False, description="Whether overlay seems present.")
+    visible_interactions: List[UIInteractionClue] = Field(default_factory=list, description="Key visible interaction clues.")
+
+
+class ArchitectPageDraftsIndexFile(BaseModel):
+    drafts: List[ArchitectDraftIndexSummary] = Field(default_factory=list, description="Lightweight summaries of all drafts.")
+    total_image_count: int = Field(default=0, description="Total number of input images.")
+    success_count: int = Field(default=0, description="Successful observation count.")
+    failed_count: int = Field(default=0, description="Failed observation count.")
+
+
+# ============================================================
+# Stage 2 / Stage 3 final architect schema
+# ============================================================
+
+FinalPageRole = Literal[
+    "home",
+    "list",
+    "detail",
+    "form",
+    "settings",
+    "profile",
+    "search",
+    "result",
+    "checkout",
+    "payment",
+    "success",
+    "error",
+    "modal",
+    "overlay",
+    "dashboard",
+    "unknown",
+]
+
+NavigationActionType = Literal[
+    "navigate",
+    "back",
+    "open_overlay",
+    "close_overlay",
+    "switch_tab",
+    "switch_segment",
+    "submit",
+    "confirm",
+    "cancel",
+    "save",
+    "advance_flow",
+    "retreat_flow",
+    "select",
+    "toggle_state",
+    "unknown",
+]
+
+PageRelationType = Literal[
+    "navigates_to",
+    "opens_overlay",
+    "closes_overlay",
+    "returns_to",
+    "switches_tab",
+    "switches_segment",
+    "same_page_variant",
+    "contains_subpage_entry",
+    "changes_state",
+    "unknown",
+]
+
+
+class FinalActionTarget(BaseModel):
+    target_page_id: Optional[str] = Field(default=None, description="Resolved destination page id if known.")
+    target_overlay_id: Optional[str] = Field(default=None, description="Resolved overlay id if known.")
+    target_state_hint: Optional[str] = Field(default=None, description="Target state hint if action changes page state.")
+
+
+class FinalInteraction(BaseModel):
+    interaction_id: str = Field(..., description="Stable identifier for the final interaction.")
+    label: Optional[str] = Field(default=None, description="Visible label.")
+    source_kind: InteractionSourceKind = Field(..., description="Source UI element kind.")
+    action_type: NavigationActionType = Field(..., description="Resolved action type.")
+    source_location: Optional[str] = Field(default=None, description="Approximate source location.")
+    target: FinalActionTarget = Field(default_factory=FinalActionTarget, description="Resolved or partially resolved target.")
+    importance: ImportanceLevel = Field(default="medium", description="Interaction importance.")
+    confidence: ConfidenceLevel = Field(default="medium", description="Resolution confidence.")
+    notes: Optional[str] = Field(default=None, description="Optional extra notes.")
+
+
+class FinalPageBlock(BaseModel):
+    block_id: str = Field(..., description="Stable identifier for the final page block.")
+    name: str = Field(..., description="Human-readable block name.")
+    role: BlockRole = Field(..., description="Coarse-grained block role.")
+    summary: Optional[str] = Field(default=None, description="Short summary of this block.")
+    layout_pattern: LayoutPattern = Field(
+        default="unknown",
+        description="Coarse layout pattern of this block."
+    )
+    item_template_hint: Optional[str] = Field(
+        default=None,
+        description="High-level repeated item template hint, if applicable."
+    )
+    media_hint: Optional[str] = Field(
+        default=None,
+        description="High-level media/content hint."
+    )
+    style_hints: Optional[BlockStyleHints] = Field(
+        default=None,
+        description="Lightweight visual style hints retained for implementation."
+    )
+    implementation_hints: Optional[ImplementationHints] = Field(
+        default=None,
+        description="Implementation-oriented priority and simplification hints."
+    )
+    children: List["FinalPageBlock"] = Field(default_factory=list, description="Nested coarse page blocks.")
+
+
+class ArchitectPageFile(BaseModel):
+    page_id: str = Field(..., description="Canonical page identifier.")
+    page_name: str = Field(..., description="Human-readable page name.")
+    page_role: FinalPageRole = Field(default="unknown", description="Resolved page role.")
+    page_summary: Optional[str] = Field(default=None, description="Overall summary of page purpose and contents.")
+    visual_style_hints: Optional[VisualStyleHints] = Field(
+        default=None,
+        description="High-level visual style hints retained for implementation."
+    )
+    implementation_hints: Optional[ImplementationHints] = Field(
+        default=None,
+        description="Implementation-oriented page-level priority and notes."
+    )
+    derived_from_images: List[str] = Field(default_factory=list, description="Source screenshot paths.")
+    frame_blocks: List[FinalPageBlock] = Field(default_factory=list, description="Coarse page frame blocks.")
+    key_texts: List[str] = Field(default_factory=list, description="Important texts retained for implementation context.")
+    interactions: List[FinalInteraction] = Field(default_factory=list, description="Resolved interactions on this page.")
+    state_variants: List[str] = Field(default_factory=list, description="Named variants or states associated with this page.")
+    overlay_ids: List[str] = Field(default_factory=list, description="Related overlays that can open from this page.")
+    child_page_ids: List[str] = Field(default_factory=list, description="Likely child/sub-pages reachable from this page.")
+    notes: Optional[str] = Field(default=None, description="Extra implementation-oriented notes.")
+
+
+class ArchitectPageRelation(BaseModel):
+    relation_id: str = Field(..., description="Stable identifier for the page relation.")
+    source_page_id: str = Field(..., description="Source page id.")
+    relation_type: PageRelationType = Field(..., description="Type of relation.")
+    trigger_label: Optional[str] = Field(default=None, description="UI label or interaction label causing the relation.")
+    trigger_interaction_id: Optional[str] = Field(default=None, description="Associated final interaction id if available.")
+    target_page_id: Optional[str] = Field(default=None, description="Target page id if relation points to another page.")
+    target_overlay_id: Optional[str] = Field(default=None, description="Target overlay id if relation points to an overlay.")
+    target_state_hint: Optional[str] = Field(default=None, description="State hint if relation represents a state change.")
+    confidence: ConfidenceLevel = Field(default="medium", description="Confidence in relation resolution.")
+    reasoning: Optional[str] = Field(default=None, description="Why this relation was created.")
+
+
+class ArchitectIndexFile(BaseModel):
+    app_name: str = Field(..., description="Application or project name.")
+    summary: Optional[str] = Field(default=None, description="High-level summary of the app structure.")
+    visual_style: Optional[VisualStyle] = Field(
+        default=None,
+        description="Global visual style hints for the app."
+    )
+    entry_page_id: Optional[str] = Field(default=None, description="Likely entry page id.")
+    page_ids: List[str] = Field(default_factory=list, description="All resolved page ids.")
+    overlay_ids: List[str] = Field(default_factory=list, description="All resolved overlay ids.")
+    relations: List[ArchitectPageRelation] = Field(default_factory=list, description="Resolved navigation and relation graph.")
+    global_notes: List[str] = Field(default_factory=list, description="High-level notes for downstream coder.")
+
+
+# ============================================================
+# Coder schemas (restored from old version)
+# ============================================================
 
 class CoderRouteSpec(BaseModel):
     page_name: str = Field(..., description="Page name.")
@@ -236,7 +722,6 @@ class CoderPageTask(BaseModel):
         default_factory=list,
         description="Shared components, stores, or interfaces the page uses.",
     )
-    # ✅ 修复 SC-2：responsibilities 改为 Optional 并提供默认值，避免 seed 生成时缺字段崩溃
     responsibilities: str = Field(
         default="",
         description="Page responsibility summary. Defaults to empty string when not yet specified.",
@@ -247,8 +732,7 @@ class CoderPageTask(BaseModel):
     )
     state_notes: Optional[str] = Field(None, description="Relevant page state notes.")
     role: Optional[str] = Field(None, description="Page role copied from architect design when useful.")
-    summary: Optional[str] = Field(None, description="Short page summary copied from architect design.")
-
+    summary: Optional[str] = Field(None, description="Short page summary copied from architect design when useful.")
 
 
 class CoderSkeletonOutput(BaseModel):
@@ -259,13 +743,15 @@ class CoderSkeletonOutput(BaseModel):
     )
     app_display_name: str = Field(..., description="User-visible app name.")
     page_tasks: List[CoderPageTask] = Field(..., min_length=1, description="Page implementation tasks.")
-    # ✅ 新增：物化阶段写入的运行时字段，Agent 不需要填，代码层补充
     generated_route_table: Optional[List[dict]] = Field(
-        None, description="Route table generated during materialization. Populated by skeleton tool, not by agent."
+        None,
+        description="Route table generated during materialization. Populated by skeleton tool, not by agent."
     )
     generated_files: Optional[dict] = Field(
-        None, description="File paths written during materialization. Populated by skeleton tool, not by agent."
+        None,
+        description="File paths written during materialization. Populated by skeleton tool, not by agent."
     )
+
 
 class CoderPageTaskBundle(BaseModel):
     project_name: str = Field(..., description="Project name that owns the page tasks.")
@@ -304,7 +790,7 @@ class CoderIntegrationReport(BaseModel):
             "Next recommended owner after integration. "
             "Use 'tester' when compile succeeded. "
             "Use 'coder' when errors are fixable but were not resolved in this run. "
-            "Use 'orchestrator' when a pipeline-level decision is needed (e.g. re-run skeleton). "
+            "Use 'orchestrator' when a pipeline-level decision is needed. "
             "Use 'human' when errors require manual intervention."
         ),
     )
@@ -319,17 +805,11 @@ class CoderCompileFixAttempt(BaseModel):
     error_signature: str = Field(..., description="Normalized signature for the primary compile error.")
     key_errors: List[str] = Field(default_factory=list, description="Extracted key compile errors.")
     worker_summary: str = Field(..., description="Integration worker summary for this attempt.")
-    worker_summaries_so_far: List[str] = Field(
-        default_factory=list,
-        description="Cumulative integration worker summaries so far.",
-    )
+    worker_summaries_so_far: List[str] = Field(default_factory=list, description="Cumulative integration worker summaries so far.")
     modified_files: List[str] = Field(default_factory=list, description="Files modified by page workers before integration.")
     fixes_applied: List[str] = Field(default_factory=list, description="Fix summaries known at this point.")
-    skills_referenced: List[str] = Field(default_factory=list, description="Skills or references intentionally used for this attempt.")
-    resolved_in_next_attempt: Optional[bool] = Field(
-        None,
-        description="Whether the next attempt resolved this attempt's primary issue.",
-    )
+    skills_referenced: List[str] = Field(default_factory=list, description="Skills or references intentionally used.")
+    resolved_in_next_attempt: Optional[bool] = Field(None, description="Whether the next attempt resolved this attempt's primary issue.")
     final_success: Optional[bool] = Field(None, description="Whether the overall integration run eventually succeeded.")
 
 
@@ -340,6 +820,10 @@ class CoderCompileFixTrace(BaseModel):
     final_compile_status: Literal["SUCCESS", "FAILED"] = Field(..., description="Final compile verdict.")
     final_success: bool = Field(..., description="Whether the overall integration run succeeded.")
 
+
+# ============================================================
+# Tester schemas (restored from old version)
+# ============================================================
 
 class TesterChecklistItem(BaseModel):
     name: str = Field(..., description="Checklist item or page/module name.")
@@ -394,100 +878,10 @@ class TesterReportOutput(BaseModel):
     completion_summary: TesterCompletionSummary = Field(..., description="Completion metadata.")
 
 
+# ============================================================
+# Transitional aliases / compatibility helpers
+# ============================================================
 
-
-# ── 阶段 A 产物：单图独立页面草稿 ──────────────────────────────
-
-# ── 阶段一产物：单图完整草稿 ──────────────────────────────────
- 
-class ArchitectPageDraft(BaseModel):
-    """单张图片直接分析产出的页面草稿，不含跨图归并结论。"""
- 
-    draft_index: int = Field(..., description="图片在输入列表中的下标，从 0 开始")
-    image_path: str = Field(..., description="对应的图片 workspace 路径")
-    image_name: str = Field(default="", description="图片文件名（不含扩展名）")
-    draft_status: Literal["success", "failed"] = Field(
-        default="success", description="success | failed"
-    )
-    error: Optional[str] = Field(default=None, description="提取失败时的错误信息")
-    candidate_page_id: str = Field(
-        default="", description="基于本图推断的候选页面 ID（小写下划线）"
-    )
-    candidate_page_name: str = Field(
-        default="", description="基于本图推断的候选页面名称"
-    )
-    layout_summary: str = Field(default="", description="本图整体布局一句话描述，不超过 50 字")
-    key_sections: List[str] = Field(
-        default_factory=list,
-        description="本图主要区块语义名称列表，如 ['nav_bar', 'content_list', 'tab_bar']",
-    )
-    has_overlay: bool = Field(
-        default=False, description="本图中是否存在浮层结构"
-    )
-    overlay_hint: Optional[str] = Field(
-        default=None, description="浮层类型简述，has_overlay 为 false 时为 null"
-    )
-    root: Dict[str, Any] = Field(
-        default_factory=dict, description="本图组件树根节点"
-    )
-    overlays: List[Dict[str, Any]] = Field(
-        default_factory=list, description="本图可见弹层"
-    )
-    state_variants: List[Dict[str, Any]] = Field(
-        default_factory=list, description="本图可见状态变体"
-    )
-    visible_interactions: List[Dict[str, Any]] = Field(
-        default_factory=list,
-        description="本图可见交互线索（不含跨图 navigate 推断）",
-    )
-    uncertainties: List[str] = Field(
-        default_factory=list, description="本图分析中的不确定项"
-    )
- 
- 
-# ── 阶段一产物：单图轻量摘要（不含完整 UI 树）────────────────────
- 
-class ArchitectPageDraftSummary(BaseModel):
-    """
-    单图轻量摘要，不含 root / overlays / state_variants 等完整 UI 树字段。
-    供阶段二归并决策消费，不会撑爆 context。
-    """
- 
-    draft_index: int = Field(..., description="图片在输入列表中的下标，从 0 开始")
-    image_path: str = Field(..., description="对应的图片 workspace 路径")
-    image_name: str = Field(default="", description="图片文件名（不含扩展名）")
-    draft_status: Literal["success", "failed"] = Field(default="success")
-    candidate_page_id: str = Field(default="")
-    candidate_page_name: str = Field(default="")
-    layout_summary: str = Field(default="")
-    key_sections: List[str] = Field(default_factory=list)
-    has_overlay: bool = Field(default=False)
-    overlay_hint: Optional[str] = Field(default=None)
-    draft_file: str = Field(
-        ..., description="完整草稿文件路径，如 /designs/page_drafts/page_draft_0.json"
-    )
- 
- 
-# ── 阶段一产物：所有图的草稿索引（轻量）────────────────────────
- 
-class ArchitectPageDraftsIndex(BaseModel):
-    """
-    所有单图轻量摘要的汇总索引，保存为 page_drafts_index.json。
-    阶段二归并决策只消费这个，不一次性读取所有完整草稿。
-    """
- 
-    drafts: List[ArchitectPageDraftSummary] = Field(default_factory=list)
-    total_image_count: int = Field(default=0)
-    success_count: int = Field(default=0)
-    failed_count: int = Field(default=0)
- 
- 
-# ── 保持不变，供工具层内部使用 ────────────────────────────────
- 
-class ArchitectPageDraftsBundle(BaseModel):
-    """所有单图完整草稿的汇总，工具层内部使用，不直接喂给 Agent。"""
- 
-    drafts: List[ArchitectPageDraft] = Field(default_factory=list)
-    total_image_count: int = Field(default=0)
-    success_count: int = Field(default=0)
-    failed_count: int = Field(default=0)
+ArchitectPageDraft = ArchitectPageObservationDraft
+ArchitectDraftBatch = ArchitectObservationBatch
+ArchitectPageDraftsIndex = ArchitectPageDraftsIndexFile

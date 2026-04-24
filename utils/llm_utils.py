@@ -52,6 +52,55 @@ def normalize_tool_schema(schema: Dict[str, Any], field_name: str = "items") -> 
     }
 
 
+def _repair_unescaped_inner_quotes(text: str) -> str:
+    result: list[str] = []
+    in_string = False
+    escaped = False
+
+    for idx, ch in enumerate(text):
+        if not in_string:
+            result.append(ch)
+            if ch == '"':
+                in_string = True
+            continue
+
+        if escaped:
+            result.append(ch)
+            escaped = False
+            continue
+
+        if ch == "\\":
+            result.append(ch)
+            escaped = True
+            continue
+
+        if ch == '"':
+            lookahead = idx + 1
+            while lookahead < len(text) and text[lookahead].isspace():
+                lookahead += 1
+            next_char = text[lookahead] if lookahead < len(text) else ""
+            if next_char and next_char not in {",", "}", "]", ":"}:
+                result.append('\\"')
+                continue
+            in_string = False
+            result.append(ch)
+            continue
+
+        result.append(ch)
+
+    return "".join(result)
+
+
+def json_loads_relaxed(text: str) -> Any:
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        repaired = _repair_unescaped_inner_quotes(text)
+        if repaired == text:
+            raise
+        return json.loads(repaired)
+
+
 def extract_tool_call_args(message: Any, tool_name: str) -> Optional[Dict[str, Any]]:
     tool_calls = getattr(message, "tool_calls", None)
     if tool_calls:
@@ -60,7 +109,7 @@ def extract_tool_call_args(message: Any, tool_name: str) -> Optional[Dict[str, A
                 args = call.get("args") or call.get("arguments")
                 if isinstance(args, str):
                     try:
-                        return json.loads(args)
+                        return json_loads_relaxed(args)
                     except Exception:
                         return None
                 if isinstance(args, dict):
@@ -75,7 +124,7 @@ def extract_tool_call_args(message: Any, tool_name: str) -> Optional[Dict[str, A
                 args = function.get("arguments")
                 if isinstance(args, str):
                     try:
-                        return json.loads(args)
+                        return json_loads_relaxed(args)
                     except Exception:
                         return None
                 if isinstance(args, dict):
@@ -86,7 +135,7 @@ def extract_tool_call_args(message: Any, tool_name: str) -> Optional[Dict[str, A
         args = function_call.get("arguments")
         if isinstance(args, str):
             try:
-                return json.loads(args)
+                return json_loads_relaxed(args)
             except Exception:
                 return None
         if isinstance(args, dict):
@@ -95,12 +144,68 @@ def extract_tool_call_args(message: Any, tool_name: str) -> Optional[Dict[str, A
     return None
 
 
+def _extract_message_text(message: Any) -> str:
+    content = getattr(message, "content", None)
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                parts.append(item)
+            elif isinstance(item, dict):
+                text = item.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+        return "\n".join(part for part in parts if part)
+    if isinstance(message, str):
+        return message
+    return str(message or "")
+
+
+def _strip_code_fence(text: str) -> str:
+    stripped = text.strip()
+    if stripped.startswith("```"):
+        lines = stripped.splitlines()
+        if lines:
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        stripped = "\n".join(lines).strip()
+    return stripped
+
+
+def extract_json_object_from_text(message: Any) -> Optional[Dict[str, Any]]:
+    text = _strip_code_fence(_extract_message_text(message))
+    if not text:
+        return None
+
+    try:
+        parsed = json_loads_relaxed(text)
+        if isinstance(parsed, dict):
+            return parsed
+    except Exception:
+        pass
+
+    start = text.find("{")
+    end = text.rfind("}")
+    if start < 0 or end <= start:
+        return None
+
+    try:
+        parsed = json_loads_relaxed(text[start : end + 1])
+    except Exception:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
 def invoke_with_tool(
     llm: Any,
     messages: List[Any],
     tool_name: str,
     tool_schema: Dict[str, Any],
     fallback_message: str = "FAIL",
+    force_tool_choice: bool = True,
 ) -> Any:
     tool = {
         "type": "function",
@@ -111,9 +216,12 @@ def invoke_with_tool(
         },
     }
 
-    bound_llm = llm.bind_tools(
-        [tool],
-        tool_choice={"type": "function", "function": {"name": tool_name}},
-    )
+    if force_tool_choice:
+        bound_llm = llm.bind_tools(
+            [tool],
+            tool_choice={"type": "function", "function": {"name": tool_name}},
+        )
+    else:
+        bound_llm = llm.bind_tools([tool])
 
     return safe_invoke(bound_llm, messages, fallback_message=fallback_message)

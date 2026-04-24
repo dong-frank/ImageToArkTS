@@ -1,5 +1,7 @@
 import json
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import Mock
 
 
@@ -79,7 +81,6 @@ class RoutingToolsContractTests(unittest.TestCase):
         self.assertIn("dispatch_flow_summary", tool_names)
         self.assertIn("dispatch_visual_review", tool_names)
         self.assertNotIn("dispatch_tester", tool_names)
-        self.assertNotIn("save_architect_design", tool_names)
 
     def test_invoke_subagent_forwards_runtime_config(self) -> None:
         from tools.routing_tools import _invoke_subagent
@@ -900,6 +901,126 @@ class RoutingToolsContractTests(unittest.TestCase):
         for task in result["page_tasks"]:
             self.assertIn("BottomNavBar", task["shared_dependencies"])
             self.assertIn("NavigationService", task["shared_dependencies"])
+
+    def test_invoke_coder_page_result_formatter_accepts_plain_json_text_without_tool_call(self) -> None:
+        from tools.routing_tools import invoke_coder_page_result_formatter
+
+        llm_response = Mock()
+        llm_response.content = json.dumps(
+            {
+                "status": "done",
+                "page_name": "Index",
+                "summary": "implemented page",
+            },
+            ensure_ascii=False,
+        )
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool", return_value=llm_response),
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args", return_value=None),
+        ):
+            result = invoke_coder_page_result_formatter(
+                task_payload={"page_name": "Index"},
+                modified_files=["/projects/demo/entry/src/main/ets/pages/Index.ets"],
+                agent_summary="implemented page",
+            )
+
+        self.assertEqual(result["status"], "done")
+        self.assertEqual(result["page_name"], "Index")
+        self.assertEqual(
+            result["modified_files"],
+            ["/projects/demo/entry/src/main/ets/pages/Index.ets"],
+        )
+
+    def test_invoke_coder_skeleton_result_formatter_falls_back_without_tool_call(self) -> None:
+        from tools.routing_tools import invoke_coder_skeleton_result_formatter
+
+        llm_response = Mock()
+        llm_response.content = "plain text summary only"
+        fallback_payload = {
+            "project_name": "demo_app",
+            "app_display_name": "Demo",
+            "page_tasks": [
+                {
+                    "page_name": "Index",
+                    "route": "pages/Index",
+                    "page_file": "/projects/demo_app/entry/src/main/ets/pages/Index.ets",
+                    "allowed_write_paths": ["/projects/demo_app/entry/src/main/ets/pages/Index.ets"],
+                    "shared_dependencies": [],
+                    "responsibilities": "首页",
+                    "primary_actions": [],
+                }
+            ],
+        }
+
+        with (
+            unittest.mock.patch("tools.routing_tools.invoke_with_tool", return_value=llm_response),
+            unittest.mock.patch("tools.routing_tools.extract_tool_call_args", return_value=None),
+            unittest.mock.patch("tools.routing_tools.build_coder_skeleton_seed_from_architect", return_value=fallback_payload),
+        ):
+            result = invoke_coder_skeleton_result_formatter(
+                architect_payload={"pages": []},
+                task_type="implementation",
+                agent_summary="plain text summary only",
+            )
+
+        self.assertEqual(result["project_name"], "demo_app")
+        self.assertEqual(len(result["page_tasks"]), 1)
+
+    def test_load_json_dict_file_recovers_embedded_json_object(self) -> None:
+        from tools.routing_tools import _load_json_dict_file
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            path = Path(tmpdir) / "payload.json"
+            path.write_text(
+                'Result summary\n```json\n{"project_name":"demo_app","status":"done"}\n```',
+                encoding="utf-8",
+            )
+
+            payload = _load_json_dict_file(path)
+
+        self.assertEqual(payload["project_name"], "demo_app")
+        self.assertEqual(payload["status"], "done")
+
+    def test_run_coder_pipeline_ignores_invalid_saved_task_bundle_and_rebuilds(self) -> None:
+        from tools.routing_tools import run_coder_pipeline
+
+        tasks_path = Mock()
+        tasks_path.exists.return_value = True
+
+        skeleton_payload = {
+            "project_name": "demo_app",
+            "page_tasks": [{"page_name": "Index", "allowed_write_paths": []}],
+        }
+        page_results = {"project_name": "demo_app", "results": []}
+        integration_report = {"project_name": "demo_app", "compile_status": "SUCCESS"}
+
+        with (
+            unittest.mock.patch("tools.routing_tools.resolve_workspace_path", return_value=tasks_path),
+            unittest.mock.patch("tools.routing_tools.load_architect_design_payload", return_value={"pages": []}),
+            unittest.mock.patch(
+                "tools.routing_tools.load_coder_page_task_bundle_payload",
+                side_effect=ValueError("bad json"),
+            ),
+            unittest.mock.patch(
+                "tools.routing_tools.run_coder_skeleton_stage",
+                return_value=(skeleton_payload, "worker summary"),
+            ) as run_skeleton,
+            unittest.mock.patch(
+                "tools.routing_tools.dispatch_page_coders",
+                return_value=page_results,
+            ) as dispatch_pages,
+            unittest.mock.patch(
+                "tools.routing_tools.run_coder_integration",
+                return_value=integration_report,
+            ) as run_integration,
+        ):
+            result = run_coder_pipeline(task_type="implementation", runtime=Mock())
+
+        self.assertEqual(result, integration_report)
+        run_skeleton.assert_called_once()
+        dispatch_pages.assert_called_once()
+        run_integration.assert_called_once()
 
 
 if __name__ == "__main__":

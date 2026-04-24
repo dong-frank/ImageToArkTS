@@ -2484,3 +2484,169 @@ export struct ForEachCom {
   }
 }
 ```
+
+
+---
+
+# ArkUI 布局代码生成规范
+
+> 整理日期：2026-04-24
+
+---
+
+## 一、高度依赖规则
+
+```
+【强制】子组件使用 .height('100%') 前，必须确认父容器有明确固定高度。
+禁止出现以下循环依赖：
+  父容器高度 → 依赖子内容撑开
+  子内容 → 使用 .height('100%') → 依赖父容器高度
+  → 双方均无法确定高度，最终解析为 0 或布局异常
+
+合法的 .height('100%') 使用场景：
+  ✅ 父容器有固定 px 高度，如 .height(200)
+  ✅ 父容器使用了 layoutWeight
+  ✅ 祖先链上有明确固定高度向下传递
+  ❌ 父容器本身依赖子内容撑开高度（如 Grid、自适应 Column）
+```
+
+---
+
+## 二、Grid 规则
+
+```
+【强制】GridItem 内部的直接子容器（Column/Row）禁止使用 .height('100%')
+【强制】Grid 不强制指定 height，让行高由 GridItem 内容自然决定
+【建议】GridItem 内容高度只通过子组件自身固定尺寸决定，不依赖父容器百分比
+
+错误示例：
+  GridItem() {
+    Column() { ... }
+      .height('100%')  ← 禁止，Grid 本身高度不固定时会导致行间距异常
+  }
+
+正确示例：
+  GridItem() {
+    Column() { ... }
+      .width('100%')
+      // 不写 height，由内容撑开
+  }
+```
+
+---
+
+## 三、Scroll 规则
+
+```
+【强制】Scroll 内只能有一个直接子组件
+【强制】Scroll 内的直接子容器不设置 height，让内容自然撑开
+【强制】Scroll 本身的高度由外部约束决定（如 layoutWeight 或固定高度）
+
+错误示例：
+  Scroll() {
+    Column() { ... }.height('100%')  ← 禁止
+  }
+
+正确示例：
+  Scroll() {
+    Column() { ... }.width('100%')   ← 只约束宽度
+  }
+  .layoutWeight(1)                   ← Scroll 自身高度由外部决定
+```
+
+---
+
+## 四、Stack 规则
+
+```
+【强制】Stack 不会被子内容撑开高度，需要高度跟随内容时改用 Column
+【强制】Stack 只用于子组件需要叠加显示的场景
+
+错误示例：
+  Stack() {
+    Column() { 内容... }  ← Stack 高度为 0，内容不可见
+  }
+
+正确示例（需要叠加）：
+  Stack() {
+    Image(...)            ← 底层背景图，需给 Stack 固定高度
+    Text(...)             ← 叠加在上方
+  }
+  .height(200)            ← Stack 必须有明确高度
+
+正确示例（不需要叠加）：
+  Column() {              ← 直接用 Column 替代 Stack
+    内容...
+  }
+```
+
+---
+
+## 五、横向列表规则
+
+```
+【强制】Row 内存在固定宽度子项且总宽可能超出父容器时，
+       必须用 Scroll 包裹并开启横向滚动，禁止直接裸用 Row
+
+错误示例：
+  Row({ space: 12 }) {
+    ForEach(items, (item) => {
+      Column().width(120)  ← 多个固定宽子项会溢出，布局异常
+    })
+  }
+
+正确示例：
+  Scroll() {
+    Row({ space: 12 }) {
+      ForEach(items, (item) => {
+        Column().width(120)
+      })
+    }
+  }
+  .scrollable(ScrollDirection.Horizontal)
+  .scrollBar(BarState.Off)
+  .width('100%')
+```
+
+---
+
+## 六、整体布局结构规则
+
+```
+【强制】页面根布局使用 Column + Scroll 组合时，结构必须如下：
+
+  Column() {
+    // 固定头部（不滚动）
+    Header()
+
+    // 可滚动内容区
+    Scroll() {
+      Column() {
+        内容...
+      }
+      .width('100%')
+      // 不写 height
+    }
+    .layoutWeight(1)    ← Scroll 占剩余空间
+  }
+  .height('100%')       ← 根 Column 撑满全屏
+
+【强制】layoutWeight 只用于 Scroll/Column 参与剩余空间竞争，
+       不在 Scroll 内部子组件上使用
+```
+
+---
+
+## 七、快速检查清单
+
+```
+生成每个组件后，过一遍以下检查：
+
+□ GridItem 内子容器有没有 .height('100%') → 有则删除
+□ Grid 有没有不必要的固定 height → 有则删除
+□ Scroll 内直接子容器有没有 height → 有则删除
+□ Stack 是否被用于撑开高度场景 → 是则改为 Column
+□ Row 内子项总宽是否可能超出父容器 → 是则用 Scroll 横向包裹
+□ 所有 .height('100%') 的父容器是否有明确高度 → 没有则删除百分比高度
+□ 根 Column 是否有 .height('100%') → 没有则补上
+```

@@ -51,7 +51,6 @@ class AgentContractsTests(unittest.TestCase):
         tool_names = [tool.name for tool in ARCHITECT_SUBAGENT_TOOLS]
         self.assertIn("request_human_guidance", tool_names)
         self.assertIn("validate_json_syntax", tool_names)
-        self.assertNotIn("save_architect_design", tool_names)
 
     def test_tester_definition_has_structured_output_schema_name(self) -> None:
         from contracts.agent_contracts import TESTER_DEFINITION
