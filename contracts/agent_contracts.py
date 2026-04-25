@@ -65,8 +65,11 @@ ARCHITECT_DEFINITION = SubagentDefinition(
         "Stage 1 extracts per-image observation drafts and should preserve page identity, visible page frame, visible UI structure, "
         "interaction clues, navigation clues, merge clues, subpage clues, overlay clues, state clues, and lightweight visual semantics, "
         "while staying faithful to screenshot facts and avoiding fabricated unseen structure. "
-        "Stage 2 merges related observation drafts into the final page set, including standalone pages, same-page state variants, and overlays, "
-        "while preserving implementation-useful page structure and interaction clues without finalizing global navigation. "
+        "Stage 2 merges related observation drafts into the final page set, including standalone pages, same-page state variants, and overlays. "
+        "Stage 2 may incrementally persist finalized per-page artifacts before writing the final merge index. "
+        "Final page files are canonical stage2 outputs and must be saved before the final merge index is written; "
+        "the final merge index save is for merge-summary persistence and consistency validation, not for rewriting canonical page files. "
+        "Stage 2 should preserve implementation-useful page structure and interaction clues without finalizing global navigation. "
         "Stage 3 infers page hierarchy and navigation relations from merged page evidence, validates global consistency, determines the entry page, "
         "and saves the canonical navigation design file. "
         "The architecture pipeline is artifact-aware: when valid canonical artifacts for a later resume point already exist, "
@@ -161,7 +164,13 @@ ARCHITECT_DISPATCH_CONTRACT = DispatchContract(
         "stage 2: read /designs/page_drafts_index.json first to make merge decisions without loading all full drafts at once",
         "stage 2: call read_page_draft only for drafts that need deeper inspection, do not load all drafts at once",
         "stage 2: determine the final page set by distinguishing same-page drafts, state variants, overlays, and standalone pages",
-        "stage 2: merge screenshots into canonical page artifacts and save /designs/pages/{page_id}.json and /designs/page_merge_index.json through dedicated save tools before navigation finalization",
+        "stage 2: when a final page boundary becomes stable, it may be incrementally persisted to /designs/pages/{page_id}.json through a dedicated save tool instead of waiting for all pages to finish",
+        "stage 2: incrementally saved page artifacts must remain consistent with the final canonical page set",
+        "stage 2: canonical stage2 page files must be saved before the final merge index is written",
+        "stage 2: the final merge index save must not be treated as the canonical writer for page files and must not be relied on to rewrite or upgrade page artifacts",
+        "stage 2: if a page changes after an earlier save, the updated page must be re-saved through the dedicated page save tool before the final merge index is written",
+        "stage 2: after final page determination, save the canonical merge index to /designs/page_merge_index.json through a dedicated save tool before navigation finalization",
+        "stage 2: the final merge index save is for merge-summary persistence and consistency validation against persisted page artifacts",
         "stage 2: preserve implementation-useful page-level and block-level visual hints when they remain supported by screenshot evidence",
         "stage 2: preserve navigation clues inside pages when useful, but do not finalize global page navigation relations in this stage",
         "stage 3: read /designs/page_merge_index.json first and only read page files on demand",

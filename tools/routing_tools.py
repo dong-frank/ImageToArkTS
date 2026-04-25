@@ -1505,7 +1505,8 @@ def dispatch_architect(runtime: ToolRuntime) -> Command:
                         "本阶段的目标是确定最终页面集合，并输出可供后续实现使用的页面终稿。",
                         "必须尽量保留 merged ui_tree、frame_blocks、key_texts、key_controls、interactions、state_variants、overlay_summaries、implementation_hints、visual_style_hints 等实现相关信息。",
                         "本阶段不负责最终全局导航关系定稿，可以保留 target_page_hint 等线索，但不要输出最终导航图。",
-                        "完成页面归并后，必须调用 save_page_merge_result 保存 /designs/page_merge_index.json 和 /designs/pages/*.json。",
+                        "当某个最终页面边界稳定后，可立即调用 save_merged_page 保存该页面文件。"
+                        "全部页面完成归属后，必须调用 save_page_merge_result 保存 /designs/page_merge_index.json。"
                         f"阶段一结果：\n{stage1_result}",
                     ]
                 ),

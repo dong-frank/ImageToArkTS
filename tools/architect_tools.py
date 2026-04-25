@@ -127,7 +127,6 @@ def _replace_smart_quotes(text: str) -> str:
 
 
 def _remove_json_trailing_commas(text: str) -> str:
-    # remove trailing commas before } or ]
     text = re.sub(r",\s*}", "}", text)
     text = re.sub(r",\s*]", "]", text)
     return text
@@ -193,14 +192,12 @@ def _try_parse_json_object(text: str) -> dict[str, Any] | None:
 def _try_repair_json_text(text: str) -> str:
     repaired = text.strip()
 
-    # 去掉常见前缀说明，只保留从第一个 { 开始的部分
     first_brace = repaired.find("{")
     if first_brace >= 0:
         repaired = repaired[first_brace:]
 
     repaired = _remove_json_trailing_commas(repaired)
 
-    # 去掉末尾非 JSON 垃圾
     candidate = _extract_balanced_json_object_candidate(repaired)
     if candidate:
         repaired = candidate
@@ -1324,6 +1321,16 @@ def read_page_draft(
 # ---------------------------------------------------------------------------
 
 
+_STAGE2_FORBIDDEN_PAGE_TOP_LEVEL_FIELDS = {
+    "child_page_ids",
+    "parent_page_id",
+    "incoming_relations",
+    "outgoing_relations",
+    "page_role_in_app",
+    "navigation_context",
+}
+
+
 def _normalize_interactions(value: Any) -> list[dict[str, Any]]:
     items = _ensure_list(value)
     results: list[dict[str, Any]] = []
@@ -1358,6 +1365,18 @@ def _normalize_frame_blocks(value: Any) -> list[dict[str, Any]]:
     return results
 
 
+def _validate_stage2_page_top_level_fields(page: dict[str, Any]) -> tuple[bool, str | None]:
+    forbidden = sorted(
+        field for field in _STAGE2_FORBIDDEN_PAGE_TOP_LEVEL_FIELDS if field in page
+    )
+    if forbidden:
+        return (
+            False,
+            "阶段2页面顶层包含不允许字段: " + ", ".join(forbidden),
+        )
+    return True, None
+
+
 def _normalize_page(page: Any, fallback_index: int = 0) -> dict[str, Any]:
     """Normalize one final stage2 page artifact while preserving rich page content."""
     page = _deep_load_json(page)
@@ -1387,10 +1406,20 @@ def _normalize_page(page: Any, fallback_index: int = 0) -> dict[str, Any]:
     normalized["state_variants"] = _ensure_list(page.get("state_variants"))
     normalized["overlay_ids"] = _ensure_list_of_strings(page.get("overlay_ids"))
     normalized["overlay_summaries"] = _ensure_list(page.get("overlay_summaries"))
-    normalized["child_page_ids"] = _ensure_list_of_strings(page.get("child_page_ids"))
     normalized["implementation_hints"] = _safe_dict(page.get("implementation_hints"))
     normalized["visual_style_hints"] = _safe_dict(page.get("visual_style_hints"))
     normalized["notes"] = _ensure_list_of_strings(page.get("notes"))
+    normalized["page_semantic_role"] = _safe_str(page.get("page_semantic_role"))
+    normalized["target_page_hints"] = _ensure_list_of_strings(page.get("target_page_hints"))
+    normalized["possible_parent_page_hints"] = _ensure_list_of_strings(
+        page.get("possible_parent_page_hints")
+    )
+    normalized["possible_child_page_hints"] = _ensure_list_of_strings(
+        page.get("possible_child_page_hints")
+    )
+
+    for forbidden_key in _STAGE2_FORBIDDEN_PAGE_TOP_LEVEL_FIELDS:
+        normalized.pop(forbidden_key, None)
 
     return normalized
 
@@ -1399,6 +1428,10 @@ def _is_valid_page_dict(page: dict[str, Any]) -> tuple[bool, str | None]:
     page_id = _safe_str(page.get("page_id"))
     if not page_id:
         return False, "存在空 page_id"
+
+    top_level_ok, top_level_error = _validate_stage2_page_top_level_fields(page)
+    if not top_level_ok:
+        return False, top_level_error
 
     has_blocks = len(_ensure_list(page.get("frame_blocks"))) > 0
     has_summary = bool(_safe_str(page.get("page_summary")))
@@ -1410,6 +1443,30 @@ def _is_valid_page_dict(page: dict[str, Any]) -> tuple[bool, str | None]:
         return False, f"page {page_id} 缺少最小可用页面内容"
 
     return True, None
+
+
+def _load_existing_stage2_page(page_id: str, root: Path) -> dict[str, Any] | None:
+    page_file_path = _resolve_path(root, f"/designs/pages/{page_id}.json")
+    if not page_file_path.exists() or not page_file_path.is_file():
+        return None
+
+    data, error = _safe_json_load_file(page_file_path)
+    if error or not data:
+        raise ValueError(f"已存在页面文件损坏：/designs/pages/{page_id}.json error={error}")
+
+    file_page_id = _normalize_id(data.get("page_id"), "")
+    if file_page_id != page_id:
+        raise ValueError(
+            f"已存在页面文件 page_id 不一致：expected={page_id} actual={file_page_id or '(empty)'}"
+        )
+
+    normalized = _normalize_page(data, 0)
+    ok, validation_error = _is_valid_page_dict(normalized)
+    if not ok:
+        raise ValueError(
+            f"已存在页面文件不合法：/designs/pages/{page_id}.json error={validation_error}"
+        )
+    return normalized
 
 
 def _normalize_page_index_item(
@@ -1436,6 +1493,42 @@ def _normalize_page_index_item(
         "source_images": _ensure_list_of_strings(
             item.get("source_images") or page.get("derived_from_images")
         ),
+        "source_draft_indexes": _ensure_list(
+            item.get("source_draft_indexes") or page.get("source_draft_indexes")
+        ),
+        "source_draft_count": (
+            int(item.get("source_draft_count"))
+            if str(item.get("source_draft_count", "")).isdigit()
+            else len(_ensure_list(item.get("source_draft_indexes") or page.get("source_draft_indexes")))
+        ),
+        "merge_summary": _safe_str(item.get("merge_summary")),
+        "merge_variant_type": _safe_str(item.get("merge_variant_type")),
+        "page_semantic_role": _safe_str(
+            item.get("page_semantic_role"),
+            _safe_str(page.get("page_semantic_role")),
+        ),
+        "interaction_summary": _ensure_list_of_strings(item.get("interaction_summary")),
+        "navigation_clue_summary": _ensure_list_of_strings(
+            item.get("navigation_clue_summary")
+        ),
+        "target_page_hints": _ensure_list_of_strings(
+            item.get("target_page_hints") or page.get("target_page_hints")
+        ),
+        "possible_parent_page_hints": _ensure_list_of_strings(
+            item.get("possible_parent_page_hints") or page.get("possible_parent_page_hints")
+        ),
+        "possible_child_page_hints": _ensure_list_of_strings(
+            item.get("possible_child_page_hints") or page.get("possible_child_page_hints")
+        ),
+        "entry_candidate_hint": _safe_str(item.get("entry_candidate_hint"), "unknown"),
+        "has_state_variants": bool(item.get("has_state_variants"))
+        if item.get("has_state_variants") is not None
+        else bool(_ensure_list(page.get("state_variants"))),
+        "state_variant_summary": _ensure_list_of_strings(item.get("state_variant_summary")),
+        "has_overlays": bool(item.get("has_overlays"))
+        if item.get("has_overlays") is not None
+        else bool(_ensure_list(page.get("overlay_summaries")) or _ensure_list_of_strings(page.get("overlay_ids"))),
+        "overlay_summary": _ensure_list_of_strings(item.get("overlay_summary")),
     }
 
 
@@ -1685,6 +1778,62 @@ def _normalize_navigation_design(
 
 
 # ---------------------------------------------------------------------------
+# Stage 2 tool: save one merged page
+# ---------------------------------------------------------------------------
+
+
+def _persist_single_stage2_page(
+    page: dict[str, Any],
+    root: Path,
+    fallback_index: int = 0,
+) -> tuple[dict[str, Any], str]:
+    normalized = _normalize_page(page, fallback_index)
+    ok, error = _is_valid_page_dict(normalized)
+    if not ok:
+        raise ValueError(error or "invalid stage2 page")
+
+    pages_dir = _resolve_path(root, "/designs/pages")
+    pages_dir.mkdir(parents=True, exist_ok=True)
+
+    page_id = normalized["page_id"]
+    canonical_path = f"/designs/pages/{page_id}.json"
+    page_file_path = pages_dir / f"{page_id}.json"
+
+    page_file_path.write_text(
+        json.dumps(normalized, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+    if not page_file_path.exists():
+        raise ValueError(f"页面文件未成功写入：{canonical_path}")
+
+    return normalized, canonical_path
+
+
+def save_merged_page(
+    page: dict[str, Any],
+    project_root: Path | None = None,
+) -> str:
+    """Normalize and persist one stage2 merged page JSON file."""
+    root = _get_workspace_root(project_root)
+    try:
+        normalized, canonical_path = _persist_single_stage2_page(page, root, 0)
+        return "\n".join(
+            [
+                "status: SUCCESS",
+                f"workspace_root: {root}",
+                f"page_file: {canonical_path}",
+                f"page_id: {normalized.get('page_id')}",
+                f"page_name: {normalized.get('page_name')}",
+                f"page_role: {normalized.get('page_role')}",
+                f"source_draft_count: {len(_ensure_list(normalized.get('source_draft_indexes')))}",
+            ]
+        )
+    except Exception as exc:  # noqa: BLE001
+        return f"保存失败：workspace_root={root} error={exc}"
+
+
+# ---------------------------------------------------------------------------
 # Stage 2 tool: save merged pages result
 # ---------------------------------------------------------------------------
 
@@ -1693,7 +1842,7 @@ def save_page_merge_result(
     payload: dict[str, Any],
     project_root: Path | None = None,
 ) -> str:
-    """Normalize and persist the stage2 merged page set and page merge index files."""
+    """Persist the stage2 page merge index without overwriting already-saved page files."""
     root = _get_workspace_root(project_root)
     try:
         return _normalize_and_persist_page_merge(payload, root)
@@ -1727,7 +1876,15 @@ def _normalize_and_persist_page_merge(
         if normalized["page_id"] in page_ids_seen:
             return f"保存失败：存在重复 page_id: {normalized['page_id']}"
         page_ids_seen.add(normalized["page_id"])
-        normalized_pages.append(normalized)
+
+        existing = _load_existing_stage2_page(normalized["page_id"], root)
+        if existing is not None:
+            normalized_pages.append(existing)
+        else:
+            return (
+                "保存失败：page_merge_result 不会再重写页面文件，"
+                f"但页面文件不存在：/designs/pages/{normalized['page_id']}.json"
+            )
 
     pages_by_id = {p["page_id"]: p for p in normalized_pages}
 
@@ -1742,6 +1899,8 @@ def _normalize_and_persist_page_merge(
     )
     warnings = _ensure_list_of_strings(validation_summary.get("warnings"))
 
+    draft_disposition_map = _ensure_list(payload.get("draft_disposition_map"))
+
     for idx, item in enumerate(raw_page_index):
         normalized_item = _normalize_page_index_item(item, pages_by_id, idx)
         if not normalized_item:
@@ -1749,6 +1908,10 @@ def _normalize_and_persist_page_merge(
             continue
 
         pid = normalized_item["page_id"]
+        page_file_path = _resolve_path(root, f"/designs/pages/{pid}.json")
+        if not page_file_path.exists() or not page_file_path.is_file():
+            return f"保存失败：page_index 引用了不存在的页面文件：/designs/pages/{pid}.json"
+
         if pid in existing_pids:
             warnings.append(f"ignored duplicate page_index item for page_id={pid}")
             continue
@@ -1767,6 +1930,29 @@ def _normalize_and_persist_page_merge(
                     "page_role": page["page_role"],
                     "page_summary": page["page_summary"],
                     "source_images": list(page.get("derived_from_images") or []),
+                    "source_draft_indexes": list(page.get("source_draft_indexes") or []),
+                    "source_draft_count": len(page.get("source_draft_indexes") or []),
+                    "merge_summary": _safe_str(
+                        _safe_dict(page.get("merge_decision")).get("decision_summary")
+                    ),
+                    "merge_variant_type": _safe_str(
+                        _safe_dict(page.get("merge_decision")).get("variant_type")
+                    ),
+                    "page_semantic_role": _safe_str(page.get("page_semantic_role")),
+                    "interaction_summary": [],
+                    "navigation_clue_summary": [],
+                    "target_page_hints": list(page.get("target_page_hints") or []),
+                    "possible_parent_page_hints": list(
+                        page.get("possible_parent_page_hints") or []
+                    ),
+                    "possible_child_page_hints": list(
+                        page.get("possible_child_page_hints") or []
+                    ),
+                    "entry_candidate_hint": "unknown",
+                    "has_state_variants": bool(page.get("state_variants")),
+                    "state_variant_summary": [],
+                    "has_overlays": bool(page.get("overlay_summaries") or page.get("overlay_ids")),
+                    "overlay_summary": [],
                 }
             )
             existing_pids.add(pid)
@@ -1782,29 +1968,19 @@ def _normalize_and_persist_page_merge(
                 )
 
     validation_summary["page_count"] = len(normalized_pages)
+    validation_summary["page_index_count"] = len(corrected_page_index)
+    validation_summary["drafts_with_disposition_count"] = len(draft_disposition_map)
     validation_summary.setdefault("used_draft_indexes", [])
+    validation_summary.setdefault("unused_draft_indexes", [])
     validation_summary["warnings"] = warnings
 
-    pages_dir = _resolve_path(root, "/designs/pages")
     merge_index_path = _resolve_path(root, "/designs/page_merge_index.json")
-
-    pages_dir.mkdir(parents=True, exist_ok=True)
     merge_index_path.parent.mkdir(parents=True, exist_ok=True)
-
-    page_paths: list[str] = []
-    for page in normalized_pages:
-        pid = page["page_id"]
-        canonical_path = f"/designs/pages/{pid}.json"
-        page_file_path = pages_dir / f"{pid}.json"
-        page_file_path.write_text(
-            json.dumps(page, ensure_ascii=False, indent=2),
-            encoding="utf-8",
-        )
-        page_paths.append(canonical_path)
 
     merge_index_data = {
         "schema_version": "stage2_index.v1",
         "page_index": corrected_page_index,
+        "draft_disposition_map": draft_disposition_map,
         "validation_summary": validation_summary,
     }
 
@@ -1816,7 +1992,8 @@ def _normalize_and_persist_page_merge(
     missing_files: list[str] = []
     if not merge_index_path.exists():
         missing_files.append("/designs/page_merge_index.json")
-    for page_path in page_paths:
+    for pid in existing_pids:
+        page_path = f"/designs/pages/{pid}.json"
         if not _resolve_path(root, page_path).exists():
             missing_files.append(page_path)
 
@@ -1828,9 +2005,9 @@ def _normalize_and_persist_page_merge(
             "status: SUCCESS",
             f"workspace_root: {root}",
             "page_merge_index_path: /designs/page_merge_index.json",
-            f"page_count: {len(page_paths)}",
+            f"page_count: {len(existing_pids)}",
             "page_paths:",
-            *page_paths,
+            *[f"/designs/pages/{pid}.json" for pid in sorted(existing_pids)],
         ]
     )
 

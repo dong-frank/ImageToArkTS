@@ -12,6 +12,7 @@ from tools.architect_tools import (
     read_page_drafts_index,
     read_page_file,
     read_page_merge_index,
+    save_merged_page,
     save_navigation_design,
     save_page_draft,
     save_page_drafts_index,
@@ -42,6 +43,7 @@ ARCHITECT_OBSERVATION_EXTRACTOR_TOOLS = [
 ARCHITECT_PAGE_MERGER_TOOLS = [
     read_page_drafts_index,
     read_page_draft,
+    save_merged_page,
     save_page_merge_result,
     validate_json_syntax,
 ]
@@ -110,7 +112,8 @@ ARCHITECT_PAGE_MERGER_SPEC: dict[str, Any] = {
     "description": (
         "Read stage1 observation drafts and merge related screenshots into the final page set. "
         "Stage2 should distinguish same-page drafts, state variants, overlays, and standalone pages, "
-        "and persist stable, implementation-useful final page artifacts for downstream coding. "
+        "incrementally persist stable, implementation-useful final page artifacts for downstream coding, "
+        "and write the final merge index after page files have been finalized. "
         "Preserve merged page structure, ui_tree, interaction clues, state variants, overlays, "
         "and high-level implementation/visual hints, but do not finalize global navigation relations in this stage."
     ),
@@ -258,6 +261,7 @@ def _build_architect_navigation_planner():
 # Cached getters
 # ---------------------------------------------------------------------------
 
+
 @lru_cache(maxsize=1)
 def get_architect_observation_extractor():
     """Return the cached stage1 architect observation extractor."""
@@ -338,6 +342,7 @@ def get_tester_agent():
 # ---------------------------------------------------------------------------
 # Cache reset
 # ---------------------------------------------------------------------------
+
 
 def clear_subagent_caches():
     """

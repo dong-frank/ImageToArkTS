@@ -2650,3 +2650,30 @@ export struct ForEachCom {
 □ 所有 .height('100%') 的父容器是否有明确高度 → 没有则删除百分比高度
 □ 根 Column 是否有 .height('100%') → 没有则补上
 ```
+【强制】Row 内的子组件禁止使用 .width('100%')
+       每个子项会独占父容器全部宽度，后续子项全部被挤出可视区域
+
+【强制】Row 内需要等分宽度时，使用 .layoutWeight(1) 而非写死百分比
+       写死百分比（如 33%）在子项数量变化时需要手动同步修改，容易出错
+
+错误示例：
+  Row() {
+    Column() { ... }.width('100%')   ← 只能看到第一个
+    Column() { ... }.width('100%')
+    Column() { ... }.width('100%')
+  }
+
+错误示例2（勉强可用但不推荐）：
+  Row() {
+    Column() { ... }.width('33%')    ← 数量变化时需手动改
+    Column() { ... }.width('33%')
+    Column() { ... }.width('33%')
+  }
+
+正确示例：
+  Row() {
+    Column() { ... }.layoutWeight(1).height('100%')  ← 自动等分，数量无关
+    Column() { ... }.layoutWeight(1).height('100%')
+    Column() { ... }.layoutWeight(1).height('100%')
+  }
+  .height(56)   ← Row 有固定高度，子 Column 的 height('100%') 才合法
