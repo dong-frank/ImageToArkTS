@@ -334,6 +334,9 @@ def _normalize_coder_task_bundle(payload: dict[str, Any]) -> dict[str, Any]:
 # Shared navigation helpers
 # ---------------------------------------------------------------------------
 
+def _should_create_navigation_scaffold(tasks: list[dict[str, Any]]) -> bool:
+    return len(tasks) > 1
+
 
 def _task_dep_names(task: dict[str, Any]) -> set[str]:
     return {
@@ -1006,15 +1009,27 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
     _update_app_strings(project_dir, app_display_name)
     _write_main_pages_json(project_dir, route_table)
 
+    should_create_navigation_scaffold = _should_create_navigation_scaffold(tasks)
+
     shared_written: list[str] = []
-    if needs_shared_navigation and navigation_type == "bottom_nav":
+    if should_create_navigation_scaffold:
         shared_written = _write_navigation_scaffold(project_dir, route_table)
+
+        if len(shared_written) == 0:
+            return "\n".join(
+                [
+                    "status: FAILED",
+                    f"project_name: {project_name}",
+                    f"project_path: /projects/{project_name}",
+                    "error: navigation scaffold was expected but no shared files were created",
+                ]
+            )
 
     page_files_written = _write_page_placeholders(
         project_dir=project_dir,
         tasks=tasks,
         app_display_name=app_display_name,
-        include_navigation=needs_shared_navigation and navigation_type == "bottom_nav",
+        include_navigation=False,
     )
 
     entry_task = _infer_entry_task(tasks)
@@ -1029,6 +1044,7 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
         "shared_navigation": {
             "enabled": needs_shared_navigation,
             "type": navigation_type,
+            "scaffold_created": should_create_navigation_scaffold,
         },
         "tasks": tasks,
         "generated_route_table": route_table,
@@ -1051,6 +1067,7 @@ def materialize_coder_skeleton(payload: Any, project_root: Path | None = None) -
             f"route_count: {len(route_table)}",
             f"page_task_count: {len(tasks)}",
             f"shared_navigation_enabled: {str(needs_shared_navigation)}",
+            f"navigation_scaffold_created: {str(should_create_navigation_scaffold)}",
             f"shared_file_count: {len(shared_written)}",
             f"page_file_count: {len(page_files_written)}",
             f"task_bundle_source: {task_bundle_source}",

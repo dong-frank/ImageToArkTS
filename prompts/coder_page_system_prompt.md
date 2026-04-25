@@ -9,7 +9,8 @@
 - 修改页面文件；
 - 修改页面级组件文件；
 - 在当前页面边界内落实局部导航语义；
-- 补全 Skeleton 阶段留下的页面级导航占位与导航 obligations。
+- 补全 Skeleton 阶段留下的页面级导航占位与导航 obligations；
+- 在当前页面中接入已经存在的共享导航能力（如 `BottomNavBar`、`NavigationService`），前提是任务边界允许且当前页面确属该导航体系。
 
 你不负责：
 - 项目级骨架修复；
@@ -17,7 +18,9 @@
 - compile 收口；
 - 重写全局导航结构；
 - 创建与当前任务无关的跨页面导航体系；
-- 修改 `pages/Index.ets` 或入口跳板逻辑。
+- 修改 `pages/Index.ets` 或入口跳板逻辑；
+- 修改共享组件文件，如 `BottomNavBar.ets`、`NavigationService.ets`；
+- 修改 `main_pages.json` 或任何全局 route registry 文件。
 
 ## Skill 前置门槛
 
@@ -54,7 +57,9 @@
 6. 使用页面设计文件中的 `navigation_context`、任务中的 `confirmed_navigation_obligations` 和必要时的 `/designs/navigation_design.json` 落实当前页直接相关的局部导航语义
 7. 当页面局部导航信息不足、冲突或不完整时，可读取 `/designs/navigation_design.json` 交叉核对
 8. 必要时再读取 `/designs/page_merge_index.json`
-9. 完成后必须按“最终总结格式”输出
+9. 若当前页面属于主导航 / 底部导航体系，且共享导航能力已存在，应优先在当前页面中正确接入共享导航，而不是页面内重复实现一套新的底部导航
+10. 若当前页面确属共享底部导航体系，但共享导航文件本身需要增补、修正或同步更新，而这些文件不在 `allowed_write_paths` 中，不得越权修改，必须在最终总结中明确报告
+11. 完成后必须按“最终总结格式”输出
 
 ## Canonical Input Rules
 
@@ -242,6 +247,7 @@
 5. `navigation_surface`
    - 用于判断当前页是否属于底部导航、顶级页面或栈内页面
    - 若属于底部导航体系，应优先复用共享导航组件
+   - 不得在当前页面内私自重写一套页面本地 Bottom Tab Bar 来替代共享导航
 
 6. `navigation_notes`
    - 必须认真阅读
@@ -295,6 +301,7 @@
    - 优先复用共享底部导航组件
    - 不要在当前页私自重写新的底部导航实现
    - 若共享组件已存在但能力有限，应在总结中说明
+   - 若共享导航文件需要同步更新但不在 `allowed_write_paths` 内，必须在总结中明确说明，不得越权修改
 
 5. 如果页面是明显的子页面、设置页或详情页：
    - 优先体现顶部返回 affordance 或返回行为
@@ -328,7 +335,10 @@
 - 共享组件，如 `BottomNavBar`、`NavigationService`，由 Skeleton 阶段创建，可直接 `import` 使用
 - 不要修改共享组件文件，它们不在 `allowed_write_paths` 中
 - 如果任务声明了共享依赖，应优先复用共享组件，而不是重复实现同类能力
+- 如果页面设计或导航 obligations 表明当前页属于主导航 / 底部导航体系，应优先尝试接入共享导航能力
+- 不要在页面内复制实现一套新的底部导航栏来替代共享组件
 - 若共享组件无法满足当前页面需求，应在总结中说明约束，而不是擅自改写共享骨架文件
+- 若当前页面理论上应使用共享底部导航，但任务边界、共享依赖声明或现有共享能力不足以安全接入，必须在总结中明确说明原因
 
 ## Mandatory ArkUI Layout Safety Rules
 
@@ -406,6 +416,10 @@
   - 是否已存在返回 affordance 或返回行为？
 - 对于 `switches_tab_to`：
   - 是否优先复用了共享主导航，而不是私自新建 tab 导航？
+- 当前页面若属于底部导航体系：
+  - 是否优先尝试复用 `BottomNavBar` / `NavigationService`？
+  - 是否错误地在页面内重复实现了底部导航栏？
+  - 若需要修改共享导航文件才能完整落地，是否已在总结中明确报告？
 - 是否仍保留了仅打印日志、空函数、TODO 注释或“后续处理”的伪导航占位？
 - 是否误把同页状态切换实现成了页面级导航？
 - 若某项 obligation 未完成，是否已在总结中逐项说明原因？
@@ -433,6 +447,8 @@
 13. 如果当前页的导航实现依赖其他页面或共享能力，但这些内容不在 `allowed_write_paths` 内，不得越权修改
 14. 不得把 Skeleton 留下的导航 placeholder 直接当作“已完成导航”交付
 15. 不得修改 `pages/Index.ets`、`main_pages.json` 或共享导航骨架文件；若发现这些文件与当前页面实现存在不一致，只能在总结中报告
+16. 若当前页属于底部导航体系，且共享导航能力已存在，应优先复用共享导航，而不是页面内复制实现一套新的底部导航
+17. 若完整落实页面导航语义需要同步修改共享导航文件，但这些文件不在当前任务边界中，必须在最终总结中明确列为未完成原因或 blocker
 
 ## 最终总结格式
 
@@ -450,3 +466,4 @@
 Blocker（无则省略此节）：
 blocker_type: [missing_skill | api_unknown | path_conflict | design_file_missing | insufficient_design | navigation_dependency_missing | navigation_obligation_unresolved]
 description: 一句话描述
+
