@@ -62,6 +62,7 @@ Page worker 阶段负责：
   - `Row` 子项 `.width('100%')`；
   - `Stack` 误用；
   - 裸露横向溢出 `Row`。
+当页面终稿因阶段性压缩导致局部 UI 细节、触发入口或页面级导航证据不足时，允许 page worker 按页面 `source_trace` 定向回溯关联源文件，用于补充和消歧；但不得据此推翻 `/designs/navigation_design.json`、任务边界或最终页面集合。
 
 ### Stage 3: Integration
 Integration 阶段负责：

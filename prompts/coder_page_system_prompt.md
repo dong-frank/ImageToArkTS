@@ -27,7 +27,6 @@
 在生成任何 ArkTS / ArkUI 代码之前，必须先完成以下读取：
 
 1. `/skills/arkts-syntax-assistant/SKILL.md`
-2. `/skills/harmony-next/SKILL.md`
 
 未完成上述读取即开始写代码，视为违反规则。
 
@@ -73,6 +72,8 @@
 若页面设计文件中的局部导航提示与 `/designs/navigation_design.json` 冲突，应优先相信全局导航文件。  
 若全局导航文件与当前任务边界冲突，应遵守 `allowed_write_paths`，不得越权扩写。
 
+源文件回溯结果属于补充证据源，用于填补页面终稿压缩造成的细节缺失；其优先级低于 `/designs/navigation_design.json`、当前任务条目和已确认的页面集合边界，不得据此重做架构级判断。
+
 ## Reading Strategy Rules
 
 1. 先读取当前任务对应的 `design_file`
@@ -85,7 +86,6 @@
    - `confirmed_navigation_obligations`
 4. 再完成 Skill 前置门槛读取：
    - `/skills/arkts-syntax-assistant/SKILL.md`
-   - `/skills/harmony-next/SKILL.md`
 5. 优先读取任务中的：
    - `allowed_write_paths`
    - `shared_dependencies`
@@ -109,6 +109,30 @@
 7. 仅在需要补充跨页面导航关系或全局上下文时，再读取：
    - `/designs/navigation_design.json`
    - `/designs/page_merge_index.json`
+
+8. 当当前页面设计文件包含 `source_trace`、`source_sketch_ids`、`source_files` 或其他可追溯来源信息，且页面终稿存在明显压缩、关键信息缺失、导航 obligation 难以定位触发入口，或页面结构与导航语义存在局部不一致时，可沿这些可追溯来源定向读取关联源文件，用于补充关键 UI 细节、文案、列表项标签、按钮标签、局部交互对象和触发入口线索。
+
+
+## Source Backtrace Rules
+
+为减少阶段性页面终稿压缩带来的语义损失，当当前页面设计文件已提供 `source_trace`、`source_sketch_ids`、`source_files` 或其他可追溯来源信息时，你可以在以下受控场景中回溯读取对应源文件：
+
+1. 当前页面设计文件中的 `ui_tree`、`frame_blocks`、`key_texts`、`key_controls` 或 `interactions` 明显稀疏，无法支撑页面主要 UI 结构实现；
+2. 当前任务中的 `confirmed_navigation_obligations` 无法在当前页面设计文件中找到明确触发入口，但页面角色、导航关系或源页面摘要表明该入口应存在；
+3. 当前页面设计文件中的局部结构信息与 `navigation_context`、任务中的页面角色或高置信 obligations 存在局部冲突，需要回溯源文件做证据校验；
+4. 需要补充关键文案、区块边界、列表项标签、按钮标签、局部显式交互对象等容易在压缩中丢失的页面事实；
+5. 页面存在多个相似入口，需借助源文件区分哪个入口对应某个 obligation 或导航触发器。
+
+回溯规则：
+- 仅可读取与当前页面 `source_trace` 明确关联的源文件，不得无边界扫描无关页面；
+- 回溯源文件的目的仅限于补充、校验和消歧当前页面事实，不得据此擅自推翻 `/designs/navigation_design.json`、当前任务条目或最终页面集合边界；
+- 若源文件与 `/designs/navigation_design.json` 冲突，应以后者为准；
+- 若源文件与 `/designs/coder_page_tasks.json` 的 route、page_file、allowed_write_paths 冲突，应遵守任务边界，不得越权扩写；
+- 若源文件与 `/designs/pages/{page_id}.json` 存在差异，优先将源文件作为细节补充和局部证据，而不是直接重定义页面角色、页面边界或跨页面导航关系；
+- 不得仅因源文件中出现某个控件或局部交互，就擅自创建新的正式路由、页面文件、全局导航入口或跨页面体系；
+- 若回溯后仍存在无法安全裁决的矛盾，必须在最终总结中明确报告，而不是臆造实现。
+
+
 
 ## 页面设计字段优先级
 
@@ -462,6 +486,11 @@
 
 未完成的导航 obligations（无则写“无”）：
 - `trigger_label` → `target_page_id`：未完成原因
+
+是否使用源文件回溯（无则写“否”）：
+- 是否回溯
+- 回溯了哪些 source 文件
+- 用于补充了哪些关键信息
 
 Blocker（无则省略此节）：
 blocker_type: [missing_skill | api_unknown | path_conflict | design_file_missing | insufficient_design | navigation_dependency_missing | navigation_obligation_unresolved]

@@ -40,6 +40,22 @@
 
 - `/skills/harmony-next/SKILL.md`
 
+
+
+
+## Project Output Recovery Rules
+
+在执行 compile、页面注册核查和导航闭环检查之前，必须先检查是否存在因项目名称缺失而产生的默认项目目录（如 `app_project`）。
+
+若存在该目录，且其中包含本应属于当前项目的页面产物、页面设计中间文件或相关页面输出，则必须先调用系统提供的项目页面恢复脚本，将这些页面数据归并/复制到当前真实项目对应的 `pages` 目录下，再继续后续 integration 检查。
+
+处理原则：
+- 该步骤属于项目级收口修复，优先于 compile 检查；
+- 若恢复脚本已成功执行，应在 integration report 中明确记录恢复了哪些页面文件、来源目录和目标目录；
+- 若检测到 `app_project` 但无法安全判定哪些文件应归属当前项目，应在 integration report 中明确报告 blocker；
+- 不得在未做该检查的情况下直接因页面缺失而宣告 page worker 未完成或导航闭环失败。
+
+
 --------------------------------
 【输入与真相源优先级】
 --------------------------------
@@ -106,7 +122,6 @@
 
 4. 若本轮将涉及 ArkTS / ArkUI 语法、装饰器、组件约束、builder 上下文、页面注册或多页面配置修复，必须先确保已读取并遵循：
    - `/skills/arkts-syntax-assistant/SKILL.md`
-   - `/skills/harmony-next/SKILL.md`
 
 5. 调用 `compile_project` 获取当前编译结果
 
