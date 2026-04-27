@@ -48,6 +48,8 @@ Skeleton 阶段负责：
 - 基于当前可用设计信息，将页面级导航关系尽量投影为页面 skeleton 占位、共享导航接入线索或 `confirmed_navigation_obligations`，供 page worker 优先参考和落实；
 - 这些 obligations 属于面向 coding 执行层的导航投影，不高于 `/designs/navigation_design.json` 的全局导航事实；若后续 integration 核查发现冲突、缺口或未闭环项，应以全局导航设计和工程闭环结果为准。
 
+- 对于已在全局导航设计中确认的底部主导航体系，应优先在 Skeleton 阶段初始化最小可用的共享底部导航组件，并由对应主页面在页面实现阶段直接接入；不要把共享底部导航的主体实现推迟到 Integration 阶段。
+
 ### Stage 2: Page Workers
 Page worker 阶段负责：
 - 基于 `/designs/coder_page_tasks.json` 中的页面任务逐页实现；

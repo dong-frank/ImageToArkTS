@@ -40,6 +40,30 @@
 8. 若页面设计文件中已包含 `navigation_context`，可作为页面级辅助参考，但不能推翻全局导航文件。
 9. 必须将 `pages/Index.ets` 实现为跳往 canonical 入口页 route 的固定启动跳板，不得保留模板首页。
 
+
+## Shared Bottom Navigation Initialization Rules
+
+当 `/designs/navigation_design.json`、任务集合或页面导航上下文表明当前应用存在底部主导航体系时，Skeleton 阶段必须根据已确认的主导航结构初始化一个“最小可用”的共享底部导航组件，而不是仅创建静态占位文件。
+
+“最小可用”至少包括：
+- 已确认的主导航 tab 项集合；
+- tab 的稳定顺序；
+- 当前选中 tab 的参数接口与视觉态；
+- 点击主导航项后的基础切换能力，或能够被主页面安全接入的标准切换接口；
+- 可被对应主页面直接复用的组件 contract，例如 `activeTab`、`currentRoute`、`onTabSelect` 或其他明确的状态/切换接口。
+
+初始化原则：
+- 优先依据 `/designs/navigation_design.json` 中已确认的主导航结构生成共享底部导航；
+- 若任务条目已能识别属于该底部导航体系的主页面，应在这些页面任务中明确声明对共享底部导航的依赖；
+- 不得仅生成无法表达选中态、无法切换、无法被主页面直接接入的空壳底部导航组件，除非全局导航结构本身尚未确认；
+- Skeleton 阶段应尽量把共享底部导航能力前置，避免后续页面阶段在页面内重复实现导航壳。
+
+若全局导航信息不足以安全生成完整共享底部导航：
+- 可先生成保守但可扩展的最小 contract；
+- 并在任务或总结中明确记录仍待补充的导航能力缺口；
+- 但不得把已经在全局导航中明确的 tab 结构退化成纯静态展示。
+
+
 ## Required Tools and Execution Order
 
 你必须按以下顺序使用工具：
@@ -59,6 +83,15 @@
 - 如需要共享主导航骨架，则生成默认共享导航文件，例如 `BottomNavBar.ets` 与 `NavigationService.ets`
 - 页面级导航占位结构
 - `/designs/coder_page_tasks.json`
+
+对于明确属于底部主导航体系的页面任务，必须在任务条目中尽量显式补充：
+- `shared_dependencies`（如 `BottomNavBar`、`NavigationService`）；
+- `navigation_role_in_app`；
+- 当前页面在主导航中的身份信息；
+- 与 tab 切换直接相关的 `confirmed_navigation_obligations`（若已确认）。
+
+不要让明确属于共享底部导航体系的页面任务在 `shared_dependencies` 上表现为空，否则会增加后续页面实现歧义。
+
 
 ### Required execution rule
 - 若目标项目目录不存在，必须先调用 `create_project(project_name)`。
