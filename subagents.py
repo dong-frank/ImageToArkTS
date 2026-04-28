@@ -6,7 +6,7 @@ from typing import Any
 from deepagents import create_deep_agent
 
 from contracts.agent_contracts import TESTER_DEFINITION
-from models import architect_model, base_model
+from models import architect_model, base_model, code_model
 from tools.architect_tools import (
     read_page_draft,
     read_page_drafts_index,
@@ -154,7 +154,7 @@ CODER_ORCHESTRATOR_SPEC: dict[str, Any] = {
         "Architect page files may provide merged ui_tree, frame blocks, interactions, navigation intent, "
         "page-level visual_style_hints, implementation_hints, and block-level layout/style hints."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("coder_orchestrator_system_prompt.md"),
     # Actual tool set is injected lazily in _build_coder_orchestrator().
     "tools": [],
@@ -167,7 +167,7 @@ CODER_SKELETON_WORKER_SPEC: dict[str, Any] = {
         "Architect pages may contain merged ui_tree, frame blocks, interactions, child-page relations, "
         "visual_style_hints, implementation_hints, and block-level style/layout hints."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("coder_skeleton_system_prompt.md"),
     "skills": ["/skills"],
     "tools": CODER_SKELETON_WORKER_TOOLS,
@@ -179,7 +179,7 @@ CODER_PAGE_WORKER_SPEC: dict[str, Any] = {
         "Implement one page and its page-local components inside assigned file boundaries. "
         "Use architect page ui_tree, semantics, interactions, and visual/style hints instead of assuming a fabricated legacy deep UI tree."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("coder_page_system_prompt.md"),
     "skills": ["/skills"],
     "tools": CODER_PAGE_WORKER_TOOLS,
@@ -191,7 +191,7 @@ CODER_INTEGRATION_WORKER_SPEC: dict[str, Any] = {
         "Integrate page results, resolve shared issues, and support compile closure "
         "while preserving page identity, navigation intent, visible structure, ui_tree, and coarse visual semantics."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("coder_integration_system_prompt.md"),
     "skills": ["/skills"],
     "tools": CODER_INTEGRATION_WORKER_TOOLS,

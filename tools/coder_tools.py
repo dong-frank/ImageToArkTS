@@ -292,10 +292,26 @@ def _normalize_coder_task_bundle(payload: dict[str, Any]) -> dict[str, Any]:
     else:
         normalized["tasks"] = list(normalized.get("tasks") or [])
 
-    if normalized.get("project_name"):
-        normalized["project_name"] = _safe_project_name(str(normalized.get("project_name")))
+    # 自动检测唯一非app_project项目名
+    if not normalized.get("project_name") or not str(normalized.get("project_name")).strip():
+        # 获取当前 session 的 projects 目录
+        try:
+            projects_dir = _projects_root()
+            if projects_dir.exists() and projects_dir.is_dir():
+                project_names = [
+                    p.name for p in projects_dir.iterdir()
+                    if p.is_dir() and p.name != "app_project"
+                ]
+                if len(project_names) == 1:
+                    normalized["project_name"] = _safe_project_name(project_names[0])
+                else:
+                    normalized["project_name"] = "app_project"
+            else:
+                normalized["project_name"] = "app_project"
+        except Exception:
+            normalized["project_name"] = "app_project"
     else:
-        normalized["project_name"] = "app_project"
+        normalized["project_name"] = _safe_project_name(str(normalized.get("project_name")))
 
     if normalized.get("app_display_name") is None:
         normalized["app_display_name"] = normalized["project_name"]

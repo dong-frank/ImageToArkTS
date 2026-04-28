@@ -1039,7 +1039,7 @@ def _build_draft_summary(
 
 def batch_extract_page_drafts(
     metadata_path: str = "/user_input/user_input_metadata.json",
-    max_images: int = 20,
+    max_images: int = 35,
     project_root: Path | None = None,
 ) -> str:
     """

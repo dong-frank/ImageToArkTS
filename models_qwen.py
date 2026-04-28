@@ -1,5 +1,5 @@
-#使用qwen和deepseek模型，前者在视觉理解和推理方面表现更好，后者在文本生成方面表现更好
 import os
+
 import dotenv
 from langchain_openai import ChatOpenAI
 
@@ -24,21 +24,19 @@ small_model = ChatOpenAI(
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
         extra_body={"enable_thinking": False},
 )
-
+"""
 base_model = ChatOpenAI(
         model="qwen3.5-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
         extra_body={"enable_thinking": False},
 )
-
-code_model = ChatOpenAI(
+"""
+base_model = ChatOpenAI(
         model="deepseek-v4-pro",
         api_key=os.getenv("DEEPSEEK_API_KEY"),
         base_url=os.getenv("DEEPSEEK_BASE_URL"),
-        extra_body={
-        "thinking": {"type": "disabled"}        # 禁用思考模式
-    }
+        extra_body={"enable_thinking": False},
 )
 
 
