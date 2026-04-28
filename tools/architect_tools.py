@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import json
+import os
 import mimetypes
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -1066,8 +1067,14 @@ def batch_extract_page_drafts(
     failed_count = 0
     recovered_after_retry_count = 0
 
+    try:
+        configured_workers = int(os.getenv("ARCHITECT_STAGE1_MAX_WORKERS", "2"))
+    except ValueError:
+        configured_workers = 2
+    max_workers = min(max(1, configured_workers), max(1, len(processed_entries) or 1))
+
     with ThreadPoolExecutor(
-        max_workers=min(4, max(1, len(processed_entries) or 1))
+        max_workers=max_workers
     ) as executor:
         future_to_index = {
             executor.submit(_extract_single_page_draft, entry, idx, root): idx
@@ -1153,6 +1160,7 @@ def batch_extract_page_drafts(
             f"failed_count: {failed_count}",
             f"recovered_after_retry_count: {recovered_after_retry_count}",
             f"max_attempts_per_image: {_SINGLE_DRAFT_MAX_ATTEMPTS}",
+            f"max_workers: {max_workers}",
         ]
     )
 
