@@ -117,7 +117,7 @@ ARCHITECT_PAGE_MERGER_SPEC: dict[str, Any] = {
         "Preserve merged page structure, ui_tree, interaction clues, state variants, overlays, "
         "and high-level implementation/visual hints, but do not finalize global navigation relations in this stage."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("architect_page_merger_system_prompt.md"),
     "tools": ARCHITECT_PAGE_MERGER_TOOLS,
 }
@@ -130,7 +130,7 @@ ARCHITECT_NAVIGATION_PLANNER_SPEC: dict[str, Any] = {
         "Do not rewrite or downgrade stage2 page files. "
         "Stage3 should only output navigation and hierarchy results based on existing page artifacts."
     ),
-    "model": base_model,
+    "model": code_model,
     "system_prompt": load_prompt("architect_navigation_planner_system_prompt.md"),
     "tools": ARCHITECT_NAVIGATION_PLANNER_TOOLS,
 }
