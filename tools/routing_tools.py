@@ -112,6 +112,8 @@ def _baseline_coder_prompt() -> str:
 你的任务：
 - 读取 `/designs/page_drafts_index.json` 和所有 `/designs/page_drafts/page_draft_{n}.json`。
 - 自主分析所有 drafts，决定页面归并，设计导航关系。
+- 将 `observation_status` 为 `success` 或 `repaired` 的 draft 视为可用输入；`repaired` 表示 Architect 已从 fallback/raw observation 中恢复出可用结构。
+- 对仍为 `partial` 的 draft 要谨慎：只有在顶层结构或 `raw_preservation.raw_observation` 中有明确页面语义时才作为补充参考，否则不要让残缺内容污染页面生成。
 - 直接生成完整的 HarmonyOS 项目：调用 create_project(project_name)，然后自行生成所有页面代码、main_pages.json、Index.ets、必要的导航组件等。
 - 使用 router 进行跳转。
 - 最终确保项目可编译（但不负责迭代修复，后续会有 Integration Worker）。
