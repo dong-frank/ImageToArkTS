@@ -12,6 +12,7 @@ from subagents import (
     get_architect_observation_extractor,
     get_coder_baseline_worker,
     get_coder_integration_worker,
+    clear_subagent_caches,
 )
 from tools.architect_tools import batch_extract_page_drafts
 from tools.coder_tools import (
@@ -129,6 +130,8 @@ def dispatch_baseline_coder(runtime: ToolRuntime) -> Command:
 
     session_token = set_current_session_id(_runtime_thread_id(runtime))
     try:
+        # Ensure subagent singletons are rebuilt so they use the correct models/tools
+        clear_subagent_caches()
         result = _invoke_subagent(
             get_coder_baseline_worker(),
             _baseline_coder_prompt(),
@@ -413,6 +416,10 @@ def dispatch_baseline_pipeline(
             )
 
         # BaselineCoder
+        # Clear cached subagents so any agents bound to earlier model configs
+        # (for example a vision-capable architect_agent) are rebuilt fresh
+        # before starting the coder worker.
+        clear_subagent_caches()
         coder_result = _invoke_subagent(
             get_coder_baseline_worker(),
             _baseline_coder_prompt(),
