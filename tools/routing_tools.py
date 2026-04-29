@@ -22,6 +22,7 @@ from tools.coder_tools import (
     save_coder_compile_fix_trace_payload,
     save_coder_integration_report_payload,
 )
+from tools.project_tools import get_canonical_project_name, session_project_names
 from utils.session_context import reset_current_session_id, set_current_session_id
 
 # ---------------------------------------------------------------------------
@@ -107,6 +108,12 @@ def dispatch_architect_stage1(runtime: ToolRuntime) -> Command:
 
 def _baseline_coder_prompt() -> str:
     return """
+Baseline project contract:
+- Create at most one HarmonyOS project in this session.
+- Once create_project(project_name) succeeds, keep using that exact project_name for every generated file, route, main_pages.json, Index.ets, and later compile work.
+- Never create a second project because you refined or renamed the app concept.
+- If create_project returns status: BLOCKED with canonical_project_name, reuse that canonical project and do not call create_project with a different name.
+
 你是 `ImageToArkTS` 系统的 `BaselineCoder`（端到端生成基线）。
 
 你的任务：
@@ -263,11 +270,16 @@ def _compile_fingerprint_stalled(prev: dict | None, curr: dict | None) -> bool:
 def _baseline_integration_prompt(
     task_type: Literal["implementation", "fix_from_test"] = "implementation",
     round_idx: int = 1,
+    canonical_project_name: str = "",
     prev_compile_feedback: str | None = None,
 ) -> str:
     prompt = f"task_type: {task_type}\nintegration_round: {round_idx}\n"
+    if canonical_project_name:
+        prompt += f"canonical_project_name: {canonical_project_name}\n"
     prompt += "You are the Integration Worker for Baseline. Your goal: fix compilation errors, ensure routing is correct, respect layout safety rules.\n"
     prompt += "Use compile_project to get errors, then fix files directly. You may read any project file.\n"
+    if canonical_project_name:
+        prompt += f"Use compile_project('{canonical_project_name}') only. Do not create, compile, or switch to any other project.\n"
     prompt += "Do not rewrite whole pages unless necessary for compilation. Only make minimal fixes.\n"
     prompt += "Do not request human guidance in Baseline integration. If compilation still fails, return FAILED with key_errors so the outer loop can continue or stop by max_rounds/stall_limit.\n"
     prompt += "Return a short summary and a compile output block exactly as: <<FINAL_COMPILE_OUTPUT>> ... <<END_FINAL_COMPILE_OUTPUT>>\n"
@@ -276,14 +288,24 @@ def _baseline_integration_prompt(
     return prompt
 
 def _get_project_name_from_tasks() -> str:
+    project_name = get_canonical_project_name()
+    if project_name:
+        return project_name
+
     try:
         if _coder_page_tasks_path().exists():
             with open(_coder_page_tasks_path(), encoding="utf-8") as f:
                 bundle = json.load(f)
-                return bundle.get("project_name", "app_project")
+                project_name = str(bundle.get("project_name") or "").strip()
+                if project_name:
+                    return project_name
     except Exception:
         pass
-    return "app_project"
+
+    names = session_project_names()
+    if len(names) == 1:
+        return names[0]
+    return ""
 
 # ---------------------------------------------------------------------------
 # Baseline integration loop (parallel to run_coder_integration)
@@ -304,6 +326,39 @@ def run_baseline_integration(
     parsed_compile = {"compile_status": "FAILED", "project_name": "", "project_path": "", "key_errors": []}
     round_idx = 0
 
+    if not project_name:
+        names = session_project_names()
+        error = (
+            f"multiple projects exist without a canonical manifest: {', '.join(names)}"
+            if len(names) > 1
+            else "no canonical project is available for integration"
+        )
+        parsed_compile = {
+            "compile_status": "FAILED",
+            "project_name": "",
+            "project_path": "",
+            "key_errors": [error],
+        }
+        save_coder_compile_fix_trace_payload({
+            "project_name": "",
+            "task_type": task_type,
+            "attempts": [],
+            "final_compile_status": "FAILED",
+            "final_success": False,
+        })
+        report = {
+            "compile_status": "FAILED",
+            "project_name": "",
+            "project_path": "",
+            "ready_for_tester": False,
+            "fixes_applied": [],
+            "remaining_errors": [error],
+            "blocker": error,
+            "next_recommended_agent": "coder",
+        }
+        save_coder_integration_report_payload(report)
+        return report
+
     while True:
         round_idx += 1
         if max_rounds is not None and round_idx > max_rounds:
@@ -312,6 +367,7 @@ def run_baseline_integration(
         prompt = _baseline_integration_prompt(
             task_type=task_type,
             round_idx=round_idx,
+            canonical_project_name=project_name,
             prev_compile_feedback=last_compile_output if round_idx > 1 else None,
         )
         result = _invoke_subagent(get_coder_integration_worker(), prompt, runtime)

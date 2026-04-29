@@ -4,6 +4,7 @@ import json
 import re
 import shutil
 import subprocess
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -16,6 +17,7 @@ TEMPLATE_ROOT = PROJECT_ROOT / "template"
 TEMPLATE_PROJECT_DIR = TEMPLATE_ROOT / "MyApplication"
 INSTALL_DEPENDENCIES_SCRIPT = PROJECT_ROOT / "scripts" / "install_dependencies.sh"
 COMPILE_SCRIPT = PROJECT_ROOT / "scripts" / "compile.sh"
+PROJECT_MANIFEST_RELATIVE_PATH = Path("logs") / "coder" / "project_manifest.json"
 TEMPLATE_IGNORE_PATTERNS = shutil.ignore_patterns(
     ".git",
     ".idea",
@@ -89,6 +91,64 @@ def _write_json(path: Path, data: dict) -> None:
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def project_manifest_path() -> Path:
+    return projects_root().parent / PROJECT_MANIFEST_RELATIVE_PATH
+
+
+def session_project_names() -> list[str]:
+    root = projects_root()
+    if not root.exists():
+        return []
+    return sorted(
+        path.name
+        for path in root.iterdir()
+        if path.is_dir() and not path.name.startswith(".")
+    )
+
+
+def load_project_manifest() -> dict:
+    path = project_manifest_path()
+    if not path.exists():
+        return {}
+    try:
+        payload = _load_json(path)
+    except Exception:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+    project_name = str(payload.get("project_name") or "").strip()
+    if not PROJECT_NAME_PATTERN.fullmatch(project_name):
+        return {}
+    return payload
+
+
+def save_project_manifest(project_name: str, source: str = "create_project") -> None:
+    path = project_manifest_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _write_json(
+        path,
+        {
+            "schema_version": "project_manifest.v1",
+            "project_name": project_name,
+            "project_path": f"/projects/{project_name}",
+            "source": source,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        },
+    )
+
+
+def get_canonical_project_name() -> str:
+    manifest = load_project_manifest()
+    project_name = str(manifest.get("project_name") or "").strip()
+    if project_name:
+        return project_name
+
+    names = session_project_names()
+    if len(names) == 1:
+        return names[0]
+    return ""
+
+
 def _configure_project_metadata(project_name: str, target_dir: Path) -> None:
     app_json_path = target_dir / "AppScope" / "app.json5"
     if app_json_path.exists():
@@ -117,6 +177,113 @@ def create_project(project_name: str) -> str:
     Create a HarmonyOS project by copying from local template.
     """
     print("start creating project from template")
+    if not PROJECT_NAME_PATTERN.fullmatch(project_name):
+        return (
+            "status: FAILED\n"
+            f"project_name: {project_name}\n"
+            "error: invalid project_name; use snake_case starting with a lowercase letter, "
+            "letters/numbers/underscore only, max 200 chars\n"
+            "example: calculator_app"
+        )
+
+    root = projects_root()
+    root.mkdir(parents=True, exist_ok=True)
+    target_dir = root / project_name
+
+    manifest = load_project_manifest()
+    manifest_project = str(manifest.get("project_name") or "").strip()
+    if manifest_project:
+        if manifest_project != project_name:
+            return (
+                "status: BLOCKED\n"
+                f"requested_project_name: {project_name}\n"
+                f"canonical_project_name: {manifest_project}\n"
+                f"canonical_project_path: /projects/{manifest_project}\n"
+                "error: this session already has a canonical project; reuse it instead of creating a second project"
+            )
+        if target_dir.exists():
+            return (
+                "status: SUCCESS\n"
+                f"project_name: {project_name}\n"
+                f"project_path: /projects/{project_name}\n"
+                "create_mode: reuse-existing\n"
+                "canonical_project: true"
+            )
+
+    existing_projects = session_project_names()
+    if not manifest_project and len(existing_projects) > 1:
+        return (
+            "status: BLOCKED\n"
+            f"requested_project_name: {project_name}\n"
+            f"existing_projects: {', '.join(existing_projects)}\n"
+            "error: multiple projects already exist and no canonical manifest is present; choose one project before continuing"
+        )
+
+    if not manifest_project and len(existing_projects) == 1:
+        existing_project = existing_projects[0]
+        if existing_project != project_name:
+            save_project_manifest(existing_project, source="adopt_existing_single_project")
+            return (
+                "status: BLOCKED\n"
+                f"requested_project_name: {project_name}\n"
+                f"canonical_project_name: {existing_project}\n"
+                f"canonical_project_path: /projects/{existing_project}\n"
+                "error: this session already contains one project; reuse the canonical project instead of creating a second project"
+            )
+        save_project_manifest(project_name, source="adopt_existing_single_project")
+        return (
+            "status: SUCCESS\n"
+            f"project_name: {project_name}\n"
+            f"project_path: /projects/{project_name}\n"
+            "create_mode: reuse-existing\n"
+            "canonical_project: true"
+        )
+
+    if not TEMPLATE_PROJECT_DIR.exists():
+        return (
+            "status: FAILED\n"
+            f"project_name: {project_name}\n"
+            "error: template project not found at template/MyApplication"
+        )
+
+    if target_dir.exists():
+        save_project_manifest(project_name, source="adopt_existing_target")
+        return (
+            "status: SUCCESS\n"
+            f"project_name: {project_name}\n"
+            f"project_path: /projects/{project_name}\n"
+            "create_mode: reuse-existing\n"
+            "canonical_project: true"
+        )
+
+    shutil.copytree(TEMPLATE_PROJECT_DIR, target_dir, ignore=TEMPLATE_IGNORE_PATTERNS)
+    _configure_project_metadata(project_name, target_dir)
+    save_project_manifest(project_name, source="create_project")
+
+    install_exit_code, install_output = _install_project_dependencies(target_dir)
+    if install_exit_code != 0:
+        install_tail = "\n".join(install_output.splitlines()[-20:]) if install_output else "(no output)"
+        return (
+            "status: FAILED\n"
+            f"project_name: {project_name}\n"
+            f"project_path: /projects/{project_name}\n"
+            "create_mode: template-copy\n"
+            "canonical_project: true\n"
+            f"install_exit_code: {install_exit_code}\n"
+            "recent_install_log_tail:\n"
+            f"{install_tail}"
+        )
+
+    return (
+        "status: SUCCESS\n"
+        f"project_name: {project_name}\n"
+        f"project_path: /projects/{project_name}\n"
+        "create_mode: template-copy\n"
+        "template_source: /template/MyApplication\n"
+        "canonical_project: true\n"
+        "dependencies: installed with ohpm install --all"
+    )
+
     if not PROJECT_NAME_PATTERN.fullmatch(project_name):
         return (
             "项目名不合法。必须以小写字母开头，只能包含小写字母、数字和下划线(_)；长度 1-200。"
@@ -159,6 +326,41 @@ def compile_project(project_name: str) -> str:
     Compile a HarmonyOS project and return a summarized output.
     """
     print("start compiling project by hdc build")
+    requested_project_name = str(project_name or "").strip()
+    canonical_project_name = get_canonical_project_name()
+    if canonical_project_name:
+        if requested_project_name and requested_project_name != canonical_project_name:
+            return (
+                "compile_status: FAILED\n"
+                f"project_name: {canonical_project_name}\n"
+                f"project_path: /projects/{canonical_project_name}\n"
+                "exit_code: 1\n"
+                "key_errors:\n"
+                f"- Requested project '{requested_project_name}' does not match canonical project '{canonical_project_name}'."
+            )
+        project_name = canonical_project_name
+    elif not requested_project_name:
+        return (
+            "compile_status: FAILED\n"
+            "project_name: \n"
+            "project_path: \n"
+            "exit_code: 1\n"
+            "key_errors:\n"
+            "- No project_name was provided and no canonical project exists."
+        )
+    else:
+        names = session_project_names()
+        if len(names) > 1:
+            return (
+                "compile_status: FAILED\n"
+                "project_name: \n"
+                "project_path: \n"
+                "exit_code: 1\n"
+                "key_errors:\n"
+                f"- Multiple projects exist without a canonical manifest: {', '.join(names)}."
+            )
+        project_name = requested_project_name
+
     project_path = str((projects_root() / project_name).resolve())
     result = subprocess.run(
         ["bash", str(COMPILE_SCRIPT), project_path],
