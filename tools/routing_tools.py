@@ -269,6 +269,7 @@ def _baseline_integration_prompt(
     prompt += "You are the Integration Worker for Baseline. Your goal: fix compilation errors, ensure routing is correct, respect layout safety rules.\n"
     prompt += "Use compile_project to get errors, then fix files directly. You may read any project file.\n"
     prompt += "Do not rewrite whole pages unless necessary for compilation. Only make minimal fixes.\n"
+    prompt += "Do not request human guidance in Baseline integration. If compilation still fails, return FAILED with key_errors so the outer loop can continue or stop by max_rounds/stall_limit.\n"
     prompt += "Return a short summary and a compile output block exactly as: <<FINAL_COMPILE_OUTPUT>> ... <<END_FINAL_COMPILE_OUTPUT>>\n"
     if prev_compile_feedback:
         prompt += f"\nPrevious compile output:\n<<PREVIOUS_COMPILE_OUTPUT>>\n{prev_compile_feedback}\n<<END_PREVIOUS_COMPILE_OUTPUT>>\n"

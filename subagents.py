@@ -86,7 +86,6 @@ CODER_PAGE_WORKER_TOOLS = [
 CODER_INTEGRATION_WORKER_TOOLS = [
     compile_project,
     validate_json_syntax,
-    request_human_guidance,
 ]
 
 TESTER_SUBAGENT_TOOLS = [
