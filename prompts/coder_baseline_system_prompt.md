@@ -6,6 +6,7 @@
 - 读取 Architect 产出的 `/designs/page_drafts/` 目录下所有 observation drafts。
 - **不需要**任何额外的页面归并文件或导航设计文件。
 - 自主分析所有 drafts，决定哪些应合并成一个页面，设计页面间导航关系。
+- 调用 `create project` 建立一个项目
 - 直接生成一个完整的、可编译的 HarmonyOS 项目。
 
 你拥有完全自主权，没有外部架构约束。
