@@ -237,7 +237,8 @@ def _build_subagent(spec: dict[str, Any]):
         tools=spec["tools"],
         skills=spec.get("skills"),
         backend=backend_factory,
-        checkpointer=get_checkpointer(),
+        #checkpointer=get_checkpointer(),
+        checkpointer=None,
         name=spec["name"],
     )
 
