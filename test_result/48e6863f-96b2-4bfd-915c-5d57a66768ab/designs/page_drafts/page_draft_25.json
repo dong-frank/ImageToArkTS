@@ -1,0 +1,537 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260429232718_951_24.png",
+    "filename": "微信图片_20260429232718_951_24.png",
+    "draft_index": 25,
+    "timestamp": "23:25",
+    "device_status": {
+      "signal": "full",
+      "wifi": true,
+      "battery": 7
+    },
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260429232718_951_24.png",
+    "image_name": "微信图片_20260429232718_951_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "第三方SDK信息清单页",
+      "个人信息共享说明页"
+    ],
+    "page_id_candidate": "privacy_sdk_list",
+    "page_role": "信息披露与合规声明页",
+    "title_text": "大众点评与第三方共享个人信息清单",
+    "distinguishing_text": "大众点评App内嵌SDK名单",
+    "purpose_summary": "向用户披露App接入的第三方SDK及其收集的个人信息类型、使用目的、共享方式与链接",
+    "candidate_page_name": "微信图片_20260429232718_951_24.png",
+    "candidate_page_id": "page_25",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部导航栏 + 主标题 + 说明段落 + 表格主体；垂直线性布局，内容以文字和结构化表格为主，无复杂交互组件。",
+    "high_level_semantics": "合规性信息披露页面，强调透明度与用户知情权；视觉重心在表格数据，整体风格简洁、正式、偏文档型。",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←",
+            "visible": true
+          },
+          {
+            "type": "TitleText",
+            "text": "大众点评与第三方共享个人信息清单",
+            "visible": true
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "children": [
+          {
+            "type": "Heading",
+            "text": "大众点评App内嵌SDK名单",
+            "level": 1,
+            "visible": true
+          },
+          {
+            "type": "Paragraph",
+            "text": "为保障大众点评App相关功能的实现与应用的稳定运行，我们可能会接入由第三方提供的软件开发包（SDK）以实现相关目的。不同设备系统（如IOS、Android、HarmonyOS等）的第三方SDK会有所不同，一般包括一键登录类、第三方账号登录类、推送通知消息类、第三方支付类、地图导航类、厂商推送类、分享类、统计类等。我们会对合作方获取信息的软件工具开发包（SDK）进行严格的安全监测，以保障数据安全。您可以通过以下链接查看第三方的数据使用和保护规则。",
+            "visible": true
+          },
+          {
+            "type": "Table",
+            "columns": [
+              "第三方公司名称",
+              "SDK名称",
+              "涉及个人信息",
+              "使用目的",
+              "共享方式",
+              "第三方链接"
+            ],
+            "rows": [
+              {
+                "cells": [
+                  {
+                    "type": "CellText",
+                    "text": "中移互联网有限公司"
+                  },
+                  {
+                    "type": "CellText",
+                    "text": "号码认证SDK"
+                  },
+                  {
+                    "type": "CellText",
+                    "text": "网络类型、网络地址（ip地址）、运营商类型、本机号码信息、SIM卡状态、手机设备类型、手机操作系统、硬件厂商"
+                  },
+                  {
+                    "type": "CellText",
+                    "text": "根据用户选择，为用户提供一键登录功能"
+                  },
+                  {
+                    "type": "CellText",
+                    "text": "SDK本机采集"
+                  },
+                  {
+                    "type": "CellText",
+                    "text": "https://wap.cmppassport.com/resource/html/contract.html"
+                  }
+                ]
+              }
+            ],
+            "visible": true
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "nav_bar",
+      "type": "NavigationBar",
+      "description": "含返回按钮与页面主标题"
+    },
+    {
+      "block_id": "intro_section",
+      "type": "IntroductorySection",
+      "description": "主标题 + 合规说明段落"
+    },
+    {
+      "block_id": "sdk_table",
+      "type": "DataDisclosureTable",
+      "description": "六列结构化表格，展示SDK接入详情"
+    }
+  ],
+  "key_content": {
+    "text_elements": [
+      "大众点评与第三方共享个人信息清单",
+      "大众点评App内嵌SDK名单",
+      "中移互联网有限公司",
+      "号码认证SDK",
+      "网络类型、网络地址（ip地址）...",
+      "根据用户选择，为用户提供一键登录功能",
+      "SDK本机采集",
+      "https://wap.cmppassport.com/resource/html/contract.html"
+    ],
+    "controls": [
+      {
+        "type": "BackButton",
+        "position": "top-left",
+        "function": "navigate_back"
+      },
+      {
+        "type": "Hyperlink",
+        "text": "https://wap.cmppassport.com/resource/html/contract.html",
+        "is_clickable": true,
+        "target_uncertain": true
+      }
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "navigation",
+      "element": "BackButton",
+      "action": "go_back",
+      "target_page_uncertain": true
+    },
+    {
+      "clue_type": "external_link",
+      "element": "ThirdPartyLink",
+      "action": "open_url",
+      "url": "https://wap.cmppassport.com/resource/html/contract.html",
+      "target_context": "第三方隐私政策页"
+    },
+    {
+      "clue_type": "none",
+      "description": "无显式'展开更多'、'筛选'、'Tab切换'或'详情入口'控件；当前仅显示1行SDK记录，其余行被截断"
+    }
+  ],
+  "navigation_hints": {
+    "back_path": "上一页面（可能为隐私政策总览页或设置 > 隐私选项）",
+    "exit_paths": [
+      "BackButton"
+    ],
+    "primary_cta": null,
+    "entry_points": [
+      "隐私设置 > 第三方共享信息",
+      "首次启动时弹窗跳转"
+    ],
+    "exit_points": [
+      "BackButton"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "tab_state": null,
+    "segment_state": null,
+    "filter_state": null,
+    "page_status_tags": [],
+    "selected_row": null,
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchors": [
+      "SDK名单表格可滚动扩展，当前仅显示首行"
+    ],
+    "state_difference_evidence": [
+      "若后续截图含更多SDK行，则属同一页面滚动；若出现Tab或筛选器，则可能为分页变体"
+    ],
+    "independent_page_signals": [
+      "无独立标题栏变化、无底部导航切换，倾向为单页长文档"
+    ],
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "隐私政策中心 / 设置 > 隐私与安全",
+    "potential_children": [
+      "第三方链接跳转页（外部网页）",
+      "SDK详情弹窗（当前未出现）"
+    ],
+    "drilldown_entries": [
+      {
+        "element": "第三方链接",
+        "type": "external_url",
+        "target": "cmppassport.com 合同页"
+      }
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "DocumentPagePattern",
+    "visual_blocks": [
+      "FixedTopBar",
+      "CenteredHeading",
+      "JustifiedParagraph",
+      "ResponsiveTableWithWrap"
+    ],
+    "style_hints": {
+      "font": "系统默认中文字体，标题加粗",
+      "color": "深灰正文，黑色标题，蓝色链接（推测）",
+      "spacing": "段落间距适中, 表格单元格有浅灰底色分隔"
+    },
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "notable_elements": [
+      "表格列头完整可见：第三方公司名称、SDK名称、涉及个人信息、使用目的、共享方式、第三方链接",
+      "仅第一行数据完整显示，第二行起被截断（图像底部边缘中断）",
+      "无图标、无复选框、无开关控件",
+      "URL文本换行显示，末尾为 'ml'"
+    ],
+    "uncertainties": [
+      "是否支持表格横向滚动？当前列宽适配屏幕，但列数较多，可能存在隐藏列",
+      "'中移互联网有限公司'是否为唯一SDK？图像仅显示一行，无法确认总数",
+      "链接点击行为是内嵌WebView还是系统浏览器打开？不可见",
+      "是否存在'展开全部'按钮被截断？图像底部无此控件可见"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260429232718_951_24.png",
+        "filename": "微信图片_20260429232718_951_24.png",
+        "draft_index": 25,
+        "timestamp": "23:25",
+        "device_status": {
+          "signal": "full",
+          "wifi": true,
+          "battery": 7
+        }
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "第三方SDK信息清单页",
+          "个人信息共享说明页"
+        ],
+        "page_id_candidate": "privacy_sdk_list",
+        "page_role": "信息披露与合规声明页",
+        "title_text": "大众点评与第三方共享个人信息清单",
+        "distinguishing_text": "大众点评App内嵌SDK名单",
+        "purpose_summary": "向用户披露App接入的第三方SDK及其收集的个人信息类型、使用目的、共享方式与链接"
+      },
+      "page_overview": {
+        "layout_summary": "顶部导航栏 + 主标题 + 说明段落 + 表格主体；垂直线性布局，内容以文字和结构化表格为主，无复杂交互组件。",
+        "high_level_semantics": "合规性信息披露页面，强调透明度与用户知情权；视觉重心在表格数据，整体风格简洁、正式、偏文档型。"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "label": "←",
+                "visible": true
+              },
+              {
+                "type": "TitleText",
+                "text": "大众点评与第三方共享个人信息清单",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "Heading",
+                "text": "大众点评App内嵌SDK名单",
+                "level": 1,
+                "visible": true
+              },
+              {
+                "type": "Paragraph",
+                "text": "为保障大众点评App相关功能的实现与应用的稳定运行，我们可能会接入由第三方提供的软件开发包（SDK）以实现相关目的。不同设备系统（如IOS、Android、HarmonyOS等）的第三方SDK会有所不同，一般包括一键登录类、第三方账号登录类、推送通知消息类、第三方支付类、地图导航类、厂商推送类、分享类、统计类等。我们会对合作方获取信息的软件工具开发包（SDK）进行严格的安全监测，以保障数据安全。您可以通过以下链接查看第三方的数据使用和保护规则。",
+                "visible": true
+              },
+              {
+                "type": "Table",
+                "columns": [
+                  "第三方公司名称",
+                  "SDK名称",
+                  "涉及个人信息",
+                  "使用目的",
+                  "共享方式",
+                  "第三方链接"
+                ],
+                "rows": [
+                  {
+                    "cells": [
+                      {
+                        "type": "CellText",
+                        "text": "中移互联网有限公司"
+                      },
+                      {
+                        "type": "CellText",
+                        "text": "号码认证SDK"
+                      },
+                      {
+                        "type": "CellText",
+                        "text": "网络类型、网络地址（ip地址）、运营商类型、本机号码信息、SIM卡状态、手机设备类型、手机操作系统、硬件厂商"
+                      },
+                      {
+                        "type": "CellText",
+                        "text": "根据用户选择，为用户提供一键登录功能"
+                      },
+                      {
+                        "type": "CellText",
+                        "text": "SDK本机采集"
+                      },
+                      {
+                        "type": "CellText",
+                        "text": "https://wap.cmppassport.com/resource/html/contract.html"
+                      }
+                    ]
+                  }
+                ],
+                "visible": true
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "nav_bar",
+          "type": "NavigationBar",
+          "description": "含返回按钮与页面主标题"
+        },
+        {
+          "block_id": "intro_section",
+          "type": "IntroductorySection",
+          "description": "主标题 + 合规说明段落"
+        },
+        {
+          "block_id": "sdk_table",
+          "type": "DataDisclosureTable",
+          "description": "六列结构化表格，展示SDK接入详情"
+        }
+      ],
+      "key_content": {
+        "text_elements": [
+          "大众点评与第三方共享个人信息清单",
+          "大众点评App内嵌SDK名单",
+          "中移互联网有限公司",
+          "号码认证SDK",
+          "网络类型、网络地址（ip地址）...",
+          "根据用户选择，为用户提供一键登录功能",
+          "SDK本机采集",
+          "https://wap.cmppassport.com/resource/html/contract.html"
+        ],
+        "controls": [
+          {
+            "type": "BackButton",
+            "position": "top-left",
+            "function": "navigate_back"
+          },
+          {
+            "type": "Hyperlink",
+            "text": "https://wap.cmppassport.com/resource/html/contract.html",
+            "is_clickable": true,
+            "target_uncertain": true
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "navigation",
+          "element": "BackButton",
+          "action": "go_back",
+          "target_page_uncertain": true
+        },
+        {
+          "clue_type": "external_link",
+          "element": "ThirdPartyLink",
+          "action": "open_url",
+          "url": "https://wap.cmppassport.com/resource/html/contract.html",
+          "target_context": "第三方隐私政策页"
+        },
+        {
+          "clue_type": "none",
+          "description": "无显式‘展开更多’、‘筛选’、‘Tab切换’或‘详情入口’控件；当前仅显示1行SDK记录，其余行被截断"
+        }
+      ],
+      "navigation_hints": {
+        "back_path": "上一页面（可能为隐私政策总览页或设置 > 隐私选项）",
+        "exit_paths": [
+          "BackButton"
+        ],
+        "primary_cta": null,
+        "entry_points": [
+          "隐私设置 > 第三方共享信息",
+          "首次启动时弹窗跳转"
+        ],
+        "exit_points": [
+          "BackButton"
+        ]
+      },
+      "state_hints": {
+        "tab_state": null,
+        "segment_state": null,
+        "filter_state": null,
+        "page_status_tags": [],
+        "selected_row": null
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchors": [
+          "SDK名单表格可滚动扩展，当前仅显示首行"
+        ],
+        "state_difference_evidence": [
+          "若后续截图含更多SDK行，则属同一页面滚动；若出现Tab或筛选器，则可能为分页变体"
+        ],
+        "independent_page_signals": [
+          "无独立标题栏变化、无底部导航切换，倾向为单页长文档"
+        ]
+      },
+      "subpage_hints": {
+        "potential_parent": "隐私政策中心 / 设置 > 隐私与安全",
+        "potential_children": [
+          "第三方链接跳转页（外部网页）",
+          "SDK详情弹窗（当前未出现）"
+        ],
+        "drilldown_entries": [
+          {
+            "element": "第三方链接",
+            "type": "external_url",
+            "target": "cmppassport.com 合同页"
+          }
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "DocumentPagePattern",
+        "visual_blocks": [
+          "FixedTopBar",
+          "CenteredHeading",
+          "JustifiedParagraph",
+          "ResponsiveTableWithWrap"
+        ],
+        "style_hints": {
+          "font": "系统默认中文字体，标题加粗",
+          "color": "深灰正文，黑色标题，蓝色链接（推测）",
+          "spacing": "段落间距适中, 表格单元格有浅灰底色分隔"
+        }
+      },
+      "raw_preservation": {
+        "notable_elements": [
+          "表格列头完整可见：第三方公司名称、SDK名称、涉及个人信息、使用目的、共享方式、第三方链接",
+          "仅第一行数据完整显示，第二行起被截断（图像底部边缘中断）",
+          "无图标、无复选框、无开关控件",
+          "URL文本换行显示，末尾为 'ml'"
+        ],
+        "uncertainties": [
+          "是否支持表格横向滚动？当前列宽适配屏幕，但列数较多，可能存在隐藏列",
+          "‘中移互联网有限公司’是否为唯一SDK？图像仅显示一行，无法确认总数",
+          "链接点击行为是内嵌WebView还是系统浏览器打开？不可见",
+          "是否存在‘展开全部’按钮被截断？图像底部无此控件可见"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,888 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260425145649_817_24.png",
+    "draft_index": 3,
+    "capture_time": "14:54",
+    "device_status": {
+      "battery": 64,
+      "network": "wifi",
+      "location": "江苏生命科技创新园附近"
+    },
+    "app_context": "美团地图（或美团App内地图页）",
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425145649_817_24.png",
+    "image_name": "微信图片_20260425145649_817_24.png"
+  },
+  "page_identity": {
+    "name_candidates": [
+      "地图搜索结果页",
+      "地点推荐地图页",
+      "POI聚合地图页"
+    ],
+    "page_id_candidate": "map_poi_list_overlay",
+    "role": "地理信息展示与筛选入口页",
+    "title_text": "搜索地点、美食、景点等",
+    "distinguishing_texts": [
+      "推荐",
+      "美食",
+      "玩乐",
+      "景点",
+      "购物",
+      "美团地图"
+    ],
+    "purpose_summary": "以地图为底图，叠加POI标记与评分，提供分类筛选与详情入口的本地生活服务发现页",
+    "candidate_page_name": "微信图片_20260425145649_817_24.png",
+    "candidate_page_id": "page_3",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "上部为搜索栏+分类标签栏；中部为地图视图，含多个带评分与图标的POI标记；右下侧为垂直功能按钮组；底部为POI卡片列表（当前显示首条）；底部导航栏固定。",
+    "high_level_semantics": "地图驱动的本地服务探索界面，强调位置关联性与即时评分反馈，支持分类过滤与卡片下钻。非纯地图导航页，而是'地图+列表'混合模式的发现页。",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "SearchBar",
+        "text": "搜索地点、美食、景点等",
+        "icon": "magnifier",
+        "position": "top"
+      },
+      {
+        "type": "CategoryTabs",
+        "items": [
+          {
+            "label": "推荐",
+            "badge": "🔥",
+            "selected": true
+          },
+          {
+            "label": "美食",
+            "icon": "food"
+          },
+          {
+            "label": "玩乐",
+            "icon": "game"
+          },
+          {
+            "label": "景点",
+            "icon": "scenic"
+          },
+          {
+            "label": "购物",
+            "icon": "shopping_bag"
+          }
+        ],
+        "position": "top_after_search"
+      },
+      {
+        "type": "MapArea",
+        "overlay_items": [
+          {
+            "type": "POIMarker",
+            "label": "九乡河生态公园",
+            "score": "4.2分",
+            "icon": "park",
+            "position": {
+              "x": 0.48,
+              "y": 0.22
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "羊山湖公园",
+            "score": "4.3分",
+            "icon": "park",
+            "position": {
+              "x": 0.32,
+              "y": 0.34
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "杨天歌冒菜·麻辣香锅",
+            "score": "3.8分",
+            "icon": "food",
+            "position": {
+              "x": 0.18,
+              "y": 0.26
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "必胜客",
+            "score": "4.0分",
+            "icon": "food",
+            "position": {
+              "x": 0.68,
+              "y": 0.25
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "美术馆",
+            "score": "3.7分",
+            "icon": "art",
+            "position": {
+              "x": 0.82,
+              "y": 0.29
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "山林美糖广场",
+            "score": "4.8分",
+            "icon": "shopping",
+            "position": {
+              "x": 0.08,
+              "y": 0.47
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "江宴·仙林山房",
+            "score": "4.8分",
+            "icon": "food",
+            "position": {
+              "x": 0.22,
+              "y": 0.53
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "外婆人家融合淮扬菜",
+            "score": "3.9分",
+            "icon": "food",
+            "position": {
+              "x": 0.78,
+              "y": 0.62
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "邓廷桢墓",
+            "score": "3.5分",
+            "icon": "park",
+            "position": {
+              "x": 0.06,
+              "y": 0.61
+            }
+          },
+          {
+            "type": "POIMarker",
+            "label": "江苏省中医药博物馆",
+            "score": "3.8分",
+            "icon": "museum",
+            "position": {
+              "x": 0.38,
+              "y": 0.42
+            }
+          }
+        ],
+        "position": "center"
+      },
+      {
+        "type": "RightSideActions",
+        "items": [
+          {
+            "label": "赏花",
+            "icon": "flower"
+          },
+          {
+            "label": "必吃榜",
+            "icon": "checklist",
+            "badge": "✓"
+          },
+          {
+            "label": "收藏",
+            "icon": "star"
+          },
+          {
+            "label": "定位",
+            "icon": "target"
+          }
+        ],
+        "position": "right_bottom"
+      },
+      {
+        "type": "POICardList",
+        "visible_items": [
+          {
+            "type": "POICard",
+            "title": "王和李·海鲜火锅大排档 (美糖广场店)",
+            "rating": "4.2",
+            "review_count": "3435条",
+            "price": "¥85/人",
+            "tags": [
+              "海鲜火锅",
+              "仙林大学城"
+            ],
+            "distance": "4.6km",
+            "badge": "会员6.8折",
+            "rank_info": "仙林大学城火锅打卡人气榜 · 第2名",
+            "image_url": "present",
+            "position": "bottom_card_1"
+          },
+          {
+            "type": "POICard",
+            "title": "开云 (仙林美糖庄)",
+            "position": "bottom_card_2_partial"
+          }
+        ],
+        "position": "bottom_above_nav"
+      },
+      {
+        "type": "BottomNav",
+        "items": [
+          {
+            "label": "首页",
+            "active": false
+          },
+          {
+            "label": "地图",
+            "active": true
+          },
+          {
+            "label": "+",
+            "active": false
+          },
+          {
+            "label": "消息",
+            "active": false
+          },
+          {
+            "label": "我的",
+            "active": false
+          }
+        ],
+        "position": "bottom"
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "id": "header_block",
+      "description": "搜索+分类标签组合区，控制内容筛选维度"
+    },
+    {
+      "id": "map_content_block",
+      "description": "地图主视图 + POI标记层，核心信息载体"
+    },
+    {
+      "id": "right_action_panel",
+      "description": "垂直功能快捷入口，含主题筛选与工具"
+    },
+    {
+      "id": "poi_list_carousel",
+      "description": "底部可滑动POI卡片列表，当前仅显首项完整"
+    },
+    {
+      "id": "bottom_navigation",
+      "description": "全局导航栏，当前处于'地图'Tab"
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "搜索地点、美食、景点等",
+      "推荐",
+      "美食",
+      "玩乐",
+      "景点",
+      "购物",
+      "九乡河生态公园 4.2分",
+      "王和李·海鲜火锅大排档 (美糖广场店)",
+      "4.2 ★★★★☆ 3435条 ¥85/人",
+      "海鲜火锅 仙林大学城",
+      "会员6.8折",
+      "仙林大学城火锅打卡人气榜 · 第2名",
+      "4.6km"
+    ],
+    "controls": [
+      "搜索栏",
+      "分类标签（5个）",
+      "右侧4个功能按钮",
+      "底部POI卡片（含图片、评分、价格、距离）",
+      "底部导航栏（5项）"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "filter_switch",
+      "target": "分类标签",
+      "description": "点击'美食'/'景点'等可切换POI类型，当前'推荐'激活"
+    },
+    {
+      "clue_type": "poi_detail_entry",
+      "target": "地图上任一POI标记",
+      "description": "点击POI标记应弹出详情卡片或跳转详情页（如当前底部卡片对应上方某点）"
+    },
+    {
+      "clue_type": "card_detail_entry",
+      "target": "底部POI卡片标题区域",
+      "description": "点击卡片（如'王和李'）应进入该POI详情页"
+    },
+    {
+      "clue_type": "action_button_trigger",
+      "target": "右侧'必吃榜'按钮",
+      "description": "点击可能切换至'必吃榜'专题地图视图或列表"
+    },
+    {
+      "clue_type": "location_center",
+      "target": "定位按钮",
+      "description": "点击重置地图中心至用户当前位置"
+    },
+    {
+      "clue_type": "global_nav_change",
+      "target": "底部导航'首页'/'我的'",
+      "description": "切换至其他主模块"
+    }
+  ],
+  "navigation_hints": {
+    "back_path": null,
+    "exit_paths": [
+      "底部导航 → 首页",
+      "底部导航 → 我的"
+    ],
+    "main_cta": "点击底部POI卡片进入详情",
+    "entry_points": [
+      "首页 → 地图入口",
+      "搜索栏输入后进入"
+    ],
+    "exit_points": [
+      "点击POI卡片 → 详情页",
+      "点击分类标签 → 同页筛选变更"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "active_tab": "推荐",
+    "filter_state": "无显式筛选器，依赖分类标签隐式过滤",
+    "map_mode": "POI聚合模式（非路线导航）",
+    "list_scroll_position": "顶部（仅显示第1-2个POI卡片）",
+    "status_badges": [
+      "会员6.8折",
+      "人气榜·第2名"
+    ],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "美团App首页 → 地图入口",
+    "potential_children": [
+      "POI详情页（点击卡片或地图标记）",
+      "分类列表页（点击'美食'等后可能转为纯列表）",
+      "必吃榜专题页（点击右侧'必吃榜'）"
+    ],
+    "drill_down_entries": [
+      "地图POI标记",
+      "底部POI卡片",
+      "右侧'必吃榜'按钮"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "Hybrid Map-List Layout：地图占主体，底部固定卡片列表作为补充信息流",
+    "visual_blocks": [
+      "顶部轻量控件区（搜索+标签）",
+      "中层高密度地理信息区（POI标记密集但有层级）",
+      "右侧窄功能列（图标化快捷操作）",
+      "底部信息流卡片（图文混排，含促销与排名标签）"
+    ],
+    "styling_hints": {
+      "color_scheme": "绿色系地图底图 + 橙红主色（推荐/价格/评分） + 白底卡片",
+      "icon_usage": "语义化小图标（食物/公园/艺术）辅助快速识别POI类型",
+      "badge_design": "圆角橙色标签用于促销/榜单/会员权益"
+    },
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "'推荐'标签带火焰图标且高亮",
+      "底部卡片含'会员6.8折'红色角标",
+      "右侧'必吃榜'带对勾图标",
+      "地图中POI评分统一用'X.X分'格式，前置图标区分类型",
+      "底部导航'地图'Tab为橙色高亮"
+    ],
+    "key_facts": [
+      "当前视图聚焦仙林大学城周边",
+      "POI数量≥10个可见标记",
+      "卡片列表至少含2项，第二项被截断",
+      "无用户头像/登录态显示",
+      "左下角有'美团 地图'水印"
+    ],
+    "uncertainties": [
+      "'开云 (仙林美糖庄)'是否为独立POI或'王和李'子项？图像截断无法确认",
+      "右侧'赏花'按钮是否为季节性临时入口？无上下文佐证",
+      "地图缩放级别是否可调？截图未见缩放控件",
+      "POI标记点击后是弹窗还是跳页？仅能推断有交互，目标形式不确定"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260425145649_817_24.png",
+        "draft_index": 3,
+        "capture_time": "14:54",
+        "device_status": {
+          "battery": 64,
+          "network": "wifi",
+          "location": "江苏生命科技创新园附近"
+        },
+        "app_context": "美团地图（或美团App内地图页）"
+      },
+      "page_identity": {
+        "name_candidates": [
+          "地图搜索结果页",
+          "地点推荐地图页",
+          "POI聚合地图页"
+        ],
+        "page_id_candidate": "map_poi_list_overlay",
+        "role": "地理信息展示与筛选入口页",
+        "title_text": "搜索地点、美食、景点等",
+        "distinguishing_texts": [
+          "推荐",
+          "美食",
+          "玩乐",
+          "景点",
+          "购物",
+          "美团地图"
+        ],
+        "purpose_summary": "以地图为底图，叠加POI标记与评分，提供分类筛选与详情入口的本地生活服务发现页"
+      },
+      "page_overview": {
+        "layout_summary": "上部为搜索栏+分类标签栏；中部为地图视图，含多个带评分与图标的POI标记；右下侧为垂直功能按钮组；底部为POI卡片列表（当前显示首条）；底部导航栏固定。",
+        "high_level_semantics": "地图驱动的本地服务探索界面，强调位置关联性与即时评分反馈，支持分类过滤与卡片下钻。非纯地图导航页，而是‘地图+列表’混合模式的发现页。"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "SearchBar",
+            "text": "搜索地点、美食、景点等",
+            "icon": "magnifier",
+            "position": "top"
+          },
+          {
+            "type": "CategoryTabs",
+            "items": [
+              {
+                "label": "推荐",
+                "badge": "🔥",
+                "selected": true
+              },
+              {
+                "label": "美食",
+                "icon": "food"
+              },
+              {
+                "label": "玩乐",
+                "icon": "game"
+              },
+              {
+                "label": "景点",
+                "icon": "scenic"
+              },
+              {
+                "label": "购物",
+                "icon": "shopping_bag"
+              }
+            ],
+            "position": "top_after_search"
+          },
+          {
+            "type": "MapArea",
+            "overlay_items": [
+              {
+                "type": "POIMarker",
+                "label": "九乡河生态公园",
+                "score": "4.2分",
+                "icon": "park",
+                "position": {
+                  "x": 0.48,
+                  "y": 0.22
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "羊山湖公园",
+                "score": "4.3分",
+                "icon": "park",
+                "position": {
+                  "x": 0.32,
+                  "y": 0.34
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "杨天歌冒菜·麻辣香锅",
+                "score": "3.8分",
+                "icon": "food",
+                "position": {
+                  "x": 0.18,
+                  "y": 0.26
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "必胜客",
+                "score": "4.0分",
+                "icon": "food",
+                "position": {
+                  "x": 0.68,
+                  "y": 0.25
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "美术馆",
+                "score": "3.7分",
+                "icon": "art",
+                "position": {
+                  "x": 0.82,
+                  "y": 0.29
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "山林美糖广场",
+                "score": "4.8分",
+                "icon": "shopping",
+                "position": {
+                  "x": 0.08,
+                  "y": 0.47
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "江宴·仙林山房",
+                "score": "4.8分",
+                "icon": "food",
+                "position": {
+                  "x": 0.22,
+                  "y": 0.53
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "外婆人家融合淮扬菜",
+                "score": "3.9分",
+                "icon": "food",
+                "position": {
+                  "x": 0.78,
+                  "y": 0.62
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "邓廷桢墓",
+                "score": "3.5分",
+                "icon": "park",
+                "position": {
+                  "x": 0.06,
+                  "y": 0.61
+                }
+              },
+              {
+                "type": "POIMarker",
+                "label": "江苏省中医药博物馆",
+                "score": "3.8分",
+                "icon": "museum",
+                "position": {
+                  "x": 0.38,
+                  "y": 0.42
+                }
+              }
+            ],
+            "position": "center"
+          },
+          {
+            "type": "RightSideActions",
+            "items": [
+              {
+                "label": "赏花",
+                "icon": "flower"
+              },
+              {
+                "label": "必吃榜",
+                "icon": "checklist",
+                "badge": "✓"
+              },
+              {
+                "label": "收藏",
+                "icon": "star"
+              },
+              {
+                "label": "定位",
+                "icon": "target"
+              }
+            ],
+            "position": "right_bottom"
+          },
+          {
+            "type": "POICardList",
+            "visible_items": [
+              {
+                "type": "POICard",
+                "title": "王和李·海鲜火锅大排档 (美糖广场店)",
+                "rating": "4.2",
+                "review_count": "3435条",
+                "price": "¥85/人",
+                "tags": [
+                  "海鲜火锅",
+                  "仙林大学城"
+                ],
+                "distance": "4.6km",
+                "badge": "会员6.8折",
+                "rank_info": "仙林大学城火锅打卡人气榜 · 第2名",
+                "image_url": "present",
+                "position": "bottom_card_1"
+              },
+              {
+                "type": "POICard",
+                "title": "开云 (仙林美糖庄)",
+                "position": "bottom_card_2_partial"
+              }
+            ],
+            "position": "bottom_above_nav"
+          },
+          {
+            "type": "BottomNav",
+            "items": [
+              {
+                "label": "首页",
+                "active": false
+              },
+              {
+                "label": "地图",
+                "active": true
+              },
+              {
+                "label": "+",
+                "active": false
+              },
+              {
+                "label": "消息",
+                "active": false
+              },
+              {
+                "label": "我的",
+                "active": false
+              }
+            ],
+            "position": "bottom"
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "id": "header_block",
+          "description": "搜索+分类标签组合区，控制内容筛选维度"
+        },
+        {
+          "id": "map_content_block",
+          "description": "地图主视图 + POI标记层，核心信息载体"
+        },
+        {
+          "id": "right_action_panel",
+          "description": "垂直功能快捷入口，含主题筛选与工具"
+        },
+        {
+          "id": "poi_list_carousel",
+          "description": "底部可滑动POI卡片列表，当前仅显首项完整"
+        },
+        {
+          "id": "bottom_navigation",
+          "description": "全局导航栏，当前处于‘地图’Tab"
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "搜索地点、美食、景点等",
+          "推荐",
+          "美食",
+          "玩乐",
+          "景点",
+          "购物",
+          "九乡河生态公园 4.2分",
+          "王和李·海鲜火锅大排档 (美糖广场店)",
+          "4.2 ★★★★☆ 3435条 ¥85/人",
+          "海鲜火锅 仙林大学城",
+          "会员6.8折",
+          "仙林大学城火锅打卡人气榜 · 第2名",
+          "4.6km"
+        ],
+        "controls": [
+          "搜索栏",
+          "分类标签（5个）",
+          "右侧4个功能按钮",
+          "底部POI卡片（含图片、评分、价格、距离）",
+          "底部导航栏（5项）"
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "filter_switch",
+          "target": "分类标签",
+          "description": "点击‘美食’/‘景点’等可切换POI类型，当前‘推荐’激活"
+        },
+        {
+          "clue_type": "poi_detail_entry",
+          "target": "地图上任一POI标记",
+          "description": "点击POI标记应弹出详情卡片或跳转详情页（如当前底部卡片对应上方某点）"
+        },
+        {
+          "clue_type": "card_detail_entry",
+          "target": "底部POI卡片标题区域",
+          "description": "点击卡片（如‘王和李’）应进入该POI详情页"
+        },
+        {
+          "clue_type": "action_button_trigger",
+          "target": "右侧‘必吃榜’按钮",
+          "description": "点击可能切换至‘必吃榜’专题地图视图或列表"
+        },
+        {
+          "clue_type": "location_center",
+          "target": "定位按钮",
+          "description": "点击重置地图中心至用户当前位置"
+        },
+        {
+          "clue_type": "global_nav_change",
+          "target": "底部导航‘首页’/‘我的’",
+          "description": "切换至其他主模块"
+        }
+      ],
+      "navigation_hints": {
+        "back_path": null,
+        "exit_paths": [
+          "底部导航 → 首页",
+          "底部导航 → 我的"
+        ],
+        "main_cta": "点击底部POI卡片进入详情",
+        "entry_points": [
+          "首页 → 地图入口",
+          "搜索栏输入后进入"
+        ],
+        "exit_points": [
+          "点击POI卡片 → 详情页",
+          "点击分类标签 → 同页筛选变更"
+        ]
+      },
+      "state_hints": {
+        "active_tab": "推荐",
+        "filter_state": "无显式筛选器，依赖分类标签隐式过滤",
+        "map_mode": "POI聚合模式（非路线导航）",
+        "list_scroll_position": "顶部（仅显示第1-2个POI卡片）",
+        "status_badges": [
+          "会员6.8折",
+          "人气榜·第2名"
+        ]
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": [
+        {
+          "clue": "底部POI卡片与地图上某标记（如美糖广场附近）空间对应",
+          "evidence": "‘王和李’卡片标注‘美糖广场店’，地图中‘山林美糖广场’POI位于左下，距离4.6km，逻辑一致",
+          "merge_suggestion": "该卡片极可能是地图上对应POI的详情摘要，属同一页面内‘地图+列表’联动结构，非独立页面"
+        },
+        {
+          "clue": "无页面跳转动画或新标题栏，底部导航保持激活状态",
+          "evidence": "整个界面为单屏连续布局，无模态遮罩或新页面堆栈迹象",
+          "merge_suggestion": "属于单一页面内的状态展开（如列表展开），非多页跳转"
+        }
+      ],
+      "subpage_hints": {
+        "potential_parent": "美团App首页 → 地图入口",
+        "potential_children": [
+          "POI详情页（点击卡片或地图标记）",
+          "分类列表页（点击‘美食’等后可能转为纯列表）",
+          "必吃榜专题页（点击右侧‘必吃榜’）"
+        ],
+        "drill_down_entries": [
+          "地图POI标记",
+          "底部POI卡片",
+          "右侧‘必吃榜’按钮"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "Hybrid Map-List Layout：地图占主体，底部固定卡片列表作为补充信息流",
+        "visual_blocks": [
+          "顶部轻量控件区（搜索+标签）",
+          "中层高密度地理信息区（POI标记密集但有层级）",
+          "右侧窄功能列（图标化快捷操作）",
+          "底部信息流卡片（图文混排，含促销与排名标签）"
+        ],
+        "styling_hints": {
+          "color_scheme": "绿色系地图底图 + 橙红主色（推荐/价格/评分） + 白底卡片",
+          "icon_usage": "语义化小图标（食物/公园/艺术）辅助快速识别POI类型",
+          "badge_design": "圆角橙色标签用于促销/榜单/会员权益"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "‘推荐’标签带火焰图标且高亮",
+          "底部卡片含‘会员6.8折’红色角标",
+          "右侧‘必吃榜’带对勾图标",
+          "地图中POI评分统一用‘X.X分’格式，前置图标区分类型",
+          "底部导航‘地图’Tab为橙色高亮"
+        ],
+        "key_facts": [
+          "当前视图聚焦仙林大学城周边",
+          "POI数量≥10个可见标记",
+          "卡片列表至少含2项，第二项被截断",
+          "无用户头像/登录态显示",
+          "左下角有‘美团 地图’水印"
+        ],
+        "uncertainties": [
+          "‘开云 (仙林美糖庄)’是否为独立POI或‘王和李’子项？图像截断无法确认",
+          "右侧‘赏花’按钮是否为季节性临时入口？无上下文佐证",
+          "地图缩放级别是否可调？截图未见缩放控件",
+          "POI标记点击后是弹窗还是跳页？仅能推断有交互，目标形式不确定"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

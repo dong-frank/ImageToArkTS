@@ -1,0 +1,654 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260429232716_949_24.png",
+    "filename": "微信图片_20260429232716_949_24.png",
+    "draft_index": 23,
+    "capture_time": "23:24",
+    "device_status": {
+      "battery": "7%",
+      "network": "WiFi",
+      "signal": "full"
+    },
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260429232716_949_24.png",
+    "image_name": "微信图片_20260429232716_949_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "隐私管理",
+      "隐私设置"
+    ],
+    "page_id_candidate": "privacy_management",
+    "page_role": "settings_detail",
+    "title_text": "隐私管理",
+    "distinguishing_texts": [
+      "隐私政策",
+      "个性化设置",
+      "接收个性化内容推荐",
+      "清除历史个性记录"
+    ],
+    "purpose_summary": "提供隐私相关策略查阅与个性化推荐开关控制的设置页面",
+    "candidate_page_name": "微信图片_20260429232716_949_24.png",
+    "candidate_page_id": "page_23",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "垂直滚动列表布局，顶部为标题栏（含返回箭头），主体分为两大部分：上部为只读导航项（带右箭头），下部为可交互设置项（含开关与说明）；整体采用浅灰背景+白色卡片式条目设计。",
+    "high_level_semantics": "属于系统级隐私偏好配置页，强调用户对数据使用与推荐逻辑的知情权与控制权；无分页/Tab结构，为单页线性设置流。",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "Page",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "隐私管理"
+          },
+          {
+            "type": "EmptySpace"
+          }
+        ]
+      },
+      {
+        "type": "ListSection",
+        "children": [
+          {
+            "type": "ListItem",
+            "label": "隐私政策",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "label": "隐私政策概要",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "label": "应用权限说明",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "label": "未成年人保护",
+            "trailing_icon": ">"
+          }
+        ]
+      },
+      {
+        "type": "SectionHeader",
+        "text": "个性化设置"
+      },
+      {
+        "type": "SettingItem",
+        "label": "接收个性化内容推荐",
+        "description": "关闭后将无法收到个性化推荐，建议开启以看到更多感兴趣内容。",
+        "action_link": "内容推荐算法说明",
+        "control": {
+          "type": "ToggleSwitch",
+          "state": "on"
+        }
+      },
+      {
+        "type": "SettingItem",
+        "label": "接收个性化广告推荐",
+        "description": "关闭后仍会看到广告，但相关性会下降，建议开启以过滤更多不感兴趣的广告。",
+        "action_link": "广告推荐算法说明",
+        "control": {
+          "type": "ToggleSwitch",
+          "state": "on"
+        }
+      },
+      {
+        "type": "ListItem",
+        "label": "清除历史个性记录",
+        "trailing_icon": ">"
+      },
+      {
+        "type": "ListItem",
+        "label": "我有疑问",
+        "trailing_icon": ">"
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "header",
+      "type": "NavigationBar",
+      "content": "返回按钮 + 页面标题"
+    },
+    {
+      "block_id": "policy_list",
+      "type": "ReadOnlyNavigationList",
+      "items_count": 4,
+      "semantic": "政策与说明类只读入口"
+    },
+    {
+      "block_id": "personalization_section",
+      "type": "InteractiveSettingsGroup",
+      "header": "个性化设置",
+      "items": [
+        "个性化内容推荐开关",
+        "个性化广告推荐开关",
+        "清除历史个性记录入口",
+        "我有疑问入口"
+      ]
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "隐私管理",
+      "隐私政策",
+      "隐私政策概要",
+      "应用权限说明",
+      "未成年人保护",
+      "个性化设置",
+      "接收个性化内容推荐",
+      "关闭后将无法收到个性化推荐，建议开启以看到更多感兴趣内容。",
+      "内容推荐算法说明",
+      "接收个性化广告推荐",
+      "关闭后仍会看到广告，但相关性会下降，建议开启以过滤更多不感兴趣的广告。",
+      "广告推荐算法说明",
+      "清除历史个性记录",
+      "我有疑问"
+    ],
+    "controls": [
+      {
+        "type": "ToggleSwitch",
+        "label": "接收个性化内容推荐",
+        "state": "on"
+      },
+      {
+        "type": "ToggleSwitch",
+        "label": "接收个性化广告推荐",
+        "state": "on"
+      },
+      {
+        "type": "LinkText",
+        "text": "内容推荐算法说明",
+        "color": "blue"
+      },
+      {
+        "type": "LinkText",
+        "text": "广告推荐算法说明",
+        "color": "blue"
+      }
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "back_navigation",
+      "target": "previous_page",
+      "element": "top-left ← icon"
+    },
+    {
+      "clue_type": "detail_entry",
+      "target": "unknown_detail_page",
+      "element": "right arrow on '隐私政策' etc.",
+      "note": "所有带 > 的条目均为详情页入口，目标页未在截图中呈现"
+    },
+    {
+      "clue_type": "toggle_control",
+      "element": "orange toggle switch",
+      "affected_feature": "个性化内容推荐 / 广告推荐",
+      "current_state": "enabled"
+    },
+    {
+      "clue_type": "algorithm_explanation_link",
+      "element": "blue underlined text",
+      "targets": [
+        "内容推荐算法说明",
+        "广告推荐算法说明"
+      ]
+    },
+    {
+      "clue_type": "action_entry",
+      "element": "'清除历史个性记录' row with >",
+      "implies": "modal or confirmation flow likely"
+    },
+    {
+      "clue_type": "support_entry",
+      "element": "'我有疑问' row with >",
+      "implies": "FAQ or contact support page"
+    }
+  ],
+  "navigation_hints": {
+    "return_path": "system back or top-left ←",
+    "exit_paths": [
+      "清除历史个性记录",
+      "我有疑问"
+    ],
+    "primary_cta": null,
+    "entry_points": [
+      "从主设置页进入",
+      "从账户中心/安全中心跳转"
+    ],
+    "departure_points": [
+      "点击任意 > 条目跳转至子页",
+      "切换开关仅本地状态变更，不触发导航"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "selected_tabs": [],
+    "active_filters": [],
+    "toggle_states": {
+      "个性化内容推荐": "on",
+      "个性化广告推荐": "on"
+    },
+    "page_state_tags": [],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchors": [
+      "'个性化设置'为明确分组标题，非独立页面",
+      "所有条目共享同一滚动容器，无视觉分割线暗示多页"
+    ],
+    "state_difference_evidence": [
+      "两个开关状态一致（均开启），无状态分支视觉差异"
+    ],
+    "independent_page_signals": [],
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "设置主页 / 账户与安全",
+    "potential_children": [
+      "隐私政策详情页",
+      "内容推荐算法说明页",
+      "广告推荐算法说明页",
+      "清除历史记录确认弹窗",
+      "疑问解答页"
+    ],
+    "drilldown_entries": [
+      "4个带 > 的只读项",
+      "2个蓝色算法说明链接",
+      "'清除历史个性记录'",
+      "'我有疑问'"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalScrollView with SectionHeaders and ListItem variants",
+    "visual_blocks": [
+      "Card-like ListItem (borderless, subtle divider)",
+      "ToggleSwitch with descriptive subtitle and link",
+      "Section header with light gray background"
+    ],
+    "style_hints": {
+      "font_size": "medium for labels, small for descriptions",
+      "color_palette": "black text, gray dividers, orange toggle, blue links",
+      "spacing": "consistent vertical padding between items"
+    },
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "顶部状态栏时间 23:24",
+      "电池图标显示 7%",
+      "右上角无更多操作图标（如三点菜单）",
+      "所有列表项高度一致，无嵌套缩进",
+      "开关右侧为纯白圆点，非图标"
+    ],
+    "key_facts": [
+      "页面无搜索框",
+      "无底部导航栏",
+      "无广告横幅或 banner",
+      "'个性化设置'为唯一分组标题，其下含4个可交互项",
+      "两个开关均处于开启状态"
+    ],
+    "uncertainties": [
+      "'清除历史个性记录'点击后是否弹窗确认？截图未体现",
+      "蓝色链接点击后是新页面还是 WebView？不可确认",
+      "'未成年人保护'是否含子菜单？当前仅显示一级入口",
+      "是否存在隐藏的'高级设置'折叠区？当前无视觉线索"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260429232716_949_24.png",
+        "filename": "微信图片_20260429232716_949_24.png",
+        "draft_index": 23,
+        "capture_time": "23:24",
+        "device_status": {
+          "battery": "7%",
+          "network": "WiFi",
+          "signal": "full"
+        }
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "隐私管理",
+          "隐私设置"
+        ],
+        "page_id_candidate": "privacy_management",
+        "page_role": "settings_detail",
+        "title_text": "隐私管理",
+        "distinguishing_texts": [
+          "隐私政策",
+          "个性化设置",
+          "接收个性化内容推荐",
+          "清除历史个性记录"
+        ],
+        "purpose_summary": "提供隐私相关策略查阅与个性化推荐开关控制的设置页面"
+      },
+      "page_overview": {
+        "layout_summary": "垂直滚动列表布局，顶部为标题栏（含返回箭头），主体分为两大部分：上部为只读导航项（带右箭头），下部为可交互设置项（含开关与说明）；整体采用浅灰背景+白色卡片式条目设计。",
+        "high_level_semantics": "属于系统级隐私偏好配置页，强调用户对数据使用与推荐逻辑的知情权与控制权；无分页/Tab结构，为单页线性设置流。"
+      },
+      "ui_tree": {
+        "type": "Page",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "label": "←"
+              },
+              {
+                "type": "Title",
+                "text": "隐私管理"
+              },
+              {
+                "type": "EmptySpace"
+              }
+            ]
+          },
+          {
+            "type": "ListSection",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "隐私政策",
+                "trailing_icon": ">"
+              },
+              {
+                "type": "ListItem",
+                "label": "隐私政策概要",
+                "trailing_icon": ">"
+              },
+              {
+                "type": "ListItem",
+                "label": "应用权限说明",
+                "trailing_icon": ">"
+              },
+              {
+                "type": "ListItem",
+                "label": "未成年人保护",
+                "trailing_icon": ">"
+              }
+            ]
+          },
+          {
+            "type": "SectionHeader",
+            "text": "个性化设置"
+          },
+          {
+            "type": "SettingItem",
+            "label": "接收个性化内容推荐",
+            "description": "关闭后将无法收到个性化推荐，建议开启以看到更多感兴趣内容。",
+            "action_link": "内容推荐算法说明",
+            "control": {
+              "type": "ToggleSwitch",
+              "state": "on"
+            }
+          },
+          {
+            "type": "SettingItem",
+            "label": "接收个性化广告推荐",
+            "description": "关闭后仍会看到广告，但相关性会下降，建议开启以过滤更多不感兴趣的广告。",
+            "action_link": "广告推荐算法说明",
+            "control": {
+              "type": "ToggleSwitch",
+              "state": "on"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "清除历史个性记录",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "label": "我有疑问",
+            "trailing_icon": ">"
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "header",
+          "type": "NavigationBar",
+          "content": "返回按钮 + 页面标题"
+        },
+        {
+          "block_id": "policy_list",
+          "type": "ReadOnlyNavigationList",
+          "items_count": 4,
+          "semantic": "政策与说明类只读入口"
+        },
+        {
+          "block_id": "personalization_section",
+          "type": "InteractiveSettingsGroup",
+          "header": "个性化设置",
+          "items": [
+            "个性化内容推荐开关",
+            "个性化广告推荐开关",
+            "清除历史个性记录入口",
+            "我有疑问入口"
+          ]
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "隐私管理",
+          "隐私政策",
+          "隐私政策概要",
+          "应用权限说明",
+          "未成年人保护",
+          "个性化设置",
+          "接收个性化内容推荐",
+          "关闭后将无法收到个性化推荐，建议开启以看到更多感兴趣内容。",
+          "内容推荐算法说明",
+          "接收个性化广告推荐",
+          "关闭后仍会看到广告，但相关性会下降，建议开启以过滤更多不感兴趣的广告。",
+          "广告推荐算法说明",
+          "清除历史个性记录",
+          "我有疑问"
+        ],
+        "controls": [
+          {
+            "type": "ToggleSwitch",
+            "label": "接收个性化内容推荐",
+            "state": "on"
+          },
+          {
+            "type": "ToggleSwitch",
+            "label": "接收个性化广告推荐",
+            "state": "on"
+          },
+          {
+            "type": "LinkText",
+            "text": "内容推荐算法说明",
+            "color": "blue"
+          },
+          {
+            "type": "LinkText",
+            "text": "广告推荐算法说明",
+            "color": "blue"
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "back_navigation",
+          "target": "previous_page",
+          "element": "top-left ← icon"
+        },
+        {
+          "clue_type": "detail_entry",
+          "target": "unknown_detail_page",
+          "element": "right arrow on '隐私政策' etc.",
+          "note": "所有带 > 的条目均为详情页入口，目标页未在截图中呈现"
+        },
+        {
+          "clue_type": "toggle_control",
+          "element": "orange toggle switch",
+          "affected_feature": "个性化内容推荐 / 广告推荐",
+          "current_state": "enabled"
+        },
+        {
+          "clue_type": "algorithm_explanation_link",
+          "element": "blue underlined text",
+          "targets": [
+            "内容推荐算法说明",
+            "广告推荐算法说明"
+          ]
+        },
+        {
+          "clue_type": "action_entry",
+          "element": "'清除历史个性记录' row with >",
+          "implies": "modal or confirmation flow likely"
+        },
+        {
+          "clue_type": "support_entry",
+          "element": "'我有疑问' row with >",
+          "implies": "FAQ or contact support page"
+        }
+      ],
+      "navigation_hints": {
+        "return_path": "system back or top-left ←",
+        "exit_paths": [
+          "清除历史个性记录",
+          "我有疑问"
+        ],
+        "primary_cta": null,
+        "entry_points": [
+          "从主设置页进入",
+          "从账户中心/安全中心跳转"
+        ],
+        "departure_points": [
+          "点击任意 > 条目跳转至子页",
+          "切换开关仅本地状态变更，不触发导航"
+        ]
+      },
+      "state_hints": {
+        "selected_tabs": [],
+        "active_filters": [],
+        "toggle_states": {
+          "个性化内容推荐": "on",
+          "个性化广告推荐": "on"
+        },
+        "page_state_tags": []
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchors": [
+          "‘个性化设置’为明确分组标题，非独立页面",
+          "所有条目共享同一滚动容器，无视觉分割线暗示多页"
+        ],
+        "state_difference_evidence": [
+          "两个开关状态一致（均开启），无状态分支视觉差异"
+        ],
+        "independent_page_signals": []
+      },
+      "subpage_hints": {
+        "potential_parent": "设置主页 / 账户与安全",
+        "potential_children": [
+          "隐私政策详情页",
+          "内容推荐算法说明页",
+          "广告推荐算法说明页",
+          "清除历史记录确认弹窗",
+          "疑问解答页"
+        ],
+        "drilldown_entries": [
+          "4个带 > 的只读项",
+          "2个蓝色算法说明链接",
+          "‘清除历史个性记录’",
+          "‘我有疑问’"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "VerticalScrollView with SectionHeaders and ListItem variants",
+        "visual_blocks": [
+          "Card-like ListItem (borderless, subtle divider)",
+          "ToggleSwitch with descriptive subtitle and link",
+          "Section header with light gray background"
+        ],
+        "style_hints": {
+          "font_size": "medium for labels, small for descriptions",
+          "color_palette": "black text, gray dividers, orange toggle, blue links",
+          "spacing": "consistent vertical padding between items"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "顶部状态栏时间 23:24",
+          "电池图标显示 7%",
+          "右上角无更多操作图标（如三点菜单）",
+          "所有列表项高度一致，无嵌套缩进",
+          "开关右侧为纯白圆点，非图标"
+        ],
+        "key_facts": [
+          "页面无搜索框",
+          "无底部导航栏",
+          "无广告横幅或 banner",
+          "‘个性化设置’为唯一分组标题，其下含4个可交互项",
+          "两个开关均处于开启状态"
+        ],
+        "uncertainties": [
+          "‘清除历史个性记录’点击后是否弹窗确认？截图未体现",
+          "蓝色链接点击后是新页面还是 WebView？不可确认",
+          "‘未成年人保护’是否含子菜单？当前仅显示一级入口",
+          "是否存在隐藏的‘高级设置’折叠区？当前无视觉线索"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

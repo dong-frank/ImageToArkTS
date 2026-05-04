@@ -89,4 +89,3 @@ uv run python runtime.py
 前端每个 `session_id` 会映射到独立本地目录：
 
 `agent_workspace/sessions/<session_id>/...`
-# image2arkts

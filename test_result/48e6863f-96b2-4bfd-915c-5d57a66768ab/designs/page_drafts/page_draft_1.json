@@ -1,0 +1,1122 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260425145646_815_24.png",
+    "draft_index": 1,
+    "timestamp": "14:54",
+    "device_status": {
+      "signal": "full",
+      "wifi": true,
+      "battery": 64
+    },
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425145646_815_24.png",
+    "image_name": "微信图片_20260425145646_815_24.png"
+  },
+  "page_identity": {
+    "name_candidates": [
+      "美食列表页",
+      "本地美食推荐页",
+      "美食搜索结果页"
+    ],
+    "page_id_candidate": "food_list",
+    "role": "信息浏览与筛选页",
+    "title_text": "美食",
+    "location_text": "高科荣境",
+    "distinguishing_texts": [
+      "支持切换城市了~",
+      "美食排行",
+      "特价团",
+      "周末神券",
+      "每日现切现穿"
+    ],
+    "purpose_summary": "展示附近餐饮商户列表，支持按分类、距离、评分、营业状态等筛选，并提供优惠券与团购入口",
+    "candidate_page_name": "微信图片_20260425145646_815_24.png",
+    "candidate_page_id": "page_1",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部导航+搜索栏+功能入口横滑区+分类标签行+筛选条件行+商户卡片流式列表",
+    "visual_semantics": "生活服务类 App 的典型本地生活信息流页面，强调即时性（倒计时）、地域性（位置锚点）、优惠驱动（神券/半价/特价团）和社交背书（榜单/评分/评论数）"
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "TopBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "←"
+          },
+          {
+            "type": "Title",
+            "text": "美食"
+          },
+          {
+            "type": "LocationBadge",
+            "text": "高科荣境"
+          },
+          {
+            "type": "MapIcon",
+            "label": "地图"
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "children": [
+          {
+            "type": "SearchInput",
+            "placeholder": "牛new寿喜烧",
+            "has_hint": true
+          },
+          {
+            "type": "HintOverlay",
+            "text": "支持切换城市了~",
+            "dismissable": true
+          },
+          {
+            "type": "SearchButton",
+            "text": "搜索"
+          }
+        ]
+      },
+      {
+        "type": "QuickActionRow",
+        "children": [
+          {
+            "type": "ActionItem",
+            "icon_label": "美食排行",
+            "badge": "领半价券"
+          },
+          {
+            "type": "ActionItem",
+            "icon_label": "美团外卖"
+          },
+          {
+            "type": "ActionItem",
+            "icon_label": "必吃榜",
+            "badge": "新入围"
+          },
+          {
+            "type": "ActionItem",
+            "icon_label": "半价周末",
+            "badge": "半价券"
+          },
+          {
+            "type": "ActionItem",
+            "icon_label": "领神券",
+            "badge": "35元"
+          },
+          {
+            "type": "ActionItem",
+            "icon_label": "聚餐"
+          }
+        ]
+      },
+      {
+        "type": "PromoSection",
+        "children": [
+          {
+            "type": "CardGroup",
+            "children": [
+              {
+                "type": "PromoCard",
+                "title": "美食排行",
+                "subtitle": "领半价券",
+                "image_text": "丑吞",
+                "detail_text": "热门榜第1名 4.7km"
+              },
+              {
+                "type": "PromoCard",
+                "title": "特价团",
+                "subtitle": "天天低价",
+                "image_text": "Ciao Ciao意式小馆",
+                "price": "¥61.87",
+                "tag": "全年低价"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "CategoryTabs",
+        "children": [
+          {
+            "type": "TabItem",
+            "text": "美食餐厅",
+            "selected": true
+          },
+          {
+            "type": "TabItem",
+            "text": "咖啡奶茶"
+          },
+          {
+            "type": "TabItem",
+            "text": "火锅"
+          },
+          {
+            "type": "TabItem",
+            "text": "小吃简餐"
+          },
+          {
+            "type": "TabItem",
+            "text": "江浙菜"
+          },
+          {
+            "type": "TabMoreIndicator",
+            "symbol": "∨"
+          }
+        ]
+      },
+      {
+        "type": "FilterBar",
+        "children": [
+          {
+            "type": "DropdownFilter",
+            "label": "附近",
+            "options": [
+              "附近500m"
+            ]
+          },
+          {
+            "type": "TagFilter",
+            "label": "分类",
+            "tags": [
+              "必吃榜"
+            ]
+          },
+          {
+            "type": "TagFilter",
+            "label": "智能排序",
+            "tags": [
+              "4.5分以上"
+            ]
+          },
+          {
+            "type": "TagFilter",
+            "label": "营业中",
+            "tags": [
+              "营业中"
+            ]
+          },
+          {
+            "type": "TagFilter",
+            "label": "神券商家",
+            "tags": [
+              "神券商家"
+            ],
+            "highlighted": true
+          }
+        ]
+      },
+      {
+        "type": "MerchantList",
+        "children": [
+          {
+            "type": "MerchantCard",
+            "title": "鮨鸟歡·烧鸟 yakitori",
+            "rating": "4.8",
+            "review_count": "1271条",
+            "price_per_person": "¥100/人",
+            "tags": [
+              "日本料理",
+              "仙林大学城"
+            ],
+            "badges": [
+              "周末神券",
+              "每日现切现穿",
+              "栖霞区日式料理口味榜第1名",
+              "神券 最高膨至50"
+            ],
+            "promotions": [
+              {
+                "type": "Countdown",
+                "text": "剩余02:05:55"
+              },
+              {
+                "type": "Deal",
+                "label": "秒",
+                "price": "¥5.8",
+                "discount": "3.7折",
+                "desc": "[单人餐] 鸡全翅"
+              },
+              {
+                "type": "Coupon",
+                "label": "券",
+                "price": "¥84",
+                "desc": "100元代金券"
+              }
+            ],
+            "distance": "4.7km",
+            "open_time": "17:00营业",
+            "is_ad": false
+          },
+          {
+            "type": "MerchantCard",
+            "title": "海鸿兴·品味江南 (万达...)",
+            "rating": "4.4",
+            "review_count": "1209条",
+            "price_per_person": "¥95/人",
+            "tags": [
+              "淮扬菜",
+              "万达茂"
+            ],
+            "badges": [
+              "栖霞区淮扬菜打卡人气榜第7名",
+              "神券"
+            ],
+            "promotions": [
+              {
+                "type": "Coupon",
+                "label": "券",
+                "price": "¥89",
+                "desc": "100元代金券"
+              },
+              {
+                "type": "Coupon",
+                "label": "券",
+                "price": "¥79",
+                "desc": "100元代金券"
+              }
+            ],
+            "distance": "806m",
+            "open_time": "17:00营业",
+            "is_ad": true,
+            "ad_label": "广告"
+          },
+          {
+            "type": "MerchantCard",
+            "title": "丑吞 (仙林美糖店)",
+            "badges": [
+              "排",
+              "订"
+            ],
+            "is_ad": false
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    "TopBar",
+    "SearchBarWithHint",
+    "QuickActionRow",
+    "PromoSection",
+    "CategoryTabs",
+    "FilterBar",
+    "MerchantList"
+  ],
+  "key_content": {
+    "texts": [
+      "美食",
+      "高科荣境",
+      "牛new寿喜烧",
+      "支持切换城市了~",
+      "搜索",
+      "美食排行",
+      "领半价券",
+      "丑吞",
+      "热门榜第1名 4.7km",
+      "特价团",
+      "Ciao Ciao意式小馆",
+      "¥61.87",
+      "全年低价",
+      "美食餐厅",
+      "咖啡奶茶",
+      "火锅",
+      "小吃简餐",
+      "江浙菜",
+      "附近500m",
+      "必吃榜",
+      "4.5分以上",
+      "营业中",
+      "神券商家",
+      "鮨鸟歡·烧鸟 yakitori",
+      "4.8",
+      "1271条",
+      "¥100/人",
+      "日本料理",
+      "仙林大学城",
+      "周末神券",
+      "每日现切现穿",
+      "栖霞区日式料理口味榜第1名",
+      "神券 最高膨至50",
+      "剩余02:05:55",
+      "¥5.8",
+      "3.7折",
+      "[单人餐] 鸡全翅",
+      "¥84",
+      "100元代金券",
+      "海鸿兴·品味江南 (万达...)",
+      "4.4",
+      "1209条",
+      "¥95/人",
+      "淮扬菜",
+      "万达茂",
+      "栖霞区淮扬菜打卡人气榜第7名",
+      "¥89",
+      "¥79",
+      "广告",
+      "拒绝预制菜，鸡汁翘嘴白现蒸，鱼肉...",
+      "丑吞 (仙林美糖店)"
+    ],
+    "controls": [
+      "BackButton",
+      "MapIcon",
+      "SearchButton",
+      "CategoryTabs (含更多)",
+      "FilterBar dropdowns & tags",
+      "MerchantCard (含倒计时、券、订/排按钮)",
+      "PromoCard (2个)",
+      "QuickAction icons"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "type": "navigation",
+      "target": "back",
+      "element": "TopBar ←",
+      "description": "返回上一页"
+    },
+    {
+      "type": "action",
+      "target": "map_view",
+      "element": "TopBar 地图 icon",
+      "description": "打开地图视图"
+    },
+    {
+      "type": "search",
+      "element": "SearchBar",
+      "description": "输入关键词后点击搜索按钮触发查询"
+    },
+    {
+      "type": "overlay_trigger",
+      "element": "HintOverlay '支持切换城市了~'",
+      "description": "提示性 overlay，含关闭按钮（×），非模态"
+    },
+    {
+      "type": "tab_switch",
+      "element": "CategoryTabs",
+      "description": "横向可滑动分类标签，当前选中'美食餐厅'"
+    },
+    {
+      "type": "filter_toggle",
+      "element": "FilterBar items",
+      "description": "点击'附近'/'分类'等下拉项可展开筛选选项；'神券商家'为高亮标签，可能为已激活筛选"
+    },
+    {
+      "type": "card_detail_entry",
+      "element": "MerchantCard title or image",
+      "description": "点击商户卡片进入详情页（如'鮨鸟歡·烧鸟 yakitori'）"
+    },
+    {
+      "type": "promotion_action",
+      "element": "Deal / Coupon in MerchantCard",
+      "description": "点击秒杀价或券可跳转购买/领券流程"
+    },
+    {
+      "type": "booking_action",
+      "element": "MerchantCard bottom right '排' '订'",
+      "description": "预约/订座入口（部分商户可见）"
+    }
+  ],
+  "navigation_hints": {
+    "return_path": "上一页面（可能为首页或城市选择页）",
+    "exit_paths": [
+      "地图",
+      "Back"
+    ],
+    "main_cta": "搜索按钮 + 商户卡片点击",
+    "entry_points": [
+      "首页美食入口",
+      "搜索直达",
+      "神券/排行榜入口"
+    ],
+    "exit_points": [
+      "商户详情页",
+      "地图页",
+      "订单/支付流程"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "active_tab": "美食餐厅",
+    "active_filters": [
+      "附近500m",
+      "必吃榜",
+      "4.5分以上",
+      "营业中",
+      "神券商家"
+    ],
+    "page_state_tags": [
+      "有城市切换提示",
+      "有倒计时促销",
+      "含广告位"
+    ],
+    "selection_indicators": {
+      "category_selected": "美食餐厅",
+      "filter_highlighted": "神券商家"
+    },
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "exists": true,
+    "type": "toast-like hint banner",
+    "source": "SearchBar 上方",
+    "content": "支持切换城市了~",
+    "dismiss_method": "点击 ×",
+    "modal": false,
+    "persistence": "临时提示，非持久状态",
+    "has_overlay": false,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchors": [
+      "分类标签与筛选栏共存，属同一信息流上下文",
+      "多个 PromoCard 与 MerchantList 共用相同视觉层级与间距",
+      "所有商户卡片结构高度一致，支持归并为统一列表组件"
+    ],
+    "state_difference_evidence": [
+      "'神券商家'标签高亮，暗示当前为筛选后状态，非默认首页",
+      "倒计时仅出现在首条商户，表明是动态促销状态，非静态内容"
+    ],
+    "independent_page_signals": [
+      "无底部导航栏变化",
+      "无页面标题变更",
+      "无独立 header/footer 区域",
+      "整体为单一滚动列表结构 → 强烈倾向为单页"
+    ],
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "首页 / 城市选择页 / 分类聚合页",
+    "potential_children": [
+      "商户详情页",
+      "地图页",
+      "优惠券领取页",
+      "订单确认页",
+      "筛选条件展开页（隐式）"
+    ],
+    "drill_down_entries": [
+      "MerchantCard 点击 → 详情页",
+      "PromoCard 点击 → 团购页/活动页",
+      "QuickActionItem 点击 → 对应功能页（如外卖页）"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "FixedHeader + StickySearch + HorizontalScrollActions + TabFilterBar + VerticalList",
+    "visual_blocks": [
+      {
+        "block": "PromoSection",
+        "role": "高优先级曝光位，图文并列双卡布局"
+      },
+      {
+        "block": "FilterBar",
+        "role": "多维筛选聚合区，标签式交互"
+      },
+      {
+        "block": "MerchantCard",
+        "role": "标准化信息单元，含评分/价格/距离/促销/状态多字段"
+      }
+    ],
+    "style_hints": {
+      "color_scheme": "橙色主CTA（搜索/优惠），浅粉/米白背景，灰黑文字",
+      "typography": "标题粗体，价格突出（红色/橙色），评分星标图形化",
+      "spacing": "卡片间垂直间距一致，模块间留白清晰"
+    },
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "HintOverlay 文本含波浪号 '~'，语气口语化",
+      "'每日现切现穿'为竖排红底白字标签，视觉强对比",
+      "倒计时精确到秒：02:05:55",
+      "'万份周边'圆形角标位于第二商户右下",
+      "广告标识在左下角小图内"
+    ],
+    "key_facts": [
+      "当前位置：高科荣境",
+      "搜索词含品牌名'牛new寿喜烧'",
+      "首商户评分4.8，次商户4.4",
+      "存在'神券'与'半价券'双重优惠体系",
+      "分类标签含'江浙菜'且带下拉箭头"
+    ],
+    "uncertainties": [
+      "'排''订'按钮是否为固定组合？还是依商户类型动态显示？",
+      "'智能排序'下拉是否展开？截图中未显示展开态",
+      "'∨'符号是否表示更多分类可滑动？还是仅当前行溢出？",
+      "'Di'图标（最右侧 QuickAction）完整含义不可辨",
+      "商户卡片底部是否有分隔线？截图中模糊"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260425145646_815_24.png",
+        "draft_index": 1,
+        "timestamp": "14:54",
+        "device_status": {
+          "signal": "full",
+          "wifi": true,
+          "battery": 64
+        }
+      },
+      "page_identity": {
+        "name_candidates": [
+          "美食列表页",
+          "本地美食推荐页",
+          "美食搜索结果页"
+        ],
+        "page_id_candidate": "food_list",
+        "role": "信息浏览与筛选页",
+        "title_text": "美食",
+        "location_text": "高科荣境",
+        "distinguishing_texts": [
+          "支持切换城市了~",
+          "美食排行",
+          "特价团",
+          "周末神券",
+          "每日现切现穿"
+        ],
+        "purpose_summary": "展示附近餐饮商户列表，支持按分类、距离、评分、营业状态等筛选，并提供优惠券与团购入口"
+      },
+      "page_overview": {
+        "layout_summary": "顶部导航+搜索栏+功能入口横滑区+分类标签行+筛选条件行+商户卡片流式列表",
+        "visual_semantics": "生活服务类 App 的典型本地生活信息流页面，强调即时性（倒计时）、地域性（位置锚点）、优惠驱动（神券/半价/特价团）和社交背书（榜单/评分/评论数）"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "TopBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "text": "←"
+              },
+              {
+                "type": "Title",
+                "text": "美食"
+              },
+              {
+                "type": "LocationBadge",
+                "text": "高科荣境"
+              },
+              {
+                "type": "MapIcon",
+                "label": "地图"
+              }
+            ]
+          },
+          {
+            "type": "SearchBar",
+            "children": [
+              {
+                "type": "SearchInput",
+                "placeholder": "牛new寿喜烧",
+                "has_hint": true
+              },
+              {
+                "type": "HintOverlay",
+                "text": "支持切换城市了~",
+                "dismissable": true
+              },
+              {
+                "type": "SearchButton",
+                "text": "搜索"
+              }
+            ]
+          },
+          {
+            "type": "QuickActionRow",
+            "children": [
+              {
+                "type": "ActionItem",
+                "icon_label": "美食排行",
+                "badge": "领半价券"
+              },
+              {
+                "type": "ActionItem",
+                "icon_label": "美团外卖"
+              },
+              {
+                "type": "ActionItem",
+                "icon_label": "必吃榜",
+                "badge": "新入围"
+              },
+              {
+                "type": "ActionItem",
+                "icon_label": "半价周末",
+                "badge": "半价券"
+              },
+              {
+                "type": "ActionItem",
+                "icon_label": "领神券",
+                "badge": "35元"
+              },
+              {
+                "type": "ActionItem",
+                "icon_label": "聚餐"
+              }
+            ]
+          },
+          {
+            "type": "PromoSection",
+            "children": [
+              {
+                "type": "CardGroup",
+                "children": [
+                  {
+                    "type": "PromoCard",
+                    "title": "美食排行",
+                    "subtitle": "领半价券",
+                    "image_text": "丑吞",
+                    "detail_text": "热门榜第1名 4.7km"
+                  },
+                  {
+                    "type": "PromoCard",
+                    "title": "特价团",
+                    "subtitle": "天天低价",
+                    "image_text": "Ciao Ciao意式小馆",
+                    "price": "¥61.87",
+                    "tag": "全年低价"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "CategoryTabs",
+            "children": [
+              {
+                "type": "TabItem",
+                "text": "美食餐厅",
+                "selected": true
+              },
+              {
+                "type": "TabItem",
+                "text": "咖啡奶茶"
+              },
+              {
+                "type": "TabItem",
+                "text": "火锅"
+              },
+              {
+                "type": "TabItem",
+                "text": "小吃简餐"
+              },
+              {
+                "type": "TabItem",
+                "text": "江浙菜"
+              },
+              {
+                "type": "TabMoreIndicator",
+                "symbol": "∨"
+              }
+            ]
+          },
+          {
+            "type": "FilterBar",
+            "children": [
+              {
+                "type": "DropdownFilter",
+                "label": "附近",
+                "options": [
+                  "附近500m"
+                ]
+              },
+              {
+                "type": "TagFilter",
+                "label": "分类",
+                "tags": [
+                  "必吃榜"
+                ]
+              },
+              {
+                "type": "TagFilter",
+                "label": "智能排序",
+                "tags": [
+                  "4.5分以上"
+                ]
+              },
+              {
+                "type": "TagFilter",
+                "label": "营业中",
+                "tags": [
+                  "营业中"
+                ]
+              },
+              {
+                "type": "TagFilter",
+                "label": "神券商家",
+                "tags": [
+                  "神券商家"
+                ],
+                "highlighted": true
+              }
+            ]
+          },
+          {
+            "type": "MerchantList",
+            "children": [
+              {
+                "type": "MerchantCard",
+                "title": "鮨鸟歡·烧鸟 yakitori",
+                "rating": "4.8",
+                "review_count": "1271条",
+                "price_per_person": "¥100/人",
+                "tags": [
+                  "日本料理",
+                  "仙林大学城"
+                ],
+                "badges": [
+                  "周末神券",
+                  "每日现切现穿",
+                  "栖霞区日式料理口味榜第1名",
+                  "神券 最高膨至50"
+                ],
+                "promotions": [
+                  {
+                    "type": "Countdown",
+                    "text": "剩余02:05:55"
+                  },
+                  {
+                    "type": "Deal",
+                    "label": "秒",
+                    "price": "¥5.8",
+                    "discount": "3.7折",
+                    "desc": "[单人餐] 鸡全翅"
+                  },
+                  {
+                    "type": "Coupon",
+                    "label": "券",
+                    "price": "¥84",
+                    "desc": "100元代金券"
+                  }
+                ],
+                "distance": "4.7km",
+                "open_time": "17:00营业",
+                "is_ad": false
+              },
+              {
+                "type": "MerchantCard",
+                "title": "海鸿兴·品味江南 (万达...)",
+                "rating": "4.4",
+                "review_count": "1209条",
+                "price_per_person": "¥95/人",
+                "tags": [
+                  "淮扬菜",
+                  "万达茂"
+                ],
+                "badges": [
+                  "栖霞区淮扬菜打卡人气榜第7名",
+                  "神券"
+                ],
+                "promotions": [
+                  {
+                    "type": "Coupon",
+                    "label": "券",
+                    "price": "¥89",
+                    "desc": "100元代金券"
+                  },
+                  {
+                    "type": "Coupon",
+                    "label": "券",
+                    "price": "¥79",
+                    "desc": "100元代金券"
+                  }
+                ],
+                "distance": "806m",
+                "open_time": "17:00营业",
+                "is_ad": true,
+                "ad_label": "广告"
+              },
+              {
+                "type": "MerchantCard",
+                "title": "丑吞 (仙林美糖店)",
+                "badges": [
+                  "排",
+                  "订"
+                ],
+                "is_ad": false
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        "TopBar",
+        "SearchBarWithHint",
+        "QuickActionRow",
+        "PromoSection",
+        "CategoryTabs",
+        "FilterBar",
+        "MerchantList"
+      ],
+      "key_content": {
+        "texts": [
+          "美食",
+          "高科荣境",
+          "牛new寿喜烧",
+          "支持切换城市了~",
+          "搜索",
+          "美食排行",
+          "领半价券",
+          "丑吞",
+          "热门榜第1名 4.7km",
+          "特价团",
+          "Ciao Ciao意式小馆",
+          "¥61.87",
+          "全年低价",
+          "美食餐厅",
+          "咖啡奶茶",
+          "火锅",
+          "小吃简餐",
+          "江浙菜",
+          "附近500m",
+          "必吃榜",
+          "4.5分以上",
+          "营业中",
+          "神券商家",
+          "鮨鸟歡·烧鸟 yakitori",
+          "4.8",
+          "1271条",
+          "¥100/人",
+          "日本料理",
+          "仙林大学城",
+          "周末神券",
+          "每日现切现穿",
+          "栖霞区日式料理口味榜第1名",
+          "神券 最高膨至50",
+          "剩余02:05:55",
+          "¥5.8",
+          "3.7折",
+          "[单人餐] 鸡全翅",
+          "¥84",
+          "100元代金券",
+          "海鸿兴·品味江南 (万达...)",
+          "4.4",
+          "1209条",
+          "¥95/人",
+          "淮扬菜",
+          "万达茂",
+          "栖霞区淮扬菜打卡人气榜第7名",
+          "¥89",
+          "¥79",
+          "广告",
+          "拒绝预制菜，鸡汁翘嘴白现蒸，鱼肉...",
+          "丑吞 (仙林美糖店)"
+        ],
+        "controls": [
+          "BackButton",
+          "MapIcon",
+          "SearchButton",
+          "CategoryTabs (含更多)",
+          "FilterBar dropdowns & tags",
+          "MerchantCard (含倒计时、券、订/排按钮)",
+          "PromoCard (2个)",
+          "QuickAction icons"
+        ]
+      },
+      "interaction_clues": [
+        {
+          "type": "navigation",
+          "target": "back",
+          "element": "TopBar ←",
+          "description": "返回上一页"
+        },
+        {
+          "type": "action",
+          "target": "map_view",
+          "element": "TopBar 地图 icon",
+          "description": "打开地图视图"
+        },
+        {
+          "type": "search",
+          "element": "SearchBar",
+          "description": "输入关键词后点击搜索按钮触发查询"
+        },
+        {
+          "type": "overlay_trigger",
+          "element": "HintOverlay '支持切换城市了~'",
+          "description": "提示性 overlay，含关闭按钮（×），非模态"
+        },
+        {
+          "type": "tab_switch",
+          "element": "CategoryTabs",
+          "description": "横向可滑动分类标签，当前选中'美食餐厅'"
+        },
+        {
+          "type": "filter_toggle",
+          "element": "FilterBar items",
+          "description": "点击'附近'/'分类'等下拉项可展开筛选选项；'神券商家'为高亮标签，可能为已激活筛选"
+        },
+        {
+          "type": "card_detail_entry",
+          "element": "MerchantCard title or image",
+          "description": "点击商户卡片进入详情页（如'鮨鸟歡·烧鸟 yakitori'）"
+        },
+        {
+          "type": "promotion_action",
+          "element": "Deal / Coupon in MerchantCard",
+          "description": "点击秒杀价或券可跳转购买/领券流程"
+        },
+        {
+          "type": "booking_action",
+          "element": "MerchantCard bottom right '排' '订'",
+          "description": "预约/订座入口（部分商户可见）"
+        }
+      ],
+      "navigation_hints": {
+        "return_path": "上一页面（可能为首页或城市选择页）",
+        "exit_paths": [
+          "地图",
+          "Back"
+        ],
+        "main_cta": "搜索按钮 + 商户卡片点击",
+        "entry_points": [
+          "首页美食入口",
+          "搜索直达",
+          "神券/排行榜入口"
+        ],
+        "exit_points": [
+          "商户详情页",
+          "地图页",
+          "订单/支付流程"
+        ]
+      },
+      "state_hints": {
+        "active_tab": "美食餐厅",
+        "active_filters": [
+          "附近500m",
+          "必吃榜",
+          "4.5分以上",
+          "营业中",
+          "神券商家"
+        ],
+        "page_state_tags": [
+          "有城市切换提示",
+          "有倒计时促销",
+          "含广告位"
+        ],
+        "selection_indicators": {
+          "category_selected": "美食餐厅",
+          "filter_highlighted": "神券商家"
+        }
+      },
+      "overlay_hints": {
+        "exists": true,
+        "type": "toast-like hint banner",
+        "source": "SearchBar 上方",
+        "content": "支持切换城市了~",
+        "dismiss_method": "点击 ×",
+        "modal": false,
+        "persistence": "临时提示，非持久状态"
+      },
+      "merge_hints": {
+        "same_page_anchors": [
+          "分类标签与筛选栏共存，属同一信息流上下文",
+          "多个 PromoCard 与 MerchantList 共用相同视觉层级与间距",
+          "所有商户卡片结构高度一致，支持归并为统一列表组件"
+        ],
+        "state_difference_evidence": [
+          "‘神券商家’标签高亮，暗示当前为筛选后状态，非默认首页",
+          "倒计时仅出现在首条商户，表明是动态促销状态，非静态内容"
+        ],
+        "independent_page_signals": [
+          "无底部导航栏变化",
+          "无页面标题变更",
+          "无独立 header/footer 区域",
+          "整体为单一滚动列表结构 → 强烈倾向为单页"
+        ]
+      },
+      "subpage_hints": {
+        "potential_parent": "首页 / 城市选择页 / 分类聚合页",
+        "potential_children": [
+          "商户详情页",
+          "地图页",
+          "优惠券领取页",
+          "订单确认页",
+          "筛选条件展开页（隐式）"
+        ],
+        "drill_down_entries": [
+          "MerchantCard 点击 → 详情页",
+          "PromoCard 点击 → 团购页/活动页",
+          "QuickActionItem 点击 → 对应功能页（如外卖页）"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "FixedHeader + StickySearch + HorizontalScrollActions + TabFilterBar + VerticalList",
+        "visual_blocks": [
+          {
+            "block": "PromoSection",
+            "role": "高优先级曝光位，图文并列双卡布局"
+          },
+          {
+            "block": "FilterBar",
+            "role": "多维筛选聚合区，标签式交互"
+          },
+          {
+            "block": "MerchantCard",
+            "role": "标准化信息单元，含评分/价格/距离/促销/状态多字段"
+          }
+        ],
+        "style_hints": {
+          "color_scheme": "橙色主CTA（搜索/优惠），浅粉/米白背景，灰黑文字",
+          "typography": "标题粗体，价格突出（红色/橙色），评分星标图形化",
+          "spacing": "卡片间垂直间距一致，模块间留白清晰"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "HintOverlay 文本含波浪号 '~'，语气口语化",
+          "‘每日现切现穿’为竖排红底白字标签，视觉强对比",
+          "倒计时精确到秒：02:05:55",
+          "‘万份周边’圆形角标位于第二商户右下",
+          "广告标识在左下角小图内"
+        ],
+        "key_facts": [
+          "当前位置：高科荣境",
+          "搜索词含品牌名‘牛new寿喜烧’",
+          "首商户评分4.8，次商户4.4",
+          "存在‘神券’与‘半价券’双重优惠体系",
+          "分类标签含‘江浙菜’且带下拉箭头"
+        ],
+        "uncertainties": [
+          "‘排’‘订’按钮是否为固定组合？还是依商户类型动态显示？",
+          "‘智能排序’下拉是否展开？截图中未显示展开态",
+          "‘∨’符号是否表示更多分类可滑动？还是仅当前行溢出？",
+          "‘Di’图标（最右侧 QuickAction）完整含义不可辨",
+          "商户卡片底部是否有分隔线？截图中模糊"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

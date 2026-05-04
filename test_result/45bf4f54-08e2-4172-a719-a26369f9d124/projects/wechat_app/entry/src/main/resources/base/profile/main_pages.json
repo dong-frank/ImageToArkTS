@@ -1,0 +1,26 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/ChatListPage",
+    "pages/ContactsPage",
+    "pages/DiscoverPage",
+    "pages/MePage",
+    "pages/ServiceHomePage",
+    "pages/WalletPage",
+    "pages/PhoneRechargePage",
+    "pages/SettingsPage",
+    "pages/AccountSecurityPage",
+    "pages/SecurityCenterPage",
+    "pages/InterfaceDisplayPage",
+    "pages/DarkModePage",
+    "pages/FriendPermissionPage",
+    "pages/MoreSettingsPage",
+    "pages/SystemPermissionPage",
+    "pages/OtherFunctionsPage",
+    "pages/AuxiliaryFeaturesPage",
+    "pages/HelpFeedbackPage",
+    "pages/AboutWeChatPage",
+    "pages/FeatureIntroPage",
+    "pages/LifePaymentPage"
+  ]
+}

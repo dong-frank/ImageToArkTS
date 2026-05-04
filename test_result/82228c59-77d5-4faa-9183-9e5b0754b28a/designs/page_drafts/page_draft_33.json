@@ -1,0 +1,611 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260429233220_960_24.png",
+    "timestamp": "23:31",
+    "device_status": {
+      "signal": "full",
+      "wifi": true,
+      "battery": 7
+    },
+    "draft_index": 33,
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260429233220_960_24.png",
+    "image_name": "微信图片_20260429233220_960_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "机构号注册页",
+      "知乎机构号入驻页"
+    ],
+    "page_id_candidate": "zhihu_org_register",
+    "page_role": "注册表单页",
+    "title_text": "知乎机构号注册",
+    "distinguishing_text": [
+      "入驻知乎机构号",
+      "影响有影响力的人",
+      "注册机构号"
+    ],
+    "purpose_summary": "引导企业/媒体/政府/其他类型机构填写邮箱、密码、验证码完成机构号注册",
+    "candidate_page_name": "微信图片_20260429233220_960_24.png",
+    "candidate_page_id": "page_33",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部标题栏 + 主视觉标语区 + 四类机构图标选择区 + 白色表单卡片 + 底部协议提示 + 底部权益模块",
+    "high_level_semantics": "强引导型注册页，通过分类图标明确目标用户群体，表单结构清晰，强调合规与权益",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "知乎机构号注册"
+          },
+          {
+            "type": "MoreMenuButton",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "HeroSection",
+        "children": [
+          {
+            "type": "Headline",
+            "text": "入驻知乎机构号",
+            "style": "blue_large_bold"
+          },
+          {
+            "type": "Subheadline",
+            "text": "影响有影响力的人",
+            "style": "blue_large_bold_with_yellow_underline"
+          }
+        ]
+      },
+      {
+        "type": "CategorySelectorRow",
+        "children": [
+          {
+            "type": "CategoryIconItem",
+            "icon_label": "企业",
+            "icon_symbol": "tie"
+          },
+          {
+            "type": "CategoryIconItem",
+            "icon_label": "媒体",
+            "icon_symbol": "camera"
+          },
+          {
+            "type": "CategoryIconItem",
+            "icon_label": "政府",
+            "icon_symbol": "shield"
+          },
+          {
+            "type": "CategoryIconItem",
+            "icon_label": "其他",
+            "icon_symbol": "building"
+          }
+        ]
+      },
+      {
+        "type": "FormCard",
+        "children": [
+          {
+            "type": "TextInputField",
+            "label": "请填写邮箱地址",
+            "placeholder": null,
+            "is_required": true
+          },
+          {
+            "type": "PasswordInputField",
+            "label": "密码（不少于 8 位）",
+            "placeholder": null,
+            "is_required": true,
+            "visibility_toggle": true
+          },
+          {
+            "type": "CaptchaInputField",
+            "label": "验证码",
+            "captcha_image": "DXVG",
+            "is_required": true
+          },
+          {
+            "type": "PrimaryButton",
+            "text": "注册机构号",
+            "is_disabled": false
+          }
+        ]
+      },
+      {
+        "type": "AgreementFooter",
+        "children": [
+          {
+            "type": "AgreementText",
+            "text": "点击「注册机构号」按钮，即代表你同意",
+            "style": "gray_small"
+          },
+          {
+            "type": "LinkGroup",
+            "links": [
+              {
+                "text": "《知乎机构账号服务协议》",
+                "is_clickable": true
+              },
+              {
+                "text": "《个人信息保护指引》",
+                "is_clickable": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "PromoSection",
+        "children": [
+          {
+            "type": "PromoBadge",
+            "text": "亮点权益",
+            "style": "blue_yellow_speech_bubble"
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    "NavigationBar",
+    "HeroSection",
+    "CategorySelectorRow",
+    "FormCard",
+    "AgreementFooter",
+    "PromoSection"
+  ],
+  "key_content": {
+    "texts": [
+      "知乎机构号注册",
+      "入驻知乎机构号",
+      "影响有影响力的人",
+      "企业",
+      "媒体",
+      "政府",
+      "其他",
+      "请填写邮箱地址",
+      "密码（不少于 8 位）",
+      "验证码",
+      "注册机构号",
+      "点击「注册机构号」按钮，即代表你同意",
+      "《知乎机构账号服务协议》",
+      "《个人信息保护指引》",
+      "亮点权益"
+    ],
+    "controls": [
+      "BackButton",
+      "MoreMenuButton",
+      "CategoryIconItem ×4",
+      "TextInputField (邮箱)",
+      "PasswordInputField (密码)",
+      "CaptchaInputField (验证码)",
+      "PrimaryButton (注册机构号)",
+      "LinkGroup (协议链接)"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    "左上角 ← 可返回上一页",
+    "右上角 ⋯ 可能展开更多操作（如帮助、反馈）",
+    "四类机构图标为分类选择入口（当前无高亮选中态，疑似默认未选）",
+    "密码字段右侧有可见性切换图标（眼睛图标）",
+    "验证码右侧显示图形码 'DXVG'，暗示需输入该值",
+    "蓝色主按钮「注册机构号」为流程推进核心 CTA",
+    "底部两份协议文本为可点击链接"
+  ],
+  "navigation_hints": {
+    "back_path": "上一页面（可能为知乎首页或机构号引导页）",
+    "exit_paths": [
+      "← 返回",
+      "系统级返回"
+    ],
+    "main_cta": "注册机构号",
+    "entry_points": [
+      "知乎 App 内机构号入口",
+      "外部推广落地页"
+    ],
+    "exit_points": [
+      "注册成功跳转",
+      "取消注册退出"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "category_selection": "未显式选中（无高亮/下划线/边框等状态标识）",
+    "form_state": "空表单初始态（无输入内容、无错误提示）",
+    "button_state": "主按钮启用（非禁用态）",
+    "page_state_tags": [],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchors": [
+      "CategorySelectorRow 与 FormCard 属同一注册流程上下文",
+      "AgreementFooter 与 PromoSection 均为注册页辅助信息区"
+    ],
+    "state_difference_evidence": "无多状态对比图，无法判断是否为状态切换页",
+    "independent_page_signals": [
+      "完整表单+协议+标题栏，符合独立注册页特征；但分类图标无选中态，可能为前置选择页或默认展示页"
+    ],
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "知乎机构号引导页 / 首页机构入口",
+    "potential_children": [
+      "验证码刷新弹窗（若点击验证码图）",
+      "协议详情页（点击协议链接）",
+      "注册成功页（点击主按钮后）"
+    ],
+    "drill_down_entries": [
+      "四类机构图标（可能跳转至细分注册流程）",
+      "协议链接（跳转至文档页）"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "垂直流式布局 + 卡片式表单容器",
+    "visual_blocks": [
+      "顶部导航固定",
+      "主视觉区使用浅蓝背景+几何装饰",
+      "表单区域白底圆角卡片",
+      "底部协议区浅灰底色",
+      "权益模块独立居中突出"
+    ],
+    "style_hints": "知乎品牌蓝（#007AFF）为主色调；图标统一黄蓝配色；文字层级分明；按钮圆角大尺寸",
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "'影响有影响力的人'带黄色对话气泡底纹",
+      "四类机构图标横向排列且等距",
+      "验证码图像为手写风格字符 'DXVG'",
+      "协议文本分两行并列显示",
+      "底部'亮点权益'使用对话框样式徽章"
+    ],
+    "key_facts": [
+      "页面标题为'知乎机构号注册'",
+      "表单含邮箱、密码、验证码三字段",
+      "密码要求不少于8位",
+      "无任何输入内容或错误提示",
+      "无选中分类状态指示"
+    ],
+    "uncertainties": [
+      "四类机构图标是否支持点击切换？当前无选中态，无法确认交互行为",
+      "验证码是否可刷新？图像旁无刷新按钮图标",
+      "'亮点权益'模块是否可展开？当前仅显示标题，无箭头或更多标识",
+      "MoreMenu（⋯）具体功能未知",
+      "是否为首次进入页？无'已注册'或'找回密码'等分支入口"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260429233220_960_24.png",
+        "timestamp": "23:31",
+        "device_status": {
+          "signal": "full",
+          "wifi": true,
+          "battery": 7
+        },
+        "draft_index": 33
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "机构号注册页",
+          "知乎机构号入驻页"
+        ],
+        "page_id_candidate": "zhihu_org_register",
+        "page_role": "注册表单页",
+        "title_text": "知乎机构号注册",
+        "distinguishing_text": [
+          "入驻知乎机构号",
+          "影响有影响力的人",
+          "注册机构号"
+        ],
+        "purpose_summary": "引导企业/媒体/政府/其他类型机构填写邮箱、密码、验证码完成机构号注册"
+      },
+      "page_overview": {
+        "layout_summary": "顶部标题栏 + 主视觉标语区 + 四类机构图标选择区 + 白色表单卡片 + 底部协议提示 + 底部权益模块",
+        "high_level_semantics": "强引导型注册页，通过分类图标明确目标用户群体，表单结构清晰，强调合规与权益"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "label": "←"
+              },
+              {
+                "type": "Title",
+                "text": "知乎机构号注册"
+              },
+              {
+                "type": "MoreMenuButton",
+                "label": "⋯"
+              }
+            ]
+          },
+          {
+            "type": "HeroSection",
+            "children": [
+              {
+                "type": "Headline",
+                "text": "入驻知乎机构号",
+                "style": "blue_large_bold"
+              },
+              {
+                "type": "Subheadline",
+                "text": "影响有影响力的人",
+                "style": "blue_large_bold_with_yellow_underline"
+              }
+            ]
+          },
+          {
+            "type": "CategorySelectorRow",
+            "children": [
+              {
+                "type": "CategoryIconItem",
+                "icon_label": "企业",
+                "icon_symbol": "tie"
+              },
+              {
+                "type": "CategoryIconItem",
+                "icon_label": "媒体",
+                "icon_symbol": "camera"
+              },
+              {
+                "type": "CategoryIconItem",
+                "icon_label": "政府",
+                "icon_symbol": "shield"
+              },
+              {
+                "type": "CategoryIconItem",
+                "icon_label": "其他",
+                "icon_symbol": "building"
+              }
+            ]
+          },
+          {
+            "type": "FormCard",
+            "children": [
+              {
+                "type": "TextInputField",
+                "label": "请填写邮箱地址",
+                "placeholder": null,
+                "is_required": true
+              },
+              {
+                "type": "PasswordInputField",
+                "label": "密码（不少于 8 位）",
+                "placeholder": null,
+                "is_required": true,
+                "visibility_toggle": true
+              },
+              {
+                "type": "CaptchaInputField",
+                "label": "验证码",
+                "captcha_image": "DXVG",
+                "is_required": true
+              },
+              {
+                "type": "PrimaryButton",
+                "text": "注册机构号",
+                "is_disabled": false
+              }
+            ]
+          },
+          {
+            "type": "AgreementFooter",
+            "children": [
+              {
+                "type": "AgreementText",
+                "text": "点击「注册机构号」按钮，即代表你同意",
+                "style": "gray_small"
+              },
+              {
+                "type": "LinkGroup",
+                "links": [
+                  {
+                    "text": "《知乎机构账号服务协议》",
+                    "is_clickable": true
+                  },
+                  {
+                    "text": "《个人信息保护指引》",
+                    "is_clickable": true
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "PromoSection",
+            "children": [
+              {
+                "type": "PromoBadge",
+                "text": "亮点权益",
+                "style": "blue_yellow_speech_bubble"
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        "NavigationBar",
+        "HeroSection",
+        "CategorySelectorRow",
+        "FormCard",
+        "AgreementFooter",
+        "PromoSection"
+      ],
+      "key_content": {
+        "texts": [
+          "知乎机构号注册",
+          "入驻知乎机构号",
+          "影响有影响力的人",
+          "企业",
+          "媒体",
+          "政府",
+          "其他",
+          "请填写邮箱地址",
+          "密码（不少于 8 位）",
+          "验证码",
+          "注册机构号",
+          "点击「注册机构号」按钮，即代表你同意",
+          "《知乎机构账号服务协议》",
+          "《个人信息保护指引》",
+          "亮点权益"
+        ],
+        "controls": [
+          "BackButton",
+          "MoreMenuButton",
+          "CategoryIconItem ×4",
+          "TextInputField (邮箱)",
+          "PasswordInputField (密码)",
+          "CaptchaInputField (验证码)",
+          "PrimaryButton (注册机构号)",
+          "LinkGroup (协议链接)"
+        ]
+      },
+      "interaction_clues": [
+        "左上角 ← 可返回上一页",
+        "右上角 ⋯ 可能展开更多操作（如帮助、反馈）",
+        "四类机构图标为分类选择入口（当前无高亮选中态，疑似默认未选）",
+        "密码字段右侧有可见性切换图标（眼睛图标）",
+        "验证码右侧显示图形码 'DXVG'，暗示需输入该值",
+        "蓝色主按钮「注册机构号」为流程推进核心 CTA",
+        "底部两份协议文本为可点击链接"
+      ],
+      "navigation_hints": {
+        "back_path": "上一页面（可能为知乎首页或机构号引导页）",
+        "exit_paths": [
+          "← 返回",
+          "系统级返回"
+        ],
+        "main_cta": "注册机构号",
+        "entry_points": [
+          "知乎 App 内机构号入口",
+          "外部推广落地页"
+        ],
+        "exit_points": [
+          "注册成功跳转",
+          "取消注册退出"
+        ]
+      },
+      "state_hints": {
+        "category_selection": "未显式选中（无高亮/下划线/边框等状态标识）",
+        "form_state": "空表单初始态（无输入内容、无错误提示）",
+        "button_state": "主按钮启用（非禁用态）",
+        "page_state_tags": []
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchors": [
+          "CategorySelectorRow 与 FormCard 属同一注册流程上下文",
+          "AgreementFooter 与 PromoSection 均为注册页辅助信息区"
+        ],
+        "state_difference_evidence": "无多状态对比图，无法判断是否为状态切换页",
+        "independent_page_signals": "完整表单+协议+标题栏，符合独立注册页特征；但分类图标无选中态，可能为前置选择页或默认展示页"
+      },
+      "subpage_hints": {
+        "potential_parent": "知乎机构号引导页 / 首页机构入口",
+        "potential_children": [
+          "验证码刷新弹窗（若点击验证码图）",
+          "协议详情页（点击协议链接）",
+          "注册成功页（点击主按钮后）"
+        ],
+        "drill_down_entries": [
+          "四类机构图标（可能跳转至细分注册流程）",
+          "协议链接（跳转至文档页）"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "垂直流式布局 + 卡片式表单容器",
+        "visual_blocks": [
+          "顶部导航固定",
+          "主视觉区使用浅蓝背景+几何装饰",
+          "表单区域白底圆角卡片",
+          "底部协议区浅灰底色",
+          "权益模块独立居中突出"
+        ],
+        "style_hints": "知乎品牌蓝（#007AFF）为主色调；图标统一黄蓝配色；文字层级分明；按钮圆角大尺寸"
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "‘影响有影响力的人’带黄色对话气泡底纹",
+          "四类机构图标横向排列且等距",
+          "验证码图像为手写风格字符 'DXVG'",
+          "协议文本分两行并列显示",
+          "底部‘亮点权益’使用对话框样式徽章"
+        ],
+        "key_facts": [
+          "页面标题为‘知乎机构号注册’",
+          "表单含邮箱、密码、验证码三字段",
+          "密码要求不少于8位",
+          "无任何输入内容或错误提示",
+          "无选中分类状态指示"
+        ],
+        "uncertainties": [
+          "四类机构图标是否支持点击切换？当前无选中态，无法确认交互行为",
+          "验证码是否可刷新？图像旁无刷新按钮图标",
+          "‘亮点权益’模块是否可展开？当前仅显示标题，无箭头或更多标识",
+          "MoreMenu（⋯）具体功能未知",
+          "是否为首次进入页？无‘已注册’或‘找回密码’等分支入口"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

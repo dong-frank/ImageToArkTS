@@ -66,6 +66,13 @@ ARCHITECT_NAVIGATION_PLANNER_TOOLS = [
 
 CODER_SKELETON_WORKER_TOOLS = [
     create_project,
+    validate_json_syntax,
+    request_human_guidance,
+]
+
+# BaselineCoder 需要创建项目和落地文件的能力，工具集与 skeleton worker 相同
+CODER_BASELINE_WORKER_TOOLS = [
+    create_project,
     materialize_coder_skeleton_artifacts,
     validate_json_syntax,
     request_human_guidance,
@@ -107,40 +114,28 @@ ARCHITECT_OBSERVATION_EXTRACTOR_SPEC: dict[str, Any] = {
     "tools": ARCHITECT_OBSERVATION_EXTRACTOR_TOOLS,
 }
 
+# 为保持兼容性，定义阶段2和阶段3的规格（若已存在则不会重复定义，这里作为占位）
+# 如果外部已提供，可以注释掉下面两行，但为避免 NameError，先定义空字段
 ARCHITECT_PAGE_MERGER_SPEC: dict[str, Any] = {
     "name": "architect_page_merger",
-    "description": (
-        "Read stage1 observation drafts and merge related screenshots into the final page set. "
-        "Stage2 should distinguish same-page drafts, state variants, overlays, and standalone pages, "
-        "incrementally persist stable, implementation-useful final page artifacts for downstream coding, "
-        "and write the final merge index after page files have been finalized. "
-        "Preserve merged page structure, ui_tree, interaction clues, state variants, overlays, "
-        "and high-level implementation/visual hints, but do not finalize global navigation relations in this stage."
-    ),
-    "model": code_model,
+    "description": "Merge observation drafts into final page set (Stage 2).",
+    "model": base_model,
     "system_prompt": load_prompt("architect_page_merger_system_prompt.md"),
     "tools": ARCHITECT_PAGE_MERGER_TOOLS,
 }
 
 ARCHITECT_NAVIGATION_PLANNER_SPEC: dict[str, Any] = {
     "name": "architect_navigation_planner",
-    "description": (
-        "Read stage2 final page artifacts, infer page hierarchy and navigation relations, "
-        "determine entry page, validate global consistency, and persist a navigation-only design artifact. "
-        "Do not rewrite or downgrade stage2 page files. "
-        "Stage3 should only output navigation and hierarchy results based on existing page artifacts."
-    ),
-    "model": code_model,
+    "description": "Design navigation hierarchy and global structure (Stage 3).",
+    "model": base_model,
     "system_prompt": load_prompt("architect_navigation_planner_system_prompt.md"),
     "tools": ARCHITECT_NAVIGATION_PLANNER_TOOLS,
 }
 
-ARCHITECT_DRAFT_EXTRACTOR_TOOLS = ARCHITECT_OBSERVATION_EXTRACTOR_TOOLS
 ARCHITECT_DRAFT_EXTRACTOR_SPEC = ARCHITECT_OBSERVATION_EXTRACTOR_SPEC
 
 # Backward-compatible alias only.
 # Note: this points to the stage3 planner, not to a full multi-stage architect orchestrator.
-ARCHITECT_SUBAGENT_SPEC = ARCHITECT_NAVIGATION_PLANNER_SPEC
 
 # ---------------------------------------------------------------------------
 # Coder specs
@@ -173,11 +168,25 @@ CODER_SKELETON_WORKER_SPEC: dict[str, Any] = {
     "tools": CODER_SKELETON_WORKER_TOOLS,
 }
 
+# 消融实验 BaselineCoder 规格
+CODER_BASELINE_WORKER_SPEC: dict[str, Any] = {
+    "name": "coder_baseline_worker",
+    "description": (
+        "End-to-end code generation from observation drafts. "
+        "Reads all page_drafts, performs merging and navigation design autonomously, "
+        "and generates a complete HarmonyOS project without external architecture inputs."
+    ),
+    "model": code_model,
+    "system_prompt": load_prompt("coder_baseline_system_prompt.md"),
+    "skills": ["/skills"],
+    "tools": CODER_BASELINE_WORKER_TOOLS,
+}
+
 CODER_PAGE_WORKER_SPEC: dict[str, Any] = {
     "name": "coder_page_worker",
     "description": (
-        "Implement one page and its page-local components inside assigned file boundaries. "
-        "Use architect page ui_tree, semantics, interactions, and visual/style hints instead of assuming a fabricated legacy deep UI tree."
+        "Implement a single page based on its page design file and task bundle. "
+        "Should respect confirmed navigation obligations and page-level UI contracts."
     ),
     "model": code_model,
     "system_prompt": load_prompt("coder_page_system_prompt.md"),
@@ -219,6 +228,7 @@ SUBAGENT_SPECS = [
     ARCHITECT_NAVIGATION_PLANNER_SPEC,
     CODER_ORCHESTRATOR_SPEC,
     CODER_SKELETON_WORKER_SPEC,
+    CODER_BASELINE_WORKER_SPEC,          # 新增基线 coder
     CODER_PAGE_WORKER_SPEC,
     CODER_INTEGRATION_WORKER_SPEC,
     TESTER_SUBAGENT_SPEC,
@@ -237,8 +247,7 @@ def _build_subagent(spec: dict[str, Any]):
         tools=spec["tools"],
         skills=spec.get("skills"),
         backend=backend_factory,
-        #checkpointer=get_checkpointer(),
-        checkpointer=None,
+        checkpointer=get_checkpointer(),
         name=spec["name"],
     )
 
@@ -256,6 +265,49 @@ def _build_architect_page_merger():
 def _build_architect_navigation_planner():
     """Build the stage3 architect navigation planner subagent."""
     return _build_subagent(ARCHITECT_NAVIGATION_PLANNER_SPEC)
+
+
+def _build_coder_orchestrator():
+    """Build the coder orchestrator with routing tools injected lazily."""
+    from tools.routing_tools import CODER_ORCHESTRATOR_TOOLS as ROUTING_CODER_ORCHESTRATOR_TOOLS
+
+    return create_deep_agent(
+        model=CODER_ORCHESTRATOR_SPEC["model"],
+        system_prompt=CODER_ORCHESTRATOR_SPEC["system_prompt"],
+        tools=[
+            *ROUTING_CODER_ORCHESTRATOR_TOOLS,
+            validate_json_syntax,
+            request_human_guidance,
+        ],
+        backend=backend_factory,
+        checkpointer=get_checkpointer(),
+        name=CODER_ORCHESTRATOR_SPEC["name"],
+    )
+
+
+def _build_coder_skeleton_worker():
+    """Build the coder skeleton worker."""
+    return _build_subagent(CODER_SKELETON_WORKER_SPEC)
+
+
+def _build_coder_baseline_worker():
+    """Build the baseline coder worker (end-to-end generation)."""
+    return _build_subagent(CODER_BASELINE_WORKER_SPEC)
+
+
+def _build_coder_page_worker():
+    """Build a non-cached coder page worker instance (called per page)."""
+    return _build_subagent(CODER_PAGE_WORKER_SPEC)
+
+
+def _build_coder_integration_worker():
+    """Build the coder integration worker."""
+    return _build_subagent(CODER_INTEGRATION_WORKER_SPEC)
+
+
+def _build_tester_agent():
+    """Build the tester subagent."""
+    return _build_subagent(TESTER_SUBAGENT_SPEC)
 
 
 # ---------------------------------------------------------------------------
@@ -294,50 +346,38 @@ def get_architect_agent():
 
 
 @lru_cache(maxsize=1)
-def get_coder_skeleton_worker():
-    """Return the cached coder skeleton worker."""
-    return _build_subagent(CODER_SKELETON_WORKER_SPEC)
-
-
-def _build_coder_orchestrator():
-    """Build the coder orchestrator with routing tools injected lazily."""
-    from tools.routing_tools import CODER_ORCHESTRATOR_TOOLS as ROUTING_CODER_ORCHESTRATOR_TOOLS
-
-    return create_deep_agent(
-        model=CODER_ORCHESTRATOR_SPEC["model"],
-        system_prompt=CODER_ORCHESTRATOR_SPEC["system_prompt"],
-        tools=[
-            *ROUTING_CODER_ORCHESTRATOR_TOOLS,
-            validate_json_syntax,
-            request_human_guidance,
-        ],
-        backend=backend_factory,
-        checkpointer=get_checkpointer(),
-        name=CODER_ORCHESTRATOR_SPEC["name"],
-    )
-
-
-@lru_cache(maxsize=1)
 def get_coder_orchestrator():
     """Return the cached coder orchestrator."""
     return _build_coder_orchestrator()
 
 
-def build_coder_page_worker():
-    """Build a non-cached coder page worker instance."""
-    return _build_subagent(CODER_PAGE_WORKER_SPEC)
+@lru_cache(maxsize=1)
+def get_coder_skeleton_worker():
+    """Return the cached coder skeleton worker."""
+    return _build_coder_skeleton_worker()
+
+
+@lru_cache(maxsize=1)
+def get_coder_baseline_worker():
+    """Return the cached baseline coder worker (end-to-end generation)."""
+    return _build_coder_baseline_worker()
+
+
+def get_coder_page_worker():
+    """Return a new coder page worker instance (not cached, each page uses its own)."""
+    return _build_coder_page_worker()
 
 
 @lru_cache(maxsize=1)
 def get_coder_integration_worker():
     """Return the cached coder integration worker."""
-    return _build_subagent(CODER_INTEGRATION_WORKER_SPEC)
+    return _build_coder_integration_worker()
 
 
 @lru_cache(maxsize=1)
 def get_tester_agent():
     """Return the cached tester subagent."""
-    return _build_subagent(TESTER_SUBAGENT_SPEC)
+    return _build_tester_agent()
 
 
 # ---------------------------------------------------------------------------
@@ -359,7 +399,8 @@ def clear_subagent_caches():
     get_architect_navigation_planner.cache_clear()
     get_architect_draft_extractor.cache_clear()
     get_architect_agent.cache_clear()
-    get_coder_skeleton_worker.cache_clear()
     get_coder_orchestrator.cache_clear()
+    get_coder_skeleton_worker.cache_clear()
+    get_coder_baseline_worker.cache_clear()   # 新增
     get_coder_integration_worker.cache_clear()
     get_tester_agent.cache_clear()

@@ -1,0 +1,98 @@
+{
+  "observation_meta": {
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "draft_index": 30,
+    "image_path": "/user_input/微信图片_20260429233217_957_24.png",
+    "image_name": "微信图片_20260429233217_957_24.png",
+    "observation_status": "partial"
+  },
+  "page_identity": {
+    "candidate_page_name": "微信图片_20260429233217_957_24.png",
+    "candidate_page_id": "page_30",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [
+      "]",
+      "]",
+      "],"
+    ],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "partial observation recovered from non-parseable model output",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "UnknownContainer",
+    "id": "page_root",
+    "children": []
+  },
+  "structural_blocks": [],
+  "key_content": {
+    "visible_texts": [
+      "]",
+      "]",
+      "],",
+      "]",
+      "]",
+      "]",
+      "],",
+      "],",
+      "]",
+      "],",
+      "],",
+      "]"
+    ],
+    "key_controls": []
+  },
+  "interaction_clues": [],
+  "navigation_hints": {
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "tab_labels": [],
+    "active_tab_hint": null,
+    "segment_labels": [],
+    "active_segment_hint": null,
+    "filter_hints": [],
+    "page_state_tags": [],
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "low",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern_hint": null,
+    "important_visual_blocks": [],
+    "style_notes": []
+  },
+  "raw_preservation": {
+    "notable_elements": [],
+    "raw_observation": "{\n  \"observation_meta\": {\n    \"source_image_path\": \"/user_input/微信图片_20260429233217_957_24.png\",\n    \"filename\": \"微信图片_20260429233217_957_24.png\",\n    \"timestamp\": \"23:31\",\n    \"battery_level\": 7,\n    \"network_status\": \"cellular+wifi\",\n    \"draft_index\": 30\n  },\n  \"page_identity\": {\n    \"page_name_candidates\": [\"与第三方共享个人信息清单\"],\n    \"page_id_candidate\": \"privacy_third_party_share_list\",\n    \"page_role\": \"信息公示页\",\n    \"title_text\": \"与第三方共享个人信息清单\",\n    \"distinguishing_text\": [\"内嵌 SDK 名单\", \"中国移动通信集团有限公司\", \"认证服务\", \"精准触达\"],\n    \"purpose_summary\": \"向用户展示已授权的第三方（含SDK）及其共享的个人信息类型、使用目的、场景与处理规则\"\n  },\n  \"page_overview\": {\n    \"layout_summary\": \"顶部标题栏 + 单一表格主体，表格为多列结构化数据展示，无分页/滚动指示；整体为静态信息列表页。\",\n    \"high_level_semantics\": \"合规性披露页面，强调透明度与用户知情权；内容聚焦于SDK级数据共享明细，非交互式操作页。\"\n  },\n  \"ui_tree\": {\n    \"type\": \"PageRoot\",\n    \"children\": [\n      {\n        \"type\": \"NavigationBar\",\n        \"children\": [\n          { \"type\": \"BackButton\", \"label\": \"<\" },\n          { \"type\": \"Title\", \"text\": \"与第三方共享个人信息清单\" },\n          { \"type\": \"OverflowMenu\", \"icon\": \"⋯\" }\n        ]\n      },\n      {\n        \"type\": \"Section\",\n        \"children\": [\n          { \"type\": \"Heading\", \"text\": \"与第三方共享个人信息清单\" }\n        ]\n      },\n      {\n        \"type\": \"Table\",\n        \"columns\": [\n          \"第三方公司名称\",\n          \"产品 / 类型\",\n          \"共享信息名称\",\n          \"使用目的\",\n          \"使用场景\",\n          \"共享方式\",\n          \"第三方个人信息处理规则\"\n        ],\n        \"rows\": [\n          {\n            \"cells\": [\n              { \"type\": \"TextCell\", \"text\": \"中国移动通信集团有限公司\" },\n              { \"type\": \"TextCell\", \"text\": \"中国移 动 认 证  准 触 达 S D K\" },\n              { \"type\": \"TextCell\", \"text\": \"网络类型、网络地址（ip 地址）、运营商类型、本机号码信息；设备类型（型号）、操作系统、硬\" },\n              { \"type\": \"TextCell\", \"text\": \"移动手机号码一键登录、移动用户活\" },\n              { \"type\": \"TextCell\", \"text\": \"在用户使用移动手机号码登录时使用\" },\n              { \"type\": \"TextCell\", \"text\": \"S D K 本机采集\" },\n              { \"type\": \"TextCell\", \"text\": \"认证服务：https://wap.cmpassport.com/resources/html/contract.html\\n精准触达：https://wap.cmpassport.com/resources\" }\n            ]\n          }\n        ]\n      }\n    ]\n  },\n  \"structural_blocks\": [\n    {\n      \"block_id\": \"header_bar\",\n      \"role\": \"navigation_and_title\",\n      \"elements\": [\"back_button\", \"page_title\", \"overflow_menu\"]\n    },\n    {\n      \"block_id\": \"section_title\",\n      \"role\": \"page_heading\",\n      \"text\": \"与第三方共享个人信息清单\"\n    },\n    {\n      \"block_id\": \"data_table\",\n      \"role\": \"structured_disclosure\",\n      \"subblocks\": [\"column_headers\", \"single_row_data\"]\n    }\n  ],\n  \"key_content\": {\n    \"text_elements\": [\n      \"与第三方共享个人信息清单\",\n      \"内嵌 SDK 名单\",\n      \"中国移动通信集团有限公司\",\n      \"中国移 动 认 证 精 准 触 达 S D K\",\n      \"网络类型、网络地址（ip 地址）、运营商类型、本机号码信息；设备类型（型号）、操作系统、硬\",\n      \"移动手机号码一键登录、移动用户活\",\n      \"在用户使用移动手机号码登录时使用\",\n      \"S D K 本机采集\",\n      \"认证服务：https://wap.cmpassport.com/resources/html/contract.html\",\n      \"精准触达：https://wap.cmpassport.com/resources\"\n    ],\n    \"control_elements\": [\n      { \"type\": \"BackButton\", \"position\": \"top-left\" },\n      { \"type\": \"OverflowMenu\", \"position\": \"top-right\" },\n      { \"type\": \"Table\", \"has_headers\": true, \"row_count\": 1 }\n    ]\n  },\n  \"interaction_clues\": [\n    {\n      \"clue_type\": \"navigation_back\",\n      \"target\": \"previous_page\",\n      \"element\": \"left chevron icon\"\n    },\n    {\n      \"clue_type\": \"menu_overflow\",\n      \"element\": \"three-dots icon\",\n      \"possible_actions\": [\"分享\", \"刷新\", \"举报\", \"反馈\"] // 推测，未见具体菜单项\n    },\n    {\n      \"clue_type\": \"external_link\",\n      \"element\": \"URL in last column\",\n      \"urls\": [\n        \"https://wap.cmpassport.com/resources/html/contract.html\",\n        \"https://wap.cmpassport.com/resources\"\n      ],\n      \"note\": \"文本中直接嵌入可点击链接样式，但截图未显示高亮或下划线，无法确认是否可点击\"\n    }\n  ],\n  \"navigation_hints\": {\n    \"return_path\": \"上一页面（可能为隐私政策总览页或设置 > 隐私 > 个人信息处理规则）\",\n    \"exit_paths\": [\"back_button\", \"system_back\"],\n    \"primary_cta\": null,\n    \"entry_points\": [\"隐私设置入口\", \"App首次启动引导页\", \"权限申请后跳转页\"],\n    \"exit_points\": [\"back\", \"app_switcher\"]\n  },\n  \"state_hints\": {\n    \"tab_state\": null,\n    \"segment_state\": null,\n    \"filter_state\": null,\n    \"page_status_tags\": [],\n    \"selected_row\": null\n  },\n  \"overlay_hints\": {\n    \"has_overlay\": false,\n    \"overlay_type\": null,\n    \"trigger_source\": null,\n    \"dismiss_method\": null,\n    \"content_summary\": null\n  },\n  \"merge_hints\": {\n    \"same_page_anchor\": \"标题重复出现（顶部导航栏+正文标题），属常见冗余设计，非独立子页信号\",\n    \"state_difference_evidence\": [],\n    \"independent_page_signals\": [\n      \"单一数据行 + 无分页控件 → 能为折叠状态下的完整列表预览；实际可能有更多行但当前截图为局部\"\n    ]\n  },\n  \"subpage_hints\": {\n    \"potential_parent\": \"隐私政策详情页 / 个人信息保护设置页\",\n    \"potential_children\": null,\n    \"drilldown_entries\": [\n      {\n        \"element\": \"URL in '第三方个人信息处理规则' column\",\n        \"target_uncertainty\": \"high\",\n        \"note\": \"文本形式呈现，未见按钮/链接样式，无法确认是否支持跳转\"\n      }\n    ]\n  },\n  \"implementation_semantics\": {\n    \"layout_pattern\": \"FixedHeader + FullWidthTable\",\n    \"visual_blocks\": [\n      \"TopBar (fixed)\",\n      \"SectionHeading (centered, bold)\",\n      \"ResponsiveTable (7-column, word-wrapped cells)\"\n    ],\n    \"styling_hints\": {\n      \"font_size\": \"正文较小（约12–14sp），标题较大（约16–18sp）\",\n      \"spacing\": \"行高适中，列宽均分，无边框线（仅浅灰分割线）\",\n      \"color_scheme\": \"深灰文字 + 白底，无强调色\"\n    }\n  },\n  \"raw_preservation\": {\n    \"significant_elements\": [\n      \"表格仅含1行数据，但列头完整，暗示可能存在更多行\",\n      \"‘内嵌 SDK 名单’为副标题，位于主标题下方、表格上方\",\n      \"‘中国移 动 认 证 精 准 触 达 S D K’中存在换行空格，疑似 OCR 或排版残留\",\n      \"最后一列 URL 被截断（末尾为 'ources'），原始应为 'resources'\",\n      \"时间戳 23:31 与电池 7% 显示于系统状态栏\"\n    ],\n    \"uncertainties\": [\n      \"表格是否可滚动？截图未显示滚动条或底部截断迹象\",\n      \"URL 是否可点击？视觉上无下划线/颜色变化\",\n      \"‘移动用户活’是否为‘移动用户活跃度’等缩写？原文不完整\",\n      \"‘硬’字后被截断，应为‘硬件信息’等\",\n      \"是否存在隐藏行/展开区域？当前仅1行，不符合典型SDK清单长度\"\n    ]\n  }\n}",
+    "uncertainties": [
+      "non-parseable model output preserved for stage1 repair: failed to parse JSON object from model response"
+    ],
+    "error": "non-parseable model output preserved for stage1 repair: failed to parse JSON object from model response"
+  }
+}

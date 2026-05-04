@@ -1,0 +1,31 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/HomePage",
+    "pages/FoodListPage",
+    "pages/NoteDetailPage",
+    "pages/MapPage",
+    "pages/MessagePage",
+    "pages/ActionHubPage",
+    "pages/ProfilePage",
+    "pages/OrderListPage",
+    "pages/SettingsPage",
+    "pages/AccountSecurityPage",
+    "pages/NotificationSettingsPage",
+    "pages/MessagePageSettingsPage",
+    "pages/PrivacyManagementPage",
+    "pages/PersonalInfoPage",
+    "pages/DeviceInfoPage",
+    "pages/GeneralSettingsPage",
+    "pages/LanguagePage",
+    "pages/PrivacyPolicyPage",
+    "pages/AboutPage",
+    "pages/AppInfoPage",
+    "pages/PermissionManagementPage",
+    "pages/StoragePage",
+    "pages/SDKListPage",
+    "pages/FeedbackPage",
+    "pages/ActivityMessagesPage",
+    "pages/CheckinPage"
+  ]
+}

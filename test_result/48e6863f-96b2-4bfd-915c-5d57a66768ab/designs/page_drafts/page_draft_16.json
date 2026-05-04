@@ -1,0 +1,547 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260425145700_830_24.png",
+    "draft_index": 16,
+    "confidence": "high",
+    "timestamp": "2026-04-25T14:55:00Z",
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425145700_830_24.png",
+    "image_name": "微信图片_20260425145700_830_24.png"
+  },
+  "page_identity": {
+    "name_candidates": [
+      "多语言设置页",
+      "语言选择页"
+    ],
+    "page_id_candidate": "language_settings",
+    "role": "settings_subpage",
+    "title_text": "多语言",
+    "distinguishing_text": [
+      "跟随系统设置",
+      "简体中文",
+      "更多语言接入中，敬请期待"
+    ],
+    "purpose_summary": "允许用户选择 App 显示语言，并可配置是否跟随系统语言设置",
+    "candidate_page_name": "微信图片_20260425145700_830_24.png",
+    "candidate_page_id": "page_16",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "垂直线性列表布局，顶部导航栏含返回与保存按钮；主体为语言选项列表，当前选中项带橙色对勾；底部为状态提示文本",
+    "visual_semantics": "标准设置类页面，强调可选性与状态反馈（选中标识、开关控件），底部提示预留扩展性"
+  },
+  "ui_tree": {
+    "type": "Page",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<"
+          },
+          {
+            "type": "Title",
+            "text": "多语言"
+          },
+          {
+            "type": "ActionButton",
+            "text": "保存",
+            "style": "rounded_gray"
+          }
+        ]
+      },
+      {
+        "type": "ToggleSection",
+        "label": "跟随系统设置",
+        "description": "开启后，将跟随系统设置 App 语言",
+        "toggle_state": "off",
+        "children": []
+      },
+      {
+        "type": "SectionHeader",
+        "text": "当前选择"
+      },
+      {
+        "type": "ListArea",
+        "children": [
+          {
+            "type": "ListItem",
+            "text": "简体中文",
+            "selected": true,
+            "indicator": "checkmark_orange"
+          },
+          {
+            "type": "ListItem",
+            "text": "English",
+            "selected": false
+          },
+          {
+            "type": "ListItem",
+            "text": "日本語",
+            "selected": false
+          },
+          {
+            "type": "ListItem",
+            "text": "한국어",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "type": "FooterText",
+        "text": "更多语言接入中，敬请期待",
+        "style": "gray_light"
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_type": "TopBar",
+      "elements": [
+        "back",
+        "title",
+        "save"
+      ]
+    },
+    {
+      "block_type": "SystemSyncToggleBlock",
+      "has_toggle": true
+    },
+    {
+      "block_type": "LanguageSelectionList",
+      "item_count": 4,
+      "selected_index": 0
+    },
+    {
+      "block_type": "ExpansionNoticeFooter",
+      "visible": true
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "多语言",
+      "跟随系统设置",
+      "开启后，将跟随系统设置 App 语言",
+      "当前选择",
+      "简体中文",
+      "English",
+      "日本語",
+      "한국어",
+      "更多语言接入中，敬请期待"
+    ],
+    "controls": [
+      {
+        "type": "Switch",
+        "position": "top_section_right",
+        "state": "off"
+      },
+      {
+        "type": "CheckmarkIcon",
+        "position": "right_of_简体中文",
+        "color": "orange"
+      },
+      {
+        "type": "SaveButton",
+        "position": "top_right",
+        "enabled": true
+      }
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "back_navigation",
+      "target": "unknown_previous",
+      "element": "left_chevron"
+    },
+    {
+      "clue_type": "save_action",
+      "element": "保存_button",
+      "implies_persistence": true
+    },
+    {
+      "clue_type": "toggle_switch",
+      "target": "system_sync",
+      "current_state": "off"
+    },
+    {
+      "clue_type": "list_item_selection",
+      "items": [
+        "简体中文",
+        "English",
+        "日本語",
+        "한국어"
+      ],
+      "current_selected": "简体中文"
+    },
+    {
+      "clue_type": "no_expansion_entry",
+      "reason": "底部提示为静态文本，无点击区域或箭头"
+    }
+  ],
+  "navigation_hints": {
+    "back_path": "likely_parent_settings_page",
+    "exit_paths": [
+      "back",
+      "save_and_exit"
+    ],
+    "main_cta": "保存",
+    "entry_points": [
+      "settings_menu > language"
+    ],
+    "leave_points": [
+      "back",
+      "save"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "selected_language": "简体中文",
+    "system_sync_enabled": false,
+    "language_list_state": "static_display",
+    "page_status": "unsaved_changes_possible",
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchor": true,
+    "state_variation_evidence": [
+      "切换语言项仅改变选中标识，无页面跳转",
+      "开关控件与列表同屏，属同一逻辑单元"
+    ],
+    "independent_page_signal": false,
+    "suggested_merge_target": "settings_language_subsection",
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "App 设置主页面",
+    "potential_child": null,
+    "drilldown_entries": [],
+    "contextual_dependency": "依赖于全局设置导航结构",
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "vertical_scrolling_list_with_header_footer",
+    "important_visual_blocks": [
+      "toggle_with_description",
+      "selected_item_highlighting",
+      "footer_disclaimer"
+    ],
+    "style_hints": {
+      "selection_indicator": "orange_checkmark",
+      "disabled_text": "gray_500",
+      "button_style": "capsule_gray",
+      "divider": "thin_light_gray_line"
+    },
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "橙色对勾图标仅出现在'简体中文'右侧",
+      "开关控件处于关闭态（白色圆点在左）",
+      "'保存'按钮为灰色胶囊状，非高亮",
+      "底部提示文字居中、浅灰、字号较小"
+    ],
+    "key_facts": [
+      "共4种语言可见",
+      "无搜索框或展开按钮",
+      "无语言代码标注（如 zh-CN）",
+      "'한국어'为韩语，非中文拼音"
+    ],
+    "uncertainties": [
+      "'保存'按钮是否自动保存或需手动触发？截图未显示变更反馈",
+      "切换语言后是否立即生效？无 loading 或 toast 提示",
+      "'更多语言接入中'是否为可点击链接？视觉上为纯文本",
+      "系统设置开关开启后，是否自动刷新列表？不可见"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260425145700_830_24.png",
+        "draft_index": 16,
+        "confidence": "high",
+        "timestamp": "2026-04-25T14:55:00Z"
+      },
+      "page_identity": {
+        "name_candidates": [
+          "多语言设置页",
+          "语言选择页"
+        ],
+        "page_id_candidate": "language_settings",
+        "role": "settings_subpage",
+        "title_text": "多语言",
+        "distinguishing_text": [
+          "跟随系统设置",
+          "简体中文",
+          "更多语言接入中，敬请期待"
+        ],
+        "purpose_summary": "允许用户选择 App 显示语言，并可配置是否跟随系统语言设置"
+      },
+      "page_overview": {
+        "layout_summary": "垂直线性列表布局，顶部导航栏含返回与保存按钮；主体为语言选项列表，当前选中项带橙色对勾；底部为状态提示文本",
+        "visual_semantics": "标准设置类页面，强调可选性与状态反馈（选中标识、开关控件），底部提示预留扩展性"
+      },
+      "ui_tree": {
+        "type": "Page",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "text": "<"
+              },
+              {
+                "type": "Title",
+                "text": "多语言"
+              },
+              {
+                "type": "ActionButton",
+                "text": "保存",
+                "style": "rounded_gray"
+              }
+            ]
+          },
+          {
+            "type": "ToggleSection",
+            "label": "跟随系统设置",
+            "description": "开启后，将跟随系统设置 App 语言",
+            "toggle_state": "off",
+            "children": []
+          },
+          {
+            "type": "SectionHeader",
+            "text": "当前选择"
+          },
+          {
+            "type": "ListArea",
+            "children": [
+              {
+                "type": "ListItem",
+                "text": "简体中文",
+                "selected": true,
+                "indicator": "checkmark_orange"
+              },
+              {
+                "type": "ListItem",
+                "text": "English",
+                "selected": false
+              },
+              {
+                "type": "ListItem",
+                "text": "日本語",
+                "selected": false
+              },
+              {
+                "type": "ListItem",
+                "text": "한국어",
+                "selected": false
+              }
+            ]
+          },
+          {
+            "type": "FooterText",
+            "text": "更多语言接入中，敬请期待",
+            "style": "gray_light"
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_type": "TopBar",
+          "elements": [
+            "back",
+            "title",
+            "save"
+          ]
+        },
+        {
+          "block_type": "SystemSyncToggleBlock",
+          "has_toggle": true
+        },
+        {
+          "block_type": "LanguageSelectionList",
+          "item_count": 4,
+          "selected_index": 0
+        },
+        {
+          "block_type": "ExpansionNoticeFooter",
+          "visible": true
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "多语言",
+          "跟随系统设置",
+          "开启后，将跟随系统设置 App 语言",
+          "当前选择",
+          "简体中文",
+          "English",
+          "日本語",
+          "한국어",
+          "更多语言接入中，敬请期待"
+        ],
+        "controls": [
+          {
+            "type": "Switch",
+            "position": "top_section_right",
+            "state": "off"
+          },
+          {
+            "type": "CheckmarkIcon",
+            "position": "right_of_简体中文",
+            "color": "orange"
+          },
+          {
+            "type": "SaveButton",
+            "position": "top_right",
+            "enabled": true
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "back_navigation",
+          "target": "unknown_previous",
+          "element": "left_chevron"
+        },
+        {
+          "clue_type": "save_action",
+          "element": "保存_button",
+          "implies_persistence": true
+        },
+        {
+          "clue_type": "toggle_switch",
+          "target": "system_sync",
+          "current_state": "off"
+        },
+        {
+          "clue_type": "list_item_selection",
+          "items": [
+            "简体中文",
+            "English",
+            "日本語",
+            "한국어"
+          ],
+          "current_selected": "简体中文"
+        },
+        {
+          "clue_type": "no_expansion_entry",
+          "reason": "底部提示为静态文本，无点击区域或箭头"
+        }
+      ],
+      "navigation_hints": {
+        "back_path": "likely_parent_settings_page",
+        "exit_paths": [
+          "back",
+          "save_and_exit"
+        ],
+        "main_cta": "保存",
+        "entry_points": [
+          "settings_menu > language"
+        ],
+        "leave_points": [
+          "back",
+          "save"
+        ]
+      },
+      "state_hints": {
+        "selected_language": "简体中文",
+        "system_sync_enabled": false,
+        "language_list_state": "static_display",
+        "page_status": "unsaved_changes_possible"
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchor": true,
+        "state_variation_evidence": [
+          "切换语言项仅改变选中标识，无页面跳转",
+          "开关控件与列表同屏，属同一逻辑单元"
+        ],
+        "independent_page_signal": false,
+        "suggested_merge_target": "settings_language_subsection"
+      },
+      "subpage_hints": {
+        "potential_parent": "App 设置主页面",
+        "potential_child": null,
+        "drilldown_entries": [],
+        "contextual_dependency": "依赖于全局设置导航结构"
+      },
+      "implementation_semantics": {
+        "layout_pattern": "vertical_scrolling_list_with_header_footer",
+        "important_visual_blocks": [
+          "toggle_with_description",
+          "selected_item_highlighting",
+          "footer_disclaimer"
+        ],
+        "style_hints": {
+          "selection_indicator": "orange_checkmark",
+          "disabled_text": "gray_500",
+          "button_style": "capsule_gray",
+          "divider": "thin_light_gray_line"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "橙色对勾图标仅出现在‘简体中文’右侧",
+          "开关控件处于关闭态（白色圆点在左）",
+          "‘保存’按钮为灰色胶囊状，非高亮",
+          "底部提示文字居中、浅灰、字号较小"
+        ],
+        "key_facts": [
+          "共4种语言可见",
+          "无搜索框或展开按钮",
+          "无语言代码标注（如 zh-CN）",
+          "‘한국어’为韩语，非中文拼音"
+        ],
+        "uncertainties": [
+          "‘保存’按钮是否自动保存或需手动触发？截图未显示变更反馈",
+          "切换语言后是否立即生效？无 loading 或 toast 提示",
+          "‘更多语言接入中’是否为可点击链接？视觉上为纯文本",
+          "系统设置开关开启后，是否自动刷新列表？不可见"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

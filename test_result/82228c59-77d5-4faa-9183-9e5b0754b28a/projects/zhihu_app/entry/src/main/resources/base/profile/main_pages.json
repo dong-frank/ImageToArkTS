@@ -1,0 +1,33 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/HomePage",
+    "pages/QuestionDetailPage",
+    "pages/AskHubPage",
+    "pages/ContentEditorPage",
+    "pages/MessagesPage",
+    "pages/ProfilePage",
+    "pages/OtherFunctionsPage",
+    "pages/SettingsPage",
+    "pages/MinorModePage",
+    "pages/VideoPlaybackSettingsPage",
+    "pages/MessageSettingsPage",
+    "pages/PushSettingsPage",
+    "pages/InterestPreferencesPage",
+    "pages/PrivacyPage",
+    "pages/PersonalInfoGuidePage",
+    "pages/AboutPage",
+    "pages/TermsPage",
+    "pages/BookshelfPage",
+    "pages/CoursesPage",
+    "pages/WalletPage",
+    "pages/ConsultationPage",
+    "pages/MallPage",
+    "pages/HelpCenterPage",
+    "pages/ThirdPartySharePage",
+    "pages/IcpRecordPage",
+    "pages/VideoAutoPlayPage",
+    "pages/OrgRegisterPage",
+    "pages/TrustDevicePage"
+  ]
+}

@@ -9,14 +9,12 @@ dotenv.load_dotenv()
 architect_vision_model = ChatOpenAI(
         model="qwen3-vl-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
-        temperature=0,
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
 )
 
 architect_model = ChatOpenAI(
         model="qwen3-vl-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
-        temperature=0,
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
 )
 
@@ -24,7 +22,6 @@ small_model = ChatOpenAI(
         model=os.getenv("SMALL_MODEL_NAME", "qwen-turbo"),
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
-        temperature=0,
         extra_body={"enable_thinking": False},
 )
 
@@ -32,7 +29,6 @@ base_model = ChatOpenAI(
         model="qwen3.5-plus",
         api_key=os.getenv("DASHSCOPE_API_KEY"),
         base_url=os.getenv("DASHSCOPE_BASE_URL"),
-        temperature=0.1,
         extra_body={"enable_thinking": False},
 )
 
@@ -40,7 +36,6 @@ code_model = ChatOpenAI(
         model="deepseek-v4-pro",
         api_key=os.getenv("DEEPSEEK_API_KEY"),
         base_url=os.getenv("DEEPSEEK_BASE_URL"),
-        temperature=0.1,
         extra_body={
         "thinking": {"type": "disabled"}        # 禁用思考模式
     }

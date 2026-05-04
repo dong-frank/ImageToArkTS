@@ -1,0 +1,780 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260425152122_896_24.png",
+    "draft_index": 19,
+    "timestamp": "15:19",
+    "device_status": {
+      "signal": "full",
+      "wifi": true,
+      "battery": 55
+    },
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425152122_896_24.png",
+    "image_name": "微信图片_20260425152122_896_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "我的课程",
+      "已购课程页"
+    ],
+    "page_id_candidate": "my_courses",
+    "page_role": "个人中心子页",
+    "title_text": "我的课程",
+    "distinguishing_text": "您还没有购买课程",
+    "purpose_summary": "展示用户已购课程（当前为空），并推荐热门课程供领取或报名",
+    "candidate_page_name": "微信图片_20260425152122_896_24.png",
+    "candidate_page_id": "page_19",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部标题栏 + 空状态卡片（含插图、提示语、CTA按钮）+ 推荐课程列表（垂直流式卡片）+ 底部导航栏",
+    "high_level_semantics": "用户课程资产概览页，当前无课程，以引导转化为核心目标；推荐区为运营驱动型内容聚合",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<"
+          },
+          {
+            "type": "Title",
+            "text": "我的课程"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "已购课程",
+        "children": [
+          {
+            "type": "EmptyStateCard",
+            "children": [
+              {
+                "type": "Illustration",
+                "description": "机器人插图"
+              },
+              {
+                "type": "Text",
+                "content": "您还没有购买课程"
+              },
+              {
+                "type": "PrimaryButton",
+                "text": "去看看",
+                "style": "blue-outline"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "大家还在学",
+        "children": [
+          {
+            "type": "CourseCard",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "知乎知学堂"
+              },
+              {
+                "type": "Image",
+                "description": "课程封面图"
+              },
+              {
+                "type": "Title",
+                "text": "短篇故事变现速成班>>限时招..."
+              },
+              {
+                "type": "Tag",
+                "text": "直播 · 04-26 19:20",
+                "style": "orange"
+              },
+              {
+                "type": "Stat",
+                "text": "23.0万人已报名"
+              },
+              {
+                "type": "SecondaryButton",
+                "text": "免费领取",
+                "style": "blue-outline"
+              }
+            ]
+          },
+          {
+            "type": "CourseCard",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "知乎知学堂 × NeuralFlow"
+              },
+              {
+                "type": "Image",
+                "description": "课程封面图"
+              },
+              {
+                "type": "Title",
+                "text": "一节课搞懂大模型应用开发"
+              },
+              {
+                "type": "Tag",
+                "text": "直播 · 04-27 19:30",
+                "style": "orange"
+              },
+              {
+                "type": "Stat",
+                "text": "12.5万人已报名"
+              },
+              {
+                "type": "SecondaryButton",
+                "text": "免费领取",
+                "style": "blue-outline"
+              }
+            ]
+          },
+          {
+            "type": "CourseCard",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "知乎知学堂"
+              },
+              {
+                "type": "Image",
+                "description": "课程封面图"
+              },
+              {
+                "type": "Title",
+                "text": "零基础 AI 视频应用变现实战>>..."
+              },
+              {
+                "type": "Tag",
+                "text": "直播 · 04-27 19:20",
+                "style": "orange"
+              },
+              {
+                "type": "Stat",
+                "text": "1.7万人已报名"
+              },
+              {
+                "type": "SecondaryButton",
+                "text": "免费领取",
+                "style": "blue-outline"
+              }
+            ]
+          },
+          {
+            "type": "CourseCard",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "推广达人"
+              },
+              {
+                "type": "Image",
+                "description": "课程封面图"
+              },
+              {
+                "type": "Title",
+                "text": "推广达人变现方案>>添加微信..."
+              },
+              {
+                "type": "Tag",
+                "text": "直播 · 04-26 19:20",
+                "style": "orange"
+              },
+              {
+                "type": "Stat",
+                "text": "限时特惠 0元"
+              },
+              {
+                "type": "SecondaryButton",
+                "text": "免费领取",
+                "style": "blue-outline"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "BottomNavigation",
+        "children": [
+          {
+            "type": "TabItem",
+            "text": "课程专区",
+            "selected": false
+          },
+          {
+            "type": "TabItem",
+            "text": "我的课程",
+            "selected": true
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "header",
+      "role": "navigation",
+      "contains": [
+        "back",
+        "title"
+      ]
+    },
+    {
+      "block_id": "empty_section",
+      "role": "status_display",
+      "contains": [
+        "illustration",
+        "message",
+        "cta"
+      ]
+    },
+    {
+      "block_id": "recommend_list",
+      "role": "content_feed",
+      "contains": [
+        "course_cards"
+      ]
+    },
+    {
+      "block_id": "bottom_nav",
+      "role": "global_navigation",
+      "contains": [
+        "tab_items"
+      ]
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "我的课程",
+      "已购课程",
+      "您还没有购买课程",
+      "去看看",
+      "大家还在学",
+      "短篇故事变现速成班>>限时招...",
+      "直播 · 04-26 19:20",
+      "23.0万人已报名",
+      "免费领取",
+      "一节课搞懂大模型应用开发",
+      "零基础 AI 视频应用变现实战>>...",
+      "推广达人变现方案>>添加微信..."
+    ],
+    "controls": [
+      "BackButton",
+      "PrimaryButton: 去看看",
+      "CourseCard (4 items)",
+      "SecondaryButton: 免费领取 (x4)",
+      "BottomTab: 我的课程 (active)"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    "点击左上角返回箭头 → 返回上一页",
+    "点击'去看看'按钮 → 跳转至课程发现页（推测）",
+    "点击任一课程卡片（含标题/封面/按钮）→ 进入课程详情页（推测）",
+    "点击'免费领取'按钮 → 触发报名/领取流程（可能弹出登录或确认 overlay）",
+    "底部导航切换至'课程专区' → 切换页面"
+  ],
+  "navigation_hints": {
+    "return_path": "上一页（未明确，可能为首页或个人中心）",
+    "exit_paths": [
+      "底部导航 → 课程专区"
+    ],
+    "main_cta": "去看看",
+    "entry_points": [
+      "底部导航'我的课程'标签"
+    ],
+    "leave_points": [
+      "返回按钮",
+      "课程卡片点击",
+      "底部导航切换"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "tab_state": {
+      "active_tab": "我的课程"
+    },
+    "empty_state": true,
+    "filter_state": null,
+    "page_status_tags": [
+      "无课程状态"
+    ],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchors": [
+      "'我的课程'标题与底部导航高亮一致"
+    ],
+    "state_difference_evidence": [
+      "空状态卡片 vs 有课程时的列表结构（推测）"
+    ],
+    "independent_page_signal": "强：独立标题、独立底部 tab 高亮、完整空状态模块 → 应视为独立页面",
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      "课程详情页（由课程卡片触发）",
+      "课程报名流程页（由'免费领取'触发）",
+      "课程发现页（由'去看看'触发）"
+    ],
+    "drilldown_entries": [
+      "课程卡片整体区域",
+      "'免费领取'按钮",
+      "'去看看'按钮"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalScrollPage with SectionedContent",
+    "important_visual_blocks": [
+      "EmptyStateCard（居中插图+文本+CTA）",
+      "CourseCard（左图右文+标签+统计+按钮）",
+      "BottomTabBar（双项，选中态突出）"
+    ],
+    "styling_hints": [
+      "蓝色描边按钮用于次要行动",
+      "橙色标签表示直播时间",
+      "课程卡片间距均匀，高度固定",
+      "空状态区域有圆角白底容器"
+    ],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "机器人插图（风格化线稿）",
+      "'大家还在学'标题带绿色下划线装饰",
+      "每张课程卡右上角均有'知乎知学堂'或合作方 badge",
+      "所有课程均标注'直播'及具体日期时间",
+      "报名人数使用'万人'单位，保留一位小数",
+      "底部导航图标：课程专区为房子形，我的课程为书本形（蓝色高亮）"
+    ],
+    "key_facts": [
+      "当前无已购课程",
+      "推荐课程均为直播课",
+      "全部提供'免费领取'入口",
+      "课程标题含'>>'符号，疑似截断",
+      "存在跨平台合作标识（如 NeuralFlow）"
+    ],
+    "uncertainties": [
+      "'去看看'实际跳转目标页未在截图中体现",
+      "课程卡片点击区域是否包含整个卡片或仅按钮不可确认",
+      "空状态卡片是否可下拉刷新未体现",
+      "是否存在隐藏的筛选/排序控件未显示",
+      "底部导航是否为全局共享组件（无法从单图确认）"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260425152122_896_24.png",
+        "draft_index": 19,
+        "timestamp": "15:19",
+        "device_status": {
+          "signal": "full",
+          "wifi": true,
+          "battery": 55
+        }
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "我的课程",
+          "已购课程页"
+        ],
+        "page_id_candidate": "my_courses",
+        "page_role": "个人中心子页",
+        "title_text": "我的课程",
+        "distinguishing_text": "您还没有购买课程",
+        "purpose_summary": "展示用户已购课程（当前为空），并推荐热门课程供领取或报名"
+      },
+      "page_overview": {
+        "layout_summary": "顶部标题栏 + 空状态卡片（含插图、提示语、CTA按钮）+ 推荐课程列表（垂直流式卡片）+ 底部导航栏",
+        "high_level_semantics": "用户课程资产概览页，当前无课程，以引导转化为核心目标；推荐区为运营驱动型内容聚合"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "text": "<"
+              },
+              {
+                "type": "Title",
+                "text": "我的课程"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "已购课程",
+            "children": [
+              {
+                "type": "EmptyStateCard",
+                "children": [
+                  {
+                    "type": "Illustration",
+                    "description": "机器人插图"
+                  },
+                  {
+                    "type": "Text",
+                    "content": "您还没有购买课程"
+                  },
+                  {
+                    "type": "PrimaryButton",
+                    "text": "去看看",
+                    "style": "blue-outline"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "大家还在学",
+            "children": [
+              {
+                "type": "CourseCard",
+                "children": [
+                  {
+                    "type": "Badge",
+                    "text": "知乎知学堂"
+                  },
+                  {
+                    "type": "Image",
+                    "description": "课程封面图"
+                  },
+                  {
+                    "type": "Title",
+                    "text": "短篇故事变现速成班>>限时招..."
+                  },
+                  {
+                    "type": "Tag",
+                    "text": "直播 · 04-26 19:20",
+                    "style": "orange"
+                  },
+                  {
+                    "type": "Stat",
+                    "text": "23.0万人已报名"
+                  },
+                  {
+                    "type": "SecondaryButton",
+                    "text": "免费领取",
+                    "style": "blue-outline"
+                  }
+                ]
+              },
+              {
+                "type": "CourseCard",
+                "children": [
+                  {
+                    "type": "Badge",
+                    "text": "知乎知学堂 × NeuralFlow"
+                  },
+                  {
+                    "type": "Image",
+                    "description": "课程封面图"
+                  },
+                  {
+                    "type": "Title",
+                    "text": "一节课搞懂大模型应用开发"
+                  },
+                  {
+                    "type": "Tag",
+                    "text": "直播 · 04-27 19:30",
+                    "style": "orange"
+                  },
+                  {
+                    "type": "Stat",
+                    "text": "12.5万人已报名"
+                  },
+                  {
+                    "type": "SecondaryButton",
+                    "text": "免费领取",
+                    "style": "blue-outline"
+                  }
+                ]
+              },
+              {
+                "type": "CourseCard",
+                "children": [
+                  {
+                    "type": "Badge",
+                    "text": "知乎知学堂"
+                  },
+                  {
+                    "type": "Image",
+                    "description": "课程封面图"
+                  },
+                  {
+                    "type": "Title",
+                    "text": "零基础 AI 视频应用变现实战>>..."
+                  },
+                  {
+                    "type": "Tag",
+                    "text": "直播 · 04-27 19:20",
+                    "style": "orange"
+                  },
+                  {
+                    "type": "Stat",
+                    "text": "1.7万人已报名"
+                  },
+                  {
+                    "type": "SecondaryButton",
+                    "text": "免费领取",
+                    "style": "blue-outline"
+                  }
+                ]
+              },
+              {
+                "type": "CourseCard",
+                "children": [
+                  {
+                    "type": "Badge",
+                    "text": "推广达人"
+                  },
+                  {
+                    "type": "Image",
+                    "description": "课程封面图"
+                  },
+                  {
+                    "type": "Title",
+                    "text": "推广达人变现方案>>添加微信..."
+                  },
+                  {
+                    "type": "Tag",
+                    "text": "直播 · 04-26 19:20",
+                    "style": "orange"
+                  },
+                  {
+                    "type": "Stat",
+                    "text": "限时特惠 0元"
+                  },
+                  {
+                    "type": "SecondaryButton",
+                    "text": "免费领取",
+                    "style": "blue-outline"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "BottomNavigation",
+            "children": [
+              {
+                "type": "TabItem",
+                "text": "课程专区",
+                "selected": false
+              },
+              {
+                "type": "TabItem",
+                "text": "我的课程",
+                "selected": true
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "header",
+          "role": "navigation",
+          "contains": [
+            "back",
+            "title"
+          ]
+        },
+        {
+          "block_id": "empty_section",
+          "role": "status_display",
+          "contains": [
+            "illustration",
+            "message",
+            "cta"
+          ]
+        },
+        {
+          "block_id": "recommend_list",
+          "role": "content_feed",
+          "contains": [
+            "course_cards"
+          ]
+        },
+        {
+          "block_id": "bottom_nav",
+          "role": "global_navigation",
+          "contains": [
+            "tab_items"
+          ]
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "我的课程",
+          "已购课程",
+          "您还没有购买课程",
+          "去看看",
+          "大家还在学",
+          "短篇故事变现速成班>>限时招...",
+          "直播 · 04-26 19:20",
+          "23.0万人已报名",
+          "免费领取",
+          "一节课搞懂大模型应用开发",
+          "零基础 AI 视频应用变现实战>>...",
+          "推广达人变现方案>>添加微信..."
+        ],
+        "controls": [
+          "BackButton",
+          "PrimaryButton: 去看看",
+          "CourseCard (4 items)",
+          "SecondaryButton: 免费领取 (x4)",
+          "BottomTab: 我的课程 (active)"
+        ]
+      },
+      "interaction_clues": [
+        "点击左上角返回箭头 → 返回上一页",
+        "点击‘去看看’按钮 → 跳转至课程发现页（推测）",
+        "点击任一课程卡片（含标题/封面/按钮）→ 进入课程详情页（推测）",
+        "点击‘免费领取’按钮 → 触发报名/领取流程（可能弹出登录或确认 overlay）",
+        "底部导航切换至‘课程专区’ → 切换页面"
+      ],
+      "navigation_hints": {
+        "return_path": "上一页（未明确，可能为首页或个人中心）",
+        "exit_paths": [
+          "底部导航 → 课程专区"
+        ],
+        "main_cta": "去看看",
+        "entry_points": [
+          "底部导航‘我的课程’标签"
+        ],
+        "leave_points": [
+          "返回按钮",
+          "课程卡片点击",
+          "底部导航切换"
+        ]
+      },
+      "state_hints": {
+        "tab_state": {
+          "active_tab": "我的课程"
+        },
+        "empty_state": true,
+        "filter_state": null,
+        "page_status_tags": [
+          "无课程状态"
+        ]
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchors": [
+          "‘我的课程’标题与底部导航高亮一致"
+        ],
+        "state_difference_evidence": [
+          "空状态卡片 vs 有课程时的列表结构（推测）"
+        ],
+        "independent_page_signal": "强：独立标题、独立底部 tab 高亮、完整空状态模块 → 应视为独立页面"
+      },
+      "subpage_hints": {
+        "potential_parent": null,
+        "potential_children": [
+          "课程详情页（由课程卡片触发）",
+          "课程报名流程页（由‘免费领取’触发）",
+          "课程发现页（由‘去看看’触发）"
+        ],
+        "drilldown_entries": [
+          "课程卡片整体区域",
+          "‘免费领取’按钮",
+          "‘去看看’按钮"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "VerticalScrollPage with SectionedContent",
+        "important_visual_blocks": [
+          "EmptyStateCard（居中插图+文本+CTA）",
+          "CourseCard（左图右文+标签+统计+按钮）",
+          "BottomTabBar（双项，选中态突出）"
+        ],
+        "styling_hints": [
+          "蓝色描边按钮用于次要行动",
+          "橙色标签表示直播时间",
+          "课程卡片间距均匀，高度固定",
+          "空状态区域有圆角白底容器"
+        ]
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "机器人插图（风格化线稿）",
+          "‘大家还在学’标题带绿色下划线装饰",
+          "每张课程卡右上角均有‘知乎知学堂’或合作方 badge",
+          "所有课程均标注‘直播’及具体日期时间",
+          "报名人数使用‘万人’单位，保留一位小数",
+          "底部导航图标：课程专区为房子形，我的课程为书本形（蓝色高亮）"
+        ],
+        "key_facts": [
+          "当前无已购课程",
+          "推荐课程均为直播课",
+          "全部提供‘免费领取’入口",
+          "课程标题含‘>>’符号，疑似截断",
+          "存在跨平台合作标识（如 NeuralFlow）"
+        ],
+        "uncertainties": [
+          "‘去看看’实际跳转目标页未在截图中体现",
+          "课程卡片点击区域是否包含整个卡片或仅按钮不可确认",
+          "空状态卡片是否可下拉刷新未体现",
+          "是否存在隐藏的筛选/排序控件未显示",
+          "底部导航是否为全局共享组件（无法从单图确认）"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

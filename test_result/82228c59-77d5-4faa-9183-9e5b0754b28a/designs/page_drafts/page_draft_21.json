@@ -1,0 +1,808 @@
+{
+  "observation_meta": {
+    "source_image": "/user_input/微信图片_20260425152123_898_24.png",
+    "timestamp": "15:19",
+    "battery": "55%",
+    "network": "cellular",
+    "draft_index": 21,
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425152123_898_24.png",
+    "image_name": "微信图片_20260425152123_898_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "付费咨询首页",
+      "答主分类页",
+      "知乎付费咨询入口页"
+    ],
+    "page_id_candidate": "zhihu_paid_consultation_home",
+    "page_role": "服务入口与推荐列表页",
+    "title_text": "知乎付费咨询",
+    "distinguishing_texts": [
+      "答主",
+      "问题",
+      "推荐答主",
+      "¥30 咨询",
+      "¥10 咨询",
+      "¥18 咨询"
+    ],
+    "purpose_summary": "展示付费咨询服务入口，提供按领域分类的答主筛选，并推荐高信誉答主供用户发起咨询",
+    "candidate_page_name": "微信图片_20260425152123_898_24.png",
+    "candidate_page_id": "page_21",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部导航栏 + 搜索框 + 双标签页（'答主'激活态 / '问题'未激活）+ 领域分类图标网格 + 推荐答主卡片列表 + 底部导航栏",
+    "high_level_semantics": "服务导向型信息聚合页，以'答主'为核心视角，强调专业资质与价格透明；视觉重心在推荐答主卡片及领域入口",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "visible": true
+          },
+          {
+            "type": "TitleText",
+            "text": "知乎付费咨询",
+            "align": "center"
+          },
+          {
+            "type": "SearchIcon",
+            "visible": true
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "placeholder": "搜索我想咨询的内容/创作者",
+        "has_focus": false
+      },
+      {
+        "type": "TabBar",
+        "tabs": [
+          {
+            "label": "答主",
+            "selected": true
+          },
+          {
+            "label": "问题",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "type": "CategoryGrid",
+        "columns": 5,
+        "items": [
+          {
+            "icon": "graduation_cap",
+            "label": "教育"
+          },
+          {
+            "icon": "star_in_box",
+            "label": "法律"
+          },
+          {
+            "icon": "plus_in_box",
+            "label": "健康"
+          },
+          {
+            "icon": "briefcase_plus",
+            "label": "职场"
+          },
+          {
+            "icon": "heart",
+            "label": "心理学"
+          },
+          {
+            "icon": "globe",
+            "label": "科技"
+          },
+          {
+            "icon": "heart_with_two_hearts",
+            "label": "情感"
+          },
+          {
+            "icon": "wallet",
+            "label": "金融"
+          },
+          {
+            "icon": "mother_child",
+            "label": "母婴"
+          },
+          {
+            "icon": "grid_four_squares",
+            "label": "更多"
+          }
+        ]
+      },
+      {
+        "type": "SectionHeader",
+        "text": "推荐答主"
+      },
+      {
+        "type": "CardList",
+        "cards": [
+          {
+            "type": "ExpertCard",
+            "avatar_type": "custom_icon",
+            "name": "黑猫律师",
+            "stats": {
+              "consult_count": "19721次咨询",
+              "rating": "5.0"
+            },
+            "price_tag": "¥30 咨询",
+            "bio_snippet": "【专业背景】经济学学士、法律硕士、法律职业资格、律师。多年治安、刑事案件办理经验、..."
+          },
+          {
+            "type": "ExpertCard",
+            "avatar_type": "real_photo",
+            "name": "cxy1985",
+            "stats": {
+              "consult_count": "307次咨询",
+              "rating": "5.0"
+            },
+            "price_tag": "¥10 咨询",
+            "bio_snippet": "大学老师，生物男博士，发表论文十五篇，指导本科生毕业接近50人，指导硕士毕业2人（联合..."
+          },
+          {
+            "type": "ExpertCard",
+            "avatar_type": "custom_icon",
+            "name": "法律答疑",
+            "stats": {
+              "consult_count": "9511次咨询",
+              "rating": "4.9"
+            },
+            "price_tag": "¥18 咨询",
+            "bio_snippet": "【专业背景】法律专业过硬，通过法律职业资格证 拥有长期丰富的一线执法办案经验 派出"
+          }
+        ]
+      },
+      {
+        "type": "BottomNav",
+        "items": [
+          {
+            "label": "咨询广场",
+            "selected": true
+          },
+          {
+            "label": "我的咨询",
+            "selected": false
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "top_bar",
+      "description": "状态栏 + 导航栏 + 标题 + 搜索图标"
+    },
+    {
+      "block_id": "search_area",
+      "description": "全宽搜索输入框"
+    },
+    {
+      "block_id": "tab_switcher",
+      "description": "'答主'/'问题'双标签切换区"
+    },
+    {
+      "block_id": "category_grid",
+      "description": "10个领域图标组成的横向滚动/固定网格"
+    },
+    {
+      "block_id": "recommend_section",
+      "description": "'推荐答主'标题 + 答主卡片列表（至少3项）"
+    },
+    {
+      "block_id": "bottom_nav",
+      "description": "底部双选项导航：咨询广场（激活）、我的咨询"
+    }
+  ],
+  "key_content": {
+    "text_elements": [
+      "知乎付费咨询",
+      "搜索我想咨询的内容/创作者",
+      "答主",
+      "问题",
+      "教育",
+      "法律",
+      "健康",
+      "职场",
+      "心理学",
+      "科技",
+      "情感",
+      "金融",
+      "母婴",
+      "更多",
+      "推荐答主",
+      "黑猫律师",
+      "19721次咨询",
+      "5.0",
+      "¥30 咨询",
+      "cxy1985",
+      "307次咨询",
+      "5.0",
+      "¥10 咨询",
+      "法律答疑",
+      "9511次咨询",
+      "4.9",
+      "¥18 咨询"
+    ],
+    "key_controls": [],
+    "visible_texts": []
+  },
+  "interaction_clues": [
+    {
+      "clue": "点击左上角返回箭头 → 返回上一页",
+      "confidence": "high"
+    },
+    {
+      "clue": "点击顶部搜索图标 → 触发搜索功能",
+      "confidence": "high"
+    },
+    {
+      "clue": "点击'问题'标签 → 切换至问题列表视图",
+      "confidence": "high"
+    },
+    {
+      "clue": "点击任一领域图标（如'法律'）→ 可能筛选该领域答主或跳转分类页",
+      "confidence": "medium"
+    },
+    {
+      "clue": "点击任一答主卡片（如'黑猫律师'）→ 进入该答主详情页或咨询发起页",
+      "confidence": "high"
+    },
+    {
+      "clue": "点击任一'¥X 咨询'按钮 → 直接触发咨询下单流程",
+      "confidence": "high"
+    },
+    {
+      "clue": "点击底部'我的咨询' → 切换至个人咨询记录页",
+      "confidence": "high"
+    }
+  ],
+  "navigation_hints": {
+    "back_path": "可能来自首页/发现页/个人中心等入口",
+    "exit_paths": [
+      "左上角返回",
+      "底部导航切换至'我的咨询'"
+    ],
+    "primary_cta": "任一'¥X 咨询'按钮（价格明确、位置突出）",
+    "entry_points": [
+      "首页服务入口",
+      "搜索结果跳转",
+      "领域分类入口"
+    ],
+    "exit_targets": [
+      "答主详情页",
+      "咨询支付页",
+      "问题列表页（切换tab后）",
+      "我的咨询页"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "active_tab": "答主",
+    "selected_category": null,
+    "filter_state": "无显式筛选器，依赖tab与分类入口",
+    "page_status_tags": [],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      "答主详情页（点击卡片进入）",
+      "咨询确认/支付页（点击价格按钮进入）",
+      "问题列表页（切换tab后）",
+      "领域子分类页（点击领域图标后可能跳转）"
+    ],
+    "drill_down_entries": [
+      {
+        "target": "答主详情",
+        "trigger": "答主卡片整体区域"
+      },
+      {
+        "target": "咨询流程",
+        "trigger": "¥X 咨询按钮"
+      },
+      {
+        "target": "问题列表",
+        "trigger": "'问题'tab"
+      },
+      {
+        "target": "领域筛选页",
+        "trigger": "任一领域图标"
+      }
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "Standard App Page: TopBar + Search + Tab + Grid + List + BottomNav",
+    "important_visual_blocks": [
+      "CategoryGrid（固定10项，图标+文字，强调可触达性）",
+      "ExpertCard（头像+姓名+统计+评分+价格+简介截断，信息密度高）",
+      "PriceTag（圆角浅蓝底+深蓝字+右对齐，强CTA设计）"
+    ],
+    "styling_hints": "主色为蓝色系（图标、选中态、价格标签），卡片白底+灰色分隔线，字体层级清晰（标题>姓名>统计>简介）",
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "notable_elements": [
+      "黑猫律师头像为黑白猫拟人图标，非真人照",
+      "'法律答疑'头像为红色天平图标，风格统一于定制图标",
+      "价格标签使用浅蓝色背景+深蓝色文字，与知乎品牌色一致",
+      "评分星标为橙色实心五角星",
+      "'更多'图标为4宫格，暗示可展开"
+    ],
+    "key_facts": [
+      "当前处于'答主'tab，非'问题'",
+      "推荐答主共展示3位，均含价格、咨询次数、评分",
+      "底部导航'咨询广场'激活，表明本页即为该模块主入口",
+      "无加载中/空状态提示，数据已填充"
+    ],
+    "uncertainties": [
+      "领域图标是否支持横向滚动？截图仅显示10项，无法确认是否有更多",
+      "点击领域图标后行为未知：是筛选当前页？还是跳转新页？",
+      "'更多'图标点击后具体展开内容未知",
+      "简介文本末尾省略号是否表示可展开？截图中无展开控件",
+      "底部导航是否为全局导航？还是仅本模块内？"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image": "/user_input/微信图片_20260425152123_898_24.png",
+        "timestamp": "15:19",
+        "battery": "55%",
+        "network": "cellular",
+        "draft_index": 21
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "付费咨询首页",
+          "答主分类页",
+          "知乎付费咨询入口页"
+        ],
+        "page_id_candidate": "zhihu_paid_consultation_home",
+        "page_role": "服务入口与推荐列表页",
+        "title_text": "知乎付费咨询",
+        "distinguishing_texts": [
+          "答主",
+          "问题",
+          "推荐答主",
+          "¥30 咨询",
+          "¥10 咨询",
+          "¥18 咨询"
+        ],
+        "purpose_summary": "展示付费咨询服务入口，提供按领域分类的答主筛选，并推荐高信誉答主供用户发起咨询"
+      },
+      "page_overview": {
+        "layout_summary": "顶部导航栏 + 搜索框 + 双标签页（‘答主’激活态 / ‘问题’未激活）+ 领域分类图标网格 + 推荐答主卡片列表 + 底部导航栏",
+        "high_level_semantics": "服务导向型信息聚合页，以‘答主’为核心视角，强调专业资质与价格透明；视觉重心在推荐答主卡片及领域入口"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "visible": true
+              },
+              {
+                "type": "TitleText",
+                "text": "知乎付费咨询",
+                "align": "center"
+              },
+              {
+                "type": "SearchIcon",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "type": "SearchBar",
+            "placeholder": "搜索我想咨询的内容/创作者",
+            "has_focus": false
+          },
+          {
+            "type": "TabBar",
+            "tabs": [
+              {
+                "label": "答主",
+                "selected": true
+              },
+              {
+                "label": "问题",
+                "selected": false
+              }
+            ]
+          },
+          {
+            "type": "CategoryGrid",
+            "columns": 5,
+            "items": [
+              {
+                "icon": "graduation_cap",
+                "label": "教育"
+              },
+              {
+                "icon": "star_in_box",
+                "label": "法律"
+              },
+              {
+                "icon": "plus_in_box",
+                "label": "健康"
+              },
+              {
+                "icon": "briefcase_plus",
+                "label": "职场"
+              },
+              {
+                "icon": "heart",
+                "label": "心理学"
+              },
+              {
+                "icon": "globe",
+                "label": "科技"
+              },
+              {
+                "icon": "heart_with_two_hearts",
+                "label": "情感"
+              },
+              {
+                "icon": "wallet",
+                "label": "金融"
+              },
+              {
+                "icon": "mother_child",
+                "label": "母婴"
+              },
+              {
+                "icon": "grid_four_squares",
+                "label": "更多"
+              }
+            ]
+          },
+          {
+            "type": "SectionHeader",
+            "text": "推荐答主"
+          },
+          {
+            "type": "CardList",
+            "cards": [
+              {
+                "type": "ExpertCard",
+                "avatar_type": "custom_icon",
+                "name": "黑猫律师",
+                "stats": {
+                  "consult_count": "19721次咨询",
+                  "rating": "5.0"
+                },
+                "price_tag": "¥30 咨询",
+                "bio_snippet": "【专业背景】经济学学士、法律硕士、法律职业资格、律师。多年治安、刑事案件办理经验、..."
+              },
+              {
+                "type": "ExpertCard",
+                "avatar_type": "real_photo",
+                "name": "cxy1985",
+                "stats": {
+                  "consult_count": "307次咨询",
+                  "rating": "5.0"
+                },
+                "price_tag": "¥10 咨询",
+                "bio_snippet": "大学老师，生物男博士，发表论文十五篇，指导本科生毕业接近50人，指导硕士毕业2人（联合..."
+              },
+              {
+                "type": "ExpertCard",
+                "avatar_type": "custom_icon",
+                "name": "法律答疑",
+                "stats": {
+                  "consult_count": "9511次咨询",
+                  "rating": "4.9"
+                },
+                "price_tag": "¥18 咨询",
+                "bio_snippet": "【专业背景】法律专业过硬，通过法律职业资格证 拥有长期丰富的一线执法办案经验 派出"
+              }
+            ]
+          },
+          {
+            "type": "BottomNav",
+            "items": [
+              {
+                "label": "咨询广场",
+                "selected": true
+              },
+              {
+                "label": "我的咨询",
+                "selected": false
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "top_bar",
+          "description": "状态栏 + 导航栏 + 标题 + 搜索图标"
+        },
+        {
+          "block_id": "search_area",
+          "description": "全宽搜索输入框"
+        },
+        {
+          "block_id": "tab_switcher",
+          "description": "‘答主’/‘问题’双标签切换区"
+        },
+        {
+          "block_id": "category_grid",
+          "description": "10个领域图标组成的横向滚动/固定网格"
+        },
+        {
+          "block_id": "recommend_section",
+          "description": "‘推荐答主’标题 + 答主卡片列表（至少3项）"
+        },
+        {
+          "block_id": "bottom_nav",
+          "description": "底部双选项导航：咨询广场（激活）、我的咨询"
+        }
+      ],
+      "key_content": {
+        "text_elements": [
+          "知乎付费咨询",
+          "搜索我想咨询的内容/创作者",
+          "答主",
+          "问题",
+          "教育",
+          "法律",
+          "健康",
+          "职场",
+          "心理学",
+          "科技",
+          "情感",
+          "金融",
+          "母婴",
+          "更多",
+          "推荐答主",
+          "黑猫律师",
+          "19721次咨询",
+          "5.0",
+          "¥30 咨询",
+          "cxy1985",
+          "307次咨询",
+          "5.0",
+          "¥10 咨询",
+          "法律答疑",
+          "9511次咨询",
+          "4.9",
+          "¥18 咨询"
+        ],
+        "key_controls": [
+          {
+            "type": "BackButton",
+            "position": "top-left"
+          },
+          {
+            "type": "SearchIcon",
+            "position": "top-right"
+          },
+          {
+            "type": "TabItem",
+            "label": "答主",
+            "state": "selected"
+          },
+          {
+            "type": "TabItem",
+            "label": "问题",
+            "state": "unselected"
+          },
+          {
+            "type": "CategoryIcon",
+            "label": "法律",
+            "position": "row1_col2"
+          },
+          {
+            "type": "PriceButton",
+            "text": "¥30 咨询",
+            "associated_with": "黑猫律师"
+          },
+          {
+            "type": "PriceButton",
+            "text": "¥10 咨询",
+            "associated_with": "cxy1985"
+          },
+          {
+            "type": "PriceButton",
+            "text": "¥18 咨询",
+            "associated_with": "法律答疑"
+          },
+          {
+            "type": "BottomNavItem",
+            "label": "咨询广场",
+            "selected": true
+          },
+          {
+            "type": "BottomNavItem",
+            "label": "我的咨询",
+            "selected": false
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue": "点击左上角返回箭头 → 返回上一页",
+          "confidence": "high"
+        },
+        {
+          "clue": "点击顶部搜索图标 → 触发搜索功能",
+          "confidence": "high"
+        },
+        {
+          "clue": "点击‘问题’标签 → 切换至问题列表视图",
+          "confidence": "high"
+        },
+        {
+          "clue": "点击任一领域图标（如‘法律’）→ 可能筛选该领域答主或跳转分类页",
+          "confidence": "medium"
+        },
+        {
+          "clue": "点击任一答主卡片（如‘黑猫律师’）→ 进入该答主详情页或咨询发起页",
+          "confidence": "high"
+        },
+        {
+          "clue": "点击任一‘¥X 咨询’按钮 → 直接触发咨询下单流程",
+          "confidence": "high"
+        },
+        {
+          "clue": "点击底部‘我的咨询’ → 切换至个人咨询记录页",
+          "confidence": "high"
+        }
+      ],
+      "navigation_hints": {
+        "back_path": "可能来自首页/发现页/个人中心等入口",
+        "exit_paths": [
+          "左上角返回",
+          "底部导航切换至‘我的咨询’"
+        ],
+        "primary_cta": "任一‘¥X 咨询’按钮（价格明确、位置突出）",
+        "entry_points": [
+          "首页服务入口",
+          "搜索结果跳转",
+          "领域分类入口"
+        ],
+        "exit_targets": [
+          "答主详情页",
+          "咨询支付页",
+          "问题列表页（切换tab后）",
+          "我的咨询页"
+        ]
+      },
+      "state_hints": {
+        "active_tab": "答主",
+        "selected_category": null,
+        "filter_state": "无显式筛选器，依赖tab与分类入口",
+        "page_status_tags": []
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": [
+        {
+          "evidence": "‘答主’与‘问题’为同级tab，共享同一内容区，强烈暗示为单页内状态切换而非独立页面",
+          "confidence": "high"
+        },
+        {
+          "evidence": "底部导航仅两个选项且当前在‘咨询广场’，说明本页即为‘咨询广场’主视图",
+          "confidence": "high"
+        },
+        {
+          "evidence": "领域图标网格与推荐答主列表垂直堆叠，无分页/滑动指示，符合单一长列表页特征",
+          "confidence": "high"
+        }
+      ],
+      "subpage_hints": {
+        "potential_parent": null,
+        "potential_children": [
+          "答主详情页（点击卡片进入）",
+          "咨询确认/支付页（点击价格按钮进入）",
+          "问题列表页（切换tab后）",
+          "领域子分类页（点击领域图标后可能跳转）"
+        ],
+        "drill_down_entries": [
+          {
+            "target": "答主详情",
+            "trigger": "答主卡片整体区域"
+          },
+          {
+            "target": "咨询流程",
+            "trigger": "¥X 咨询按钮"
+          },
+          {
+            "target": "问题列表",
+            "trigger": "‘问题’tab"
+          },
+          {
+            "target": "领域筛选页",
+            "trigger": "任一领域图标"
+          }
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "Standard App Page: TopBar + Search + Tab + Grid + List + BottomNav",
+        "important_visual_blocks": [
+          "CategoryGrid（固定10项，图标+文字，强调可触达性）",
+          "ExpertCard（头像+姓名+统计+评分+价格+简介截断，信息密度高）",
+          "PriceTag（圆角浅蓝底+深蓝字+右对齐，强CTA设计）"
+        ],
+        "styling_hints": "主色为蓝色系（图标、选中态、价格标签），卡片白底+灰色分隔线，字体层级清晰（标题>姓名>统计>简介）"
+      },
+      "raw_preservation": {
+        "notable_elements": [
+          "黑猫律师头像为黑白猫拟人图标，非真人照",
+          "‘法律答疑’头像为红色天平图标，风格统一于定制图标",
+          "价格标签使用浅蓝色背景+深蓝色文字，与知乎品牌色一致",
+          "评分星标为橙色实心五角星",
+          "‘更多’图标为4宫格，暗示可展开"
+        ],
+        "key_facts": [
+          "当前处于‘答主’tab，非‘问题’",
+          "推荐答主共展示3位，均含价格、咨询次数、评分",
+          "底部导航‘咨询广场’激活，表明本页即为该模块主入口",
+          "无加载中/空状态提示，数据已填充"
+        ],
+        "uncertainties": [
+          "领域图标是否支持横向滚动？截图仅显示10项，无法确认是否有更多",
+          "点击领域图标后行为未知：是筛选当前页？还是跳转新页？",
+          "‘更多’图标点击后具体展开内容未知",
+          "简介文本末尾省略号是否表示可展开？截图中无展开控件",
+          "底部导航是否为全局导航？还是仅本模块内？"
+        ]
+      }
+    }
+  }
+}

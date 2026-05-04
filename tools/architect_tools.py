@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import base64
+import copy
 import json
+import os
 import mimetypes
 import re
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -483,6 +485,118 @@ def _sanitize_stage1_draft(
     return data
 
 
+def _load_raw_observation_candidate(raw_observation: Any) -> dict[str, Any] | None:
+    raw_observation = _deep_load_json(raw_observation)
+    if isinstance(raw_observation, dict):
+        return raw_observation
+
+    if isinstance(raw_observation, str):
+        try:
+            parsed, _ = _extract_json_object_from_text(raw_observation)
+        except Exception:
+            return None
+        parsed = _deep_load_json(parsed)
+        if isinstance(parsed, dict):
+            return parsed
+
+    return None
+
+
+def _has_meaningful_text(value: Any) -> bool:
+    if isinstance(value, str):
+        text = value.strip()
+        return len(text) >= 2 and text not in {"]", "],", "}", "},"}
+    if isinstance(value, list):
+        return any(_has_meaningful_text(item) for item in value)
+    if isinstance(value, dict):
+        return any(_has_meaningful_text(item) for item in value.values())
+    return False
+
+
+def _stage1_repair_signal_count(candidate: dict[str, Any]) -> int:
+    """Return a small confidence score for whether raw stage1 data is usable."""
+    score = 0
+
+    page_overview = _safe_dict(candidate.get("page_overview"))
+    if _has_meaningful_text(page_overview.get("layout_summary")):
+        score += 1
+
+    structural_blocks = candidate.get("structural_blocks")
+    if isinstance(structural_blocks, list) and structural_blocks:
+        score += 1
+
+    ui_tree = _safe_dict(candidate.get("ui_tree"))
+    ui_children = ui_tree.get("children")
+    if isinstance(ui_children, list) and ui_children:
+        score += 1
+
+    interaction_clues = candidate.get("interaction_clues")
+    if isinstance(interaction_clues, list) and interaction_clues:
+        score += 1
+
+    page_identity = _safe_dict(candidate.get("page_identity"))
+    if _has_meaningful_text(page_identity):
+        score += 1
+
+    key_content = _safe_dict(candidate.get("key_content"))
+    if _has_meaningful_text(key_content):
+        score += 1
+
+    return score
+
+
+def _repair_stage1_draft_from_raw_observation(
+    draft: dict[str, Any],
+    *,
+    draft_index: int,
+    image_path: str,
+    image_name: str,
+) -> dict[str, Any]:
+    """Promote recoverable partial drafts using raw_preservation.raw_observation."""
+    observation_meta = _safe_dict(draft.get("observation_meta"))
+    if observation_meta.get("observation_status") != "partial":
+        return draft
+
+    raw_preservation = _safe_dict(draft.get("raw_preservation"))
+    raw_observation = raw_preservation.get("raw_observation")
+    raw_candidate = _load_raw_observation_candidate(raw_observation)
+    if not isinstance(raw_candidate, dict):
+        return draft
+
+    if _stage1_repair_signal_count(raw_candidate) < 2:
+        return draft
+
+    repaired = copy.deepcopy(raw_candidate)
+    repaired_meta = _safe_dict(repaired.get("observation_meta"))
+    repaired_meta["observation_status"] = "repaired"
+    repaired["observation_meta"] = repaired_meta
+
+    repaired_raw_preservation = _safe_dict(repaired.get("raw_preservation"))
+    repaired_raw_preservation.setdefault("raw_observation", raw_observation)
+    repaired_raw_preservation["notable_elements"] = _ensure_list_of_strings(
+        repaired_raw_preservation.get("notable_elements")
+        or raw_preservation.get("notable_elements")
+    )
+
+    uncertainties = _ensure_list_of_strings(repaired_raw_preservation.get("uncertainties"))
+    uncertainties.extend(_ensure_list_of_strings(raw_preservation.get("uncertainties")))
+    uncertainties.append("stage1_repaired_from_raw_preservation.raw_observation")
+
+    original_error = raw_preservation.get("error")
+    if isinstance(original_error, str) and original_error.strip():
+        repaired_raw_preservation["source_parse_error"] = original_error.strip()
+
+    repaired_raw_preservation["uncertainties"] = list(dict.fromkeys(uncertainties))
+    repaired["raw_preservation"] = repaired_raw_preservation
+
+    return _sanitize_stage1_draft(
+        repaired,
+        draft_index=draft_index,
+        image_path=image_path,
+        image_name=image_name,
+    )
+
+
 def _build_stage1_prompt(entry: dict[str, Any], draft_index: int, image_path: str) -> str:
     return f"""
 你是 `ImageToArkTS` 的 `Architect Single-Image Observer`。
@@ -750,8 +864,14 @@ def _build_partial_observation_draft(
         },
     }
 
-    return _sanitize_stage1_draft(
+    sanitized = _sanitize_stage1_draft(
         draft,
+        draft_index=draft_index,
+        image_path=image_path,
+        image_name=image_name,
+    )
+    return _repair_stage1_draft_from_raw_observation(
+        sanitized,
         draft_index=draft_index,
         image_path=image_path,
         image_name=image_name,
@@ -911,7 +1031,7 @@ def _extract_single_page_draft_once(
             image_path=image_path,
             image_name=image_name,
             raw_text=text,
-            reason=f"non-parseable model output preserved for stage2 fallback: {exc}",
+            reason=f"non-parseable model output preserved for stage1 repair: {exc}",
         )
 
 
@@ -1066,8 +1186,14 @@ def batch_extract_page_drafts(
     failed_count = 0
     recovered_after_retry_count = 0
 
+    try:
+        configured_workers = int(os.getenv("ARCHITECT_STAGE1_MAX_WORKERS", "2"))
+    except ValueError:
+        configured_workers = 2
+    max_workers = min(max(1, configured_workers), max(1, len(processed_entries) or 1))
+
     with ThreadPoolExecutor(
-        max_workers=min(4, max(1, len(processed_entries) or 1))
+        max_workers=max_workers
     ) as executor:
         future_to_index = {
             executor.submit(_extract_single_page_draft, entry, idx, root): idx
@@ -1153,6 +1279,7 @@ def batch_extract_page_drafts(
             f"failed_count: {failed_count}",
             f"recovered_after_retry_count: {recovered_after_retry_count}",
             f"max_attempts_per_image: {_SINGLE_DRAFT_MAX_ATTEMPTS}",
+            f"max_workers: {max_workers}",
         ]
     )
 
@@ -1185,6 +1312,12 @@ def save_page_draft(
     )
 
     draft = _sanitize_stage1_draft(
+        draft,
+        draft_index=int(draft_index or 0),
+        image_path=image_path,
+        image_name=image_name,
+    )
+    draft = _repair_stage1_draft_from_raw_observation(
         draft,
         draft_index=int(draft_index or 0),
         image_path=image_path,
