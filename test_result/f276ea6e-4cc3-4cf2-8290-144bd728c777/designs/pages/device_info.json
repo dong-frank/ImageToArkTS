@@ -1,0 +1,151 @@
+{
+  "page_id": "device_info",
+  "page_name": "当前设备信息",
+  "page_role": "standalone_page",
+  "page_summary": "当前设备信息详情页，展示设备关键参数：操作系统(iOS)、系统版本(26.3.1)、分辨率(1179*2556)、语言(简体中文)、地区(中国)、时区(Asia/Shanghai)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145700_829_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_14.json"
+  ],
+  "source_draft_indexes": [
+    14
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "当前设备信息"
+          }
+        ]
+      },
+      {
+        "type": "KeyValueList",
+        "id": "info_list",
+        "children": [
+          {
+            "type": "KeyValueItem",
+            "key": "操作系统",
+            "value": "iOS"
+          },
+          {
+            "type": "KeyValueItem",
+            "key": "系统版本",
+            "value": "26.3.1"
+          },
+          {
+            "type": "KeyValueItem",
+            "key": "分辨率",
+            "value": "1179*2556"
+          },
+          {
+            "type": "KeyValueItem",
+            "key": "语言",
+            "value": "简体中文"
+          },
+          {
+            "type": "KeyValueItem",
+            "key": "地区",
+            "value": "中国"
+          },
+          {
+            "type": "KeyValueItem",
+            "key": "时区",
+            "value": "Asia/Shanghai"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '当前设备信息'标题"
+    },
+    {
+      "block_id": "info_list",
+      "block_role": "content",
+      "summary": "键值对列表：操作系统(iOS)/系统版本(26.3.1)/分辨率(1179*2556)/语言(简体中文)/地区(中国)/时区(Asia/Shanghai)"
+    }
+  ],
+  "key_texts": [
+    "当前设备信息",
+    "操作系统",
+    "iOS",
+    "系统版本",
+    "26.3.1",
+    "分辨率",
+    "1179*2556",
+    "语言",
+    "简体中文",
+    "地区",
+    "中国",
+    "时区",
+    "Asia/Shanghai"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "DetailLayout: NavBar + KeyValueList",
+    "important_visual_blocks": [
+      "KeyValueItem（左侧key+右侧value）"
+    ],
+    "styling_hints": "浅色背景，只读信息展示"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景",
+    "density": "轻量级信息展示"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "personal_info_management"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "纯信息展示页，无可交互项"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "informational",
+    "is_entry": false,
+    "parent_page_id": "personal_info_management",
+    "child_page_ids": [],
+    "incoming_relations": [{"source_page_id":"personal_info_management","relation_type":"opens_child_page","trigger_label":"当前设备信息","trigger_interaction_id":"device_info","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"personal_info_management","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"personal_info_management","confidence":"high","reasoning":"当前设备信息页返回按钮指向上一页。"}],
+    "unresolved_navigation_actions": [],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "返回按钮回到personal_info_management。纯信息展示页，无其他导航目标。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","纯信息展示页，无导航交互"],
+    "navigation_notes": "从个人信息查看与管理页'当前设备信息'进入的纯信息展示页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

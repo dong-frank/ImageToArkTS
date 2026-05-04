@@ -1,0 +1,108 @@
+{
+  "page_id": "app_filing_detail",
+  "page_name": "APP备案编号",
+  "page_role": "information_display",
+  "page_summary": "知乎APP备案编号详情页 — 返回箭头+'APP 备案编号'标题+三点菜单+单行信息:备案号'京ICP备13052560号-7A'(蓝色可点击样式)。极简单屏信息页。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429233218_958_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_31.json"
+  ],
+  "source_draft_indexes": [
+    31
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 31 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": [
+      "备案编号是否为可点击链接不确定"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "TitleText",
+            "text": "APP 备案编号"
+          },
+          {
+            "type": "OverflowMenuButton",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "ContentArea",
+        "children": [
+          {
+            "type": "LabelValuePair",
+            "label": "APP 备案编号",
+            "value": "京ICP备13052560号-7A",
+            "value_style": "blue_link"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "info_display",
+      "role": "content",
+      "summary": "单行标签-值信息"
+    }
+  ],
+  "key_texts": [
+    "APP 备案编号",
+    "京ICP备13052560号-7A"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "关于知乎"
+    },
+    {
+      "interaction_id": "filing_number_tap",
+      "type": "uncertain",
+      "trigger": "点击备案编号",
+      "target_page_hint": "工信部公示平台(不确定)"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SingleInfoDisplay",
+    "styling_hints": "极简白底,蓝色可点击样式文本"
+  },
+  "visual_style_hints": {
+    "overall_style": "静态信息展示",
+    "density": "ultra_low",
+    "background": "white"
+  },
+  "page_semantic_role": "informational",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "极简页面,仅含一个信息字段",
+    "备案编号蓝色样式暗示可能可点击,但未确认交互行为"
+  ],
+  "schema_version": "stage2_page.v1"
+}

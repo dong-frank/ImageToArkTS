@@ -1,0 +1,30 @@
+{
+  "src": [
+    "pages/HomeDiscovery",
+    "pages/Index",
+    "pages/FoodList",
+    "pages/ContentDetail",
+    "pages/MapPoi",
+    "pages/Messages",
+    "pages/MyProfile",
+    "pages/OrderList",
+    "pages/SettingsRoot",
+    "pages/AccountSecurity",
+    "pages/NotificationSettings",
+    "pages/MessagePageSettings",
+    "pages/PrivacyManagement",
+    "pages/PersonalInfoManagement",
+    "pages/DeviceInfo",
+    "pages/GeneralSettings",
+    "pages/LanguageSettings",
+    "pages/PrivacyPolicyDetail",
+    "pages/AboutUs",
+    "pages/AppInfo",
+    "pages/SystemPermissionManagement",
+    "pages/StorageSpace",
+    "pages/ThirdPartySdkList",
+    "pages/FeedbackForm",
+    "pages/ActivityMessages",
+    "pages/MyCheckin"
+  ]
+}

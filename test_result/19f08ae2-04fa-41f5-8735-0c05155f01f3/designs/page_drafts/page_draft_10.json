@@ -1,0 +1,751 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260425153213_931_24.jpg",
+    "filename": "微信图片_20260425153213_931_24.jpg",
+    "timestamp": "2026-04-25T15:27:00+08:00",
+    "device_context": "iOS App Store environment, status bar shows time, signal, Wi-Fi, battery 53%",
+    "capture_type": "screen capture of email inbox UI",
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "draft_index": 10,
+    "image_path": "/user_input/微信图片_20260425153213_931_24.jpg",
+    "image_name": "微信图片_20260425153213_931_24.jpg"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "邮箱收件箱",
+      "邮件列表页",
+      "Inbox"
+    ],
+    "page_id_candidates": [
+      "inbox",
+      "mail_list"
+    ],
+    "page_role": "primary inbox view",
+    "title_text": "搜索",
+    "distinguishing_texts": [
+      "未读邮件",
+      "管理",
+      "招商银行信用卡",
+      "OpenAI",
+      "OpenRouter, Inc"
+    ],
+    "purpose_summary": "展示用户收件箱中的邮件列表，支持按状态筛选（如未读）、搜索与批量管理",
+    "candidate_page_name": "微信图片_20260425153213_931_24.jpg",
+    "candidate_page_id": "page_10",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "顶部导航栏（返回、标题搜索框、编辑按钮） + 筛选标签栏（文件夹/状态切换） + 垂直邮件列表。列表项为左对齐头像+发件人+摘要+时间+右箭头结构。",
+    "high_level_semantics": "标准移动邮箱主列表界面；强调未读状态（蓝色圆点标记），内容以金融/科技类通知为主；无明显分组或折叠，为扁平线性列表。",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "children": [
+      {
+        "type": "StatusBar",
+        "content": "15:27 | App Store | 📶 | Wi-Fi | 53%",
+        "visible": true
+      },
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<",
+            "visible": true
+          },
+          {
+            "type": "TitleArea",
+            "children": [
+              {
+                "type": "EmailAccountBadge",
+                "text": "434@qq.com",
+                "visible": true
+              }
+            ]
+          },
+          {
+            "type": "EditButton",
+            "icon": "✏️",
+            "visible": true
+          }
+        ],
+        "visible": true
+      },
+      {
+        "type": "SearchBar",
+        "placeholder": "搜索",
+        "has_magnifier": true,
+        "visible": true
+      },
+      {
+        "type": "TabSegment",
+        "items": [
+          {
+            "label": "未读邮件",
+            "selected": true,
+            "badge": "✓"
+          },
+          {
+            "label": "未读邮件",
+            "selected": false
+          },
+          {
+            "label": "管理",
+            "selected": false
+          }
+        ],
+        "visible": true
+      },
+      {
+        "type": "MailList",
+        "children": [
+          {
+            "type": "MailItem",
+            "sender_avatar": "招商银行 logo (red M)",
+            "sender_name": "招商银行信用卡",
+            "sender_subtitle": "每日信用管家",
+            "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+            "preview_snippet": "…30 … 可用…",
+            "timestamp": "12:11",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "Op circle (blue)",
+            "sender_name": "OpenAI",
+            "sender_subtitle": "Introducing GPT-5.5",
+            "subject": "A new class of intelligence for real work",
+            "preview_snippet": "",
+            "timestamp": "08:21",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "招商银行 logo",
+            "sender_name": "招商银行信用卡",
+            "sender_subtitle": "每日信用管家",
+            "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+            "preview_snippet": "…).58 … 可用…",
+            "timestamp": "昨天 12:08",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "招商银行 logo",
+            "sender_name": "招商银行信用卡",
+            "sender_subtitle": "每日信用管家",
+            "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+            "preview_snippet": "…3.31 … 可用…",
+            "timestamp": "前天 12:08",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "招商银行 logo",
+            "sender_name": "招商银行信用卡",
+            "sender_subtitle": "(无摘要)",
+            "subject": "1544元露营车桌椅组合+50元还款金，推1人办…",
+            "preview_snippet": "",
+            "timestamp": "4月22日",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "Op circle",
+            "sender_name": "OpenRouter, Inc",
+            "sender_subtitle": "Your OpenRouter, Inc refund [#3480-9365]",
+            "subject": "Refund from OpenRouter, Inc [#3480-9365]",
+            "preview_snippet": "Refunded $30.00 Date issued Apr 22, 2026, 5...",
+            "timestamp": "4月22日",
+            "unread_indicator": true,
+            "has_chevron": true
+          },
+          {
+            "type": "MailItem",
+            "sender_avatar": "Op circle",
+            "sender_name": "OpenRouter, Inc",
+            "sender_subtitle": "",
+            "subject": "",
+            "preview_snippet": "",
+            "timestamp": "4月22日",
+            "unread_indicator": true,
+            "has_chevron": true
+          }
+        ],
+        "visible": true
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "header_bar",
+      "description": "状态栏 + 导航栏 + 搜索框三段式顶部区域"
+    },
+    {
+      "block_id": "filter_tabs",
+      "description": "水平排列的筛选标签（未读邮件 ×2 / 管理）"
+    },
+    {
+      "block_id": "mail_list_container",
+      "description": "可滚动邮件列表主体，每项含头像、发件人、摘要、时间、箭头"
+    },
+    {
+      "block_id": "list_item_template",
+      "description": "统一结构：左侧图标 → 发件人名（粗体）→ 子标题（灰色）→ 摘要行 → 时间右对齐 → 右箭头"
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "搜索",
+      "未读邮件",
+      "管理",
+      "招商银行信用卡",
+      "每日信用管家",
+      "截至昨日最后一笔交易，您的额度和积分信息如下：",
+      "OpenAI",
+      "Introducing GPT-5.5",
+      "A new class of intelligence for real work",
+      "OpenRouter, Inc",
+      "Your OpenRouter, Inc refund [#3480-9365]",
+      "Refund from OpenRouter, Inc [#3480-9365]",
+      "Refunded $30.00 Date issued Apr 22, 2026, 5..."
+    ],
+    "icons": [
+      "back arrow",
+      "pencil edit",
+      "magnifier",
+      "blue dot (unread indicator)",
+      "招商银行红M logo",
+      "Op blue circle logo"
+    ],
+    "timestamps": [
+      "12:11",
+      "08:21",
+      "昨天 12:08",
+      "前天 12:08",
+      "4月22日"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "navigation",
+      "target": "back",
+      "element": "左上角 < 按钮",
+      "confidence": "high"
+    },
+    {
+      "clue_type": "action",
+      "target": "edit_mode",
+      "element": "右上角 ✏️ 按钮",
+      "confidence": "high"
+    },
+    {
+      "clue_type": "filter_switch",
+      "target": "tab_selection",
+      "element": "'未读邮件' / '管理' 标签",
+      "confidence": "high"
+    },
+    {
+      "clue_type": "detail_entry",
+      "target": "mail_detail",
+      "element": "任意邮件项右侧 > 箭头",
+      "confidence": "high"
+    },
+    {
+      "clue_type": "search_trigger",
+      "target": "search_input",
+      "element": "搜索框",
+      "confidence": "high"
+    },
+    {
+      "clue_type": "unread_status",
+      "element": "蓝色实心圆点",
+      "meaning": "未读邮件标识",
+      "confidence": "high"
+    }
+  ],
+  "navigation_hints": {
+    "return_path": "左上角返回按钮 → 上一级（可能为邮箱主入口或账户页）",
+    "exit_path": "右上角编辑按钮 → 进入多选管理模式（推测）",
+    "main_cta": "点击任一邮件项 → 打开邮件详情页",
+    "entry_points": [
+      "App 启动后默认进入此收件箱",
+      "从通知跳转至此页"
+    ],
+    "exit_points": [
+      "点击邮件 → 详情页",
+      "点击管理 → 多选操作页",
+      "点击搜索 → 搜索结果页"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "active_tab": "未读邮件",
+    "filter_state": "当前显示'未读邮件'分类下的全部未读邮件（含重复发件人）",
+    "selection_state": "无多选状态（编辑模式未激活）",
+    "page_state_tags": [
+      "inbox",
+      "unread_only",
+      "scrollable_list"
+    ],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "邮箱主入口 / 账户中心",
+    "potential_child": "邮件详情页（点击任一邮件项进入）",
+    "drilldown_entries": [
+      {
+        "element": "邮件项整体",
+        "target": "MailDetail",
+        "confidence": "high"
+      },
+      {
+        "element": "右上角 ✏️",
+        "target": "BatchSelectMode",
+        "confidence": "medium"
+      }
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "Standard mobile inbox: sticky header + segmented control + scrollable list with uniform item template",
+    "visual_blocks": [
+      "Avatar + Text Stack (sender name + subtitle)",
+      "Truncated preview line (2 lines max, ellipsis)",
+      "Timestamp aligned right",
+      "Unread badge as left-aligned blue dot"
+    ],
+    "style_hints": "浅灰背景；文字使用系统字体；发件人名加粗；未读项左侧蓝点；时间灰色小号字；箭头为系统默认 chevron",
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "所有邮件项均带蓝色未读圆点",
+      "'未读邮件'标签下拉箭头（▼）表明可展开更多筛选",
+      "招商银行邮件中部分数字被马赛克（如 .30, ).58, 3.31），属隐私遮蔽",
+      "OpenAI 邮件无预览摘要，仅两行文本",
+      "底部邮件截断，暗示列表可继续向下滚动"
+    ],
+    "key_facts": [
+      "当前视图为收件箱主列表",
+      "筛选器处于'未读邮件'状态",
+      "共可见 7 封邮件（第7封不完整）",
+      "发件人集中于两类：银行通知（招商银行）与科技公司（OpenAI / OpenRouter）",
+      "无广告横幅、无推广卡片、无底部导航栏"
+    ],
+    "uncertainties": [
+      "'未读邮件'标签是否为下拉菜单？截图中仅显示单个下拉箭头，无法确认是否有子选项",
+      "'管理'标签点击后行为未知（可能是多选入口或设置）",
+      "邮件摘要中马赛克部分原始值不可知，但不影响结构判断",
+      "是否存在'已读邮件'或其他文件夹未在当前视图显示，无法确认"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260425153213_931_24.jpg",
+        "filename": "微信图片_20260425153213_931_24.jpg",
+        "timestamp": "2026-04-25T15:27:00+08:00",
+        "device_context": "iOS App Store environment, status bar shows time, signal, Wi-Fi, battery 53%",
+        "capture_type": "screen capture of email inbox UI"
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "邮箱收件箱",
+          "邮件列表页",
+          "Inbox"
+        ],
+        "page_id_candidates": [
+          "inbox",
+          "mail_list"
+        ],
+        "page_role": "primary inbox view",
+        "title_text": "搜索",
+        "distinguishing_texts": [
+          "未读邮件",
+          "管理",
+          "招商银行信用卡",
+          "OpenAI",
+          "OpenRouter, Inc"
+        ],
+        "purpose_summary": "展示用户收件箱中的邮件列表，支持按状态筛选（如未读）、搜索与批量管理"
+      },
+      "page_overview": {
+        "layout_summary": "顶部导航栏（返回、标题搜索框、编辑按钮） + 筛选标签栏（文件夹/状态切换） + 垂直邮件列表。列表项为左对齐头像+发件人+摘要+时间+右箭头结构。",
+        "high_level_semantics": "标准移动邮箱主列表界面；强调未读状态（蓝色圆点标记），内容以金融/科技类通知为主；无明显分组或折叠，为扁平线性列表。"
+      },
+      "ui_tree": {
+        "type": "PageRoot",
+        "children": [
+          {
+            "type": "StatusBar",
+            "content": "15:27 | App Store | 📶 | Wi-Fi | 53%",
+            "visible": true
+          },
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "label": "<",
+                "visible": true
+              },
+              {
+                "type": "TitleArea",
+                "children": [
+                  {
+                    "type": "EmailAccountBadge",
+                    "text": "434@qq.com",
+                    "visible": true
+                  }
+                ]
+              },
+              {
+                "type": "EditButton",
+                "icon": "✏️",
+                "visible": true
+              }
+            ],
+            "visible": true
+          },
+          {
+            "type": "SearchBar",
+            "placeholder": "搜索",
+            "has_magnifier": true,
+            "visible": true
+          },
+          {
+            "type": "TabSegment",
+            "items": [
+              {
+                "label": "未读邮件",
+                "selected": true,
+                "badge": "✓"
+              },
+              {
+                "label": "未读邮件",
+                "selected": false
+              },
+              {
+                "label": "管理",
+                "selected": false
+              }
+            ],
+            "visible": true
+          },
+          {
+            "type": "MailList",
+            "children": [
+              {
+                "type": "MailItem",
+                "sender_avatar": "招商银行 logo (red M)",
+                "sender_name": "招商银行信用卡",
+                "sender_subtitle": "每日信用管家",
+                "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+                "preview_snippet": "…30 … 可用…",
+                "timestamp": "12:11",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "Op circle (blue)",
+                "sender_name": "OpenAI",
+                "sender_subtitle": "Introducing GPT-5.5",
+                "subject": "A new class of intelligence for real work",
+                "preview_snippet": "",
+                "timestamp": "08:21",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "招商银行 logo",
+                "sender_name": "招商银行信用卡",
+                "sender_subtitle": "每日信用管家",
+                "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+                "preview_snippet": "…).58 … 可用…",
+                "timestamp": "昨天 12:08",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "招商银行 logo",
+                "sender_name": "招商银行信用卡",
+                "sender_subtitle": "每日信用管家",
+                "subject": "截至昨日最后一笔交易，您的额度和积分信息如下：",
+                "preview_snippet": "…3.31 … 可用…",
+                "timestamp": "前天 12:08",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "招商银行 logo",
+                "sender_name": "招商银行信用卡",
+                "sender_subtitle": "(无摘要)",
+                "subject": "1544元露营车桌椅组合+50元还款金，推1人办…",
+                "preview_snippet": "",
+                "timestamp": "4月22日",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "Op circle",
+                "sender_name": "OpenRouter, Inc",
+                "sender_subtitle": "Your OpenRouter, Inc refund [#3480-9365]",
+                "subject": "Refund from OpenRouter, Inc [#3480-9365]",
+                "preview_snippet": "Refunded $30.00 Date issued Apr 22, 2026, 5...",
+                "timestamp": "4月22日",
+                "unread_indicator": true,
+                "has_chevron": true
+              },
+              {
+                "type": "MailItem",
+                "sender_avatar": "Op circle",
+                "sender_name": "OpenRouter, Inc",
+                "sender_subtitle": "",
+                "subject": "",
+                "preview_snippet": "",
+                "timestamp": "4月22日",
+                "unread_indicator": true,
+                "has_chevron": true
+              }
+            ],
+            "visible": true
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "header_bar",
+          "description": "状态栏 + 导航栏 + 搜索框三段式顶部区域"
+        },
+        {
+          "block_id": "filter_tabs",
+          "description": "水平排列的筛选标签（未读邮件 ×2 / 管理）"
+        },
+        {
+          "block_id": "mail_list_container",
+          "description": "可滚动邮件列表主体，每项含头像、发件人、摘要、时间、箭头"
+        },
+        {
+          "block_id": "list_item_template",
+          "description": "统一结构：左侧图标 → 发件人名（粗体）→ 子标题（灰色）→ 摘要行 → 时间右对齐 → 右箭头"
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "搜索",
+          "未读邮件",
+          "管理",
+          "招商银行信用卡",
+          "每日信用管家",
+          "截至昨日最后一笔交易，您的额度和积分信息如下：",
+          "OpenAI",
+          "Introducing GPT-5.5",
+          "A new class of intelligence for real work",
+          "OpenRouter, Inc",
+          "Your OpenRouter, Inc refund [#3480-9365]",
+          "Refund from OpenRouter, Inc [#3480-9365]",
+          "Refunded $30.00 Date issued Apr 22, 2026, 5..."
+        ],
+        "icons": [
+          "back arrow",
+          "pencil edit",
+          "magnifier",
+          "blue dot (unread indicator)",
+          "招商银行红M logo",
+          "Op blue circle logo"
+        ],
+        "timestamps": [
+          "12:11",
+          "08:21",
+          "昨天 12:08",
+          "前天 12:08",
+          "4月22日"
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "navigation",
+          "target": "back",
+          "element": "左上角 < 按钮",
+          "confidence": "high"
+        },
+        {
+          "clue_type": "action",
+          "target": "edit_mode",
+          "element": "右上角 ✏️ 按钮",
+          "confidence": "high"
+        },
+        {
+          "clue_type": "filter_switch",
+          "target": "tab_selection",
+          "element": "‘未读邮件’ / ‘管理’ 标签",
+          "confidence": "high"
+        },
+        {
+          "clue_type": "detail_entry",
+          "target": "mail_detail",
+          "element": "任意邮件项右侧 > 箭头",
+          "confidence": "high"
+        },
+        {
+          "clue_type": "search_trigger",
+          "target": "search_input",
+          "element": "搜索框",
+          "confidence": "high"
+        },
+        {
+          "clue_type": "unread_status",
+          "element": "蓝色实心圆点",
+          "meaning": "未读邮件标识",
+          "confidence": "high"
+        }
+      ],
+      "navigation_hints": {
+        "return_path": "左上角返回按钮 → 上一级（可能为邮箱主入口或账户页）",
+        "exit_path": "右上角编辑按钮 → 进入多选管理模式（推测）",
+        "main_cta": "点击任一邮件项 → 打开邮件详情页",
+        "entry_points": [
+          "App 启动后默认进入此收件箱",
+          "从通知跳转至此页"
+        ],
+        "exit_points": [
+          "点击邮件 → 详情页",
+          "点击管理 → 多选操作页",
+          "点击搜索 → 搜索结果页"
+        ]
+      },
+      "state_hints": {
+        "active_tab": "未读邮件",
+        "filter_state": "当前显示‘未读邮件’分类下的全部未读邮件（含重复发件人）",
+        "selection_state": "无多选状态（编辑模式未激活）",
+        "page_state_tags": [
+          "inbox",
+          "unread_only",
+          "scrollable_list"
+        ]
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": [
+        {
+          "evidence": "多个‘招商银行信用卡’邮件具有相同发件人、相同子标题、相似摘要结构（额度/积分通知），仅时间与数值不同",
+          "interpretation": "属于同一通知模板的多次发送，应归并为‘招商银行信用卡’通知流，而非独立页面",
+          "confidence": "high"
+        },
+        {
+          "evidence": "‘OpenRouter, Inc’邮件主题与正文高度一致（refund + ticket ID），时间相近",
+          "interpretation": "同一批退款通知，可视为一个逻辑组",
+          "confidence": "high"
+        },
+        {
+          "evidence": "无分组标题、无折叠区域、无卡片分隔线",
+          "interpretation": "当前为扁平列表，无显式归并容器；归并需在逻辑层处理，非 UI 层",
+          "confidence": "high"
+        }
+      ],
+      "subpage_hints": {
+        "potential_parent": "邮箱主入口 / 账户中心",
+        "potential_child": "邮件详情页（点击任一邮件项进入）",
+        "drilldown_entries": [
+          {
+            "element": "邮件项整体",
+            "target": "MailDetail",
+            "confidence": "high"
+          },
+          {
+            "element": "右上角 ✏️",
+            "target": "BatchSelectMode",
+            "confidence": "medium"
+          }
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "Standard mobile inbox: sticky header + segmented control + scrollable list with uniform item template",
+        "visual_blocks": [
+          "Avatar + Text Stack (sender name + subtitle)",
+          "Truncated preview line (2 lines max, ellipsis)",
+          "Timestamp aligned right",
+          "Unread badge as left-aligned blue dot"
+        ],
+        "style_hints": "浅灰背景；文字使用系统字体；发件人名加粗；未读项左侧蓝点；时间灰色小号字；箭头为系统默认 chevron"
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "所有邮件项均带蓝色未读圆点",
+          "‘未读邮件’标签下拉箭头（▼）表明可展开更多筛选",
+          "招商银行邮件中部分数字被马赛克（如 .30, ).58, 3.31），属隐私遮蔽",
+          "OpenAI 邮件无预览摘要，仅两行文本",
+          "底部邮件截断，暗示列表可继续向下滚动"
+        ],
+        "key_facts": [
+          "当前视图为收件箱主列表",
+          "筛选器处于‘未读邮件’状态",
+          "共可见 7 封邮件（第7封不完整）",
+          "发件人集中于两类：银行通知（招商银行）与科技公司（OpenAI / OpenRouter）",
+          "无广告横幅、无推广卡片、无底部导航栏"
+        ],
+        "uncertainties": [
+          "‘未读邮件’标签是否为下拉菜单？截图中仅显示单个下拉箭头，无法确认是否有子选项",
+          "‘管理’标签点击后行为未知（可能是多选入口或设置）",
+          "邮件摘要中马赛克部分原始值不可知，但不影响结构判断",
+          "是否存在‘已读邮件’或其他文件夹未在当前视图显示，无法确认"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

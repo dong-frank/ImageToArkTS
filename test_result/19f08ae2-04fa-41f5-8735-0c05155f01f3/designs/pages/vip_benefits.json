@@ -1,0 +1,353 @@
+{
+  "page_id": "vip_benefits",
+  "page_name": "QQ邮箱会员权益页",
+  "page_role": "standalone_page",
+  "page_summary": "QQ邮箱会员权益展示与开通引导页。展示非会员用户的当前容量状态和升级后可享权益，含2×2核心权益卡片（邮箱容量/云盘容量/超大附件/会员身份）及9项详细权益列表，顶部含开通CTA按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425153155_910_24.jpg"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_3.json"
+  ],
+  "source_draft_indexes": [
+    3
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为独立的全屏VIP权益展示页，有独立导航栏（标题'QQ邮箱会员'+返回+更多）、独立CTA和完整权益列表，未发现与其他draft的合并证据。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": [
+      "'更多'按钮(⋯)具体功能未知",
+      "'去了解'按钮是否为模态弹窗或新页面行为未确认"
+    ]
+  },
+  "ui_tree": {
+    "type": "ScrollView",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "Title",
+            "text": "QQ邮箱会员"
+          },
+          {
+            "type": "MoreButton",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "UserInfoSection",
+        "children": [
+          {
+            "type": "Avatar"
+          },
+          {
+            "type": "UserName",
+            "text": "蒋"
+          },
+          {
+            "type": "StatusBadge",
+            "text": "未开通",
+            "variant": "gray"
+          }
+        ]
+      },
+      {
+        "type": "VipPromoBanner",
+        "children": [
+          {
+            "type": "BadgeIcon",
+            "text": "邮箱VIP"
+          },
+          {
+            "type": "Subtitle",
+            "text": "开通会员，让邮箱更好用"
+          },
+          {
+            "type": "ActionButton",
+            "text": "开通",
+            "variant": "primary",
+            "price": "每月只需17.5元"
+          }
+        ]
+      },
+      {
+        "type": "SectionHeader",
+        "text": "会员享以下权益"
+      },
+      {
+        "type": "BenefitCardGrid",
+        "columns": 2,
+        "children": [
+          {
+            "type": "BenefitCard",
+            "icon": "envelope",
+            "title": "2T 邮箱容量",
+            "subtitle": "2GB 升级至 2TB",
+            "progress": {
+              "current": "1.2GB",
+              "total": "4GB"
+            },
+            "status_line": "当前容量 1.2GB / 4GB"
+          },
+          {
+            "type": "BenefitCard",
+            "icon": "cloud",
+            "title": "2T 云盘容量",
+            "subtitle": "3GB 升级至 2TB",
+            "progress": {
+              "current": "423KB",
+              "total": "3GB"
+            },
+            "status_line": "当前容量 423KB / 3GB"
+          },
+          {
+            "type": "BenefitCard",
+            "icon": "link",
+            "title": "10G 超大附件",
+            "subtitle": "邮件附件支持 10GB",
+            "action": {
+              "type": "LinkButton",
+              "text": "去了解"
+            }
+          },
+          {
+            "type": "BenefitCard",
+            "icon": "shield",
+            "title": "尊享会员身份",
+            "subtitle": "专属 VIP 地址和徽标",
+            "action": {
+              "type": "LinkButton",
+              "text": "去了解"
+            }
+          }
+        ]
+      },
+      {
+        "type": "BenefitList",
+        "children": [
+          {
+            "type": "BenefitItem",
+            "icon": "calendar",
+            "title": "超大附件",
+            "detail": "有效期90天"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "file_zip",
+            "title": "在线解压",
+            "detail": "最大10GB"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "table",
+            "title": "图片导出表格",
+            "detail": "以Excel文件导出"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "at",
+            "title": "个性化邮箱地址",
+            "detail": "设置域名为地址"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "ad",
+            "title": "会员免广告",
+            "detail": "邮箱免广告"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "upload",
+            "title": "高速上传下载",
+            "detail": "大文件传输无阻"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "search",
+            "title": "附件深度查杀",
+            "detail": "防范病毒邮件附件"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "shield",
+            "title": "恶意邮件识别",
+            "detail": "防范邮件钓鱼风险"
+          },
+          {
+            "type": "BenefitItem",
+            "icon": "ai",
+            "title": "AI防欺诈",
+            "detail": "90天自助查询"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回、标题'QQ邮箱会员'、更多按钮"
+    },
+    {
+      "block_id": "user_info",
+      "block_role": "user_context",
+      "summary": "用户头像+姓名'蒋'+'未开通'状态标签"
+    },
+    {
+      "block_id": "promo_banner",
+      "block_role": "cta_banner",
+      "summary": "VIP推广横幅：邮箱VIP标识+开通引导语+紫色'开通'按钮+价格'每月只需17.5元'"
+    },
+    {
+      "block_id": "benefit_cards",
+      "block_role": "highlight_benefits",
+      "summary": "2×2权益卡片：邮箱容量(进度条1.2GB/4GB)、云盘容量(423KB/3GB)、10G超大附件(去了解)、尊享会员身份(去了解)"
+    },
+    {
+      "block_id": "benefit_list",
+      "block_role": "detail_benefits",
+      "summary": "9项详细权益：超大附件/在线解压/图片导出表格/个性化邮箱地址/会员免广告/高速上传下载/附件深度查杀/恶意邮件识别/AI防欺诈"
+    }
+  ],
+  "key_texts": [
+    "QQ邮箱会员",
+    "蒋",
+    "未开通",
+    "邮箱VIP",
+    "开通会员，让邮箱更好用",
+    "开通",
+    "每月只需17.5元",
+    "会员享以下权益",
+    "2T 邮箱容量",
+    "2GB 升级至 2TB",
+    "当前容量 1.2GB / 4GB",
+    "2T 云盘容量",
+    "3GB 升级至 2TB",
+    "当前容量 423KB / 3GB",
+    "10G 超大附件",
+    "尊享会员身份",
+    "去了解",
+    "超大附件",
+    "有效期90天",
+    "在线解压",
+    "最大10GB",
+    "图片导出表格",
+    "以Excel文件导出",
+    "个性化邮箱地址",
+    "设置域名为地址",
+    "会员免广告",
+    "邮箱免广告",
+    "高速上传下载",
+    "大文件传输无阻",
+    "附件深度查杀",
+    "防范病毒邮件附件",
+    "恶意邮件识别",
+    "防范邮件钓鱼风险",
+    "AI防欺诈",
+    "90天自助查询"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "左上角返回箭头",
+      "action": "navigate_back"
+    },
+    {
+      "interaction_id": "more",
+      "trigger": "右上角⋯",
+      "action": "open_more_menu"
+    },
+    {
+      "interaction_id": "activate_vip",
+      "trigger": "开通按钮",
+      "action": "navigate",
+      "target_page_hint": "会员开通支付页"
+    },
+    {
+      "interaction_id": "learn_more_attachment",
+      "trigger": "10G超大附件'去了解'",
+      "action": "navigate",
+      "target_page_hint": "超大附件权益详情"
+    },
+    {
+      "interaction_id": "learn_more_identity",
+      "trigger": "尊享会员身份'去了解'",
+      "action": "navigate",
+      "target_page_hint": "会员身份权益详情"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "VerticalScrollView with sticky header + sectioned content",
+    "visual_blocks": [
+      "PromoBanner with primary CTA",
+      "2×2 card grid for high-impact benefits",
+      "Icon+Title+Detail list for secondary features"
+    ],
+    "styling_hints": "主色紫色系(#8A7FFD附近)，卡片白底+圆角，文字灰阶层次清晰，进度条紫色填充"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅紫渐变背景+白色卡片+紫色CTA",
+    "density": "medium"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "服务导航中心(会员中心>入口)"
+  ],
+  "possible_child_page_hints": [
+    "会员开通支付页"
+  ],
+  "notes": [
+    "当前为非会员视图(未开通状态)",
+    "已开通会员后此页应展示不同内容(已开通标签+管理入口)",
+    "'更多'按钮(⋯)功能未知"
+  ],
+  "schema_version": "stage2_page.v1",
+  "navigation_context": {
+    "page_role_in_app": "detail_page",
+    "is_entry": false,
+    "parent_page_id": "service_hub",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {"source_page_id": "service_hub", "relation_type": "opens_child_page", "trigger_label": "会员中心 > 链接", "trigger_interaction_id": "nav_to_member_center", "confidence": "high"}
+    ],
+    "outgoing_relations": [
+      {"target_page_id": "service_hub", "relation_type": "returns_to", "trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "confidence": "high"}
+    ],
+    "navigation_surface": {"is_main_tab": false, "is_bottom_tab_member": false, "is_top_level_page": false, "is_stack_destination": true},
+    "confirmed_navigation_actions": [
+      {"trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "relation_type": "returns_to", "target_page_id": "service_hub", "confidence": "high", "reasoning": "返回箭头pop回到service_hub。"}
+    ],
+    "unresolved_navigation_actions": [
+      {"trigger_label": "开通按钮", "trigger_interaction_id": "activate_vip", "target_page_hint": "会员开通支付页", "possible_relation_type": "opens_child_page", "reasoning": "开通按钮目标为支付页，该页未在页面集合中覆盖。"},
+      {"trigger_label": "10G超大附件'去了解'", "trigger_interaction_id": "learn_more_attachment", "target_page_hint": "超大附件权益详情", "possible_relation_type": "opens_child_page", "reasoning": "权益详情页未在页面集合中覆盖。"},
+      {"trigger_label": "尊享会员身份'去了解'", "trigger_interaction_id": "learn_more_identity", "target_page_hint": "会员身份权益详情", "possible_relation_type": "opens_child_page", "reasoning": "权益详情页未在页面集合中覆盖。"}
+    ],
+    "non_navigation_interaction_hints": [
+      {"trigger_label": "右上角⋯", "trigger_interaction_id": "more", "why_not_navigation": "打开更多菜单overlay，不跳转页面。"}
+    ],
+    "navigation_targets_summary": "返回service_hub。开通支付页和权益详情页未在页面集合中覆盖。",
+    "implementation_navigation_warnings": [
+      "activate_vip目标为支付页，实现时需要补充该目标页路由或确认为外部支付流程。",
+      "learn_more_attachment和learn_more_identity可能为内联展开或新页面，证据不足以确认。"
+    ],
+    "navigation_notes": [
+      "从service_hub会员中心>链接push进入。",
+      "返回箭头返回到service_hub。",
+      "全局导航真相源：/designs/navigation_design.json。"
+    ]
+  }
+}

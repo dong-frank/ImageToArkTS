@@ -1,0 +1,205 @@
+{
+  "page_id": "knowledge_home",
+  "page_name": "知识频道",
+  "page_role": "sub_page",
+  "page_summary": "知乎知识频道页 — 搜索栏+横向频道标签栏(知识高亮)+快捷入口(继续阅读/书架/分类)+排行榜(口碑榜/畅销榜/新鲜榜)+书单网格+底部导航(首页高亮)。知识内容频道,属于首页Tab下的子频道。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425152129_905_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_28.json"
+  ],
+  "source_draft_indexes": [
+    28
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 28 为 success 状态。",
+    "same_page_evidence": [],
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "SearchBar",
+        "text": "搜索"
+      },
+      {
+        "type": "ChannelTabBar",
+        "items": [
+          "关注",
+          "推荐",
+          "热榜",
+          "故事",
+          "知识",
+          "圈子",
+          "专栏",
+          "听"
+        ],
+        "selected_text": "知识"
+      },
+      {
+        "type": "QuickAccessRow",
+        "children": [
+          {
+            "type": "QuickAccessItem",
+            "label": "继续阅读"
+          },
+          {
+            "type": "QuickAccessItem",
+            "label": "书架"
+          },
+          {
+            "type": "QuickAccessItem",
+            "label": "分类"
+          }
+        ]
+      },
+      {
+        "type": "RankingSection",
+        "children": [
+          {
+            "type": "RankingTab",
+            "label": "口碑榜"
+          },
+          {
+            "type": "RankingTab",
+            "label": "畅销榜"
+          },
+          {
+            "type": "RankingTab",
+            "label": "新鲜榜"
+          },
+          {
+            "type": "RankingList",
+            "children": []
+          }
+        ]
+      },
+      {
+        "type": "BookGrid",
+        "children": []
+      },
+      {
+        "type": "BottomNavigationBar",
+        "items": [
+          {
+            "label": "首页",
+            "icon": "home",
+            "selected": true
+          },
+          {
+            "label": "直答",
+            "icon": "question"
+          },
+          {
+            "label": "+",
+            "icon": "plus"
+          },
+          {
+            "label": "消息",
+            "icon": "bell"
+          },
+          {
+            "label": "我的",
+            "icon": "profile"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "search_and_tabs",
+      "role": "header"
+    },
+    {
+      "block_id": "quick_access",
+      "role": "navigation",
+      "summary": "3个快捷入口"
+    },
+    {
+      "block_id": "ranking_section",
+      "role": "content",
+      "summary": "3榜切换+排行榜列表"
+    },
+    {
+      "block_id": "book_grid",
+      "role": "content",
+      "summary": "书单卡片网格"
+    },
+    {
+      "block_id": "bottom_nav",
+      "role": "global_navigation"
+    }
+  ],
+  "key_texts": [
+    "知识",
+    "继续阅读",
+    "书架",
+    "分类",
+    "口碑榜",
+    "畅销榜",
+    "新鲜榜",
+    "首页",
+    "直答",
+    "消息",
+    "我的"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "quick_access_continue",
+      "type": "navigation",
+      "trigger": "点击继续阅读",
+      "target_page_hint": "阅读进度页"
+    },
+    {
+      "interaction_id": "quick_access_bookshelf",
+      "type": "navigation",
+      "trigger": "点击书架",
+      "target_page_hint": "我的书架页"
+    },
+    {
+      "interaction_id": "ranking_tab_switch",
+      "type": "state_change",
+      "trigger": "切换排行榜Tab"
+    },
+    {
+      "interaction_id": "book_tap",
+      "type": "navigation",
+      "trigger": "点击书单卡片",
+      "target_page_hint": "书籍详情页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SearchBar + Tabs + QuickAccess + RankingTabs + BookGrid + BottomNav",
+    "styling_hints": "浅色背景,排行榜Tab切换,书单卡片网格",
+    "reusable_components": [
+      "ChannelTabBar",
+      "RankingTab",
+      "BookCard",
+      "BottomNavigationBar"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "知识内容频道",
+    "density": "medium",
+    "background": "light"
+  },
+  "page_semantic_role": "content_channel",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "属于首页Tab下的频道子视图",
+    "频道标签'知识'高亮确认当前频道"
+  ],
+  "schema_version": "stage2_page.v1"
+}

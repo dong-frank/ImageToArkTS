@@ -1,0 +1,884 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260427113706_936_24.jpg",
+    "filename": "微信图片_20260427113706_936_24.jpg",
+    "timestamp": "15:08",
+    "status_bar": {
+      "time": "15:08",
+      "network": "cellular + wifi",
+      "battery": "59%"
+    },
+    "app_name": "微信",
+    "screen_context": "主聊天列表页，右上角加号菜单展开状态",
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "draft_index": 22,
+    "image_path": "/user_input/微信图片_20260427113706_936_24.jpg",
+    "image_name": "微信图片_20260427113706_936_24.jpg"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "微信主聊天列表",
+      "会话列表页",
+      "首页"
+    ],
+    "page_id_candidate": "wechat_conversation_list",
+    "page_role": "入口级导航页",
+    "title_text": "微信",
+    "distinguishing_text": [
+      "发起群聊",
+      "添加朋友",
+      "扫一扫",
+      "收付款"
+    ],
+    "purpose_summary": "展示用户最近会话列表，并提供快捷操作入口；当前处于加号菜单展开态",
+    "candidate_page_name": "微信图片_20260427113706_936_24.jpg",
+    "candidate_page_id": "page_22",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "竖向滚动列表（会话列表）+ 底部 Tab 导航栏 + 右上角悬浮菜单（已展开）",
+    "visual_semantics": "典型 IM 主页：顶部搜索栏、中部会话流、底部四功能标签；右侧深灰菜单为模态式快捷操作浮层，覆盖部分会话列表"
+  },
+  "ui_tree": {
+    "type": "RootContainer",
+    "children": [
+      {
+        "type": "StatusBar",
+        "visible": true
+      },
+      {
+        "type": "TopBar",
+        "children": [
+          {
+            "type": "AppTitle",
+            "text": "微信"
+          },
+          {
+            "type": "AddButton",
+            "icon": "+",
+            "state": "pressed_opened",
+            "overlay_target": "QuickActionMenu"
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "placeholder": "搜索",
+        "has_icon": true,
+        "icon_type": "magnifier"
+      },
+      {
+        "type": "ConversationList",
+        "items": [
+          {
+            "type": "ConversationItem",
+            "avatar_type": "system",
+            "avatar_label": "Windows 微信已登录",
+            "title": "Windows 微信已登录，手机",
+            "subtitle": "",
+            "timestamp": null,
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "app",
+            "avatar_label": "文件传输助手",
+            "title": "文件传输助手",
+            "subtitle": "[图片]",
+            "timestamp": null,
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "service",
+            "avatar_label": "班级小管家客服",
+            "title": "班级小管家客服",
+            "subtitle": "@江苏南京一年级学生「免费」报名《AI...",
+            "timestamp": null,
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "contact",
+            "avatar_label": "赵先生",
+            "title": "赵先生",
+            "subtitle": "不过可能不够，我到时候还得买",
+            "timestamp": "14:51",
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "group",
+            "avatar_label": "萨仁小姐衣橱 21群",
+            "title": "萨仁小姐衣橱 21群",
+            "subtitle": "\"HYY 💖\"与群里其他人都不是朋友关...",
+            "timestamp": "14:32",
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "service",
+            "avatar_label": "服务号",
+            "title": "服务号",
+            "subtitle": "[招商银行信用...等8条通知] 江苏省农学会: 我...",
+            "timestamp": "14:31",
+            "unread": true,
+            "badge_count": 1
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "contact",
+            "avatar_label": "饶东",
+            "title": "饶东",
+            "subtitle": "嗯嗯",
+            "timestamp": "14:29",
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "group",
+            "avatar_label": "马尔斯轮滑俱乐部 仙林湖校区",
+            "title": "马尔斯轮滑俱乐部 仙林湖校区",
+            "subtitle": "十一: #接龙 周六课程提醒 今天上课小朋...",
+            "timestamp": "14:24",
+            "unread": false
+          },
+          {
+            "type": "ConversationItem",
+            "avatar_type": "official_account",
+            "avatar_label": "公众号",
+            "title": "公众号",
+            "subtitle": "[7条]八月熏风: 人是铁，雪糕是钢",
+            "timestamp": "14:17",
+            "unread": true,
+            "badge_count": 1
+          }
+        ]
+      },
+      {
+        "type": "BottomTabBar",
+        "tabs": [
+          {
+            "label": "微信",
+            "selected": true
+          },
+          {
+            "label": "通讯录",
+            "selected": false
+          },
+          {
+            "label": "发现",
+            "selected": false
+          },
+          {
+            "label": "我",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "type": "QuickActionMenu",
+        "state": "visible",
+        "position": "top_right_overlay",
+        "items": [
+          {
+            "label": "发起群聊",
+            "icon": "chat_bubble_plus"
+          },
+          {
+            "label": "添加朋友",
+            "icon": "person_plus"
+          },
+          {
+            "label": "扫一扫",
+            "icon": "scan"
+          },
+          {
+            "label": "收付款",
+            "icon": "payment"
+          }
+        ]
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "name": "TopNavigation",
+      "components": [
+        "AppTitle",
+        "AddButton"
+      ]
+    },
+    {
+      "name": "GlobalSearch",
+      "components": [
+        "SearchBar"
+      ]
+    },
+    {
+      "name": "MainContent",
+      "components": [
+        "ConversationList"
+      ]
+    },
+    {
+      "name": "BottomNavigation",
+      "components": [
+        "BottomTabBar"
+      ]
+    },
+    {
+      "name": "FloatingQuickActions",
+      "components": [
+        "QuickActionMenu"
+      ]
+    }
+  ],
+  "key_content": {
+    "text_elements": [
+      "微信",
+      "搜索",
+      "Windows 微信已登录，手机",
+      "文件传输助手",
+      "[图片]",
+      "班级小管家客服",
+      "@江苏南京一年级学生「免费」报名《AI...",
+      "赵先生",
+      "不过可能不够，我到时候还得买",
+      "萨仁小姐衣橱 21群",
+      "\"HYY 💖\"与群里其他人都不是朋友关...",
+      "服务号",
+      "[招商银行信用...等8条通知] 江苏省农学会: 我...",
+      "饶东",
+      "嗯嗯",
+      "马尔斯轮滑俱乐部 仙林湖校区",
+      "十一: #接龙 周六课程提醒 今天上课小朋...",
+      "公众号",
+      "[7条]八月熏风: 人是铁，雪糕是钢",
+      "发起群聊",
+      "添加朋友",
+      "扫一扫",
+      "收付款"
+    ],
+    "key_controls": [],
+    "visible_texts": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "menu_open",
+      "trigger": "AddButton (+)",
+      "target": "QuickActionMenu",
+      "visibility": "visible"
+    },
+    {
+      "clue_type": "quick_action_entry",
+      "action": "发起群聊",
+      "implies_navigation": true
+    },
+    {
+      "clue_type": "quick_action_entry",
+      "action": "添加朋友",
+      "implies_navigation": true
+    },
+    {
+      "clue_type": "quick_action_entry",
+      "action": "扫一扫",
+      "implies_navigation": true
+    },
+    {
+      "clue_type": "quick_action_entry",
+      "action": "收付款",
+      "implies_navigation": true
+    },
+    {
+      "clue_type": "list_item_tap",
+      "target": "ConversationItem",
+      "expected_effect": "navigate_to_chat_detail"
+    },
+    {
+      "clue_type": "tab_switch",
+      "from": "微信",
+      "to_candidates": [
+        "通讯录",
+        "发现",
+        "我"
+      ]
+    }
+  ],
+  "navigation_hints": {
+    "return_path": null,
+    "exit_paths": [
+      "Tap bottom tab '我' → Profile page",
+      "Tap bottom tab '通讯录' → Contact list",
+      "Tap bottom tab '发现' → Discover feed"
+    ],
+    "main_cta": "QuickActionMenu items (esp. 发起群聊)",
+    "entry_points": [
+      "System launch → this page",
+      "Notification tap → this page (if not in chat)"
+    ],
+    "leave_points": [
+      "Any conversation item tap → ChatDetail",
+      "QuickActionMenu item tap → respective feature page"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "selected_tab": "微信",
+    "menu_state": "open",
+    "unread_indicators": [
+      {
+        "item": "服务号",
+        "count": 1
+      },
+      {
+        "item": "公众号",
+        "count": 1
+      }
+    ],
+    "timestamp_visibility": "visible on recent items",
+    "search_active": false,
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "exists": true,
+    "type": "modal_quick_action_menu",
+    "trigger_source": "top_right_add_button",
+    "dismiss_method": "tap outside or back gesture (not visible)",
+    "content_summary": "4 vertical action items with icons and text",
+    "z_index_relation": "covers top-right portion of conversation list",
+    "has_overlay": false,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchor": "AddButton state toggles overlay; no new page loaded",
+    "state_difference_evidence": "Overlay appears/disappears without route change → same page",
+    "independent_page_signal": false,
+    "confidence": "high",
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      "ChatDetail (via conversation item)",
+      "GroupCreationPage (via '发起群聊')",
+      "ContactAddPage (via '添加朋友')",
+      "ScanPage (via '扫一扫')",
+      "PaymentPage (via '收付款')"
+    ],
+    "drilldown_entries": [
+      "All conversation items",
+      "All QuickActionMenu items"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "ScrollableListWithFixedTabs + FloatingActionMenu",
+    "important_visual_blocks": [
+      "TopBar with AddButton as toggle",
+      "SearchBar with magnifier icon",
+      "ConversationItem with avatar, title, subtitle, timestamp, badge",
+      "QuickActionMenu as dark semi-transparent overlay with icon+text rows"
+    ],
+    "style_hints": {
+      "color_scheme": "light background, dark text, gray separators",
+      "icon_style": "line-style monochrome icons in menu",
+      "spacing": "consistent vertical padding in list items",
+      "overlay": "dark gray (#444), rounded corners, shadow"
+    },
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "QuickActionMenu is visibly open and overlays list",
+      "Two unread badges (服务号, 公众号) visible",
+      "Timestamps shown for last 5 items only",
+      "Group names include emoji (🌲) and quotes",
+      "Service account subtitles contain bracketed notification counts"
+    ],
+    "key_facts": [
+      "This is WeChat main screen, not a subpage",
+      "Add button pressed → menu opened",
+      "No navigation occurred yet; still on conversation list",
+      "Bottom tabs indicate 4 primary sections"
+    ],
+    "uncertainties": [
+      "Exact dismissal gesture for overlay not visible",
+      "Whether 'Windows 微信已登录' item is tappable (no visual affordance)",
+      "Full content of truncated subtitles unknown",
+      "Whether search bar is active/focused (no cursor visible)",
+      "If more menu items exist below current viewport (only 4 shown)"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260427113706_936_24.jpg",
+        "filename": "微信图片_20260427113706_936_24.jpg",
+        "timestamp": "15:08",
+        "status_bar": {
+          "time": "15:08",
+          "network": "cellular + wifi",
+          "battery": "59%"
+        },
+        "app_name": "微信",
+        "screen_context": "主聊天列表页，右上角加号菜单展开状态"
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "微信主聊天列表",
+          "会话列表页",
+          "首页"
+        ],
+        "page_id_candidate": "wechat_conversation_list",
+        "page_role": "入口级导航页",
+        "title_text": "微信",
+        "distinguishing_text": [
+          "发起群聊",
+          "添加朋友",
+          "扫一扫",
+          "收付款"
+        ],
+        "purpose_summary": "展示用户最近会话列表，并提供快捷操作入口；当前处于加号菜单展开态"
+      },
+      "page_overview": {
+        "layout_summary": "竖向滚动列表（会话列表）+ 底部 Tab 导航栏 + 右上角悬浮菜单（已展开）",
+        "visual_semantics": "典型 IM 主页：顶部搜索栏、中部会话流、底部四功能标签；右侧深灰菜单为模态式快捷操作浮层，覆盖部分会话列表"
+      },
+      "ui_tree": {
+        "type": "RootContainer",
+        "children": [
+          {
+            "type": "StatusBar",
+            "visible": true
+          },
+          {
+            "type": "TopBar",
+            "children": [
+              {
+                "type": "AppTitle",
+                "text": "微信"
+              },
+              {
+                "type": "AddButton",
+                "icon": "+",
+                "state": "pressed_opened",
+                "overlay_target": "QuickActionMenu"
+              }
+            ]
+          },
+          {
+            "type": "SearchBar",
+            "placeholder": "搜索",
+            "has_icon": true,
+            "icon_type": "magnifier"
+          },
+          {
+            "type": "ConversationList",
+            "items": [
+              {
+                "type": "ConversationItem",
+                "avatar_type": "system",
+                "avatar_label": "Windows 微信已登录",
+                "title": "Windows 微信已登录，手机",
+                "subtitle": "",
+                "timestamp": null,
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "app",
+                "avatar_label": "文件传输助手",
+                "title": "文件传输助手",
+                "subtitle": "[图片]",
+                "timestamp": null,
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "service",
+                "avatar_label": "班级小管家客服",
+                "title": "班级小管家客服",
+                "subtitle": "@江苏南京一年级学生「免费」报名《AI...",
+                "timestamp": null,
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "contact",
+                "avatar_label": "赵先生",
+                "title": "赵先生",
+                "subtitle": "不过可能不够，我到时候还得买",
+                "timestamp": "14:51",
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "group",
+                "avatar_label": "萨仁小姐衣橱 21群",
+                "title": "萨仁小姐衣橱 21群",
+                "subtitle": "\"HYY 💖\"与群里其他人都不是朋友关...",
+                "timestamp": "14:32",
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "service",
+                "avatar_label": "服务号",
+                "title": "服务号",
+                "subtitle": "[招商银行信用...等8条通知] 江苏省农学会: 我...",
+                "timestamp": "14:31",
+                "unread": true,
+                "badge_count": 1
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "contact",
+                "avatar_label": "饶东",
+                "title": "饶东",
+                "subtitle": "嗯嗯",
+                "timestamp": "14:29",
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "group",
+                "avatar_label": "马尔斯轮滑俱乐部 仙林湖校区",
+                "title": "马尔斯轮滑俱乐部 仙林湖校区",
+                "subtitle": "十一: #接龙 周六课程提醒 今天上课小朋...",
+                "timestamp": "14:24",
+                "unread": false
+              },
+              {
+                "type": "ConversationItem",
+                "avatar_type": "official_account",
+                "avatar_label": "公众号",
+                "title": "公众号",
+                "subtitle": "[7条]八月熏风: 人是铁，雪糕是钢",
+                "timestamp": "14:17",
+                "unread": true,
+                "badge_count": 1
+              }
+            ]
+          },
+          {
+            "type": "BottomTabBar",
+            "tabs": [
+              {
+                "label": "微信",
+                "selected": true
+              },
+              {
+                "label": "通讯录",
+                "selected": false
+              },
+              {
+                "label": "发现",
+                "selected": false
+              },
+              {
+                "label": "我",
+                "selected": false
+              }
+            ]
+          },
+          {
+            "type": "QuickActionMenu",
+            "state": "visible",
+            "position": "top_right_overlay",
+            "items": [
+              {
+                "label": "发起群聊",
+                "icon": "chat_bubble_plus"
+              },
+              {
+                "label": "添加朋友",
+                "icon": "person_plus"
+              },
+              {
+                "label": "扫一扫",
+                "icon": "scan"
+              },
+              {
+                "label": "收付款",
+                "icon": "payment"
+              }
+            ]
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "name": "TopNavigation",
+          "components": [
+            "AppTitle",
+            "AddButton"
+          ]
+        },
+        {
+          "name": "GlobalSearch",
+          "components": [
+            "SearchBar"
+          ]
+        },
+        {
+          "name": "MainContent",
+          "components": [
+            "ConversationList"
+          ]
+        },
+        {
+          "name": "BottomNavigation",
+          "components": [
+            "BottomTabBar"
+          ]
+        },
+        {
+          "name": "FloatingQuickActions",
+          "components": [
+            "QuickActionMenu"
+          ]
+        }
+      ],
+      "key_content": {
+        "text_elements": [
+          "微信",
+          "搜索",
+          "Windows 微信已登录，手机",
+          "文件传输助手",
+          "[图片]",
+          "班级小管家客服",
+          "@江苏南京一年级学生「免费」报名《AI...",
+          "赵先生",
+          "不过可能不够，我到时候还得买",
+          "萨仁小姐衣橱 21群",
+          "\"HYY 💖\"与群里其他人都不是朋友关...",
+          "服务号",
+          "[招商银行信用...等8条通知] 江苏省农学会: 我...",
+          "饶东",
+          "嗯嗯",
+          "马尔斯轮滑俱乐部 仙林湖校区",
+          "十一: #接龙 周六课程提醒 今天上课小朋...",
+          "公众号",
+          "[7条]八月熏风: 人是铁，雪糕是钢",
+          "发起群聊",
+          "添加朋友",
+          "扫一扫",
+          "收付款"
+        ],
+        "key_controls": [
+          {
+            "type": "AddButton",
+            "location": "top_right",
+            "state": "active"
+          },
+          {
+            "type": "QuickActionMenuItem",
+            "label": "发起群聊",
+            "index": 0
+          },
+          {
+            "type": "QuickActionMenuItem",
+            "label": "添加朋友",
+            "index": 1
+          },
+          {
+            "type": "QuickActionMenuItem",
+            "label": "扫一扫",
+            "index": 2
+          },
+          {
+            "type": "QuickActionMenuItem",
+            "label": "收付款",
+            "index": 3
+          },
+          {
+            "type": "TabItem",
+            "label": "微信",
+            "selected": true
+          },
+          {
+            "type": "TabItem",
+            "label": "通讯录",
+            "selected": false
+          },
+          {
+            "type": "TabItem",
+            "label": "发现",
+            "selected": false
+          },
+          {
+            "type": "TabItem",
+            "label": "我",
+            "selected": false
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "menu_open",
+          "trigger": "AddButton (+)",
+          "target": "QuickActionMenu",
+          "visibility": "visible"
+        },
+        {
+          "clue_type": "quick_action_entry",
+          "action": "发起群聊",
+          "implies_navigation": true
+        },
+        {
+          "clue_type": "quick_action_entry",
+          "action": "添加朋友",
+          "implies_navigation": true
+        },
+        {
+          "clue_type": "quick_action_entry",
+          "action": "扫一扫",
+          "implies_navigation": true
+        },
+        {
+          "clue_type": "quick_action_entry",
+          "action": "收付款",
+          "implies_navigation": true
+        },
+        {
+          "clue_type": "list_item_tap",
+          "target": "ConversationItem",
+          "expected_effect": "navigate_to_chat_detail"
+        },
+        {
+          "clue_type": "tab_switch",
+          "from": "微信",
+          "to_candidates": [
+            "通讯录",
+            "发现",
+            "我"
+          ]
+        }
+      ],
+      "navigation_hints": {
+        "return_path": null,
+        "exit_paths": [
+          "Tap bottom tab '我' → Profile page",
+          "Tap bottom tab '通讯录' → Contact list",
+          "Tap bottom tab '发现' → Discover feed"
+        ],
+        "main_cta": "QuickActionMenu items (esp. 发起群聊)",
+        "entry_points": [
+          "System launch → this page",
+          "Notification tap → this page (if not in chat)"
+        ],
+        "leave_points": [
+          "Any conversation item tap → ChatDetail",
+          "QuickActionMenu item tap → respective feature page"
+        ]
+      },
+      "state_hints": {
+        "selected_tab": "微信",
+        "menu_state": "open",
+        "unread_indicators": [
+          {
+            "item": "服务号",
+            "count": 1
+          },
+          {
+            "item": "公众号",
+            "count": 1
+          }
+        ],
+        "timestamp_visibility": "visible on recent items",
+        "search_active": false
+      },
+      "overlay_hints": {
+        "exists": true,
+        "type": "modal_quick_action_menu",
+        "trigger_source": "top_right_add_button",
+        "dismiss_method": "tap outside or back gesture (not visible)",
+        "content_summary": "4 vertical action items with icons and text",
+        "z_index_relation": "covers top-right portion of conversation list"
+      },
+      "merge_hints": {
+        "same_page_anchor": "AddButton state toggles overlay; no new page loaded",
+        "state_difference_evidence": "Overlay appears/disappears without route change → same page",
+        "independent_page_signal": false,
+        "confidence": "high"
+      },
+      "subpage_hints": {
+        "potential_parent": null,
+        "potential_children": [
+          "ChatDetail (via conversation item)",
+          "GroupCreationPage (via '发起群聊')",
+          "ContactAddPage (via '添加朋友')",
+          "ScanPage (via '扫一扫')",
+          "PaymentPage (via '收付款')"
+        ],
+        "drilldown_entries": [
+          "All conversation items",
+          "All QuickActionMenu items"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "ScrollableListWithFixedTabs + FloatingActionMenu",
+        "important_visual_blocks": [
+          "TopBar with AddButton as toggle",
+          "SearchBar with magnifier icon",
+          "ConversationItem with avatar, title, subtitle, timestamp, badge",
+          "QuickActionMenu as dark semi-transparent overlay with icon+text rows"
+        ],
+        "style_hints": {
+          "color_scheme": "light background, dark text, gray separators",
+          "icon_style": "line-style monochrome icons in menu",
+          "spacing": "consistent vertical padding in list items",
+          "overlay": "dark gray (#444), rounded corners, shadow"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "QuickActionMenu is visibly open and overlays list",
+          "Two unread badges (服务号, 公众号) visible",
+          "Timestamps shown for last 5 items only",
+          "Group names include emoji (🌲) and quotes",
+          "Service account subtitles contain bracketed notification counts"
+        ],
+        "key_facts": [
+          "This is WeChat main screen, not a subpage",
+          "Add button pressed → menu opened",
+          "No navigation occurred yet; still on conversation list",
+          "Bottom tabs indicate 4 primary sections"
+        ],
+        "uncertainties": [
+          "Exact dismissal gesture for overlay not visible",
+          "Whether 'Windows 微信已登录' item is tappable (no visual affordance)",
+          "Full content of truncated subtitles unknown",
+          "Whether search bar is active/focused (no cursor visible)",
+          "If more menu items exist below current viewport (only 4 shown)"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

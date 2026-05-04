@@ -1,0 +1,334 @@
+{
+  "page_id": "page_4",
+  "page_name": "消息中心",
+  "page_role": "message_center",
+  "source_images": [
+    "/user_input/微信图片_20260425145650_818_24.png"
+  ],
+  "draft_indices": [
+    4
+  ],
+  "layout_summary": "顶部状态栏 + 标题栏 + 横向快捷入口区 + 纵向消息列表区 + 底部导航栏；整体为垂直流式布局，消息按时间与类型分组呈现",
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "StatusBar",
+        "children": [
+          {
+            "type": "TimeText",
+            "text": "14:54"
+          },
+          {
+            "type": "NetworkIcon"
+          },
+          {
+            "type": "BatteryIndicator",
+            "value": "64%"
+          }
+        ]
+      },
+      {
+        "type": "TitleBar",
+        "children": [
+          {
+            "type": "TitleText",
+            "text": "消息"
+          },
+          {
+            "type": "ActionIcon",
+            "label": "添加好友",
+            "icon": "person_add"
+          }
+        ]
+      },
+      {
+        "type": "BannerAlert",
+        "text": "开启系统通知，订单聊天等信息不错过 去开启>",
+        "action_text": "去开启>",
+        "dismiss_icon": "×"
+      },
+      {
+        "type": "QuickActionRow",
+        "children": [
+          {
+            "type": "QuickActionItem",
+            "icon": "thumb_up",
+            "label": "赞/收藏/有帮助"
+          },
+          {
+            "type": "QuickActionItem",
+            "icon": "chat_bubble",
+            "label": "评论和@"
+          },
+          {
+            "type": "QuickActionItem",
+            "icon": "person_add",
+            "label": "新增粉丝"
+          }
+        ]
+      },
+      {
+        "type": "MessageSection",
+        "header": {
+          "type": "SectionHeader",
+          "text": "活动消息",
+          "timestamp": "14:53"
+        },
+        "content": {
+          "type": "MessageItem",
+          "icon": "flag",
+          "title": "您的春日限定礼包（露营椅/野餐垫/青团花茶/现金...",
+          "is_read": true
+        }
+      },
+      {
+        "type": "SectionHeader",
+        "text": "2周前和长期未读消息",
+        "style": "subtle"
+      },
+      {
+        "type": "MessageSection",
+        "header": {
+          "type": "SectionHeader",
+          "text": "系统消息",
+          "timestamp": "03/15"
+        },
+        "content": {
+          "type": "MessageItem",
+          "icon": "notification",
+          "title": "恭喜获得打卡好礼——2元无门槛美团打车红包...",
+          "badge": "1",
+          "is_read": false
+        }
+      },
+      {
+        "type": "BottomNav",
+        "items": [
+          {
+            "label": "首页",
+            "selected": false
+          },
+          {
+            "label": "地图",
+            "selected": false
+          },
+          {
+            "label": "+",
+            "selected": false,
+            "type": "fab"
+          },
+          {
+            "label": "消息",
+            "selected": true
+          },
+          {
+            "label": "我的",
+            "selected": false
+          }
+        ]
+      }
+    ]
+  },
+  "structural_blocks": [
+    {
+      "block_id": "top_bar",
+      "description": "状态栏+标题栏+右上角操作入口"
+    },
+    {
+      "block_id": "alert_banner",
+      "description": "系统通知引导横幅"
+    },
+    {
+      "block_id": "quick_actions",
+      "description": "三列快捷消息类型入口"
+    },
+    {
+      "block_id": "message_list",
+      "description": "分组消息列表：活动消息 + 未读归档区"
+    },
+    {
+      "block_id": "bottom_nav",
+      "description": "五项底部导航，当前选中'消息'"
+    }
+  ],
+  "key_content": {
+    "visible_texts": [
+      "消息",
+      "添加好友",
+      "开启系统通知，订单聊天等信息不错过 去开启>",
+      "赞/收藏/有帮助",
+      "评论和@",
+      "新增粉丝",
+      "活动消息",
+      "您的春日限定礼包（露营椅/野餐垫/青团花茶/现金...",
+      "2周前和长期未读消息",
+      "系统消息",
+      "恭喜获得打卡好礼——2元无门槛美团打车红包...",
+      "首页",
+      "地图",
+      "+",
+      "消息",
+      "我的"
+    ],
+    "key_controls": [
+      {
+        "type": "banner_dismiss",
+        "icon": "×"
+      },
+      {
+        "type": "banner_action",
+        "text": "去开启>"
+      },
+      {
+        "type": "quick_action",
+        "labels": [
+          "赞/收藏/有帮助",
+          "评论和@",
+          "新增粉丝"
+        ]
+      },
+      {
+        "type": "message_item",
+        "with_badge": true,
+        "badge_value": "1"
+      },
+      {
+        "type": "bottom_nav_item",
+        "active": "消息"
+      }
+    ]
+  },
+  "interaction_clues": [
+    "点击 × 关闭banner",
+    "点击 '去开启>' 跳转系统通知设置",
+    "点击任一快捷入口（如'评论和@'）可能筛选对应消息类型",
+    "点击消息条目进入详情页（如系统消息）",
+    "点击右上角'添加好友'图标",
+    "点击其他 tab 切换页面"
+  ],
+  "navigation_hints": {
+    "back_path": null,
+    "exit_paths": [
+      "底部导航 → 首页/地图/我的"
+    ],
+    "main_cta": "点击消息条目查看详情",
+    "entry_points": [
+      "底部导航'消息'tab",
+      "系统通知跳转",
+      "快捷入口点击"
+    ],
+    "exit_points": [
+      "底部导航切换",
+      "点击'添加好友'"
+    ],
+    "has_back": false,
+    "has_close": false
+  },
+  "state_hints": {
+    "selected_tab": "消息",
+    "unread_indicators": [
+      {
+        "type": "badge",
+        "target": "系统消息",
+        "value": "1"
+      },
+      {
+        "type": "section_header",
+        "text": "2周前和长期未读消息"
+      }
+    ],
+    "read_state": {
+      "活动消息": true,
+      "系统消息": false
+    },
+    "banner_state": "active_with_dismiss"
+  },
+  "overlay_hints": {
+    "has_overlay": false
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium"
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      {
+        "candidate": "消息详情页",
+        "trigger": "点击任意消息条目"
+      },
+      {
+        "candidate": "通知设置页",
+        "trigger": "点击'去开启>'"
+      },
+      {
+        "candidate": "好友添加页",
+        "trigger": "点击右上角'添加好友'"
+      }
+    ],
+    "drill_down_entries": [
+      {
+        "element": "系统消息条目",
+        "target": "红包领取/活动详情"
+      },
+      {
+        "element": "活动消息条目",
+        "target": "春日礼包详情"
+      }
+    ]
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalScrollListWithSections",
+    "important_visual_blocks": [
+      "BannerAlert (fixed top)",
+      "QuickActionRow (horizontal scrollable or fixed 3-item)",
+      "SectionedMessageList (grouped by time/type)",
+      "BottomNav (persistent)"
+    ],
+    "style_hints": "浅色背景，橙/粉/蓝三色图标区分功能，标题加粗，摘要截断省略号，区块间留白明显"
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "黄色 banner 含可点击'去开启>'及 × 关闭",
+      "三图标快捷入口横向排列",
+      "'2周前和长期未读消息'作为二级标题出现",
+      "系统消息右侧灰色 badge '1'",
+      "底部 nav 中'消息'高亮，中间为橙色 + FAB"
+    ],
+    "key_facts": [
+      "当前时间为 14:54",
+      "电池 64%",
+      "活动消息时间为 14:53，系统消息为 03/15",
+      "仅一条未读消息（系统消息）",
+      "无弹窗/浮层/抽屉"
+    ],
+    "uncertainties": [
+      "快捷入口点击后是否跳转新页或筛选本页内容？截图未体现交互结果",
+      "'赞/收藏/有帮助'是否为合并入口？文本暗示多行为，但无子菜单可见",
+      "消息列表是否可下拉刷新？无刷新指示器可见",
+      "'长期未读消息'是否可展开？当前仅显示标题，无展开箭头"
+    ]
+  },
+  "page_summary": "summary unavailable",
+  "schema_version": "stage2_page.v1",
+  "derived_from_images": [],
+  "source_draft_files": [],
+  "source_draft_indexes": [],
+  "merge_decision": {},
+  "frame_blocks": [],
+  "key_texts": [],
+  "key_controls": [],
+  "interactions": [],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {},
+  "visual_style_hints": {},
+  "notes": [],
+  "page_semantic_role": "",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": []
+}

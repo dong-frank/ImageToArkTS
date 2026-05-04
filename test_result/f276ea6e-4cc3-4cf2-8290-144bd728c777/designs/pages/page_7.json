@@ -1,0 +1,259 @@
+{
+  "page_id": "page_7",
+  "page_name": "订单列表",
+  "page_role": "order_history_list",
+  "source_images": [
+    "/user_input/微信图片_20260425145652_821_24.png"
+  ],
+  "draft_indices": [
+    7
+  ],
+  "layout_summary": "垂直滚动列表页，顶部为搜索+分类筛选栏，中部为横排 tab 导航（全部订单/待付款/可使用/退款/售后），下方为订单卡片流；每张卡片含商品图、标题、价格、时间、状态标签及操作按钮。",
+  "ui_tree": {
+    "type": "ScrollView",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "HeaderBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "SearchBar",
+            "placeholder": "搜索我的订单",
+            "has_icon": true
+          },
+          {
+            "type": "Dropdown",
+            "label": "全部分类",
+            "is_expanded": false
+          }
+        ]
+      },
+      {
+        "type": "TabBar",
+        "items": [
+          {
+            "label": "全部订单",
+            "selected": true
+          },
+          {
+            "label": "待付款",
+            "selected": false
+          },
+          {
+            "label": "可使用",
+            "selected": false
+          },
+          {
+            "label": "退款/售后",
+            "selected": false
+          }
+        ]
+      },
+      {
+        "type": "Banner",
+        "content": "免费领神券",
+        "subtext": "吃喝玩乐都能用 下单一省再省",
+        "action_button": "立即领取",
+        "dismissable": true
+      },
+      {
+        "type": "OrderCardList",
+        "children": [
+          {
+            "type": "OrderCard",
+            "status_tag": "已成交",
+            "title": "100元代金券",
+            "subtitle": "1张 | 实付 ¥78.0",
+            "time": "下单时间：2025-12-05 19:17",
+            "image": true,
+            "actions": [
+              "删除",
+              "再来一单",
+              "发笔记"
+            ]
+          },
+          {
+            "type": "OrderCard",
+            "status_tag": "已成交",
+            "title": "矮子馅饼混合12个装9种口味选6种",
+            "subtitle": "1张 | 实付 ¥13.8",
+            "time": "下单时间：2025-11-30 15:59",
+            "image": true,
+            "actions": [
+              "删除",
+              "再来一单",
+              "发笔记"
+            ]
+          },
+          {
+            "type": "OrderCard",
+            "status_tag": "已就餐",
+            "title": "岭南说粥底火锅 (万达茂店)",
+            "subtitle": "2025-11-23(星期日)17:29",
+            "detail": "B37|3人就餐",
+            "image": true,
+            "actions": [
+              "删除"
+            ]
+          },
+          {
+            "type": "OrderCard",
+            "status_tag": "支付成功",
+            "title": "鮨鸟歡・烧鸟yakitori",
+            "subtitle": "10-24 17:32",
+            "detail": "消费 ¥206.00 实付 ¥177.00",
+            "image": true,
+            "actions": []
+          }
+        ]
+      }
+    ]
+  },
+  "structural_blocks": [
+    "TopBar (Back + Search + CategoryDropdown)",
+    "TabNavigation (4 tabs)",
+    "PromoBanner (non-modal, dismissable)",
+    "OrderCardStream (vertical list of uniform card structures)"
+  ],
+  "key_content": {
+    "visible_texts": [
+      "全部订单",
+      "待付款",
+      "可使用",
+      "退款/售后",
+      "免费领神券",
+      "吃喝玩乐都能用 下单一省再省",
+      "立即领取",
+      "100元代金券",
+      "1张 | 实付 ¥78.0",
+      "已成交",
+      "矮子馅饼混合12个装9种口味选6种",
+      "已就餐",
+      "岭南说粥底火锅 (万达茂店)",
+      "支付成功",
+      "鮨鸟歡・烧鸟yakitori"
+    ],
+    "key_controls": [
+      "BackButton",
+      "SearchBar",
+      "CategoryDropdown",
+      "Tab items",
+      "立即领取 (CTA button)",
+      "删除 (per-card)",
+      "再来一单",
+      "发笔记"
+    ]
+  },
+  "interaction_clues": [
+    "点击左上角 < 可返回上一页",
+    "点击搜索框可触发订单搜索",
+    "点击'全部分类'下拉可切换分类维度（未展开）",
+    "点击 tab 标签可切换订单状态视图",
+    "点击'立即领取'跳转领券页（推测）",
+    "每张订单卡右上角状态标签为只读标识",
+    "每张订单卡底部有 1–3 个操作按钮：'删除'（通用）、'再来一单'（仅商品类订单）、'发笔记'（仅商品类订单）",
+    "订单标题区域含 > 箭头，暗示可点击进入详情页（视觉线索）"
+  ],
+  "navigation_hints": {
+    "back_path": "上一级页面（可能为个人中心或首页）",
+    "exit_paths": [
+      "删除订单",
+      "返回"
+    ],
+    "main_cta": "立即领取（促销入口）",
+    "entry_points": [
+      "从个人中心进入'我的订单'",
+      "从支付成功页跳转至此"
+    ],
+    "exit_points": [
+      "点击订单标题进入订单详情",
+      "点击'再来一单'重新下单"
+    ],
+    "has_back": true,
+    "has_close": false
+  },
+  "state_hints": {
+    "active_tab": "全部订单",
+    "filter_state": "无显式筛选器激活，仅分类下拉未展开",
+    "order_status_labels": [
+      "已成交",
+      "已就餐",
+      "支付成功"
+    ],
+    "status_distribution": "当前可见订单均为已完成状态，无待付款/退款中项"
+  },
+  "overlay_hints": {
+    "has_overlay": false
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium"
+  },
+  "subpage_hints": {
+    "potential_parent": "个人中心 / 我的",
+    "potential_children": [
+      "订单详情页（点击订单标题）",
+      "领券页（点击'立即领取'）",
+      "重新下单页（点击'再来一单'）",
+      "笔记发布页（点击'发笔记'）"
+    ],
+    "drill_down_entries": [
+      "订单标题行（含 > 箭头）",
+      "商品图区域（可能也支持点击）"
+    ]
+  },
+  "implementation_semantics": {
+    "layout_pattern": "Standard List View with Sticky Header & Tab Navigation",
+    "important_visual_blocks": [
+      "Status-tagged Card (with image, title, price/time, action row)",
+      "Promo Banner with CTA and dismiss (X)",
+      "Tab bar with underline indicator"
+    ],
+    "style_hints": "浅灰分隔线、圆角卡片、橙色状态标签、白色背景主区；按钮为 outline style（灰色边框+文字）；选中 tab 有橙色下划线+加粗文本"
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "订单卡片中'>'箭头位于标题末尾，是关键下钻线索",
+      "'发笔记'按钮仅出现在前两张商品订单，第三张餐饮订单无此按钮",
+      "第四张订单无操作按钮，仅'删除'缺失，可能因状态为'支付成功'且非可复购类型",
+      "banner 右上角有 × 图标，明确可关闭"
+    ],
+    "key_facts": [
+      "共4条订单记录可见",
+      "状态标签颜色统一为橙色",
+      "时间格式不一致：前两单为'下单时间：YYYY-MM-DD HH:mm'，第三单为'YYYY-MM-DD(星期)HH:mm'，第四单为'MM-DD HH:mm'",
+      "'再来一单'与'发笔记'按钮并列，布局对齐一致"
+    ],
+    "uncertainties": [
+      "'全部分类'下拉菜单具体选项未知",
+      "点击订单标题是否跳转详情页未验证（仅视觉线索）",
+      "'已成交'与'支付成功'是否对应同一后端状态码未知",
+      "无'待付款'订单展示，不确定是数据为空还是当前筛选过滤所致",
+      "'B37|3人就餐'中'B37'含义不明（桌号？订单号片段？）"
+    ]
+  },
+  "page_summary": "summary unavailable",
+  "schema_version": "stage2_page.v1",
+  "derived_from_images": [],
+  "source_draft_files": [],
+  "source_draft_indexes": [],
+  "merge_decision": {},
+  "frame_blocks": [],
+  "key_texts": [],
+  "key_controls": [],
+  "interactions": [],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {},
+  "visual_style_hints": {},
+  "notes": [],
+  "page_semantic_role": "",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": []
+}

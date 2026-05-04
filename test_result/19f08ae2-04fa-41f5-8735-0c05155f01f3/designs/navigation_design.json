@@ -1,0 +1,372 @@
+{
+  "schema_version": "stage3_navigation.v1",
+  "entry_page_id": "service_hub",
+  "page_ids": [
+    "service_hub",
+    "email_inbox",
+    "vip_benefits",
+    "mail_compose",
+    "important_contacts",
+    "email_detail",
+    "invoice_setup",
+    "settings_root",
+    "settings_general",
+    "notification_new_mail",
+    "app_settings_list"
+  ],
+  "page_hierarchy": [
+    {
+      "page_id": "service_hub",
+      "page_role_in_app": "entry",
+      "parent_page_id": null,
+      "child_page_ids": [
+        "email_inbox",
+        "important_contacts",
+        "invoice_setup",
+        "mail_compose",
+        "settings_root",
+        "vip_benefits"
+      ],
+      "reasoning": "侧边栏/抽屉式服务导航中心，无返回按钮和底部导航栏，entry_candidate_hint为likely_entry，直接包含收件箱、重要联系人、VIP、写邮件、设置、发票等核心入口，是应用最可能的入口页。"
+    },
+    {
+      "page_id": "email_inbox",
+      "page_role_in_app": "content_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [
+        "email_detail"
+      ],
+      "reasoning": "邮件收件箱列表页，从service_hub收件箱入口进入，含返回箭头指向service_hub；列表项点击进入email_detail。"
+    },
+    {
+      "page_id": "email_detail",
+      "page_role_in_app": "detail_page",
+      "parent_page_id": "email_inbox",
+      "child_page_ids": [],
+      "reasoning": "邮件详情/阅读页，由email_inbox点击邮件下钻进入，含返回箭头指向email_inbox。"
+    },
+    {
+      "page_id": "vip_benefits",
+      "page_role_in_app": "detail_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "reasoning": "QQ邮箱会员权益展示页，由service_hub会员中心>链接进入，含返回箭头。"
+    },
+    {
+      "page_id": "mail_compose",
+      "page_role_in_app": "form_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "reasoning": "邮件撰写页，由service_hub的+按钮→写邮件菜单项触发，取消按钮dismiss返回来源页。"
+    },
+    {
+      "page_id": "important_contacts",
+      "page_role_in_app": "content_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "reasoning": "重要联系人列表页（当前空状态），由service_hub重要联系人入口进入，含返回箭头。"
+    },
+    {
+      "page_id": "invoice_setup",
+      "page_role_in_app": "subflow_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "reasoning": "发票功能开通页，由service_hub发票入口进入（或文件云盘模块下发票Tab首次触发），含返回箭头，底部有文件/中转站/发票三Tab表明其隶属文件云盘模块。service_hub为最可能直接父页面。"
+    },
+    {
+      "page_id": "settings_root",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "service_hub",
+      "child_page_ids": [
+        "notification_new_mail",
+        "settings_general"
+      ],
+      "reasoning": "设置根页，由service_hub的+按钮→设置菜单项进入，关闭按钮dismiss返回。含通用、邮件、储存、新邮件提醒等子入口。"
+    },
+    {
+      "page_id": "settings_general",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings_root",
+      "child_page_ids": [
+        "app_settings_list"
+      ],
+      "reasoning": "通用设置页，由settings_root通用入口进入，含返回箭头指向settings_root。应用设置入口指向app_settings_list。"
+    },
+    {
+      "page_id": "notification_new_mail",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings_root",
+      "child_page_ids": [],
+      "reasoning": "新邮件提醒设置详情页，由settings_root新邮件提醒分组进入，含返回箭头指向settings_root。"
+    },
+    {
+      "page_id": "app_settings_list",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings_general",
+      "child_page_ids": [],
+      "reasoning": "应用功能开关列表页，由settings_general应用设置入口进入，含返回箭头指向settings_general。"
+    }
+  ],
+  "relations": [
+    {
+      "relation_id": "hub_to_inbox",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "收件箱列表项",
+      "trigger_interaction_id": "tap_inbox",
+      "target_page_id": "email_inbox",
+      "confidence": "high",
+      "reasoning": "service_hub中收件箱列表项明确标注navigate操作，target_page_hint为收件箱邮件列表页；email_inbox有返回箭头指向service_hub，双向闭合。"
+    },
+    {
+      "relation_id": "hub_to_important_contacts",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "重要联系人列表项",
+      "trigger_interaction_id": "tap_important_contacts",
+      "target_page_id": "important_contacts",
+      "confidence": "high",
+      "reasoning": "service_hub中重要联系人列表项navigate操作，important_contacts有返回箭头且possible_parent_page_hints明确指向service_hub。"
+    },
+    {
+      "relation_id": "hub_to_vip",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "会员中心 > 链接",
+      "trigger_interaction_id": "nav_to_member_center",
+      "target_page_id": "vip_benefits",
+      "confidence": "high",
+      "reasoning": "service_hub中会员中心>链接navigate动作target为QQ邮箱会员页；vip_benefits页面标题'QQ邮箱会员'且有返回箭头，navigation_clue_summary明确由service_hub会员中心>入口进入。"
+    },
+    {
+      "relation_id": "hub_to_compose",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "写邮件菜单项",
+      "trigger_interaction_id": "overlay_write_mail",
+      "target_page_id": "mail_compose",
+      "confidence": "high",
+      "reasoning": "service_hub +按钮overlay中写邮件菜单项navigate动作target为邮件撰写页；mail_compose取消按钮返回来源页，possible_parent_page_hints含service_hub。"
+    },
+    {
+      "relation_id": "hub_to_settings",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "设置菜单项",
+      "trigger_interaction_id": "overlay_settings",
+      "target_page_id": "settings_root",
+      "confidence": "high",
+      "reasoning": "service_hub +按钮overlay中设置菜单项navigate动作target为设置根页；settings_root关闭按钮dismiss返回，possible_parent_page_hints指向service_hub。"
+    },
+    {
+      "relation_id": "hub_to_invoice",
+      "source_page_id": "service_hub",
+      "relation_type": "opens_child_page",
+      "trigger_label": "发票列表项",
+      "trigger_interaction_id": "tap_invoice",
+      "target_page_id": "invoice_setup",
+      "confidence": "medium",
+      "reasoning": "service_hub中发票列表项navigate动作target为发票功能页，invoice_setup为发票功能开通页。但invoice_setup导航栏标题为'文件云盘'且含底部Tab，可能经过文件云盘中间层；当前以service_hub为最可能直接父页面，可能存在中间跳转页未覆盖。"
+    },
+    {
+      "relation_id": "inbox_to_detail",
+      "source_page_id": "email_inbox",
+      "relation_type": "opens_child_page",
+      "trigger_label": "邮件项右侧 > 箭头",
+      "trigger_interaction_id": "mail_detail",
+      "target_page_id": "email_detail",
+      "confidence": "high",
+      "reasoning": "email_inbox中邮件项chevron navigate动作target为邮件详情页；email_detail返回箭头及navigation_clue_summary明确从email_inbox点击邮件进入。"
+    },
+    {
+      "relation_id": "inbox_back_to_hub",
+      "source_page_id": "email_inbox",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back_nav",
+      "target_page_id": "service_hub",
+      "confidence": "high",
+      "reasoning": "email_inbox返回箭头navigate_back，target_page_hint为上级页面(可能是服务导航中心)；与hub_to_inbox形成返回闭环。"
+    },
+    {
+      "relation_id": "settings_to_general",
+      "source_page_id": "settings_root",
+      "relation_type": "opens_child_page",
+      "trigger_label": "通用列表项",
+      "trigger_interaction_id": "general_settings",
+      "target_page_id": "settings_general",
+      "confidence": "high",
+      "reasoning": "settings_root中通用列表项navigate动作target为通用设置页；settings_general有返回箭头且possible_parent_page_hints指向settings_root。"
+    },
+    {
+      "relation_id": "settings_to_notification",
+      "source_page_id": "settings_root",
+      "relation_type": "opens_child_page",
+      "trigger_label": "新邮件提醒分组入口",
+      "trigger_interaction_id": null,
+      "target_page_id": "notification_new_mail",
+      "confidence": "medium",
+      "reasoning": "settings_root中'新邮件提醒'SectionDivider下含通用/邮件/储存三个子入口；notification_new_mail标题为'新邮件提醒'，possible_parent_page_hints指向settings_root(新邮件提醒分组)。但trigger_interaction_id无法精确匹配，因为settings_root未单独列出'新邮件提醒'作为独立interaction。"
+    },
+    {
+      "relation_id": "general_to_app_settings",
+      "source_page_id": "settings_general",
+      "relation_type": "opens_child_page",
+      "trigger_label": "应用设置列表项",
+      "trigger_interaction_id": "app_settings",
+      "target_page_id": "app_settings_list",
+      "confidence": "high",
+      "reasoning": "settings_general中应用设置列表项navigate动作target为应用设置列表页；app_settings_list有返回箭头且possible_parent_page_hints指向settings_general。"
+    },
+    {
+      "relation_id": "vip_back_to_hub",
+      "source_page_id": "vip_benefits",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "service_hub",
+      "confidence": "high",
+      "reasoning": "vip_benefits返回箭头navigate_back；由hub_to_vip确认service_hub为其父页面，返回闭合。"
+    },
+    {
+      "relation_id": "contacts_back_to_hub",
+      "source_page_id": "important_contacts",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "service_hub",
+      "confidence": "high",
+      "reasoning": "important_contacts返回箭头navigate_back，possible_parent_page_hints指向service_hub。"
+    },
+    {
+      "relation_id": "compose_cancel_to_hub",
+      "source_page_id": "mail_compose",
+      "relation_type": "returns_to",
+      "trigger_label": "取消按钮",
+      "trigger_interaction_id": "cancel",
+      "target_page_id": "service_hub",
+      "confidence": "medium",
+      "reasoning": "mail_compose取消按钮dismiss返回来源页面；来源页面可能是service_hub或email_inbox，优先service_hub因为写邮件入口在service_hub overlay中更直接。"
+    },
+    {
+      "relation_id": "detail_back_to_inbox",
+      "source_page_id": "email_detail",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "email_inbox",
+      "confidence": "high",
+      "reasoning": "email_detail返回箭头navigate_back，target_page_hint为邮件列表页；与inbox_to_detail形成闭合。"
+    },
+    {
+      "relation_id": "general_back_to_settings",
+      "source_page_id": "settings_general",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "settings_root",
+      "confidence": "high",
+      "reasoning": "settings_general返回箭头navigate_back，target_page_hint为设置根页。"
+    },
+    {
+      "relation_id": "app_settings_back_to_general",
+      "source_page_id": "app_settings_list",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "settings_general",
+      "confidence": "high",
+      "reasoning": "app_settings_list返回箭头navigate_back，target_page_hint为通用设置页或上级设置。"
+    },
+    {
+      "relation_id": "notification_back_to_settings",
+      "source_page_id": "notification_new_mail",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "settings_root",
+      "confidence": "medium",
+      "reasoning": "notification_new_mail返回箭头navigate_back，target_page_hint为设置根页或上级设置页。"
+    },
+    {
+      "relation_id": "invoice_back_to_hub",
+      "source_page_id": "invoice_setup",
+      "relation_type": "returns_to",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_id": "service_hub",
+      "confidence": "low",
+      "reasoning": "invoice_setup返回箭头navigate_back；其父页面可能是service_hub或文件云盘中转页。由于文件云盘中转页不在当前页面集合中，保守以service_hub为目标。"
+    }
+  ],
+  "unresolved_relation_hints": [
+    {
+      "source_page_id": "email_inbox",
+      "trigger_label": "右上角编辑铅笔图标",
+      "trigger_interaction_id": "edit_mode",
+      "target_page_hint": null,
+      "reasoning": "email_inbox编辑按钮enter_edit_mode，target为批量管理模式。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "email_inbox",
+      "trigger_label": "搜索框",
+      "trigger_interaction_id": "search",
+      "target_page_hint": null,
+      "reasoning": "搜索框focus_search，target为搜索结果页。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "vip_benefits",
+      "trigger_label": "开通按钮",
+      "trigger_interaction_id": "activate_vip",
+      "target_page_hint": null,
+      "reasoning": "开通按钮target为会员开通支付页。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "invoice_setup",
+      "trigger_label": "确定按钮",
+      "trigger_interaction_id": "confirm",
+      "target_page_hint": null,
+      "reasoning": "确定按钮submit_authorization target为发票主列表页或功能引导。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "settings_root",
+      "trigger_label": "邮件列表项",
+      "trigger_interaction_id": "mail_settings",
+      "target_page_hint": null,
+      "reasoning": "settings_root邮件列表项navigate动作target为邮件设置页。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "service_hub",
+      "trigger_label": "星标邮件列表项",
+      "trigger_interaction_id": "tap_starred",
+      "target_page_hint": null,
+      "reasoning": "星标邮件列表项navigate动作target为星标邮件列表页。该目标页未在页面集合中。"
+    },
+    {
+      "source_page_id": "service_hub",
+      "trigger_label": "任一文件夹列表项",
+      "trigger_interaction_id": "tap_folder_item",
+      "target_page_hint": null,
+      "reasoning": "文件夹列表项navigate动作target为对应文件夹的邮件列表页。这些目标页可能是email_inbox的状态变体而非独立页面。"
+    },
+    {
+      "source_page_id": "invoice_setup",
+      "trigger_label": "左上角返回箭头",
+      "trigger_interaction_id": "back",
+      "target_page_hint": null,
+      "reasoning": "invoice_setup导航栏标题'文件云盘'暗示存在文件云盘中转页/主页，service_hub→文件云盘→发票(setup)的三级链路。该中间页面未在集合中。"
+    }
+  ],
+  "global_notes": [
+    "应用采用侧边栏/抽屉式主菜单架构（service_hub），而非底部Tab主导航。service_hub是唯一入口页。",
+    "email_inbox自身含三标签页（收件箱/未读邮件/管理）为同页状态切换，非独立页面间导航；文件夹抽屉overlay切换也不离开当前页。",
+    "invoice_setup含底部三Tab（文件/中转站/发票），暗示文件云盘模块内存在Tab切换体系，但仅发票Tab对应页面被覆盖。文件/中转站Tab对应页面未纳入集合。",
+    "设置子树形成三级链路：settings_root → settings_general → app_settings_list。notification_new_mail由settings_root直接进入，为二级子页。",
+    "vip_benefits中'开通'按钮指向支付页、'去了解'指向权益详情页，均未在页面集合中覆盖。",
+    "important_contacts仅覆盖空状态，非空状态页面结构未知。同理，星标邮件列表页未覆盖。",
+    "service_hub与email_inbox的文件夹列表存在重叠（两者均含已发送/草稿箱/已删除/垃圾箱/群邮件/QQ邮件订阅/dear/邮件归档等），但用途不同：service_hub为导航抽屉（主导航层级），email_inbox的folder_drawer为同页overlay切换。",
+    "mail_compose可能也可从email_inbox进入（如回复转发），但当前证据仅确认service_hub的overlay入口。",
+    "3个页面从partial draft恢复（settings_root, notification_new_mail, app_settings_list），交互结构可能不完整。",
+    "invoice_setup的导航栏标题'文件云盘'与页面内容'发票'之间的不一致暗示存在文件云盘容器页作为中间层，该页面未被覆盖。"
+  ]
+}

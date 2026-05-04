@@ -1,0 +1,322 @@
+{
+  "page_id": "food_list",
+  "page_name": "美食列表",
+  "page_role": "standalone_page",
+  "page_summary": "美食分类列表页，从首页'美食'入口进入。含搜索栏、横向快捷操作（附近/排行榜/会员）、分类标签筛选（全城/距离/好评优先/会员领券等）、商家卡片列表（含评分/价格/距离/标签/优惠信息）。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145646_815_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_1.json"
+  ],
+  "source_draft_indexes": [
+    1
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为partial状态但raw_observation可恢复完整页面语义，结构清晰，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": [
+      "draft为partial状态，部分字段从raw_observation恢复"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "TitleBar",
+        "id": "title_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "美食"
+          },
+          {
+            "type": "LocationText",
+            "text": "高科荣境"
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "id": "search_bar",
+        "placeholder": "搜索美食、餐厅等"
+      },
+      {
+        "type": "QuickActionRow",
+        "id": "quick_actions",
+        "children": [
+          {
+            "type": "QuickAction",
+            "label": "附近",
+            "icon": "location"
+          },
+          {
+            "type": "QuickAction",
+            "label": "排行榜",
+            "icon": "trophy"
+          },
+          {
+            "type": "QuickAction",
+            "label": "会员",
+            "icon": "crown"
+          }
+        ]
+      },
+      {
+        "type": "FilterBar",
+        "id": "filter_bar",
+        "children": [
+          {
+            "type": "FilterTab",
+            "label": "全城",
+            "has_dropdown": true
+          },
+          {
+            "type": "FilterTab",
+            "label": "距离",
+            "has_dropdown": true
+          },
+          {
+            "type": "FilterTab",
+            "label": "好评优先",
+            "has_dropdown": true
+          },
+          {
+            "type": "FilterTab",
+            "label": "会员领券",
+            "has_dropdown": true
+          }
+        ]
+      },
+      {
+        "type": "BusinessCardList",
+        "id": "business_list",
+        "children": [
+          {
+            "type": "BusinessCard",
+            "title": "杨天歌冒菜·麻辣香锅 (仙林店)",
+            "rating": "3.8",
+            "review_count": "3435条",
+            "price": "¥85/人",
+            "tags": [
+              "海鲜火锅",
+              "仙林大学城"
+            ],
+            "distance": "4.6km",
+            "badge": "会员6.8折",
+            "rank": "仙林大学城火锅打卡人气榜 · 第2名"
+          },
+          {
+            "type": "BusinessCard",
+            "title": "开云 (仙林美糖庄)",
+            "rating": "4.2",
+            "review_count": "3435条",
+            "price": "¥85/人",
+            "tags": [
+              "海鲜火锅",
+              "仙林大学城"
+            ],
+            "distance": "4.6km",
+            "badge": "会员6.8折",
+            "rank": "仙林大学城火锅打卡人气榜 · 第2名"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "title_bar",
+      "block_role": "navigation",
+      "summary": "标题栏：返回按钮 + '美食'标题 + 位置'高科荣境'"
+    },
+    {
+      "block_id": "search_bar",
+      "block_role": "search",
+      "summary": "搜索栏：搜索美食、餐厅等"
+    },
+    {
+      "block_id": "quick_actions",
+      "block_role": "filter_navigation",
+      "summary": "横向快捷操作：附近/排行榜/会员"
+    },
+    {
+      "block_id": "filter_bar",
+      "block_role": "filter",
+      "summary": "筛选栏：全城/距离/好评优先/会员领券"
+    },
+    {
+      "block_id": "business_list",
+      "block_role": "content",
+      "summary": "商家卡片列表（可滚动），含评分/价格/距离/标签/优惠"
+    }
+  ],
+  "key_texts": [
+    "美食",
+    "高科荣境",
+    "搜索美食、餐厅等",
+    "附近",
+    "排行榜",
+    "会员",
+    "全城",
+    "距离",
+    "好评优先",
+    "会员领券",
+    "杨天歌冒菜·麻辣香锅 (仙林店)",
+    "3.8",
+    "3435条",
+    "¥85/人",
+    "海鲜火锅",
+    "仙林大学城",
+    "仙林大学城火锅打卡人气榜 · 第2名",
+    "会员6.8折",
+    "4.6km"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页",
+      "target_page_hint": "首页"
+    },
+    {
+      "interaction_id": "search",
+      "trigger": "点击搜索栏",
+      "action": "搜索美食",
+      "target_page_hint": "搜索结果页"
+    },
+    {
+      "interaction_id": "quick_action_tap",
+      "trigger": "点击附近/排行榜/会员",
+      "action": "切换视图",
+      "target_page_hint": "附近页/排行榜页/会员页"
+    },
+    {
+      "interaction_id": "filter_tap",
+      "trigger": "点击筛选标签",
+      "action": "展开筛选下拉",
+      "target_page_hint": "筛选面板"
+    },
+    {
+      "interaction_id": "business_tap",
+      "trigger": "点击商家卡片",
+      "action": "进入商家详情",
+      "target_page_hint": "商家详情页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "CategoryListLayout: TitleBar + Search + QuickActions + FilterBar + CardList",
+    "important_visual_blocks": [
+      "FilterBar（横向滚动标签）",
+      "BusinessCard（左图右文+评分+标签+优惠badge）"
+    ],
+    "styling_hints": "浅色背景，橙色品牌色，圆角卡片"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙色品牌色",
+    "density": "信息密集型列表"
+  },
+  "page_semantic_role": "list",
+  "target_page_hints": [
+    "商家详情页",
+    "搜索结果页",
+    "排行榜页",
+    "会员页"
+  ],
+  "possible_parent_page_hints": [
+    "home_discovery"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "draft为partial状态，部分信息从raw_observation恢复",
+    "列表仅展示2项，实际可滚动更多"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "content_page",
+    "is_entry": false,
+    "parent_page_id": "home_discovery",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {
+        "source_page_id": "home_discovery",
+        "relation_type": "opens_child_page",
+        "trigger_label": "美食分类图标",
+        "trigger_interaction_id": "category_tap",
+        "confidence": "high"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "home_discovery",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "high"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": false,
+      "is_bottom_tab_member": false,
+      "is_top_level_page": false,
+      "is_stack_destination": true
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "relation_type": "returns_to",
+        "target_page_id": "home_discovery",
+        "confidence": "high",
+        "reasoning": "美食列表页导航栏返回按钮明确指向首页。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "商家卡片",
+        "trigger_interaction_id": "business_tap",
+        "target_page_hint": "商家详情页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "美食列表商家卡片点击应进入商家详情页，未覆盖。"
+      },
+      {
+        "trigger_label": "搜索栏",
+        "trigger_interaction_id": "search",
+        "target_page_hint": "搜索结果页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "美食列表搜索栏应跳转搜索结果页，未覆盖。"
+      },
+      {
+        "trigger_label": "附近/排行榜/会员",
+        "trigger_interaction_id": "quick_action_tap",
+        "target_page_hint": "附近页/排行榜页/会员页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "快捷操作按钮应跳转对应页面，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "筛选标签",
+        "trigger_interaction_id": "filter_tap",
+        "why_not_navigation": "展开筛选下拉面板，为同页overlay操作。"
+      }
+    ],
+    "navigation_targets_summary": "返回按钮回到home_discovery。商家详情、搜索结果、排行榜等目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "返回按钮应实现为栈弹出（pop），而非显式导航到home_discovery",
+      "商家卡片、搜索栏、快捷操作的目标页未覆盖，不应实现为确认路由",
+      "筛选标签为同页下拉面板，不应实现为导航"
+    ],
+    "navigation_notes": "从首页美食分类进入的内容列表页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

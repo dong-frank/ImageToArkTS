@@ -1,0 +1,226 @@
+{
+  "page_id": "feedback_form",
+  "page_name": "意见反馈",
+  "page_role": "standalone_page",
+  "page_summary": "意见反馈表单页，含提示横幅、场景选择（2×2网格：功能异常/体验问题/商家信息/其他）、文本输入区（300字限制）、图片上传、联系方式输入、提交按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429232721_953_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_26.json"
+  ],
+  "source_draft_indexes": [
+    26
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "意见反馈"
+          }
+        ]
+      },
+      {
+        "type": "AlertBanner",
+        "id": "alert_banner",
+        "text": "请选择反馈类型并详细描述您遇到的问题，我们会尽快处理"
+      },
+      {
+        "type": "ScenarioGrid",
+        "id": "scenario_grid",
+        "rows": 2,
+        "cols": 2,
+        "children": [
+          {
+            "type": "ScenarioCard",
+            "label": "功能异常",
+            "icon": "bug"
+          },
+          {
+            "type": "ScenarioCard",
+            "label": "体验问题",
+            "icon": "sentiment"
+          },
+          {
+            "type": "ScenarioCard",
+            "label": "商家信息",
+            "icon": "store"
+          },
+          {
+            "type": "ScenarioCard",
+            "label": "其他",
+            "icon": "more"
+          }
+        ]
+      },
+      {
+        "type": "TextArea",
+        "id": "feedback_text",
+        "placeholder": "请详细描述您的问题（300字以内）",
+        "max_length": 300
+      },
+      {
+        "type": "ImageUpload",
+        "id": "image_upload",
+        "label": "添加图片（选填）",
+        "max_count": 9
+      },
+      {
+        "type": "ContactInput",
+        "id": "contact_input",
+        "placeholder": "请输入联系方式（选填）"
+      },
+      {
+        "type": "SubmitButton",
+        "id": "submit_button",
+        "text": "提交",
+        "style": "primary"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '意见反馈'标题"
+    },
+    {
+      "block_id": "alert_banner",
+      "block_role": "alert",
+      "summary": "提示横幅：请选择反馈类型并详细描述"
+    },
+    {
+      "block_id": "scenario_grid",
+      "block_role": "input",
+      "summary": "2×2场景选择：功能异常/体验问题/商家信息/其他"
+    },
+    {
+      "block_id": "feedback_text",
+      "block_role": "input",
+      "summary": "文本输入区（300字限制）"
+    },
+    {
+      "block_id": "image_upload",
+      "block_role": "input",
+      "summary": "图片上传（选填，最多9张）"
+    },
+    {
+      "block_id": "contact_input",
+      "block_role": "input",
+      "summary": "联系方式输入（选填）"
+    },
+    {
+      "block_id": "submit_button",
+      "block_role": "action",
+      "summary": "提交按钮"
+    }
+  ],
+  "key_texts": [
+    "意见反馈",
+    "请选择反馈类型并详细描述您遇到的问题，我们会尽快处理",
+    "功能异常",
+    "体验问题",
+    "商家信息",
+    "其他",
+    "请详细描述您的问题（300字以内）",
+    "添加图片（选填）",
+    "请输入联系方式（选填）",
+    "提交"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    },
+    {
+      "interaction_id": "select_scenario",
+      "trigger": "点击场景卡片",
+      "action": "选择反馈类型"
+    },
+    {
+      "interaction_id": "input_text",
+      "trigger": "点击文本区",
+      "action": "输入反馈内容"
+    },
+    {
+      "interaction_id": "upload_image",
+      "trigger": "点击'添加图片'",
+      "action": "选择图片上传"
+    },
+    {
+      "interaction_id": "input_contact",
+      "trigger": "点击联系方式输入框",
+      "action": "输入联系方式"
+    },
+    {
+      "interaction_id": "submit",
+      "trigger": "点击'提交'",
+      "action": "提交反馈",
+      "target_page_hint": "提交成功页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "FormLayout: NavBar + AlertBanner + ScenarioGrid + TextArea + ImageUpload + ContactInput + SubmitButton",
+    "important_visual_blocks": [
+      "ScenarioGrid（2×2场景卡片）",
+      "TextArea（多行文本输入）",
+      "SubmitButton（橙色主按钮）"
+    ],
+    "styling_hints": "浅色背景，表单样式，橙色提交按钮"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙色提交按钮",
+    "density": "标准表单页"
+  },
+  "page_semantic_role": "form",
+  "target_page_hints": [
+    "提交成功页"
+  ],
+  "possible_parent_page_hints": [
+    "settings_root"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "场景选择为2×2网格",
+    "文本限制300字",
+    "图片最多9张",
+    "联系方式和图片为选填"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "form_page",
+    "is_entry": false,
+    "parent_page_id": "settings_root",
+    "child_page_ids": [],
+    "incoming_relations": [{"source_page_id":"settings_root","relation_type":"opens_child_page","trigger_label":"意见反馈","trigger_interaction_id":"feedback","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"settings_root","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"settings_root","confidence":"high","reasoning":"意见反馈页返回按钮指向上一页。"}],
+    "unresolved_navigation_actions": [{"trigger_label":"提交按钮","trigger_interaction_id":"submit","target_page_hint":"提交成功页","possible_relation_type":"opens_child_page","reasoning":"意见反馈提交后应跳转提交成功页，未覆盖。"}],
+    "non_navigation_interaction_hints": [{"trigger_label":"场景选择卡片","trigger_interaction_id":"select_scenario","why_not_navigation":"选择反馈类型，为同页表单操作。"},{"trigger_label":"文本输入/图片上传/联系方式输入","trigger_interaction_id":"input_text","why_not_navigation":"表单输入操作，非页面跳转。"}],
+    "navigation_targets_summary": "返回按钮回到settings_root。提交后目标页（提交成功页）未覆盖。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","表单输入和场景选择为同页操作，不应实现为导航","提交成功页未覆盖，提交后导航行为待确认"],
+    "navigation_notes": "从设置页'意见反馈'进入的表单页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

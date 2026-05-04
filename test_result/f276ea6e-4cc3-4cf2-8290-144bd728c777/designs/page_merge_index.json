@@ -1,0 +1,1182 @@
+{
+  "schema_version": "stage2_index.v1",
+  "page_index": [
+    {
+      "page_id": "home_discovery",
+      "page_name": "首页",
+      "page_file_path": "/designs/pages/home_discovery.json",
+      "page_role": "entry",
+      "page_summary": "大众点评本地生活服务聚合首页，支持城市切换（南京）、分类导航（10类图标网格）、榜单推荐、免费试活动入口、双列UGC内容流，底部Tab栏选中'首页'。",
+      "source_images": [
+        "/user_input/微信图片_20260425145645_814_24.png"
+      ],
+      "source_draft_indexes": [
+        0
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "home",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "分类列表页",
+        "搜索结果页",
+        "商家详情页",
+        "活动详情页",
+        "UGC帖子详情页",
+        "城市选择页"
+      ],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [
+        "food_list",
+        "content_detail",
+        "map_poi",
+        "messages",
+        "my_profile"
+      ],
+      "entry_candidate_hint": "confirmed_entry",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "food_list",
+      "page_name": "美食列表",
+      "page_file_path": "/designs/pages/food_list.json",
+      "page_role": "standalone_page",
+      "page_summary": "美食分类列表页，从首页'美食'入口进入。含搜索栏、横向快捷操作（附近/排行榜/会员）、分类标签筛选（全城/距离/好评优先/会员领券等）、商家卡片列表（含评分/价格/距离/标签/优惠信息）。",
+      "source_images": [
+        "/user_input/微信图片_20260425145646_815_24.png"
+      ],
+      "source_draft_indexes": [
+        1
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为partial状态但raw_observation可恢复完整页面语义，结构清晰，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "list",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "商家详情页",
+        "搜索结果页",
+        "排行榜页",
+        "会员页"
+      ],
+      "possible_parent_page_hints": [
+        "home_discovery"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "content_detail",
+      "page_name": "内容详情",
+      "page_file_path": "/designs/pages/content_detail.json",
+      "page_role": "standalone_page",
+      "page_summary": "UGC探店笔记详情页，展示作者信息（万君）、图片轮播（1/18）、标题、正文、位置标签（东部山庄·农家乐·4.5星）、互动栏（点赞/评论/收藏/分享）、'进店 >'CTA按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260425145647_816_24.png"
+      ],
+      "source_draft_indexes": [
+        2
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "商家详情页"
+      ],
+      "possible_parent_page_hints": [
+        "home_discovery"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "map_poi",
+      "page_name": "地图",
+      "page_file_path": "/designs/pages/map_poi.json",
+      "page_role": "standalone_page",
+      "page_summary": "美团地图POI探索页，以地图为底图叠加本地生活POI标注（餐饮/景点/购物等），支持分类标签筛选、POI卡片列表浏览，底部Tab栏选中'地图'。",
+      "source_images": [
+        "/user_input/微信图片_20260425145649_817_24.png"
+      ],
+      "source_draft_indexes": [
+        3
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "map",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "POI详情页",
+        "必吃榜专题页",
+        "搜索结果页"
+      ],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "messages",
+      "page_name": "消息",
+      "page_file_path": "/designs/pages/messages.json",
+      "page_role": "standalone_page",
+      "page_summary": "消息中心页，展示用户各类通知与互动消息，按类型分类聚合（活动消息/系统消息），含快捷入口（赞/收藏/有帮助、评论和@、新增粉丝），底部Tab栏选中'消息'。",
+      "source_images": [
+        "/user_input/微信图片_20260425145650_818_24.png"
+      ],
+      "source_draft_indexes": [
+        4
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "messages",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "消息详情页",
+        "系统通知设置页",
+        "添加好友页",
+        "活动详情页"
+      ],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [
+        "activity_messages"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "action_hub_overlay",
+      "page_name": "功能选择面板",
+      "page_file_path": "/designs/pages/action_hub_overlay.json",
+      "page_role": "overlay",
+      "page_summary": "底部弹出式功能选择面板（Bottom Sheet），提供快捷操作入口：打卡、写评价、发笔记、标记好去处、添加商户，底部有×关闭按钮。无导航栏、无标题，为临时浮层，非独立页面。",
+      "source_images": [
+        "/user_input/微信图片_20260425145652_821_24.png"
+      ],
+      "source_draft_indexes": [
+        5
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "该draft为partial状态但raw_observation可恢复完整语义。判定为overlay而非独立页面：无导航栏、无标题、底部×关闭按钮、卡片式操作入口。",
+      "merge_variant_type": "overlay",
+      "page_semantic_role": "overlay",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "打卡页",
+        "写评价页",
+        "发笔记页",
+        "标记好去处页",
+        "添加商户页"
+      ],
+      "possible_parent_page_hints": [
+        "home_discovery",
+        "map_poi"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": true,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "my_profile",
+      "page_name": "我的",
+      "page_file_path": "/designs/pages/my_profile.json",
+      "page_role": "standalone_page",
+      "page_summary": "用户个人中心首页，展示用户身份信息（猫馋喜之郎/Lv4/VIP/黑金会员）、行为统计卡片（打卡29次/足迹66/用餐41次）、评价摘要（37条/2.2万浏览/1244人帮助）、功能图标网格（8项）、活动推广卡片（4项），底部Tab栏选中'我的'。",
+      "source_images": [
+        "/user_input/微信图片_20260425145651_820_24.png"
+      ],
+      "source_draft_indexes": [
+        6
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "profile",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "设置页",
+        "订单列表",
+        "收藏列表",
+        "卡券页",
+        "钱包页",
+        "评价列表",
+        "免费试活动",
+        "大众评审活动",
+        "签到页",
+        "活动中心"
+      ],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [
+        "settings_root",
+        "order_list",
+        "my_checkin"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "order_list",
+      "page_name": "订单列表",
+      "page_file_path": "/designs/pages/order_list.json",
+      "page_role": "standalone_page",
+      "page_summary": "用户订单历史列表页，支持按状态筛选（全部订单/待付款/可使用/退款/售后），含搜索栏、分类下拉、促销横幅、订单卡片列表（含状态标签和操作按钮）。",
+      "source_images": [
+        "/user_input/微信图片_20260425145653_822_24.png"
+      ],
+      "source_draft_indexes": [
+        7
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "list",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "支付页",
+        "写评价页",
+        "抽奖活动页",
+        "下单页"
+      ],
+      "possible_parent_page_hints": [
+        "my_profile"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "settings_root",
+      "page_name": "设置",
+      "page_file_path": "/designs/pages/settings_root.json",
+      "page_role": "standalone_page",
+      "page_summary": "设置根页面，包含14+个设置项，分为多个分组：个人资料、账号与安全、消息通知设置、隐私管理、通用、长辈版、未成年人模式、多语言、存储空间、诊断网络、隐私政策、个人信息收集清单、第三方信息数据共享、意见反馈、关于我们、热线电话、退出登录。由draft 8（上部）和draft 18（下部）滚动互补合并。",
+      "source_images": [
+        "/user_input/微信图片_20260425145654_823_24.png",
+        "/user_input/微信图片_20260429232712_948_24.png"
+      ],
+      "source_draft_indexes": [
+        8,
+        18
+      ],
+      "source_draft_count": 2,
+      "merge_summary": "draft 8和draft 18为同一设置页面的不同滚动区域。draft 8展示上部（个人资料~意见反馈），draft 18展示下部（通用~退出登录）。两者标题均为'设置'，结构一致，为滚动互补关系。合并为单一设置根页面。",
+      "merge_variant_type": "scroll_complement",
+      "page_semantic_role": "settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "个人资料页",
+        "账号与安全页",
+        "消息通知设置页",
+        "隐私管理页",
+        "通用设置页",
+        "长辈版页",
+        "未成年人模式页",
+        "多语言页",
+        "存储空间页",
+        "网络诊断页",
+        "隐私政策详情页",
+        "个人信息收集清单页",
+        "第三方SDK清单页",
+        "意见反馈页",
+        "关于我们页",
+        "登录页"
+      ],
+      "possible_parent_page_hints": [
+        "my_profile"
+      ],
+      "possible_child_page_hints": [
+        "account_security",
+        "notification_settings",
+        "privacy_management",
+        "general_settings",
+        "language_settings",
+        "storage_space",
+        "privacy_policy_detail",
+        "third_party_sdk_list",
+        "feedback_form",
+        "about_us",
+        "personal_info_management",
+        "system_permission_management",
+        "device_info",
+        "app_info",
+        "message_page_settings"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "account_security",
+      "page_name": "账号与安全",
+      "page_file_path": "/designs/pages/account_security.json",
+      "page_role": "standalone_page",
+      "page_summary": "账号与安全设置子页，展示手机号（135****3087）、密码修改、第三方账号绑定（微信已绑定/QQ未绑定）、注销账号入口。",
+      "source_images": [
+        "/user_input/微信图片_20260425145655_824_24.png"
+      ],
+      "source_draft_indexes": [
+        9
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "修改手机号页",
+        "修改密码页",
+        "微信绑定管理页",
+        "QQ绑定页",
+        "注销账号确认页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "notification_settings",
+      "page_name": "消息通知设置",
+      "page_file_path": "/designs/pages/notification_settings.json",
+      "page_role": "standalone_page",
+      "page_summary": "消息通知设置子页，分为'大众点评未打开时'（系统通知开关）和'大众点评打开时'（3个通知开关）两个分组，底部有'消息页设置'入口。",
+      "source_images": [
+        "/user_input/微信图片_20260425145656_825_24.png"
+      ],
+      "source_draft_indexes": [
+        10
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "消息页设置",
+        "系统设置"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [
+        "message_page_settings"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "message_page_settings",
+      "page_name": "消息页设置",
+      "page_file_path": "/designs/pages/message_page_settings.json",
+      "page_role": "standalone_page",
+      "page_summary": "消息页设置子页，包含10个开关项，分为'消息设置'（8项）和'私信消息接收设置'（2项）两个分组，所有开关均为ON状态。",
+      "source_images": [
+        "/user_input/微信图片_20260425145657_826_24.png"
+      ],
+      "source_draft_indexes": [
+        11
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "notification_settings"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "privacy_management",
+      "page_name": "隐私管理",
+      "page_file_path": "/designs/pages/privacy_management.json",
+      "page_role": "standalone_page",
+      "page_summary": "隐私管理设置子页，由draft 12（上部）、draft 22（中部）、draft 23（下部）滚动互补合并。包含个人信息管理、系统权限管理、个人主页设置、关系及互动设置、分享设置、隐私说明、个性化设置等分组。",
+      "source_images": [
+        "/user_input/微信图片_20260425145658_827_24.png",
+        "/user_input/微信图片_20260429232717_949_24.png",
+        "/user_input/微信图片_20260429232718_950_24.png"
+      ],
+      "source_draft_indexes": [
+        12,
+        22,
+        23
+      ],
+      "source_draft_count": 3,
+      "merge_summary": "draft 12、22、23为同一隐私管理页面的不同滚动区域。draft 12展示上部（个人信息~关系及互动设置），draft 22展示中部（分享设置~个性化设置），draft 23展示下部（隐私政策~我有疑问）。三者标题均为'隐私管理'，为滚动互补关系。合并为单一隐私管理页面。",
+      "merge_variant_type": "scroll_complement",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "个人信息查看与管理页",
+        "个人信息下载页",
+        "系统权限管理页",
+        "推荐设置页",
+        "解除第三方好友关系页",
+        "黑名单页",
+        "私信权限设置页",
+        "隐私政策详情页",
+        "隐私政策概要页",
+        "应用权限说明页",
+        "未成年人保护页",
+        "帮助/反馈页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [
+        "personal_info_management",
+        "system_permission_management",
+        "privacy_policy_detail"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "personal_info_management",
+      "page_name": "个人信息查看与管理",
+      "page_file_path": "/designs/pages/personal_info_management.json",
+      "page_role": "standalone_page",
+      "page_summary": "个人信息查看与管理子页，展示3个入口：账号资料、当前设备信息、应用相关信息。",
+      "source_images": [
+        "/user_input/微信图片_20260425145659_828_24.png"
+      ],
+      "source_draft_indexes": [
+        13
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "账号资料页",
+        "当前设备信息页",
+        "应用相关信息页"
+      ],
+      "possible_parent_page_hints": [
+        "privacy_management"
+      ],
+      "possible_child_page_hints": [
+        "device_info",
+        "app_info"
+      ],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "device_info",
+      "page_name": "当前设备信息",
+      "page_file_path": "/designs/pages/device_info.json",
+      "page_role": "standalone_page",
+      "page_summary": "当前设备信息详情页，展示设备关键参数：操作系统(iOS)、系统版本(26.3.1)、分辨率(1179*2556)、语言(简体中文)、地区(中国)、时区(Asia/Shanghai)。",
+      "source_images": [
+        "/user_input/微信图片_20260425145700_829_24.png"
+      ],
+      "source_draft_indexes": [
+        14
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "personal_info_management"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "general_settings",
+      "page_name": "通用",
+      "page_file_path": "/designs/pages/general_settings.json",
+      "page_role": "standalone_page",
+      "page_summary": "通用设置子页，包含3个开关：视频智能省流量(ON)、视频默认静音播放(OFF)、首页自动刷新(ON)。",
+      "source_images": [
+        "/user_input/微信图片_20260425145701_830_24.png"
+      ],
+      "source_draft_indexes": [
+        15
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "language_settings",
+      "page_name": "多语言",
+      "page_file_path": "/designs/pages/language_settings.json",
+      "page_role": "standalone_page",
+      "page_summary": "多语言设置子页，含'跟随系统设置'开关(OFF)和语言列表（简体中文选中/English/日本語/한국어），右上角'保存'按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260425145702_831_24.png"
+      ],
+      "source_draft_indexes": [
+        16
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "privacy_policy_detail",
+      "page_name": "隐私政策详情",
+      "page_file_path": "/designs/pages/privacy_policy_detail.json",
+      "page_role": "standalone_page",
+      "page_summary": "大众点评隐私政策全文页，展示发布日期/更新日期/生效日期、引言段落、8项隐私政策条款目录。",
+      "source_images": [
+        "/user_input/微信图片_20260429232713_947_24.png"
+      ],
+      "source_draft_indexes": [
+        17
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为partial状态但raw_observation可恢复完整页面语义，结构清晰，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "privacy_management",
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "about_us",
+      "page_name": "关于我们",
+      "page_file_path": "/designs/pages/about_us.json",
+      "page_role": "standalone_page",
+      "page_summary": "关于我们页面，展示大众点评Logo、版本号V11.61.13、6个功能入口（检查新版本/喜欢我们打分鼓励/帮助商户/协议与声明/营业执照/举报信息）。",
+      "source_images": [
+        "/user_input/微信图片_20260429232714_945_24.png"
+      ],
+      "source_draft_indexes": [
+        19
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "App Store",
+        "商户帮助页",
+        "协议与声明页",
+        "营业执照详情",
+        "举报页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "app_info",
+      "page_name": "应用相关信息",
+      "page_file_path": "/designs/pages/app_info.json",
+      "page_role": "standalone_page",
+      "page_summary": "应用相关信息详情页，展示应用关键参数：名称(大众点评)、下载渠道(App Store)、版本号(11.62.3)、语言(中文)。",
+      "source_images": [
+        "/user_input/微信图片_20260429232715_946_24.png"
+      ],
+      "source_draft_indexes": [
+        20
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "personal_info_management"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "system_permission_management",
+      "page_name": "系统权限管理",
+      "page_file_path": "/designs/pages/system_permission_management.json",
+      "page_role": "standalone_page",
+      "page_summary": "系统权限管理子页，展示7项系统权限及其状态：位置(已允许访问)、相机(已允许访问)、麦克风(已允许访问)、相册(已允许访问)、通知(暂未允许)、日历(OFF)、通讯录(OFF)。",
+      "source_images": [
+        "/user_input/微信图片_20260429232716_948_24.png"
+      ],
+      "source_draft_indexes": [
+        21
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "系统设置"
+      ],
+      "possible_parent_page_hints": [
+        "privacy_management"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "storage_space",
+      "page_name": "存储空间",
+      "page_file_path": "/designs/pages/storage_space.json",
+      "page_role": "standalone_page",
+      "page_summary": "存储空间管理子页，展示大众点评已用空间(1.2 GB)及分类明细：缓存(253.3 MB，可清理)、草稿箱(19.7 KB，可管理)、必要文件(921.3 MB)。",
+      "source_images": [
+        "/user_input/微信图片_20260429232719_951_24.png"
+      ],
+      "source_draft_indexes": [
+        24
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "草稿箱管理页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "third_party_sdk_list",
+      "page_name": "第三方SDK信息清单",
+      "page_file_path": "/designs/pages/third_party_sdk_list.json",
+      "page_role": "standalone_page",
+      "page_summary": "大众点评与第三方共享个人信息清单页，展示引言说明和SDK列表表格（含SDK名称/第三方公司/使用目的/收集个人信息类型/隐私政策链接），当前可见1条SDK记录。",
+      "source_images": [
+        "/user_input/微信图片_20260429232720_952_24.png"
+      ],
+      "source_draft_indexes": [
+        25
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "第三方隐私政策页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "feedback_form",
+      "page_name": "意见反馈",
+      "page_file_path": "/designs/pages/feedback_form.json",
+      "page_role": "standalone_page",
+      "page_summary": "意见反馈表单页，含提示横幅、场景选择（2×2网格：功能异常/体验问题/商家信息/其他）、文本输入区（300字限制）、图片上传、联系方式输入、提交按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260429232721_953_24.png"
+      ],
+      "source_draft_indexes": [
+        26
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "form",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "提交成功页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "activity_messages",
+      "page_name": "活动消息",
+      "page_file_path": "/designs/pages/activity_messages.json",
+      "page_role": "standalone_page",
+      "page_summary": "活动消息列表页，展示来自'点小二'和'大众评审'的系统推送消息卡片，含春日好礼抽取提醒、大众评审官入选通知等，每条消息含头像/发信人/时间/标题/摘要/CTA链接。",
+      "source_images": [
+        "/user_input/微信图片_20260429232721_954_24.png"
+      ],
+      "source_draft_indexes": [
+        27
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。与draft 4（消息中心）不同：draft 4是消息中心聚合页，draft 27是活动消息详情列表页。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "list",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "春日好礼活动页",
+        "大众评审官详情页",
+        "消息详情页"
+      ],
+      "possible_parent_page_hints": [
+        "messages"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "my_checkin",
+      "page_name": "我的打卡",
+      "page_file_path": "/designs/pages/my_checkin.json",
+      "page_role": "standalone_page",
+      "page_summary": "用户打卡记录页，展示用户打卡摘要（猫馋 Lv4/累计打卡29次/3城市24地点）、日历视图（4月）、高光时刻、打卡初体验、全部打卡记录列表（含筛选栏）、底部FAB'打卡'按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260429232722_955_24.png"
+      ],
+      "source_draft_indexes": [
+        28
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单draft定稿。该draft为partial状态但raw_observation可恢复完整页面语义，结构清晰，无需合并。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "list",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [
+        "打卡详情页",
+        "打卡发布页"
+      ],
+      "possible_parent_page_hints": [
+        "my_profile"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    }
+  ],
+  "draft_disposition_map": [
+    {
+      "draft_index": 0,
+      "draft_file": "/designs/page_drafts/page_draft_0.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "home_discovery",
+      "reason": "success draft，独立首页，无合并对象。"
+    },
+    {
+      "draft_index": 1,
+      "draft_file": "/designs/page_drafts/page_draft_1.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "food_list",
+      "reason": "partial draft，从raw_observation恢复，为美食分类列表独立页。"
+    },
+    {
+      "draft_index": 2,
+      "draft_file": "/designs/page_drafts/page_draft_2.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "content_detail",
+      "reason": "success draft，UGC内容详情独立页。"
+    },
+    {
+      "draft_index": 3,
+      "draft_file": "/designs/page_drafts/page_draft_3.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "map_poi",
+      "reason": "success draft，地图POI独立页。"
+    },
+    {
+      "draft_index": 4,
+      "draft_file": "/designs/page_drafts/page_draft_4.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "messages",
+      "reason": "success draft，消息中心独立页。"
+    },
+    {
+      "draft_index": 5,
+      "draft_file": "/designs/page_drafts/page_draft_5.json",
+      "disposition": "kept_as_overlay_variant",
+      "target_page_id": "action_hub_overlay",
+      "reason": "partial draft，无导航栏/无标题/有×关闭按钮，判定为overlay。"
+    },
+    {
+      "draft_index": 6,
+      "draft_file": "/designs/page_drafts/page_draft_6.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "my_profile",
+      "reason": "success draft，个人中心独立页。"
+    },
+    {
+      "draft_index": 7,
+      "draft_file": "/designs/page_drafts/page_draft_7.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "order_list",
+      "reason": "success draft，订单列表独立页。"
+    },
+    {
+      "draft_index": 8,
+      "draft_file": "/designs/page_drafts/page_draft_8.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "settings_root",
+      "reason": "与draft 18为同一设置页面的不同滚动区域，draft 8展示上部。"
+    },
+    {
+      "draft_index": 9,
+      "draft_file": "/designs/page_drafts/page_draft_9.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "account_security",
+      "reason": "success draft，账号与安全设置子页。"
+    },
+    {
+      "draft_index": 10,
+      "draft_file": "/designs/page_drafts/page_draft_10.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "notification_settings",
+      "reason": "success draft，消息通知设置子页。"
+    },
+    {
+      "draft_index": 11,
+      "draft_file": "/designs/page_drafts/page_draft_11.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "message_page_settings",
+      "reason": "success draft，消息页设置子页。"
+    },
+    {
+      "draft_index": 12,
+      "draft_file": "/designs/page_drafts/page_draft_12.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "privacy_management",
+      "reason": "与draft 22、23为同一隐私管理页面的不同滚动区域，draft 12展示上部。"
+    },
+    {
+      "draft_index": 13,
+      "draft_file": "/designs/page_drafts/page_draft_13.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "personal_info_management",
+      "reason": "success draft，个人信息查看与管理子页。"
+    },
+    {
+      "draft_index": 14,
+      "draft_file": "/designs/page_drafts/page_draft_14.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "device_info",
+      "reason": "success draft，当前设备信息详情页。"
+    },
+    {
+      "draft_index": 15,
+      "draft_file": "/designs/page_drafts/page_draft_15.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "general_settings",
+      "reason": "success draft，通用设置子页。"
+    },
+    {
+      "draft_index": 16,
+      "draft_file": "/designs/page_drafts/page_draft_16.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "language_settings",
+      "reason": "success draft，多语言设置子页。"
+    },
+    {
+      "draft_index": 17,
+      "draft_file": "/designs/page_drafts/page_draft_17.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "privacy_policy_detail",
+      "reason": "partial draft，从raw_observation恢复，隐私政策详情页。"
+    },
+    {
+      "draft_index": 18,
+      "draft_file": "/designs/page_drafts/page_draft_18.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "settings_root",
+      "reason": "与draft 8为同一设置页面的不同滚动区域，draft 18展示下部。"
+    },
+    {
+      "draft_index": 19,
+      "draft_file": "/designs/page_drafts/page_draft_19.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "about_us",
+      "reason": "success draft，关于我们子页。"
+    },
+    {
+      "draft_index": 20,
+      "draft_file": "/designs/page_drafts/page_draft_20.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "app_info",
+      "reason": "success draft，应用相关信息详情页。"
+    },
+    {
+      "draft_index": 21,
+      "draft_file": "/designs/page_drafts/page_draft_21.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "system_permission_management",
+      "reason": "success draft，系统权限管理子页。"
+    },
+    {
+      "draft_index": 22,
+      "draft_file": "/designs/page_drafts/page_draft_22.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "privacy_management",
+      "reason": "与draft 12、23为同一隐私管理页面的不同滚动区域，draft 22展示中部。"
+    },
+    {
+      "draft_index": 23,
+      "draft_file": "/designs/page_drafts/page_draft_23.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "privacy_management",
+      "reason": "与draft 12、22为同一隐私管理页面的不同滚动区域，draft 23展示下部。"
+    },
+    {
+      "draft_index": 24,
+      "draft_file": "/designs/page_drafts/page_draft_24.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "storage_space",
+      "reason": "success draft，存储空间子页。"
+    },
+    {
+      "draft_index": 25,
+      "draft_file": "/designs/page_drafts/page_draft_25.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "third_party_sdk_list",
+      "reason": "success draft，第三方SDK清单页。"
+    },
+    {
+      "draft_index": 26,
+      "draft_file": "/designs/page_drafts/page_draft_26.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "feedback_form",
+      "reason": "success draft，意见反馈表单页。"
+    },
+    {
+      "draft_index": 27,
+      "draft_file": "/designs/page_drafts/page_draft_27.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "activity_messages",
+      "reason": "success draft，活动消息列表页，与draft 4消息中心不同。"
+    },
+    {
+      "draft_index": 28,
+      "draft_file": "/designs/page_drafts/page_draft_28.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "my_checkin",
+      "reason": "partial draft，从raw_observation恢复，我的打卡页。"
+    }
+  ],
+  "validation_summary": {
+    "page_count": 26,
+    "page_index_count": 26,
+    "draft_count_total": 29,
+    "drafts_with_disposition_count": 29,
+    "used_draft_indexes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28
+    ],
+    "unused_draft_indexes": [],
+    "warnings": [
+      "page_count=26 includes 25 standalone pages + 1 overlay (action_hub_overlay)",
+      "drafts 8+18 merged into settings_root",
+      "drafts 12+22+23 merged into privacy_management",
+      "draft 5 kept as overlay, not standalone page",
+      "drafts 1, 17, 28 are partial but recovered from raw_observation",
+      "page_index item auto-added for page_id=home_discovery because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=food_list because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=content_detail because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=map_poi because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=messages because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=action_hub_overlay because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=my_profile because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=order_list because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=settings_root because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=account_security because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=notification_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=message_page_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=privacy_management because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=personal_info_management because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=device_info because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=general_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=language_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=privacy_policy_detail because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=about_us because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=app_info because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=system_permission_management because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=storage_space because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=third_party_sdk_list because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=feedback_form because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=activity_messages because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=my_checkin because it was missing in payload.page_index"
+    ],
+    "schema_version": "stage2_validation.v1"
+  }
+}

@@ -1,0 +1,233 @@
+{
+  "page_id": "page_5",
+  "page_name": "功能入口面板",
+  "page_role": "primary_action_sheet",
+  "source_images": [
+    "/user_input/微信图片_20260425145650_819_24.png"
+  ],
+  "draft_indices": [
+    5
+  ],
+  "observation_status": "partial",
+  "layout_summary": "垂直流式布局，上部为三组彩色卡片式主操作入口（两横一纵），中部为带图标的辅助功能区，底部为全局关闭按钮；整体采用渐变色块+图标+简短引导语的轻量设计风格",
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "CardGroup",
+        "id": "main_actions",
+        "children": [
+          {
+            "type": "ActionCard",
+            "id": "check_in_card",
+            "label": "打卡",
+            "subtitle": "打卡记录当下时刻",
+            "icon": "location_pin",
+            "color_gradient": "light_green_to_lime",
+            "has_chevron": true
+          },
+          {
+            "type": "ActionCard",
+            "id": "review_card",
+            "label": "写评价",
+            "subtitle": "写真实评价，帮他人选店",
+            "icon": "pencil_note",
+            "color_gradient": "yellow_to_gold",
+            "has_chevron": true
+          },
+          {
+            "type": "ActionCard",
+            "id": "post_note_card",
+            "label": "发笔记",
+            "subtitle": "分享你的生活好去处",
+            "color_gradient": "orange_to_red",
+            "has_chevron": true,
+            "badge": {
+              "text": "创作灵感",
+              "color": "purple_to_pink",
+              "position": "top_right"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "id": "secondary_actions",
+        "children": [
+          {
+            "type": "ActionItem",
+            "id": "mark_place_item",
+            "label": "标记好去处",
+            "subtitle": "添加出片点，标记私藏打卡地",
+            "icon": null,
+            "thumbnail": "landscape_view_with_chairs",
+            "has_chevron": true
+          },
+          {
+            "type": "ActionItem",
+            "id": "add_merchant_item",
+            "label": "添加商户",
+            "icon": "store_plus",
+            "has_chevron": true
+          }
+        ]
+      },
+      {
+        "type": "GlobalControl",
+        "id": "close_button",
+        "element_type": "circle_button",
+        "content": "×",
+        "position": "bottom_center"
+      }
+    ]
+  },
+  "structural_blocks": [
+    {
+      "block_id": "primary_cta_grid",
+      "description": "顶部双卡并列 + 单卡扩展的三入口主操作区",
+      "stability": "high"
+    },
+    {
+      "block_id": "secondary_feature_list",
+      "description": "带缩略图与文字的次级功能列表",
+      "stability": "medium"
+    },
+    {
+      "block_id": "global_dismiss",
+      "description": "底部居中关闭按钮，疑似模态层出口",
+      "stability": "high"
+    }
+  ],
+  "key_content": {
+    "visible_texts": [
+      "打卡",
+      "打卡记录当下时刻",
+      "写评价",
+      "写真实评价，帮他人选店",
+      "发笔记",
+      "分享你的生活好去处",
+      "创作灵感",
+      "标记好去处",
+      "添加出片点，标记私藏打卡地",
+      "添加商户"
+    ],
+    "key_controls": [
+      "check_in_card",
+      "review_card",
+      "post_note_card",
+      "mark_place_item",
+      "add_merchant_item",
+      "close_button (×)"
+    ]
+  },
+  "interaction_clues": [
+    "点击'打卡'卡片进入打卡流程",
+    "点击'写评价'卡片进入评价编辑",
+    "点击'发笔记'卡片进入笔记编辑",
+    "点击'标记好去处'进入地点标记",
+    "点击'添加商户'进入商户添加",
+    "点击底部 × 关闭面板"
+  ],
+  "navigation_hints": {
+    "back_path": null,
+    "exit_paths": [
+      "close_button (×)"
+    ],
+    "main_cta": "post_note_card / check_in_card",
+    "entry_points": [
+      "从地图/详情页浮层唤起",
+      "从个人主页快捷入口"
+    ],
+    "exit_points": [
+      "各卡片跳转至对应表单页",
+      "× 关闭返回上一屏"
+    ],
+    "has_back": false,
+    "has_close": true
+  },
+  "state_hints": {},
+  "overlay_hints": {
+    "has_overlay": true,
+    "overlay_type": "modal_sheet",
+    "trigger_source": "uncertain (likely from map or profile)",
+    "dismiss_method": "tap × button or tap outside (inferred)",
+    "content_summary": "功能选择面板，非内容详情页；底部有明确关闭控件，符合模态层特征"
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "low",
+    "same_page_anchor_signals": [
+      "所有卡片共享同一视觉层级与动线逻辑"
+    ],
+    "independent_page_signals": [
+      "底部 × 按钮强烈暗示为 overlay 而非独立页面",
+      "无导航栏/标题栏，不符合标准页面结构",
+      "功能高度聚合，无分页/滚动内容主体"
+    ]
+  },
+  "subpage_hints": {
+    "potential_parent": "map_view / profile_home / discovery_feed",
+    "potential_children": [
+      "check_in_form_page",
+      "review_editor_page",
+      "note_creation_page",
+      "place_marking_editor"
+    ],
+    "drill_down_entries": [
+      "check_in_card → 打卡表单",
+      "review_card → 评价编辑页",
+      "post_note_card → 笔记编辑页",
+      "mark_place_item → 地点标记页"
+    ]
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalStackWithCardGrid",
+    "important_visual_blocks": [
+      "GradientActionCard (3 types)",
+      "ThumbnailActionItem",
+      "CircularDismissButton"
+    ],
+    "style_hints": "明亮渐变主色（绿/黄/橙）+ 紫色点缀，粗体主标题 + 细体副标题，卡片间留白充足"
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "底部 × 按钮位置与样式（圆角白底黑叉）",
+      "'创作灵感'标签叠加在橙色卡片右上角，非独立按钮",
+      "'标记好去处'项含真实缩略图（湖景+椅+棕榈树）",
+      "无顶部状态栏以外的导航栏"
+    ],
+    "key_facts": [
+      "页面无标题栏",
+      "所有主操作均带右向箭头",
+      "共4个可点击主功能项 + 1个辅助项 + 1个关闭项",
+      "色彩分区明确：绿→打卡，黄→评价，橙→笔记"
+    ],
+    "uncertainties": [
+      "是否为全屏 modal 或半屏 bottom sheet？仅凭截图无法确认高度",
+      "'添加商户'图标为 store_plus，但未见明确品牌标识，不确定是否为第三方接入",
+      "'创作灵感'标签是否可点击？当前无视觉反馈线索",
+      "缩略图是否可点击？当前仅作为装饰，无点击指示"
+    ]
+  },
+  "page_summary": "summary unavailable",
+  "schema_version": "stage2_page.v1",
+  "derived_from_images": [],
+  "source_draft_files": [],
+  "source_draft_indexes": [],
+  "merge_decision": {},
+  "frame_blocks": [],
+  "key_texts": [],
+  "key_controls": [],
+  "interactions": [],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {},
+  "visual_style_hints": {},
+  "notes": [],
+  "page_semantic_role": "",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": []
+}

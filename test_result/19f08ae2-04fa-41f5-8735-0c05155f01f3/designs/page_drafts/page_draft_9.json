@@ -1,0 +1,615 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260425153210_927_24.jpg",
+    "filename": "微信图片_20260425153210_927_24.jpg",
+    "capture_time": "15:25",
+    "app_context": "邮件客户端（疑似 QQ 邮箱）",
+    "ui_language": "zh-CN",
+    "screen_orientation": "portrait",
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "draft_index": 9,
+    "image_path": "/user_input/微信图片_20260425153210_927_24.jpg",
+    "image_name": "微信图片_20260425153210_927_24.jpg"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "邮箱文件夹列表弹窗",
+      "收件箱侧边栏菜单",
+      "邮件分类导航面板"
+    ],
+    "page_id_candidate": "mailbox_folder_drawer",
+    "page_role": "navigation_drawer",
+    "title_text": "收件箱",
+    "distinguishing_text": [
+      "357",
+      "821",
+      "69",
+      "未读邮件",
+      "管理"
+    ],
+    "purpose_summary": "提供邮件分类导航与快速切换入口，当前处于展开状态，覆盖主邮件列表上方",
+    "candidate_page_name": "微信图片_20260425153210_927_24.jpg",
+    "candidate_page_id": "page_9",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "左侧垂直滚动菜单面板，浅蓝底高亮当前选中项（收件箱），其余为白色背景条目；右侧部分可见主邮件列表内容，呈卡片式时间线布局。",
+    "visual_semantics": "这是一个轻量级抽屉式导航菜单，用于在邮件主界面中快速切换邮箱文件夹。菜单具有图标+文字+未读数标签的统一结构，整体风格简洁、功能导向。"
+  },
+  "ui_tree": {
+    "type": "DrawerPanel",
+    "children": [
+      {
+        "type": "FolderItem",
+        "icon": "inbox",
+        "label": "收件箱",
+        "badge": "357",
+        "selected": true,
+        "accessibility_label": "收件箱，357封邮件"
+      },
+      {
+        "type": "FolderItem",
+        "icon": "star",
+        "label": "星标邮件",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "sent",
+        "label": "已发送",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "draft",
+        "label": "草稿箱",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "trash",
+        "label": "已删除",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "bin",
+        "label": "垃圾箱",
+        "badge": "1",
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "folder",
+        "label": "未读邮件",
+        "badge": "821",
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "folder",
+        "label": "群邮件",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "bookmark",
+        "label": "重要联系人",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "folder",
+        "label": "QQ邮件订阅",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "folder",
+        "label": "dear",
+        "badge": null,
+        "selected": false
+      },
+      {
+        "type": "FolderItem",
+        "icon": "folder",
+        "label": "邮件归档",
+        "badge": "69",
+        "selected": false
+      },
+      {
+        "type": "SettingsItem",
+        "icon": "gear",
+        "label": "管理",
+        "badge": null,
+        "selected": false
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "primary_folder_list",
+      "description": "核心系统文件夹组：收件箱、星标、已发送、草稿、已删除",
+      "items_count": 5
+    },
+    {
+      "block_id": "secondary_folder_list",
+      "description": "辅助/自定义文件夹组：垃圾箱、未读邮件、群邮件、重要联系人、QQ邮件订阅、dear、邮件归档",
+      "items_count": 7
+    },
+    {
+      "block_id": "utility_item",
+      "description": "设置入口：管理",
+      "items_count": 1
+    }
+  ],
+  "key_content": {
+    "text_elements": [
+      "收件箱",
+      "星标邮件",
+      "已发送",
+      "草稿箱",
+      "已删除",
+      "垃圾箱",
+      "未读邮件",
+      "群邮件",
+      "重要联系人",
+      "QQ邮件订阅",
+      "dear",
+      "邮件归档",
+      "管理",
+      "357",
+      "821",
+      "1",
+      "69",
+      "OpenRouter, Inc",
+      "Your OpenRouter, Inc receipt [#1811-9112]"
+    ],
+    "control_elements": [
+      "左上角返回箭头（位于主界面顶部栏）",
+      "右上角编辑图标（铅笔）",
+      "邮箱地址 '34@qq.com'（部分遮挡）",
+      "顶部标签栏：收件箱 ↑｜未读邮件｜管理"
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "selection_change",
+      "target": "FolderItem",
+      "description": "点击任意 FolderItem 可切换邮件视图；当前'收件箱'被选中"
+    },
+    {
+      "clue_type": "drawer_dismiss",
+      "target": "background_area",
+      "description": "点击右侧邮件列表区域可关闭该抽屉菜单"
+    },
+    {
+      "clue_type": "edit_mode_toggle",
+      "target": "pencil_icon",
+      "description": "右上角铅笔图标可能进入编辑/整理模式（如重命名、排序）"
+    },
+    {
+      "clue_type": "navigation_up",
+      "target": "back_arrow",
+      "description": "左上角返回箭头应返回上一级（可能为账户选择页或主邮箱列表）"
+    }
+  ],
+  "navigation_hints": {
+    "return_path": "左上角返回箭头 → 上一级页面（推测为账户主页或邮箱总览）",
+    "exit_path": "点击右侧邮件列表区域 → 关闭抽屉，返回主邮件列表",
+    "main_cta": "点击'收件箱'（当前已选）维持当前视图；点击其他文件夹切换视图",
+    "entry_points": [
+      "顶部导航栏'收件箱 ↑'下拉触发（最可能）",
+      "侧边栏按钮（未见，但常见于此类 UI）"
+    ],
+    "exit_points": [
+      "点击非菜单区域",
+      "点击返回箭头",
+      "点击顶部'管理'标签（可能跳转至设置页）"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "selected_item": "收件箱",
+    "badge_counts": {
+      "收件箱": 357,
+      "未读邮件": 821,
+      "垃圾箱": 1,
+      "邮件归档": 69
+    },
+    "active_tab": "收件箱",
+    "status_indicators": [
+      "收件箱项背景浅蓝，表示 active",
+      "未读邮件 badge 蓝色背景，强调未读聚合"
+    ],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "page_state_tags": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": true,
+    "overlay_type": "drawer_menu",
+    "trigger_source": "顶部导航栏'收件箱 ↑'下拉箭头或手势滑出",
+    "dismiss_method": "点击外部区域 / 返回键 / 滑动关闭",
+    "content_summary": "邮件文件夹分类导航菜单，含系统默认与用户自定义文件夹",
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchor": "顶部导航栏'收件箱 ↑'与抽屉中'收件箱'高亮项语义一致，表明为同一逻辑页面的不同表现态",
+    "state_difference_evidence": "抽屉展开时，主列表仍可见（半透明遮罩未完全覆盖），说明是轻量 overlay，非全屏新页面",
+    "independent_page_signal": false,
+    "recommendation": "应归并为单一'邮箱主界面'，抽屉为 transient state（展开态）",
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "账户总览页 / 多账户选择页（由返回箭头推断）",
+    "potential_children": [
+      "单封邮件详情页（由邮件列表项推断，非本图直接可见）",
+      "文件夹管理页（由'管理'项推断）"
+    ],
+    "drilldown_entries": [
+      "点击邮件列表中的'OpenRouter, Inc'条目 → 邮件详情",
+      "点击'管理' → 文件夹设置页"
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "DrawerOverlay over ScrollView (mail list)",
+    "visual_blocks": [
+      {
+        "block": "FolderItem",
+        "style": "flex-row, icon-left, label-center, badge-right, padding-vertical=16px, hover/click feedback via background color"
+      },
+      {
+        "block": "SelectedIndicator",
+        "style": "left-border or background-fill with light blue (#E6F4FF)"
+      }
+    ],
+    "accessibility_notes": "每个 FolderItem 应支持 VoiceOver 朗读'收件箱，357封邮件，已选中'等语义",
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "收件箱（高亮 + 357）",
+      "未读邮件（821，蓝色 badge）",
+      "顶部三标签：收件箱 ↑｜未读邮件｜管理",
+      "右上角铅笔图标",
+      "左上角返回箭头",
+      "邮箱地址'34@qq.com'（部分模糊）",
+      "邮件列表首条：OpenRouter, Inc receipt"
+    ],
+    "key_facts": [
+      "抽屉覆盖在邮件列表之上，非全屏",
+      "所有文件夹项均带图标，样式统一",
+      "'dear'为用户自定义文件夹名（无图标语义，仅文字）",
+      "'管理'使用齿轮图标，与其他文件夹区分"
+    ],
+    "uncertainties": [
+      "顶部标签栏是否可点击切换？当前'收件箱 ↑'含向上箭头，暗示下拉菜单已展开，但不确定该标签本身是否可点",
+      "'未读邮件'是否为智能聚合视图（非物理文件夹）？从 badge 821 与位置推断是，但截图未明示",
+      "右侧邮件列表是否可滚动？可见部分含多条邮件，但无法确认完整高度",
+      "抽屉是否支持拖拽关闭？无视觉线索，保留为未知"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260425153210_927_24.jpg",
+        "filename": "微信图片_20260425153210_927_24.jpg",
+        "capture_time": "15:25",
+        "app_context": "邮件客户端（疑似 QQ 邮箱）",
+        "ui_language": "zh-CN",
+        "screen_orientation": "portrait"
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "邮箱文件夹列表弹窗",
+          "收件箱侧边栏菜单",
+          "邮件分类导航面板"
+        ],
+        "page_id_candidate": "mailbox_folder_drawer",
+        "page_role": "navigation_drawer",
+        "title_text": "收件箱",
+        "distinguishing_text": [
+          "357",
+          "821",
+          "69",
+          "未读邮件",
+          "管理"
+        ],
+        "purpose_summary": "提供邮件分类导航与快速切换入口，当前处于展开状态，覆盖主邮件列表上方"
+      },
+      "page_overview": {
+        "layout_summary": "左侧垂直滚动菜单面板，浅蓝底高亮当前选中项（收件箱），其余为白色背景条目；右侧部分可见主邮件列表内容，呈卡片式时间线布局。",
+        "visual_semantics": "这是一个轻量级抽屉式导航菜单，用于在邮件主界面中快速切换邮箱文件夹。菜单具有图标+文字+未读数标签的统一结构，整体风格简洁、功能导向。"
+      },
+      "ui_tree": {
+        "type": "DrawerPanel",
+        "children": [
+          {
+            "type": "FolderItem",
+            "icon": "inbox",
+            "label": "收件箱",
+            "badge": "357",
+            "selected": true,
+            "accessibility_label": "收件箱，357封邮件"
+          },
+          {
+            "type": "FolderItem",
+            "icon": "star",
+            "label": "星标邮件",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "sent",
+            "label": "已发送",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "draft",
+            "label": "草稿箱",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "trash",
+            "label": "已删除",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "bin",
+            "label": "垃圾箱",
+            "badge": "1",
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "folder",
+            "label": "未读邮件",
+            "badge": "821",
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "folder",
+            "label": "群邮件",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "bookmark",
+            "label": "重要联系人",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "folder",
+            "label": "QQ邮件订阅",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "folder",
+            "label": "dear",
+            "badge": null,
+            "selected": false
+          },
+          {
+            "type": "FolderItem",
+            "icon": "folder",
+            "label": "邮件归档",
+            "badge": "69",
+            "selected": false
+          },
+          {
+            "type": "SettingsItem",
+            "icon": "gear",
+            "label": "管理",
+            "badge": null,
+            "selected": false
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "primary_folder_list",
+          "description": "核心系统文件夹组：收件箱、星标、已发送、草稿、已删除",
+          "items_count": 5
+        },
+        {
+          "block_id": "secondary_folder_list",
+          "description": "辅助/自定义文件夹组：垃圾箱、未读邮件、群邮件、重要联系人、QQ邮件订阅、dear、邮件归档",
+          "items_count": 7
+        },
+        {
+          "block_id": "utility_item",
+          "description": "设置入口：管理",
+          "items_count": 1
+        }
+      ],
+      "key_content": {
+        "text_elements": [
+          "收件箱",
+          "星标邮件",
+          "已发送",
+          "草稿箱",
+          "已删除",
+          "垃圾箱",
+          "未读邮件",
+          "群邮件",
+          "重要联系人",
+          "QQ邮件订阅",
+          "dear",
+          "邮件归档",
+          "管理",
+          "357",
+          "821",
+          "1",
+          "69",
+          "OpenRouter, Inc",
+          "Your OpenRouter, Inc receipt [#1811-9112]"
+        ],
+        "control_elements": [
+          "左上角返回箭头（位于主界面顶部栏）",
+          "右上角编辑图标（铅笔）",
+          "邮箱地址 '34@qq.com'（部分遮挡）",
+          "顶部标签栏：收件箱 ↑｜未读邮件｜管理"
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "selection_change",
+          "target": "FolderItem",
+          "description": "点击任意 FolderItem 可切换邮件视图；当前‘收件箱’被选中"
+        },
+        {
+          "clue_type": "drawer_dismiss",
+          "target": "background_area",
+          "description": "点击右侧邮件列表区域可关闭该抽屉菜单"
+        },
+        {
+          "clue_type": "edit_mode_toggle",
+          "target": "pencil_icon",
+          "description": "右上角铅笔图标可能进入编辑/整理模式（如重命名、排序）"
+        },
+        {
+          "clue_type": "navigation_up",
+          "target": "back_arrow",
+          "description": "左上角返回箭头应返回上一级（可能为账户选择页或主邮箱列表）"
+        }
+      ],
+      "navigation_hints": {
+        "return_path": "左上角返回箭头 → 上一级页面（推测为账户主页或邮箱总览）",
+        "exit_path": "点击右侧邮件列表区域 → 关闭抽屉，返回主邮件列表",
+        "main_cta": "点击‘收件箱’（当前已选）维持当前视图；点击其他文件夹切换视图",
+        "entry_points": [
+          "顶部导航栏‘收件箱 ↑’下拉触发（最可能）",
+          "侧边栏按钮（未见，但常见于此类 UI）"
+        ],
+        "exit_points": [
+          "点击非菜单区域",
+          "点击返回箭头",
+          "点击顶部‘管理’标签（可能跳转至设置页）"
+        ]
+      },
+      "state_hints": {
+        "selected_item": "收件箱",
+        "badge_counts": {
+          "收件箱": 357,
+          "未读邮件": 821,
+          "垃圾箱": 1,
+          "邮件归档": 69
+        },
+        "active_tab": "收件箱",
+        "status_indicators": [
+          "收件箱项背景浅蓝，表示 active",
+          "未读邮件 badge 蓝色背景，强调未读聚合"
+        ]
+      },
+      "overlay_hints": {
+        "has_overlay": true,
+        "overlay_type": "drawer_menu",
+        "trigger_source": "顶部导航栏‘收件箱 ↑’下拉箭头或手势滑出",
+        "dismiss_method": "点击外部区域 / 返回键 / 滑动关闭",
+        "content_summary": "邮件文件夹分类导航菜单，含系统默认与用户自定义文件夹"
+      },
+      "merge_hints": {
+        "same_page_anchor": "顶部导航栏‘收件箱 ↑’与抽屉中‘收件箱’高亮项语义一致，表明为同一逻辑页面的不同表现态",
+        "state_difference_evidence": "抽屉展开时，主列表仍可见（半透明遮罩未完全覆盖），说明是轻量 overlay，非全屏新页面",
+        "independent_page_signal": false,
+        "recommendation": "应归并为单一‘邮箱主界面’，抽屉为 transient state（展开态）"
+      },
+      "subpage_hints": {
+        "potential_parent": "账户总览页 / 多账户选择页（由返回箭头推断）",
+        "potential_children": [
+          "单封邮件详情页（由邮件列表项推断，非本图直接可见）",
+          "文件夹管理页（由‘管理’项推断）"
+        ],
+        "drilldown_entries": [
+          "点击邮件列表中的‘OpenRouter, Inc’条目 → 邮件详情",
+          "点击‘管理’ → 文件夹设置页"
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "DrawerOverlay over ScrollView (mail list)",
+        "visual_blocks": [
+          {
+            "block": "FolderItem",
+            "style": "flex-row, icon-left, label-center, badge-right, padding-vertical=16px, hover/click feedback via background color"
+          },
+          {
+            "block": "SelectedIndicator",
+            "style": "left-border or background-fill with light blue (#E6F4FF)"
+          }
+        ],
+        "accessibility_notes": "每个 FolderItem 应支持 VoiceOver 朗读‘收件箱，357封邮件，已选中’等语义"
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "收件箱（高亮 + 357）",
+          "未读邮件（821，蓝色 badge）",
+          "顶部三标签：收件箱 ↑｜未读邮件｜管理",
+          "右上角铅笔图标",
+          "左上角返回箭头",
+          "邮箱地址‘34@qq.com’（部分模糊）",
+          "邮件列表首条：OpenRouter, Inc receipt"
+        ],
+        "key_facts": [
+          "抽屉覆盖在邮件列表之上，非全屏",
+          "所有文件夹项均带图标，样式统一",
+          "‘dear’为用户自定义文件夹名（无图标语义，仅文字）",
+          "‘管理’使用齿轮图标，与其他文件夹区分"
+        ],
+        "uncertainties": [
+          "顶部标签栏是否可点击切换？当前‘收件箱 ↑’含向上箭头，暗示下拉菜单已展开，但不确定该标签本身是否可点",
+          "‘未读邮件’是否为智能聚合视图（非物理文件夹）？从 badge 821 与位置推断是，但截图未明示",
+          "右侧邮件列表是否可滚动？可见部分含多条邮件，但无法确认完整高度",
+          "抽屉是否支持拖拽关闭？无视觉线索，保留为未知"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

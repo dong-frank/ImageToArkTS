@@ -1,0 +1,183 @@
+{
+  "page_id": "more_settings",
+  "page_name": "更多设置",
+  "page_role": "settings_subpage",
+  "page_summary": "微信'更多'设置页。提供非核心功能开关与入口：未成年人模式(导航)、关怀模式(导航)、自动保存拍摄或编辑后的图片(绿色Toggle开)、自动保存拍摄或编辑后的视频(绿色Toggle开)、系统权限(导航)、表情(导航)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151222_870_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_13.json"
+  ],
+  "source_draft_indexes": [
+    13
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为'更多'设置页完整结构，无可靠合并对象。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<"
+          },
+          {
+            "type": "Title",
+            "text": "更多"
+          }
+        ]
+      },
+      {
+        "type": "ListArea",
+        "children": [
+          {
+            "type": "ListItem",
+            "label": "未成年人模式",
+            "trailing": {
+              "type": "NavigationIndicator",
+              "icon": ">"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "关怀模式",
+            "trailing": {
+              "type": "NavigationIndicator",
+              "icon": ">"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "自动保存拍摄或编辑后的图片",
+            "trailing": {
+              "type": "ToggleSwitch",
+              "state": "on",
+              "color": "green"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "自动保存拍摄或编辑后的视频",
+            "trailing": {
+              "type": "ToggleSwitch",
+              "state": "on",
+              "color": "green"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "系统权限",
+            "trailing": {
+              "type": "NavigationIndicator",
+              "icon": ">"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "表情",
+            "trailing": {
+              "type": "NavigationIndicator",
+              "icon": ">"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation_header",
+      "summary": "导航栏：返回按钮+标题'更多'"
+    },
+    {
+      "block_id": "settings_list",
+      "block_role": "settings_list",
+      "summary": "6个设置项：未成年人模式、关怀模式(导航型)、自动保存图片(Toggle开)、自动保存视频(Toggle开)、系统权限、表情(导航型)"
+    },
+    {
+      "block_id": "toggle_group",
+      "block_role": "related_controls",
+      "summary": "两个连续自动保存开关，视觉上形成功能相关组"
+    }
+  ],
+  "key_texts": [
+    "更多",
+    "未成年人模式",
+    "关怀模式",
+    "自动保存拍摄或编辑后的图片",
+    "自动保存拍摄或编辑后的视频",
+    "系统权限",
+    "表情"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation_back",
+      "source": "BackButton",
+      "action": "pop"
+    },
+    {
+      "interaction_id": "toggle_photo",
+      "type": "toggle_switch",
+      "source": "ToggleSwitch[自动保存图片]",
+      "action": "toggle_auto_save_photos"
+    },
+    {
+      "interaction_id": "toggle_video",
+      "type": "toggle_switch",
+      "source": "ToggleSwitch[自动保存视频]",
+      "action": "toggle_auto_save_videos"
+    },
+    {
+      "interaction_id": "nav_permissions",
+      "type": "list_item_tap",
+      "source": "ListItem[系统权限]",
+      "target_page_hint": "system_permissions"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "ListView with uniform ListItem template",
+    "visual_blocks": [
+      "Standard setting list item (text+trailing)",
+      "Toggle-enabled list item (text+green switch)",
+      "Navigation-only list item"
+    ],
+    "styling_hints": {
+      "divider_color": "#eee",
+      "text_color": "#000",
+      "switch_active_color": "#00c853",
+      "font_size": "16sp for label"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "轻量级设置子页",
+    "emphasis": "绿色toggle开关为视觉焦点",
+    "background": "浅灰纯色"
+  },
+  "page_semantic_role": "settings_subpage",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "settings > 更多"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "无分组标题、无页脚、无操作栏",
+    "两个自动保存开关均处于开启态",
+    "所有导航项右侧均为>符号",
+    "无任何图标前缀"
+  ],
+  "schema_version": "stage2_page.v1"
+}

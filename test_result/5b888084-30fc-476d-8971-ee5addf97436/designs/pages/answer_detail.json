@@ -1,0 +1,166 @@
+{
+  "page_id": "answer_detail",
+  "page_name": "回答详情页",
+  "page_role": "content_detail",
+  "page_summary": "问答内容详情页 — 问题标题'无大算力时，作为学生，LLM 还有哪些值得做的研究？',作者'Cv大法代码酱',3424赞/5917收藏/95评论,完整回答正文。顶部返回箭头,无底部导航。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151915_879_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_1.json"
+  ],
+  "source_draft_indexes": [
+    1
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 1 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          }
+        ]
+      },
+      {
+        "type": "QuestionHeader",
+        "children": [
+          {
+            "type": "Title",
+            "text": "无大算力时，作为学生，LLM 还有哪些值得做的研究？"
+          },
+          {
+            "type": "Meta",
+            "text": "2.4 万人关注"
+          }
+        ]
+      },
+      {
+        "type": "AnswerContent",
+        "children": [
+          {
+            "type": "AuthorRow",
+            "children": [
+              {
+                "type": "Avatar"
+              },
+              {
+                "type": "Name",
+                "text": "Cv大法代码酱"
+              },
+              {
+                "type": "FollowButton"
+              }
+            ]
+          },
+          {
+            "type": "Body",
+            "text": "看到你说研0非LLM相关，手里没大算力..."
+          },
+          {
+            "type": "InteractionBar",
+            "children": [
+              {
+                "type": "UpvoteButton",
+                "count": 3424
+              },
+              {
+                "type": "StarButton",
+                "count": 5917
+              },
+              {
+                "type": "CommentButton",
+                "count": 95
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header",
+      "summary": "返回箭头"
+    },
+    {
+      "block_id": "question_header",
+      "role": "content_header",
+      "summary": "问题标题+关注数"
+    },
+    {
+      "block_id": "answer_content",
+      "role": "primary_content",
+      "summary": "回答正文+互动数据"
+    }
+  ],
+  "key_texts": [
+    "无大算力时，作为学生，LLM 还有哪些值得做的研究？",
+    "Cv大法代码酱",
+    "3424",
+    "5917",
+    "95"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回",
+      "target_page_hint": "上一页面"
+    },
+    {
+      "interaction_id": "follow_author",
+      "type": "action",
+      "trigger": "点击关注",
+      "target_page_hint": null
+    },
+    {
+      "interaction_id": "upvote",
+      "type": "action",
+      "trigger": "点击点赞"
+    },
+    {
+      "interaction_id": "star",
+      "type": "action",
+      "trigger": "点击收藏"
+    },
+    {
+      "interaction_id": "comment",
+      "type": "navigation",
+      "trigger": "点击评论",
+      "target_page_hint": "评论区"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + QuestionHeader + AnswerBody + InteractionBar",
+    "styling_hints": "深色文字,蓝色链接,互动图标组"
+  },
+  "visual_style_hints": {
+    "overall_style": "内容详情页",
+    "density": "medium",
+    "background": "white"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "无底部导航栏,为全屏内容详情页",
+    "返回箭头的目标页不确定,可能是首页信息流"
+  ],
+  "schema_version": "stage2_page.v1"
+}

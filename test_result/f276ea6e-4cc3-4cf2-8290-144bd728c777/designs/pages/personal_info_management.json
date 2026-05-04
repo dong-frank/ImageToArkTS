@@ -1,0 +1,150 @@
+{
+  "page_id": "personal_info_management",
+  "page_name": "个人信息查看与管理",
+  "page_role": "standalone_page",
+  "page_summary": "个人信息查看与管理子页，展示3个入口：账号资料、当前设备信息、应用相关信息。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145659_828_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_13.json"
+  ],
+  "source_draft_indexes": [
+    13
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "个人信息查看与管理"
+          }
+        ]
+      },
+      {
+        "type": "SettingsList",
+        "id": "settings_list",
+        "children": [
+          {
+            "type": "SettingsItem",
+            "label": "账号资料",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "当前设备信息",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "应用相关信息",
+            "has_chevron": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '个人信息查看与管理'标题"
+    },
+    {
+      "block_id": "settings_list",
+      "block_role": "content",
+      "summary": "3个入口：账号资料/当前设备信息/应用相关信息"
+    }
+  ],
+  "key_texts": [
+    "个人信息查看与管理",
+    "账号资料",
+    "当前设备信息",
+    "应用相关信息"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回隐私管理"
+    },
+    {
+      "interaction_id": "account_data",
+      "trigger": "点击'账号资料'",
+      "action": "查看账号资料",
+      "target_page_hint": "账号资料页"
+    },
+    {
+      "interaction_id": "device_info",
+      "trigger": "点击'当前设备信息'",
+      "action": "查看设备信息",
+      "target_page_hint": "当前设备信息页"
+    },
+    {
+      "interaction_id": "app_info",
+      "trigger": "点击'应用相关信息'",
+      "action": "查看应用信息",
+      "target_page_hint": "应用相关信息页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SettingsDetailLayout: NavBar + SimpleList",
+    "important_visual_blocks": [
+      "SettingsItem（左侧标签+右侧chevron）"
+    ],
+    "styling_hints": "浅色背景，标准设置子页样式"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景",
+    "density": "轻量级设置子页"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [
+    "账号资料页",
+    "当前设备信息页",
+    "应用相关信息页"
+  ],
+  "possible_parent_page_hints": [
+    "privacy_management"
+  ],
+  "possible_child_page_hints": [
+    "device_info",
+    "app_info"
+  ],
+  "notes": [],
+  "navigation_context": {
+    "page_role_in_app": "settings_page",
+    "is_entry": false,
+    "parent_page_id": "privacy_management",
+    "child_page_ids": ["device_info", "app_info"],
+    "incoming_relations": [{"source_page_id":"privacy_management","relation_type":"opens_child_page","trigger_label":"个人信息查看与管理","trigger_interaction_id":"personal_info_management","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"privacy_management","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"},{"target_page_id":"device_info","relation_type":"opens_child_page","trigger_label":"当前设备信息","trigger_interaction_id":"device_info","confidence":"high"},{"target_page_id":"app_info","relation_type":"opens_child_page","trigger_label":"应用相关信息","trigger_interaction_id":"app_info","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"privacy_management","confidence":"high","reasoning":"个人信息查看与管理页返回按钮明确指向隐私管理。"},{"trigger_label":"当前设备信息","trigger_interaction_id":"device_info","relation_type":"opens_child_page","target_page_id":"device_info","confidence":"high","reasoning":"个人信息查看与管理页'当前设备信息'列表项点击进入。"},{"trigger_label":"应用相关信息","trigger_interaction_id":"app_info","relation_type":"opens_child_page","target_page_id":"app_info","confidence":"high","reasoning":"个人信息查看与管理页'应用相关信息'列表项点击进入。"}],
+    "unresolved_navigation_actions": [{"trigger_label":"账号资料","trigger_interaction_id":"account_data","target_page_hint":"账号资料页","possible_relation_type":"opens_child_page","reasoning":"个人信息查看与管理页'账号资料'应进入账号资料详情，未覆盖。"}],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "返回按钮回到privacy_management；当前设备信息和应用相关信息为确认子页面。账号资料目标页未覆盖。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","账号资料目标页未覆盖，不应实现为确认路由"],
+    "navigation_notes": "从隐私管理页'个人信息查看与管理'进入的设置子页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

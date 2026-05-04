@@ -1,0 +1,286 @@
+{
+  "schema_version": "coder_task_bundle.v1",
+  "task_bundle_source": "coder_skeleton",
+  "project_name": "qqmail_hub",
+  "app_display_name": "QQ邮箱",
+  "shared_navigation": {
+    "enabled": false,
+    "type": null
+  },
+  "tasks": [
+    {
+      "page_id": "service_hub",
+      "page_name": "服务导航中心",
+      "route": "pages/ServiceHub",
+      "role": "entry",
+      "is_entry": true,
+      "parent_page_id": null,
+      "child_page_ids": ["email_inbox", "important_contacts", "invoice_setup", "mail_compose", "settings_root", "vip_benefits"],
+      "navigation_targets": ["email_inbox", "important_contacts", "invoice_setup", "mail_compose", "settings_root", "vip_benefits"],
+      "navigation_role_in_app": "entry",
+      "summary": "邮箱应用的主服务导航页（侧边栏/抽屉式菜单），提供用户账户信息、邮件快捷入口（收件箱/重要联系人/星标邮件）、关联应用入口（文件云盘/发票/通讯录/附件管理/每日悦读/记事本/日历/更多应用）及邮件文件夹导航（已发送/草稿箱/已删除/垃圾箱/群邮件/QQ邮件订阅/dear/邮件归档/招商银行信用卡等）。顶部含用户头像、会员中心入口、加号按钮（可触发快捷操作overlay：写邮件/写记事/扫一扫/设置）。",
+      "responsibilities": "实现服务导航中心页面（侧边栏/抽屉式菜单），包括账户信息区、我的邮件区、我的应用区、邮件文件夹导航区及+按钮快捷操作overlay。支持状态变体（账户'蒋'/账户'莜'）。",
+      "design_file": "/designs/pages/service_hub.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/ServiceHub.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/ServiceHub.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["收件箱入口跳转→email_inbox", "重要联系人入口跳转→important_contacts", "发票入口跳转→invoice_setup", "会员中心>跳转→vip_benefits", "+按钮→写邮件→mail_compose", "+按钮→设置→settings_root", "文件夹列表项跳转"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"收件箱列表项","trigger_interaction_id":"tap_inbox","target_page_id":"email_inbox","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/EmailInbox"},
+        {"trigger_label":"重要联系人列表项","trigger_interaction_id":"tap_important_contacts","target_page_id":"important_contacts","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/ImportantContacts"},
+        {"trigger_label":"会员中心 > 链接","trigger_interaction_id":"nav_to_member_center","target_page_id":"vip_benefits","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/VipBenefits"},
+        {"trigger_label":"写邮件菜单项","trigger_interaction_id":"overlay_write_mail","target_page_id":"mail_compose","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/MailCompose"},
+        {"trigger_label":"设置菜单项","trigger_interaction_id":"overlay_settings","target_page_id":"settings_root","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/SettingsRoot"},
+        {"trigger_label":"发票列表项","trigger_interaction_id":"tap_invoice","target_page_id":"invoice_setup","relation_type":"opens_child_page","confidence":"medium","recommended_route":"pages/InvoiceSetup","notes":"可能存在文件云盘中转页未覆盖。当前以service_hub为最可能直接父页面。"}
+      ],
+      "state_notes": "存在账户'蒋'和账户'莜'两个状态变体"
+    },
+    {
+      "page_id": "email_inbox",
+      "page_name": "邮件收件箱",
+      "route": "pages/EmailInbox",
+      "role": "content_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": ["email_detail"],
+      "navigation_targets": ["service_hub", "email_detail"],
+      "navigation_role_in_app": "content_page",
+      "summary": "邮箱收件箱主列表页。顶部导航栏（返回+邮箱地址+编辑按钮），搜索框，三标签页切换（收件箱/未读邮件/管理），邮件列表以统一卡片模板展示（头像/图标+发件人+主题摘要+时间戳+右箭头）。支持通过下拉/点击'收件箱↑'触发文件夹抽屉overlay进行文件夹切换。未读邮件以蓝色实心圆点标识。",
+      "responsibilities": "实现邮件收件箱主列表页，包括导航栏、搜索框、三标签页切换（同页状态切换）、邮件卡片列表及文件夹抽屉overlay。支持状态变体（tab_inbox_all/tab_unread_only）。",
+      "design_file": "/designs/pages/email_inbox.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/EmailInbox.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/EmailInbox.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回service_hub", "三tab切换(收件箱/未读邮件/管理)", "收件箱下拉触发文件夹抽屉", "邮件项chevron→进入email_detail", "搜索框→搜索(目标未覆盖)", "编辑按钮→批量管理(目标未覆盖)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back_nav","target_page_id":"service_hub","relation_type":"returns_to","confidence":"high","recommended_route":"pages/ServiceHub"},
+        {"trigger_label":"邮件项右侧 > 箭头","trigger_interaction_id":"mail_detail","target_page_id":"email_detail","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/EmailDetail"}
+      ],
+      "state_notes": "存在tab_inbox_all和tab_unread_only状态变体；文件夹抽屉为同页overlay不离开当前页"
+    },
+    {
+      "page_id": "vip_benefits",
+      "page_name": "QQ邮箱会员权益页",
+      "route": "pages/VipBenefits",
+      "role": "detail_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "navigation_targets": ["service_hub"],
+      "navigation_role_in_app": "detail_page",
+      "summary": "QQ邮箱会员权益展示与开通引导页。展示非会员用户的当前容量状态和升级后可享权益，含2×2核心权益卡片（邮箱容量/云盘容量/超大附件/会员身份）及9项详细权益列表，顶部含开通CTA按钮。",
+      "responsibilities": "实现QQ邮箱会员权益展示与开通引导页，包括导航栏、用户信息区、2×2权益卡片、9项权益列表及开通CTA按钮。",
+      "design_file": "/designs/pages/vip_benefits.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/VipBenefits.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/VipBenefits.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回service_hub", "开通按钮→支付页(目标未覆盖)", "去了解→权益详情"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"service_hub","relation_type":"returns_to","confidence":"high","recommended_route":"pages/ServiceHub"}
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "mail_compose",
+      "page_name": "写邮件",
+      "route": "pages/MailCompose",
+      "role": "form_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "navigation_targets": ["service_hub"],
+      "navigation_role_in_app": "form_page",
+      "summary": "邮件撰写/编辑页。顶部导航栏（取消+标题'写邮件'+发送），表单区（收件人输入框聚焦+抄送/密送入口+发件人只读显示+主题输入），正文区（含签名'发自我的iPhone'），底部工具栏（附件/信封/时钟），系统键盘已激活。",
+      "responsibilities": "实现邮件撰写页，包括导航栏、收件人/发件人/主题表单、正文区含签名、底部工具栏。发送按钮当前禁用态。",
+      "design_file": "/designs/pages/mail_compose.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/MailCompose.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/MailCompose.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["取消按钮→返回service_hub", "发送按钮(当前禁用)", "附件/定时发送"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"取消按钮","trigger_interaction_id":"cancel","target_page_id":"service_hub","relation_type":"returns_to","confidence":"medium","recommended_route":"pages/ServiceHub","notes":"来源也可能是email_inbox，优先service_hub"}
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "important_contacts",
+      "page_name": "重要联系人",
+      "route": "pages/ImportantContacts",
+      "role": "content_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "navigation_targets": ["service_hub"],
+      "navigation_role_in_app": "content_page",
+      "summary": "重要联系人列表页（当前为空状态）。顶部导航栏（返回+标题'重要联系人'），中央空状态插画（信封+书签图标）+引导文字'快速查看重要联系人的来信'+蓝色CTA按钮'添加重要联系人'。",
+      "responsibilities": "实现重要联系人列表页，包括导航栏、空状态插画与引导文字、添加重要联系人CTA按钮。当前仅覆盖空状态。",
+      "design_file": "/designs/pages/important_contacts.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/ImportantContacts.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/ImportantContacts.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回service_hub", "添加重要联系人按钮→联系人选择页(目标未覆盖)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"service_hub","relation_type":"returns_to","confidence":"high","recommended_route":"pages/ServiceHub"}
+      ],
+      "state_notes": "当前仅覆盖空状态；非空状态列表结构未知"
+    },
+    {
+      "page_id": "email_detail",
+      "page_name": "邮件详情页",
+      "route": "pages/EmailDetail",
+      "role": "detail_page",
+      "is_entry": false,
+      "parent_page_id": "email_inbox",
+      "child_page_ids": [],
+      "navigation_targets": ["email_inbox"],
+      "navigation_role_in_app": "detail_page",
+      "summary": "单封邮件详情/阅读页。顶部邮件头（发件人/收件人/时间/隐藏按钮），正文区（OpenAI品牌logo+富文本内容+超链接+代码块），右下角悬浮翻译邮件按钮（已激活状态），底部固定操作栏（删除/分享/回复转发/更多）。",
+      "responsibilities": "实现邮件详情/阅读页，包括导航栏、邮件头信息、富文本正文、悬浮翻译按钮及底部固定操作栏。翻译overlay为同页覆盖。",
+      "design_file": "/designs/pages/email_detail.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/EmailDetail.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/EmailDetail.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回email_inbox", "翻译邮件overlay触发(同页)", "底部删除/分享/回复转发/更多"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"email_inbox","relation_type":"returns_to","confidence":"high","recommended_route":"pages/EmailInbox"}
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "invoice_setup",
+      "page_name": "发票功能开通页",
+      "route": "pages/InvoiceSetup",
+      "role": "subflow_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": [],
+      "navigation_targets": ["service_hub"],
+      "navigation_role_in_app": "subflow_page",
+      "summary": "发票功能启用与授权确认页。顶部导航栏(返回+'文件云盘')，中央绿色发票插画+标题'开启并使用发票'，三项功能价值说明列表，协议勾选区(《腾讯邮箱发票授权须知》)，蓝色'确定'按钮，底部三Tab标签栏(文件/中转站/发票，发票选中)。",
+      "responsibilities": "实现发票功能开通页，包括导航栏、插画引导区、价值说明列表、协议勾选、确定按钮及底部三Tab标签栏。底部Tab切换为同页/模块内状态切换。",
+      "design_file": "/designs/pages/invoice_setup.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/InvoiceSetup.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/InvoiceSetup.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回service_hub(low confidence)", "确定提交授权→发票主列表(目标未覆盖)", "协议链接→查看详情", "底部文件/中转站/发票Tab切换(同页/模块内)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"service_hub","relation_type":"returns_to","confidence":"low","recommended_route":"pages/ServiceHub","notes":"可能存在文件云盘中转页；导航栏标题为'文件云盘'暗示中间层"}
+      ],
+      "state_notes": "底部三Tab(文件/中转站/发票)为模块内Tab切换，非独立页面间导航"
+    },
+    {
+      "page_id": "settings_root",
+      "page_name": "设置",
+      "route": "pages/SettingsRoot",
+      "role": "settings_page",
+      "is_entry": false,
+      "parent_page_id": "service_hub",
+      "child_page_ids": ["notification_new_mail", "settings_general"],
+      "navigation_targets": ["service_hub", "settings_general", "notification_new_mail"],
+      "navigation_role_in_app": "settings_page",
+      "summary": "应用设置根页。顶部导航栏（关闭+标题'设置'），账户区（头像+'蒋'+邮箱'1434@qq.com'+'升级'紫色描边按钮+'添加账号'入口），分区设置列表：新邮件提醒(含通用/邮件/储存子入口)、个人信息与权限(个人信息收集清单/第三方共享个人信息清单/手势密码与面容识别-关闭)、帮助与反馈(关于)。从partial draft恢复定稿。",
+      "responsibilities": "实现应用设置根页，包括导航栏、账户区、新邮件提醒分组(通用/邮件/储存子入口)、个人信息与权限分组、帮助与反馈分组。从partial draft恢复，交互结构可能不完整。",
+      "design_file": "/designs/pages/settings_root.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/SettingsRoot.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/SettingsRoot.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["关闭按钮→返回service_hub", "升级按钮→跳转VIP页", "通用列表项→settings_general", "新邮件提醒分组入口→notification_new_mail", "邮件列表项→邮件设置页(目标未覆盖)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"关闭按钮","trigger_interaction_id":"close","target_page_id":"service_hub","relation_type":"returns_to","confidence":"high","recommended_route":"pages/ServiceHub"},
+        {"trigger_label":"通用列表项","trigger_interaction_id":"general_settings","target_page_id":"settings_general","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/SettingsGeneral"},
+        {"trigger_label":"新邮件提醒分组入口","trigger_interaction_id":null,"target_page_id":"notification_new_mail","relation_type":"opens_child_page","confidence":"medium","recommended_route":"pages/NotificationNewMail"}
+      ],
+      "state_notes": "从partial draft恢复，交互结构可能不完整"
+    },
+    {
+      "page_id": "settings_general",
+      "page_name": "通用设置",
+      "route": "pages/SettingsGeneral",
+      "role": "settings_page",
+      "is_entry": false,
+      "parent_page_id": "settings_root",
+      "child_page_ids": ["app_settings_list"],
+      "navigation_targets": ["settings_root", "app_settings_list"],
+      "navigation_role_in_app": "settings_page",
+      "summary": "通用设置页（iOS风格分组列表）。导航栏（返回+'通用'标题），三组设置项：导航类（首页管理/应用设置）、开关控件类（发信音效开/邮件列表头像开+文字大小跟随系统/加载邮件图片所有网络）、语言选择。",
+      "responsibilities": "实现通用设置页，包括导航栏、首页管理/应用设置导航入口、发信音效/邮件列表头像开关、文字大小/加载邮件图片选项、语言选择。",
+      "design_file": "/designs/pages/settings_general.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/SettingsGeneral.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/SettingsGeneral.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回settings_root", "应用设置→app_settings_list", "开关切换(发信音效/邮件列表头像/文字大小/加载邮件图片)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"settings_root","relation_type":"returns_to","confidence":"high","recommended_route":"pages/SettingsRoot"},
+        {"trigger_label":"应用设置列表项","trigger_interaction_id":"app_settings","target_page_id":"app_settings_list","relation_type":"opens_child_page","confidence":"high","recommended_route":"pages/AppSettingsList"}
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "notification_new_mail",
+      "page_name": "新邮件提醒设置",
+      "route": "pages/NotificationNewMail",
+      "role": "settings_page",
+      "is_entry": false,
+      "parent_page_id": "settings_root",
+      "child_page_ids": [],
+      "navigation_targets": ["settings_root"],
+      "navigation_role_in_app": "settings_page",
+      "summary": "新邮件提醒设置详情页。导航栏（返回+'新邮件提醒'），单一开关控件（新邮件提醒-关闭状态），说明文字引导用户至iOS系统设置中修改通知样式。从partial draft恢复定稿。",
+      "responsibilities": "实现新邮件提醒设置详情页，包括导航栏、新邮件提醒开关控件、系统设置引导说明文字。从partial draft恢复，交互结构可能不完整。",
+      "design_file": "/designs/pages/notification_new_mail.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/NotificationNewMail.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/NotificationNewMail.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回settings_root", "新邮件提醒开关切换"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"settings_root","relation_type":"returns_to","confidence":"medium","recommended_route":"pages/SettingsRoot"}
+      ],
+      "state_notes": "从partial draft恢复，交互结构可能不完整"
+    },
+    {
+      "page_id": "app_settings_list",
+      "page_name": "应用设置",
+      "route": "pages/AppSettingsList",
+      "role": "settings_page",
+      "is_entry": false,
+      "parent_page_id": "settings_general",
+      "child_page_ids": [],
+      "navigation_targets": ["settings_general"],
+      "navigation_role_in_app": "settings_page",
+      "summary": "应用功能开关列表页。导航栏(返回+'应用设置')，9项功能开关入口（通讯录/文件云盘/附件管理/每日悦读/发票/记事本/日历/在线文档/贺卡），每项右侧显示'开启'+右箭头，无直接开关控件。从partial draft恢复定稿。",
+      "responsibilities": "实现应用功能开关列表页，包括导航栏、9项功能开关入口列表。从partial draft恢复，交互结构可能不完整。",
+      "design_file": "/designs/pages/app_settings_list.json",
+      "page_file": "/projects/qqmail_hub/entry/src/main/ets/pages/AppSettingsList.ets",
+      "allowed_write_paths": [
+        "/projects/qqmail_hub/entry/src/main/ets/pages/AppSettingsList.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": ["返回箭头→返回settings_general", "各功能项点击→配置详情/功能主页(目标未覆盖)"],
+      "confirmed_navigation_obligations": [
+        {"trigger_label":"左上角返回箭头","trigger_interaction_id":"back","target_page_id":"settings_general","relation_type":"returns_to","confidence":"high","recommended_route":"pages/SettingsGeneral"}
+      ],
+      "state_notes": "从partial draft恢复，交互结构可能不完整；各功能项跳转目标未被页面集合覆盖"
+    }
+  ],
+  "generated_files_note": "Files created by coder_skeleton stage. Shared files (BottomNavBar.ets, NavigationService.ets) have been emptied — this app uses hub/spoke sidebar navigation, not shared bottom tab navigation. See /designs/navigation_design.json global_notes."
+}

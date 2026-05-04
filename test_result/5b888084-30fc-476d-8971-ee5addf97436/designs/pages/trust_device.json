@@ -1,0 +1,126 @@
+{
+  "page_id": "trust_device",
+  "page_name": "信任设备",
+  "page_role": "settings_sub",
+  "page_summary": "知乎信任设备设置页(空状态) — 返回箭头+'信任设备'标题+灰色状态条'暂无信任设备'+蓝色文字按钮'将本机设置为信任设备'+说明文字'设置成功后，在此设备上登录和使用知乎就会被视为安全使用，无需进行安全验证。'",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429233221_961_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_34.json"
+  ],
+  "source_draft_indexes": [
+    34
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 34 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<"
+          },
+          {
+            "type": "Title",
+            "text": "信任设备"
+          }
+        ]
+      },
+      {
+        "type": "StatusBanner",
+        "text": "暂无信任设备"
+      },
+      {
+        "type": "PrimaryActionArea",
+        "children": [
+          {
+            "type": "ActionButton",
+            "text": "将本机设置为信任设备",
+            "style": "blue_link"
+          }
+        ]
+      },
+      {
+        "type": "DescriptionBlock",
+        "text": "设置成功后，在此设备上登录和使用知乎就会被视为安全使用，无需进行安全验证。"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "status_banner",
+      "role": "status",
+      "summary": "空状态提示"
+    },
+    {
+      "block_id": "primary_action",
+      "role": "action",
+      "summary": "设置信任设备CTA"
+    },
+    {
+      "block_id": "description",
+      "role": "info",
+      "summary": "信任设备功能说明"
+    }
+  ],
+  "key_texts": [
+    "信任设备",
+    "暂无信任设备",
+    "将本机设置为信任设备",
+    "设置成功后，在此设备上登录和使用知乎就会被视为安全使用，无需进行安全验证。"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "账号安全/设置"
+    },
+    {
+      "interaction_id": "set_trust_device",
+      "type": "action",
+      "trigger": "将本机设置为信任设备",
+      "description": "触发信任设备注册流程"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + StatusBanner + CenteredCTA + Description",
+    "styling_hints": "居中布局,灰色状态条,蓝色文字按钮,灰色说明文字",
+    "reusable_components": [
+      "StatusBanner",
+      "BlueLinkButton"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "安全设置空状态",
+    "density": "low",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前为空状态(无信任设备记录)",
+    "操作目标是将'本机'设为信任设备",
+    "设置后效果:免安全验证"
+  ],
+  "schema_version": "stage2_page.v1"
+}

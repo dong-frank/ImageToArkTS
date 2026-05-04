@@ -1,0 +1,199 @@
+{
+  "page_id": "privacy_settings",
+  "page_name": "隐私设置",
+  "page_role": "settings_sub",
+  "page_summary": "知乎隐私设置子页 — 返回箭头+'隐私'标题+5个分组:屏蔽设置(带副标题'管理屏蔽用户和话题')/互动设置/隐私信息/隐私政策/隐私设置(含开关项)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151936_891_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_14.json"
+  ],
+  "source_draft_indexes": [
+    14
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 14 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "隐私"
+          }
+        ]
+      },
+      {
+        "type": "SectionedList",
+        "children": [
+          {
+            "type": "Section",
+            "label": "屏蔽设置",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "屏蔽用户",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "屏蔽话题",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "互动设置",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "谁可以评论我",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "谁可以给我发私信",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "隐私信息",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "个人信息收集清单",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "与第三方共享个人信息清单",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "隐私政策",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "个人信息保护指引",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "知乎协议",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "隐私设置",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "在回答中显示IP属地"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "settings_list",
+      "role": "content",
+      "summary": "5个分组,多数为导航型列表项+1个开关项"
+    }
+  ],
+  "key_texts": [
+    "隐私",
+    "屏蔽设置",
+    "互动设置",
+    "隐私信息",
+    "隐私政策",
+    "隐私设置",
+    "屏蔽用户",
+    "屏蔽话题",
+    "谁可以评论我",
+    "谁可以给我发私信",
+    "个人信息收集清单",
+    "与第三方共享个人信息清单",
+    "个人信息保护指引",
+    "知乎协议",
+    "在回答中显示IP属地"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "privacy_guide_tap",
+      "type": "navigation",
+      "trigger": "点击个人信息保护指引",
+      "target_page_hint": "个人信息保护指引页"
+    },
+    {
+      "interaction_id": "agreement_tap",
+      "type": "navigation",
+      "trigger": "点击知乎协议",
+      "target_page_hint": "知乎协议页"
+    },
+    {
+      "interaction_id": "third_party_tap",
+      "type": "navigation",
+      "trigger": "点击与第三方共享个人信息清单",
+      "target_page_hint": "第三方共享信息清单页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SectionedNavList",
+    "styling_hints": "iOS风格分组列表",
+    "reusable_components": [
+      "SettingListItem",
+      "SectionHeader"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "iOS设置子页",
+    "density": "low",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "隐私政策分组下的两项分别跳转到已在其他 draft 中观察到的独立页面",
+    "5个分组结构清晰"
+  ],
+  "schema_version": "stage2_page.v1"
+}

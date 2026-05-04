@@ -1,0 +1,155 @@
+{
+  "page_id": "message_settings",
+  "page_name": "消息设置",
+  "page_role": "settings_sub",
+  "page_summary": "知乎消息设置子页 — 返回箭头+'消息设置'标题+分组设置:私信接收设置(带副标题)/提及与互动/内容收藏/关注动态,多数为开关型。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151930_886_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_11.json"
+  ],
+  "source_draft_indexes": [
+    11
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 11 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "消息设置"
+          }
+        ]
+      },
+      {
+        "type": "SectionedToggleList",
+        "children": [
+          {
+            "type": "Section",
+            "label": "私信接收设置",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "接收私信"
+              },
+              {
+                "type": "ToggleItem",
+                "label": "接收陌生人的私信"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "提及与互动",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "有人@我"
+              },
+              {
+                "type": "ToggleItem",
+                "label": "有人评论我"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "内容收藏",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "有人收藏我的内容"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "关注动态",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "关注的人有新动态"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "settings_list",
+      "role": "content",
+      "summary": "4个分组,每组含1-2个开关项"
+    }
+  ],
+  "key_texts": [
+    "消息设置",
+    "私信接收设置",
+    "提及与互动",
+    "内容收藏",
+    "关注动态",
+    "接收私信",
+    "接收陌生人的私信",
+    "有人@我",
+    "有人评论我",
+    "有人收藏我的内容",
+    "关注的人有新动态"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "toggle",
+      "type": "state_change",
+      "trigger": "切换各开关"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SectionedToggleList",
+    "styling_hints": "iOS风格分组列表,灰色分组标题",
+    "reusable_components": [
+      "ToggleItem",
+      "SectionHeader"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "iOS设置子页",
+    "density": "low",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "4个分组清晰,开关项配置明确"
+  ],
+  "schema_version": "stage2_page.v1"
+}

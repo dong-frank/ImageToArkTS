@@ -1,0 +1,337 @@
+{
+  "page_id": "order_list",
+  "page_name": "订单列表",
+  "page_role": "standalone_page",
+  "page_summary": "用户订单历史列表页，支持按状态筛选（全部订单/待付款/可使用/退款/售后），含搜索栏、分类下拉、促销横幅、订单卡片列表（含状态标签和操作按钮）。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145653_822_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_7.json"
+  ],
+  "source_draft_indexes": [
+    7
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "TitleBar",
+        "id": "title_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "全部订单"
+          },
+          {
+            "type": "SearchIcon",
+            "icon": "magnifier"
+          }
+        ]
+      },
+      {
+        "type": "CategoryDropdown",
+        "id": "category_dropdown",
+        "text": "全部订单",
+        "has_chevron": true
+      },
+      {
+        "type": "StatusTabBar",
+        "id": "status_tabs",
+        "items": [
+          {
+            "label": "全部订单",
+            "selected": true
+          },
+          {
+            "label": "待付款"
+          },
+          {
+            "label": "可使用"
+          },
+          {
+            "label": "退款"
+          },
+          {
+            "label": "售后"
+          }
+        ]
+      },
+      {
+        "type": "PromoBanner",
+        "id": "promo_banner",
+        "text": "春日礼遇 下单抽奖赢好礼 去抽奖 >",
+        "action_text": "去抽奖 >"
+      },
+      {
+        "type": "OrderCardList",
+        "id": "order_list",
+        "children": [
+          {
+            "type": "OrderCard",
+            "merchant": "王和李·海鲜火锅大排档 (美糖广场店)",
+            "status": "待付款",
+            "amount": "¥298",
+            "items": [
+              "海鲜火锅套餐 ×1"
+            ],
+            "actions": [
+              "去支付",
+              "取消订单"
+            ]
+          },
+          {
+            "type": "OrderCard",
+            "merchant": "开云 (仙林美糖庄)",
+            "status": "已完成",
+            "amount": "¥156",
+            "items": [
+              "双人下午茶 ×1"
+            ],
+            "actions": [
+              "再来一单",
+              "评价"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "title_bar",
+      "block_role": "navigation",
+      "summary": "标题栏：返回按钮 + '全部订单'标题 + 搜索图标"
+    },
+    {
+      "block_id": "category_dropdown",
+      "block_role": "filter",
+      "summary": "分类下拉：全部订单"
+    },
+    {
+      "block_id": "status_tabs",
+      "block_role": "filter",
+      "summary": "状态Tab栏：全部订单(选中)/待付款/可使用/退款/售后"
+    },
+    {
+      "block_id": "promo_banner",
+      "block_role": "promotion",
+      "summary": "促销横幅：春日礼遇 下单抽奖赢好礼 去抽奖 >"
+    },
+    {
+      "block_id": "order_list",
+      "block_role": "content",
+      "summary": "订单卡片列表，含商家名/状态/金额/商品/操作按钮"
+    }
+  ],
+  "key_texts": [
+    "全部订单",
+    "待付款",
+    "可使用",
+    "退款",
+    "售后",
+    "春日礼遇 下单抽奖赢好礼 去抽奖 >",
+    "王和李·海鲜火锅大排档 (美糖广场店)",
+    "待付款",
+    "¥298",
+    "海鲜火锅套餐 ×1",
+    "去支付",
+    "取消订单",
+    "开云 (仙林美糖庄)",
+    "已完成",
+    "¥156",
+    "双人下午茶 ×1",
+    "再来一单",
+    "评价"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    },
+    {
+      "interaction_id": "search",
+      "trigger": "点击搜索图标",
+      "action": "搜索订单"
+    },
+    {
+      "interaction_id": "category_filter",
+      "trigger": "点击分类下拉",
+      "action": "切换订单分类"
+    },
+    {
+      "interaction_id": "status_filter",
+      "trigger": "点击状态Tab",
+      "action": "按状态筛选订单"
+    },
+    {
+      "interaction_id": "promo_tap",
+      "trigger": "点击'去抽奖 >'",
+      "action": "跳转抽奖活动",
+      "target_page_hint": "抽奖活动页"
+    },
+    {
+      "interaction_id": "pay",
+      "trigger": "点击'去支付'",
+      "action": "进入支付流程",
+      "target_page_hint": "支付页"
+    },
+    {
+      "interaction_id": "cancel_order",
+      "trigger": "点击'取消订单'",
+      "action": "取消订单",
+      "target_page_hint": "取消确认弹窗"
+    },
+    {
+      "interaction_id": "reorder",
+      "trigger": "点击'再来一单'",
+      "action": "重新下单",
+      "target_page_hint": "下单页"
+    },
+    {
+      "interaction_id": "review",
+      "trigger": "点击'评价'",
+      "action": "进入评价流程",
+      "target_page_hint": "写评价页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "OrderListLayout: TitleBar + CategoryDropdown + StatusTabs + PromoBanner + CardList",
+    "important_visual_blocks": [
+      "StatusTabBar（横向滚动Tab）",
+      "OrderCard（商家名+状态标签+金额+商品+操作按钮）"
+    ],
+    "styling_hints": "浅色背景，橙色品牌色，状态标签颜色区分（待付款橙色/已完成灰色）"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙色品牌色",
+    "density": "信息密集型订单列表"
+  },
+  "page_semantic_role": "list",
+  "target_page_hints": [
+    "支付页",
+    "写评价页",
+    "抽奖活动页",
+    "下单页"
+  ],
+  "possible_parent_page_hints": [
+    "my_profile"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前选中'全部订单'Tab",
+    "仅展示2条订单，实际可滚动更多"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "content_page",
+    "is_entry": false,
+    "parent_page_id": "my_profile",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {
+        "source_page_id": "my_profile",
+        "relation_type": "opens_child_page",
+        "trigger_label": "订单功能图标",
+        "trigger_interaction_id": "function_tap",
+        "confidence": "high"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "my_profile",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "medium"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": false,
+      "is_bottom_tab_member": false,
+      "is_top_level_page": false,
+      "is_stack_destination": true
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "relation_type": "returns_to",
+        "target_page_id": "my_profile",
+        "confidence": "medium",
+        "reasoning": "订单列表页返回按钮最可能指向'我的'。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "去支付按钮",
+        "trigger_interaction_id": "pay",
+        "target_page_hint": "支付页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "订单卡片'去支付'按钮应进入支付流程，未覆盖。"
+      },
+      {
+        "trigger_label": "评价按钮",
+        "trigger_interaction_id": "review",
+        "target_page_hint": "写评价页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "订单卡片'评价'按钮应进入评价流程，未覆盖。"
+      },
+      {
+        "trigger_label": "去抽奖>",
+        "trigger_interaction_id": "promo_tap",
+        "target_page_hint": "抽奖活动页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "促销横幅'去抽奖>'应跳转抽奖活动，未覆盖。"
+      },
+      {
+        "trigger_label": "再来一单",
+        "trigger_interaction_id": "reorder",
+        "target_page_hint": "下单页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "'再来一单'应进入下单流程，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "状态Tab切换",
+        "trigger_interaction_id": "status_filter",
+        "why_not_navigation": "按状态筛选订单，为同页状态变化。"
+      },
+      {
+        "trigger_label": "分类下拉",
+        "trigger_interaction_id": "category_filter",
+        "why_not_navigation": "切换订单分类，为同页筛选操作。"
+      },
+      {
+        "trigger_label": "取消订单",
+        "trigger_interaction_id": "cancel_order",
+        "why_not_navigation": "触发取消确认弹窗，为overlay操作。"
+      }
+    ],
+    "navigation_targets_summary": "返回按钮回到my_profile。去支付、评价、抽奖、再来一单等目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "返回按钮应实现为栈弹出（pop）",
+      "状态Tab和分类下拉为同页筛选，不应实现为导航",
+      "取消订单为确认弹窗overlay，不应实现为页面路由",
+      "去支付、评价、抽奖、再来一单的目标页未覆盖，不应实现为确认路由"
+    ],
+    "navigation_notes": "从'我的'页面订单图标进入的订单列表页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

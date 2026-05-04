@@ -1,0 +1,147 @@
+{
+  "page_id": "third_party_sdk_list",
+  "page_name": "第三方SDK信息清单",
+  "page_role": "standalone_page",
+  "page_summary": "大众点评与第三方共享个人信息清单页，展示引言说明和SDK列表表格（含SDK名称/第三方公司/使用目的/收集个人信息类型/隐私政策链接），当前可见1条SDK记录。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429232720_952_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_25.json"
+  ],
+  "source_draft_indexes": [
+    25
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "大众点评与第三方共享个人信息清单"
+          }
+        ]
+      },
+      {
+        "type": "ContentBody",
+        "id": "content_body",
+        "children": [
+          {
+            "type": "IntroParagraph",
+            "text": "大众点评产品中可能包含第三方SDK..."
+          },
+          {
+            "type": "SDKTable",
+            "id": "sdk_table",
+            "columns": [
+              "SDK名称",
+              "第三方公司",
+              "使用目的",
+              "收集个人信息类型",
+              "第三方隐私政策"
+            ],
+            "rows": [
+              {
+                "sdk_name": "号码认证SDK",
+                "company": "中移互联网有限公司",
+                "purpose": "提供一键登录验证服务",
+                "data_collected": "手机号码、设备标识信息",
+                "privacy_link": "隐私政策 >"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '大众点评与第三方共享个人信息清单'标题"
+    },
+    {
+      "block_id": "content_body",
+      "block_role": "content",
+      "summary": "引言段落 + SDK列表表格（1条可见：号码认证SDK/中移互联网有限公司/一键登录/手机号码+设备标识）"
+    }
+  ],
+  "key_texts": [
+    "大众点评与第三方共享个人信息清单",
+    "号码认证SDK",
+    "中移互联网有限公司",
+    "提供一键登录验证服务",
+    "手机号码、设备标识信息",
+    "隐私政策"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    },
+    {
+      "interaction_id": "privacy_link",
+      "trigger": "点击'隐私政策 >'",
+      "action": "查看第三方隐私政策",
+      "target_page_hint": "第三方隐私政策页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "DocumentLayout: NavBar + IntroText + Table",
+    "important_visual_blocks": [
+      "SDKTable（多列表格）",
+      "PrivacyLink（蓝色文字链接）"
+    ],
+    "styling_hints": "白色背景，表格样式，蓝色链接"
+  },
+  "visual_style_hints": {
+    "color_scheme": "白色背景",
+    "density": "文档阅读型"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [
+    "第三方隐私政策页"
+  ],
+  "possible_parent_page_hints": [
+    "settings_root"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "仅展示1条SDK记录，实际可能可滚动查看更多"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "informational",
+    "is_entry": false,
+    "parent_page_id": "settings_root",
+    "child_page_ids": [],
+    "incoming_relations": [{"source_page_id":"settings_root","relation_type":"opens_child_page","trigger_label":"第三方信息数据共享","trigger_interaction_id":"third_party_data","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"settings_root","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"settings_root","confidence":"high","reasoning":"第三方SDK清单页返回按钮指向上一页。"}],
+    "unresolved_navigation_actions": [{"trigger_label":"隐私政策链接","trigger_interaction_id":"privacy_link","target_page_hint":"第三方隐私政策页","possible_relation_type":"opens_child_page","reasoning":"SDK表格中隐私政策链接应跳转第三方隐私政策页，未覆盖。"}],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "返回按钮回到settings_root。第三方隐私政策链接目标页未覆盖。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","第三方隐私政策链接目标页未覆盖，不应实现为确认路由"],
+    "navigation_notes": "从设置页'第三方信息数据共享'进入的文档详情页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

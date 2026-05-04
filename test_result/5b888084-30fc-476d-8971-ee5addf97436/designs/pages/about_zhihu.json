@@ -1,0 +1,144 @@
+{
+  "page_id": "about_zhihu",
+  "page_name": "关于知乎",
+  "page_role": "informational_settings",
+  "page_summary": "知乎'关于知乎'法律合规信息聚合页 — 返回箭头+'关于知乎'标题+三点菜单+5个列表项(知乎协议/个人信息保护指引/第三方信息数据共享/证照中心/APP 备案编号),均带右箭头导航。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151940_893_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_16.json"
+  ],
+  "source_draft_indexes": [
+    16
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 16 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "关于知乎"
+          },
+          {
+            "type": "MoreButton",
+            "icon": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "ListView",
+        "children": [
+          {
+            "type": "ListItem",
+            "text": "知乎协议",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "text": "个人信息保护指引",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "text": "第三方信息数据共享",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "text": "证照中心",
+            "trailing_icon": ">"
+          },
+          {
+            "type": "ListItem",
+            "text": "APP 备案编号",
+            "trailing_icon": ">"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "info_list",
+      "role": "content",
+      "summary": "5项纯文字列表,均带右箭头"
+    }
+  ],
+  "key_texts": [
+    "关于知乎",
+    "知乎协议",
+    "个人信息保护指引",
+    "第三方信息数据共享",
+    "证照中心",
+    "APP 备案编号"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "agreement_tap",
+      "type": "navigation",
+      "trigger": "知乎协议",
+      "target_page_hint": "知乎协议页"
+    },
+    {
+      "interaction_id": "privacy_guide_tap",
+      "type": "navigation",
+      "trigger": "个人信息保护指引",
+      "target_page_hint": "个人信息保护指引页"
+    },
+    {
+      "interaction_id": "filing_tap",
+      "type": "navigation",
+      "trigger": "APP 备案编号",
+      "target_page_hint": "APP备案编号详情页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SimpleNavList",
+    "styling_hints": "纯白背景,灰色分隔线,右箭头统一",
+    "reusable_components": [
+      "NavListItem"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "信息聚合页",
+    "density": "low",
+    "background": "white"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "5个入口均为导航型,无开关/输入等交互元素",
+    "三点菜单功能未确认(可能为分享/刷新等)"
+  ],
+  "schema_version": "stage2_page.v1"
+}

@@ -1,0 +1,217 @@
+{
+  "page_id": "push_notification_settings",
+  "page_name": "推送消息设置",
+  "page_role": "settings_sub",
+  "page_summary": "知乎推送消息设置子页(partial恢复) — 返回箭头+'推送消息设置'标题+4个分组:系统通知(含关闭态开关+红色警告提示)/知乎推荐(含开关)/互动行为通知(6个开关:私信/邀请/评论/转发/赞/形象关键词)/动态类导航项(3项带右箭头:有人关注了我/关注动态/参与动态)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151934_889_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_12.json"
+  ],
+  "source_draft_indexes": [
+    12
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 保守定稿。draft 12 为 partial 状态但 raw_observation 中包含完整可恢复的页面结构。独立设置子页。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": [
+      "draft 为 partial 恢复,某些细节可能不完全准确"
+    ]
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "Title",
+            "text": "推送消息设置"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "系统通知",
+        "children": [
+          {
+            "type": "ToggleItem",
+            "label": "系统通知",
+            "toggle_state": "off",
+            "hint_text": "你可能错过重要消息通知，点击去\"设置\"开启通知"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "知乎推荐",
+        "children": [
+          {
+            "type": "ToggleItem",
+            "label": "知乎推荐",
+            "toggle_state": "on",
+            "sub_label": "有知乎精选内容时通知我"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "互动行为通知",
+        "children": [
+          {
+            "type": "ToggleItem",
+            "label": "有人发私信给我",
+            "toggle_state": "on"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "有人邀请我回答问题",
+            "toggle_state": "on"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "提及 / 评论",
+            "toggle_state": "on"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "转发",
+            "toggle_state": "on"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "赞 / 喜欢 / 掌声",
+            "toggle_state": "on"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "有人添加 / 认可我的形象关键词",
+            "toggle_state": "on"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "动态类导航项",
+        "children": [
+          {
+            "type": "NavigationItem",
+            "label": "有人关注了我",
+            "has_chevron": true
+          },
+          {
+            "type": "NavigationItem",
+            "label": "关注动态",
+            "has_chevron": true
+          },
+          {
+            "type": "NavigationItem",
+            "label": "参与动态",
+            "has_chevron": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "system_notification",
+      "role": "settings",
+      "summary": "系统通知开关(关闭+红色警告)"
+    },
+    {
+      "block_id": "recommendation",
+      "role": "settings",
+      "summary": "知乎推荐推送"
+    },
+    {
+      "block_id": "interaction_notifications",
+      "role": "settings",
+      "summary": "6个互动行为通知开关"
+    },
+    {
+      "block_id": "dynamic_navigation",
+      "role": "navigation",
+      "summary": "3个动态类导航项(带右箭头)"
+    }
+  ],
+  "key_texts": [
+    "推送消息设置",
+    "系统通知",
+    "知乎推荐",
+    "有人发私信给我",
+    "有人邀请我回答问题",
+    "提及 / 评论",
+    "转发",
+    "赞 / 喜欢 / 掌声",
+    "有人添加 / 认可我的形象关键词",
+    "有人关注了我",
+    "关注动态",
+    "参与动态"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "toggle_notifications",
+      "type": "state_change",
+      "trigger": "切换各通知开关"
+    },
+    {
+      "interaction_id": "system_notification_redirect",
+      "type": "external_navigation",
+      "trigger": "点击红色提示中的'设置'",
+      "target_page_hint": "iOS系统设置>通知",
+      "notes": "外部跳转至系统级设置"
+    },
+    {
+      "interaction_id": "dynamic_nav_tap",
+      "type": "navigation",
+      "trigger": "点击动态导航项",
+      "target_page_hint": "对应动态通知子配置页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SectionedToggleList + NavigationItems",
+    "styling_hints": "iOS风格分组,蓝色开关,灰色副标题,红色警告文字",
+    "reusable_components": [
+      "ToggleItem",
+      "NavigationItem",
+      "SectionHeader"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "iOS设置子页",
+    "density": "medium",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "draft 为 partial 恢复稿,部分细节存在不确定性",
+    "系统通知开关关闭时显示红色警告提示,需跳转系统设置开启",
+    "底部3项为导航型而非开关型,与上方形成对比"
+  ],
+  "schema_version": "stage2_page.v1"
+}

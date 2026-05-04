@@ -1,0 +1,299 @@
+{
+  "page_id": "profile_home",
+  "page_name": "个人中心",
+  "page_role": "main_tab_page",
+  "page_summary": "知乎 App '我的'Tab 主页 — 个人中心全景页。包含个人资料区(头像/昵称/会员促销/粉丝关注数据)、5×2功能网格(我的直播/好物推荐/我的抽奖等)、'我的提问'Tabs(提问/回答/文章/想法+草稿入口)、底部导航(我的高亮)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151919_882_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_5.json"
+  ],
+  "source_draft_indexes": [
+    5
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 5 为 success 状态,页面结构完整。",
+    "same_page_evidence": [],
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "StatusBar"
+      },
+      {
+        "type": "ProfileHeader",
+        "children": [
+          {
+            "type": "Avatar",
+            "label": "用户头像"
+          },
+          {
+            "type": "Nickname",
+            "text": "小雨滴"
+          },
+          {
+            "type": "MembershipBanner",
+            "text": "会员促销/升级入口"
+          },
+          {
+            "type": "StatsRow",
+            "children": [
+              {
+                "type": "StatItem",
+                "label": "关注",
+                "value": "123"
+              },
+              {
+                "type": "StatItem",
+                "label": "粉丝",
+                "value": "456"
+              },
+              {
+                "type": "StatItem",
+                "label": "已认证"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "FunctionGrid",
+        "columns": 5,
+        "rows": 2,
+        "children": [
+          {
+            "type": "GridItem",
+            "icon": "live",
+            "label": "我的直播"
+          },
+          {
+            "type": "GridItem",
+            "icon": "recommend",
+            "label": "好物推荐"
+          },
+          {
+            "type": "GridItem",
+            "icon": "raffle",
+            "label": "我的抽奖"
+          },
+          {
+            "type": "GridItem",
+            "icon": "order",
+            "label": "我的订单"
+          },
+          {
+            "type": "GridItem",
+            "icon": "draft",
+            "label": "我的草稿"
+          },
+          {
+            "type": "GridItem",
+            "icon": "coupon",
+            "label": "我的优惠券"
+          },
+          {
+            "type": "GridItem",
+            "icon": "activity",
+            "label": "我的活动"
+          },
+          {
+            "type": "GridItem",
+            "icon": "feedback",
+            "label": "帮助反馈"
+          },
+          {
+            "type": "GridItem",
+            "icon": "settings",
+            "label": "设置"
+          },
+          {
+            "type": "GridItem",
+            "icon": "more",
+            "label": "更多"
+          }
+        ]
+      },
+      {
+        "type": "QuestionTabs",
+        "children": [
+          {
+            "type": "TabItem",
+            "label": "提问",
+            "selected": true
+          },
+          {
+            "type": "TabItem",
+            "label": "回答"
+          },
+          {
+            "type": "TabItem",
+            "label": "文章"
+          },
+          {
+            "type": "TabItem",
+            "label": "想法"
+          },
+          {
+            "type": "DraftEntry",
+            "label": "草稿"
+          }
+        ]
+      },
+      {
+        "type": "ContentArea",
+        "children": []
+      },
+      {
+        "type": "BottomNavigationBar",
+        "items": [
+          {
+            "label": "首页",
+            "icon": "home",
+            "selected": false
+          },
+          {
+            "label": "直答",
+            "icon": "question",
+            "selected": false
+          },
+          {
+            "label": "+",
+            "icon": "plus",
+            "selected": false
+          },
+          {
+            "label": "消息",
+            "icon": "bell",
+            "selected": false
+          },
+          {
+            "label": "我的",
+            "icon": "profile",
+            "selected": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "profile_header",
+      "role": "header",
+      "summary": "个人资料区:头像/昵称/会员促销/关注粉丝数据"
+    },
+    {
+      "block_id": "function_grid",
+      "role": "navigation_hub",
+      "summary": "5×2功能网格:10项功能入口"
+    },
+    {
+      "block_id": "question_tabs",
+      "role": "content_filter",
+      "summary": "内容类型Tab:提问/回答/文章/想法+草稿入口"
+    },
+    {
+      "block_id": "bottom_nav",
+      "role": "global_navigation",
+      "summary": "底部导航,我的高亮"
+    }
+  ],
+  "key_texts": [
+    "小雨滴",
+    "关注",
+    "粉丝",
+    "已认证",
+    "我的直播",
+    "好物推荐",
+    "我的抽奖",
+    "我的订单",
+    "我的草稿",
+    "我的优惠券",
+    "我的活动",
+    "帮助反馈",
+    "设置",
+    "更多",
+    "提问",
+    "回答",
+    "文章",
+    "想法",
+    "草稿",
+    "首页",
+    "直答",
+    "消息",
+    "我的"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "settings_tap",
+      "type": "navigation",
+      "trigger": "点击'设置'网格项",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "type": "state_change",
+      "trigger": "点击内容Tab(提问/回答/文章/想法)",
+      "description": "切换下方内容区显示的内容类型"
+    },
+    {
+      "interaction_id": "profile_edit",
+      "type": "navigation",
+      "trigger": "点击头像/昵称区",
+      "target_page_hint": "个人资料编辑页"
+    },
+    {
+      "interaction_id": "membership_upgrade",
+      "type": "navigation",
+      "trigger": "点击会员促销区",
+      "target_page_hint": "会员购买/升级页"
+    },
+    {
+      "interaction_id": "bottom_nav_home",
+      "type": "navigation",
+      "trigger": "点击首页",
+      "target_page_hint": "首页信息流"
+    },
+    {
+      "interaction_id": "bottom_nav_messages",
+      "type": "navigation",
+      "trigger": "点击消息",
+      "target_page_hint": "消息列表页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "ProfileHeader + IconGrid + Tabs + ContentArea + BottomNav",
+    "styling_hints": "浅色背景,圆形头像,网格图标+文字布局,蓝色会员区,底部导航高亮",
+    "reusable_components": [
+      "ProfileHeader",
+      "FunctionGrid",
+      "ContentTabs",
+      "BottomNavigationBar"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "个人中心风格",
+    "density": "medium",
+    "background": "light",
+    "accent_color": "blue"
+  },
+  "page_semantic_role": "profile",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "此页面为'我的'Tab的顶层内容,与 my_features 共享'我的'Tab导航上下文但功能不同",
+    "5×2功能网格为导航型入口聚合,不是内容展示",
+    "底部导航'我的'高亮确认当前Tab"
+  ],
+  "schema_version": "stage2_page.v1"
+}

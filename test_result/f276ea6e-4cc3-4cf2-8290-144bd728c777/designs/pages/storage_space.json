@@ -1,0 +1,179 @@
+{
+  "page_id": "storage_space",
+  "page_name": "存储空间",
+  "page_role": "standalone_page",
+  "page_summary": "存储空间管理子页，展示大众点评已用空间(1.2 GB)及分类明细：缓存(253.3 MB，可清理)、草稿箱(19.7 KB，可管理)、必要文件(921.3 MB)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429232719_951_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_24.json"
+  ],
+  "source_draft_indexes": [
+    24
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "存储空间"
+          }
+        ]
+      },
+      {
+        "type": "ContentBody",
+        "id": "content_body",
+        "children": [
+          {
+            "type": "ProgressBar",
+            "id": "storage_bar",
+            "total": "1.2 GB",
+            "legend": [
+              {
+                "color": "orange",
+                "label": "缓存"
+              },
+              {
+                "color": "blue",
+                "label": "草稿箱"
+              },
+              {
+                "color": "gray",
+                "label": "必要文件"
+              }
+            ]
+          },
+          {
+            "type": "StorageItem",
+            "label": "大众点评已用空间",
+            "value": "1.2 GB"
+          },
+          {
+            "type": "StorageItem",
+            "label": "缓存",
+            "value": "253.3 MB",
+            "action": "清理",
+            "action_type": "button"
+          },
+          {
+            "type": "StorageItem",
+            "label": "草稿箱",
+            "value": "19.7 KB",
+            "action": "管理",
+            "action_type": "button"
+          },
+          {
+            "type": "StorageItem",
+            "label": "必要文件",
+            "value": "921.3 MB"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '存储空间'标题"
+    },
+    {
+      "block_id": "content_body",
+      "block_role": "content",
+      "summary": "进度条(缓存/草稿箱/必要文件) + 已用空间1.2 GB + 缓存253.3 MB(清理) + 草稿箱19.7 KB(管理) + 必要文件921.3 MB"
+    }
+  ],
+  "key_texts": [
+    "存储空间",
+    "大众点评已用空间",
+    "1.2 GB",
+    "缓存",
+    "253.3 MB",
+    "清理",
+    "草稿箱",
+    "19.7 KB",
+    "管理",
+    "必要文件",
+    "921.3 MB"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回设置"
+    },
+    {
+      "interaction_id": "clear_cache",
+      "trigger": "点击'清理'",
+      "action": "清理缓存",
+      "target_page_hint": "清理确认弹窗"
+    },
+    {
+      "interaction_id": "manage_drafts",
+      "trigger": "点击'管理'",
+      "action": "管理草稿箱",
+      "target_page_hint": "草稿箱管理页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "StorageLayout: NavBar + ProgressBar + DetailList",
+    "important_visual_blocks": [
+      "ProgressBar（分段进度条，橙/蓝/灰）",
+      "StorageItem（左侧标签+右侧值+操作按钮）"
+    ],
+    "styling_hints": "浅色背景，进度条分段着色"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙/蓝/灰进度条",
+    "density": "轻量级管理页"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [
+    "草稿箱管理页"
+  ],
+  "possible_parent_page_hints": [
+    "settings_root"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "必要文件921.3 MB不可清理",
+    "缓存253.3 MB可清理",
+    "草稿箱19.7 KB可管理"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "settings_page",
+    "is_entry": false,
+    "parent_page_id": "settings_root",
+    "child_page_ids": [],
+    "incoming_relations": [{"source_page_id":"settings_root","relation_type":"opens_child_page","trigger_label":"存储空间","trigger_interaction_id":"storage","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"settings_root","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"settings_root","confidence":"high","reasoning":"存储空间页返回按钮明确指向设置。"}],
+    "unresolved_navigation_actions": [{"trigger_label":"管理按钮","trigger_interaction_id":"manage_drafts","target_page_hint":"草稿箱管理页","possible_relation_type":"opens_child_page","reasoning":"存储空间页'草稿箱'管理按钮应进入草稿箱管理，未覆盖。"}],
+    "non_navigation_interaction_hints": [{"trigger_label":"清理按钮","trigger_interaction_id":"clear_cache","why_not_navigation":"清理缓存为同页操作或弹窗确认，非页面跳转。"}],
+    "navigation_targets_summary": "返回按钮回到settings_root。草稿箱管理目标页未覆盖。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","清理缓存为同页操作或弹窗，不应实现为导航","草稿箱管理目标页未覆盖，不应实现为确认路由"],
+    "navigation_notes": "从设置页'存储空间'进入的设置子页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

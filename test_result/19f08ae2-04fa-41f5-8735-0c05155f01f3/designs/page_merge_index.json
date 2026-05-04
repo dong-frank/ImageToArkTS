@@ -1,0 +1,600 @@
+{
+  "schema_version": "stage2_index.v1",
+  "page_index": [
+    {
+      "page_id": "service_hub",
+      "page_name": "服务导航中心",
+      "page_file_path": "/designs/pages/service_hub.json",
+      "page_role": "standalone_page",
+      "page_summary": "邮箱应用主服务导航页，含账户信息、邮件入口、应用入口、文件夹导航及快捷操作overlay。",
+      "source_images": [
+        "/user_input/微信图片_20260425153154_908_24.jpg",
+        "/user_input/微信图片_20260425153154_909_24.jpg",
+        "/user_input/微信图片_20260425153156_911_24.jpg"
+      ],
+      "source_draft_indexes": [
+        1,
+        2,
+        4
+      ],
+      "source_draft_count": 3,
+      "merge_summary": "三合一：Draft 1主干+Draft 2滚动互补+Draft 4 overlay变体",
+      "merge_variant_type": "merged_with_overlay_variant",
+      "page_semantic_role": "hub",
+      "interaction_summary": [
+        "+按钮触发快捷菜单(写邮件/写记事/扫一扫/设置)",
+        "收件箱入口跳转",
+        "会员中心>跳转VIP页"
+      ],
+      "navigation_clue_summary": [
+        "无返回按钮/底部导航栏",
+        "可能为App主入口",
+        "文件夹区与email_inbox的folder_drawer内容重叠但用途不同"
+      ],
+      "target_page_hints": [
+        "QQ邮箱会员页",
+        "收件箱邮件列表页",
+        "设置根页",
+        "邮件撰写页"
+      ],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [
+        "email_inbox",
+        "important_contacts",
+        "settings_root",
+        "vip_benefits",
+        "mail_compose"
+      ],
+      "entry_candidate_hint": "likely_entry",
+      "has_state_variants": true,
+      "state_variant_summary": [
+        "账户'蒋'视图(完整3-section)",
+        "账户'莜'视图(扁平列表+完整文件夹)"
+      ],
+      "has_overlays": true,
+      "overlay_summary": [
+        "quick_action_menu: +按钮popover菜单"
+      ]
+    },
+    {
+      "page_id": "email_inbox",
+      "page_name": "邮件收件箱",
+      "page_file_path": "/designs/pages/email_inbox.json",
+      "page_role": "standalone_page",
+      "page_summary": "邮箱收件箱主列表页，含搜索、三标签页筛选、邮件卡片列表及文件夹抽屉overlay。",
+      "source_images": [
+        "/user_input/微信图片_20260425153153_907_24.jpg",
+        "/user_input/微信图片_20260425153210_927_24.jpg",
+        "/user_input/微信图片_20260425153213_931_24.jpg"
+      ],
+      "source_draft_indexes": [
+        0,
+        9,
+        10
+      ],
+      "source_draft_count": 3,
+      "merge_summary": "三合一：Draft 0主干+Draft 10状态变体+Draft 9 overlay变体",
+      "merge_variant_type": "merged_with_state_and_overlay_variants",
+      "page_semantic_role": "list",
+      "interaction_summary": [
+        "三tab切换",
+        "收件箱下拉触发文件夹抽屉",
+        "邮件项chevron进入详情",
+        "搜索框跳转"
+      ],
+      "navigation_clue_summary": [
+        "返回箭头可能返回service_hub",
+        "点击邮件进入email_detail",
+        "文件夹抽屉切换不离开此页"
+      ],
+      "target_page_hints": [
+        "邮件详情页",
+        "批量管理模式",
+        "搜索结果页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub"
+      ],
+      "possible_child_page_hints": [
+        "email_detail"
+      ],
+      "entry_candidate_hint": "possible_entry",
+      "has_state_variants": true,
+      "state_variant_summary": [
+        "tab_inbox_all: 收件箱tab全量",
+        "tab_unread_only: 未读邮件tab"
+      ],
+      "has_overlays": true,
+      "overlay_summary": [
+        "folder_drawer: 13个文件夹项导航抽屉"
+      ]
+    },
+    {
+      "page_id": "vip_benefits",
+      "page_name": "QQ邮箱会员权益页",
+      "page_file_path": "/designs/pages/vip_benefits.json",
+      "page_role": "standalone_page",
+      "page_summary": "会员权益展示与开通引导页，2×2权益卡片+9项权益列表+开通CTA。",
+      "source_images": [
+        "/user_input/微信图片_20260425153155_910_24.jpg"
+      ],
+      "source_draft_indexes": [
+        3
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [
+        "返回箭头",
+        "开通按钮进入支付",
+        "去了解查看详情"
+      ],
+      "navigation_clue_summary": [
+        "由service_hub会员中心>入口进入"
+      ],
+      "target_page_hints": [
+        "会员开通支付页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub"
+      ],
+      "possible_child_page_hints": [
+        "会员开通支付页"
+      ],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "mail_compose",
+      "page_name": "写邮件",
+      "page_file_path": "/designs/pages/mail_compose.json",
+      "page_role": "standalone_page",
+      "page_summary": "邮件撰写页，取消+标题+发送，收件人/发件人/主题表单，含签名正文区，底部工具栏+系统键盘。",
+      "source_images": [
+        "/user_input/微信图片_20260425153157_912_24.jpg"
+      ],
+      "source_draft_indexes": [
+        5
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "editor",
+      "interaction_summary": [
+        "取消退出",
+        "发送(当前禁用)",
+        "附件/定时发送"
+      ],
+      "navigation_clue_summary": [
+        "从service_hub写邮件overlay或email_inbox进入"
+      ],
+      "target_page_hints": [
+        "附件选择页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub",
+        "email_inbox"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "important_contacts",
+      "page_name": "重要联系人",
+      "page_file_path": "/designs/pages/important_contacts.json",
+      "page_role": "standalone_page",
+      "page_summary": "重要联系人列表页(空状态)，返回+标题，空状态插画+引导+添加CTA。",
+      "source_images": [
+        "/user_input/微信图片_20260425153209_926_24.png"
+      ],
+      "source_draft_indexes": [
+        8
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "list",
+      "interaction_summary": [
+        "返回",
+        "添加重要联系人按钮"
+      ],
+      "navigation_clue_summary": [
+        "从service_hub重要联系人入口进入"
+      ],
+      "target_page_hints": [
+        "联系人选择页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": true,
+      "state_variant_summary": [
+        "empty_state: 当前为空状态"
+      ],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "email_detail",
+      "page_name": "邮件详情页",
+      "page_file_path": "/designs/pages/email_detail.json",
+      "page_role": "standalone_page",
+      "page_summary": "单封邮件详情页，邮件头+富文本正文+悬浮翻译按钮+底部操作栏。",
+      "source_images": [
+        "/user_input/微信图片_20260425153214_932_24.jpg"
+      ],
+      "source_draft_indexes": [
+        11
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [
+        "返回",
+        "翻译邮件overlay",
+        "底部删除/分享/回复转发/更多"
+      ],
+      "navigation_clue_summary": [
+        "从email_inbox点击邮件进入"
+      ],
+      "target_page_hints": [
+        "邮件列表页"
+      ],
+      "possible_parent_page_hints": [
+        "email_inbox"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": true,
+      "overlay_summary": [
+        "translation_overlay: 翻译邮件触发"
+      ]
+    },
+    {
+      "page_id": "invoice_setup",
+      "page_name": "发票功能开通页",
+      "page_file_path": "/designs/pages/invoice_setup.json",
+      "page_role": "standalone_page",
+      "page_summary": "发票功能启用与授权确认页，引导插画+价值说明+协议勾选+确定按钮+底部Tab。",
+      "source_images": [
+        "/user_input/微信图片_20260427192021_938_24.png"
+      ],
+      "source_draft_indexes": [
+        12
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "onboarding",
+      "interaction_summary": [
+        "返回",
+        "确定提交授权",
+        "协议链接查看详情"
+      ],
+      "navigation_clue_summary": [
+        "标题'文件云盘'与Tab'发票'存在模块关系"
+      ],
+      "target_page_hints": [
+        "授权须知详情页",
+        "发票主列表页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub"
+      ],
+      "possible_child_page_hints": [
+        "授权须知详情页",
+        "发票主列表页"
+      ],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "settings_root",
+      "page_name": "设置",
+      "page_file_path": "/designs/pages/settings_root.json",
+      "page_role": "standalone_page",
+      "page_summary": "应用设置根页，账户区+分区设置列表(新邮件提醒/个人信息与权限/帮助与反馈)。从partial恢复。",
+      "source_images": [
+        "/user_input/微信图片_20260425153158_913_24.jpg"
+      ],
+      "source_draft_indexes": [
+        6
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized (recovered from partial)",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "settings",
+      "interaction_summary": [
+        "关闭退出",
+        "升级按钮跳转VIP",
+        "各子项chevron跳转"
+      ],
+      "navigation_clue_summary": [
+        "从service_hub设置入口进入",
+        "为设置子树的根节点"
+      ],
+      "target_page_hints": [
+        "QQ邮箱会员页",
+        "通用设置页"
+      ],
+      "possible_parent_page_hints": [
+        "service_hub"
+      ],
+      "possible_child_page_hints": [
+        "settings_general",
+        "notification_new_mail",
+        "app_settings_list"
+      ],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "settings_general",
+      "page_name": "通用设置",
+      "page_file_path": "/designs/pages/settings_general.json",
+      "page_role": "standalone_page",
+      "page_summary": "通用设置页，iOS风格分组列表：导航入口+开关控件+语言选择。",
+      "source_images": [
+        "/user_input/微信图片_20260427194943_940_24.png"
+      ],
+      "source_draft_indexes": [
+        14
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [
+        "返回",
+        "应用设置跳转",
+        "开关切换"
+      ],
+      "navigation_clue_summary": [
+        "从settings_root通用入口进入"
+      ],
+      "target_page_hints": [
+        "应用设置列表页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [
+        "app_settings_list"
+      ],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "notification_new_mail",
+      "page_name": "新邮件提醒设置",
+      "page_file_path": "/designs/pages/notification_new_mail.json",
+      "page_role": "standalone_page",
+      "page_summary": "新邮件提醒设置详情页，单一开关+系统设置引导说明。从partial恢复。",
+      "source_images": [
+        "/user_input/微信图片_20260425153158_914_24.png"
+      ],
+      "source_draft_indexes": [
+        7
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized (recovered from partial)",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [
+        "返回",
+        "开关切换"
+      ],
+      "navigation_clue_summary": [
+        "从settings_root新邮件提醒分组进入"
+      ],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [
+        "settings_root"
+      ],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "app_settings_list",
+      "page_name": "应用设置",
+      "page_file_path": "/designs/pages/app_settings_list.json",
+      "page_role": "standalone_page",
+      "page_summary": "应用功能开关列表页，9项功能(通讯录/文件云盘/附件管理等)全部'开启'+chevron。从partial恢复。",
+      "source_images": [
+        "/user_input/微信图片_20260427194943_939_24.png"
+      ],
+      "source_draft_indexes": [
+        13
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "single_draft_finalized (recovered from partial)",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [
+        "返回",
+        "各功能项点击跳转"
+      ],
+      "navigation_clue_summary": [
+        "从settings_general应用设置入口进入"
+      ],
+      "target_page_hints": [
+        "各功能设置详情页"
+      ],
+      "possible_parent_page_hints": [
+        "settings_general"
+      ],
+      "possible_child_page_hints": [
+        "各功能设置详情页"
+      ],
+      "entry_candidate_hint": "unlikely",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    }
+  ],
+  "draft_disposition_map": [
+    {
+      "draft_index": 0,
+      "draft_file": "/designs/page_drafts/page_draft_0.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "email_inbox",
+      "reason": "主干draft，收件箱tab全量视图。与Draft 10(未读邮件tab)为同一页面的状态变体，与Draft 9(文件夹抽屉)为同一页面的overlay变体。"
+    },
+    {
+      "draft_index": 1,
+      "draft_file": "/designs/page_drafts/page_draft_1.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "service_hub",
+      "reason": "主干draft，3-section完整结构(我的邮件+我的应用+文件夹)。Draft 2为其滚动互补，Draft 4为其overlay变体。"
+    },
+    {
+      "draft_index": 2,
+      "draft_file": "/designs/page_drafts/page_draft_2.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "service_hub",
+      "reason": "滚动互补draft，展示下方更完整的文件夹列表(垃圾箱/群邮件/QQ邮件订阅/dear/邮件归档/招商银行信用卡等)。用户名不同('莜'vs'蒋')可能为不同账户。"
+    },
+    {
+      "draft_index": 3,
+      "draft_file": "/designs/page_drafts/page_draft_3.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "vip_benefits",
+      "reason": "独立QQ邮箱会员权益展示页，有独立导航栏、页面身份和完整CTA流程。无合并对象。"
+    },
+    {
+      "draft_index": 4,
+      "draft_file": "/designs/page_drafts/page_draft_4.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "service_hub",
+      "reason": "Overlay变体draft。与Draft 1/2共享相同的页面主干结构，差异仅为+按钮触发的快捷操作popover菜单处于展开状态。"
+    },
+    {
+      "draft_index": 5,
+      "draft_file": "/designs/page_drafts/page_draft_5.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "mail_compose",
+      "reason": "独立邮件撰写页，有独立导航栏、完整表单和键盘。属于内容创建类独立页面，无合并对象。"
+    },
+    {
+      "draft_index": 6,
+      "draft_file": "/designs/page_drafts/page_draft_6.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "settings_root",
+      "reason": "Partial draft，从raw_preservation恢复出完整的设置根页结构。原始JSON解析失败但raw_observation包含完整信息。独立页面身份明确。"
+    },
+    {
+      "draft_index": 7,
+      "draft_file": "/designs/page_drafts/page_draft_7.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "notification_new_mail",
+      "reason": "Partial draft，从raw_preservation恢复出新邮件提醒设置页。独立页面身份明确，含单一开关控件和系统引导说明。"
+    },
+    {
+      "draft_index": 8,
+      "draft_file": "/designs/page_drafts/page_draft_8.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "important_contacts",
+      "reason": "独立重要联系人列表页(空状态)。有独立导航栏和页面身份。无非空状态对应draft，保守独立定稿。"
+    },
+    {
+      "draft_index": 9,
+      "draft_file": "/designs/page_drafts/page_draft_9.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "email_inbox",
+      "reason": "Overlay变体draft。文件夹抽屉覆盖在收件箱邮件列表之上，与Draft 0/10共享同一页面主干。抽屉为transient state。"
+    },
+    {
+      "draft_index": 10,
+      "draft_file": "/designs/page_drafts/page_draft_10.json",
+      "disposition": "merged_into_existing_page",
+      "target_page_id": "email_inbox",
+      "reason": "状态变体draft。未读邮件tab选中，与Draft 0(收件箱tab)为同一页面的不同筛选状态。"
+    },
+    {
+      "draft_index": 11,
+      "draft_file": "/designs/page_drafts/page_draft_11.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "email_detail",
+      "reason": "独立邮件详情/阅读页，有独立的邮件头+正文+操作栏结构。无合并对象。"
+    },
+    {
+      "draft_index": 12,
+      "draft_file": "/designs/page_drafts/page_draft_12.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "invoice_setup",
+      "reason": "独立发票功能开通确认页，有独立导航栏、完整CTA流程和底部Tab栏。无合并对象。"
+    },
+    {
+      "draft_index": 13,
+      "draft_file": "/designs/page_drafts/page_draft_13.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "app_settings_list",
+      "reason": "Partial draft，从raw_preservation恢复出完整的应用设置列表页。9项功能开关入口，独立页面身份明确。"
+    },
+    {
+      "draft_index": 14,
+      "draft_file": "/designs/page_drafts/page_draft_14.json",
+      "disposition": "kept_as_standalone_page",
+      "target_page_id": "settings_general",
+      "reason": "独立通用设置页，iOS风格分组列表。有独立导航栏和多组设置项。无合并对象。"
+    }
+  ],
+  "validation_summary": {
+    "page_count": 11,
+    "page_index_count": 11,
+    "draft_count_total": 15,
+    "drafts_with_disposition_count": 15,
+    "used_draft_indexes": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+    ],
+    "unused_draft_indexes": [],
+    "warnings": [
+      "Draft 6,7,13 为partial drafts，从raw_preservation恢复，结构信息可能不完整",
+      "Draft 1与Draft 2用户名不同('蒋'vs'莜')，合并时保留为状态变体",
+      "Draft 0与Draft 10邮箱地址不同，合并时保留为状态变体",
+      "important_contacts仅含空状态，非空状态结构未体现"
+    ],
+    "schema_version": "stage2_validation.v1"
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "page_id": "general_settings",
+  "page_name": "通用",
+  "page_role": "standalone_page",
+  "page_summary": "通用设置子页，包含3个开关：视频智能省流量(ON)、视频默认静音播放(OFF)、首页自动刷新(ON)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145701_830_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_15.json"
+  ],
+  "source_draft_indexes": [
+    15
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "通用"
+          }
+        ]
+      },
+      {
+        "type": "SettingsList",
+        "id": "settings_list",
+        "children": [
+          {
+            "type": "SettingsItem",
+            "label": "视频智能省流量",
+            "has_toggle": true,
+            "toggle_state": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "视频默认静音播放",
+            "has_toggle": true,
+            "toggle_state": false
+          },
+          {
+            "type": "SettingsItem",
+            "label": "首页自动刷新",
+            "has_toggle": true,
+            "toggle_state": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '通用'标题"
+    },
+    {
+      "block_id": "settings_list",
+      "block_role": "content",
+      "summary": "3个开关：视频智能省流量(ON)/视频默认静音播放(OFF)/首页自动刷新(ON)"
+    }
+  ],
+  "key_texts": [
+    "通用",
+    "视频智能省流量",
+    "视频默认静音播放",
+    "首页自动刷新"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回设置"
+    },
+    {
+      "interaction_id": "toggle_smart_data",
+      "trigger": "切换'视频智能省流量'",
+      "action": "开关视频智能省流量"
+    },
+    {
+      "interaction_id": "toggle_mute",
+      "trigger": "切换'视频默认静音播放'",
+      "action": "开关视频默认静音"
+    },
+    {
+      "interaction_id": "toggle_auto_refresh",
+      "trigger": "切换'首页自动刷新'",
+      "action": "开关首页自动刷新"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SettingsDetailLayout: NavBar + ToggleList",
+    "important_visual_blocks": [
+      "ToggleRow（左侧标签+右侧开关）"
+    ],
+    "styling_hints": "浅色背景，标准设置子页样式"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景",
+    "density": "轻量级设置子页"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "settings_root"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "视频默认静音播放为OFF，其余为ON"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "settings_page",
+    "is_entry": false,
+    "parent_page_id": "settings_root",
+    "child_page_ids": [],
+    "incoming_relations": [{"source_page_id":"settings_root","relation_type":"opens_child_page","trigger_label":"通用","trigger_interaction_id":"general","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"settings_root","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"settings_root","confidence":"high","reasoning":"通用设置页返回按钮明确指向设置。"}],
+    "unresolved_navigation_actions": [],
+    "non_navigation_interaction_hints": [{"trigger_label":"视频智能省流量/视频默认静音播放/首页自动刷新开关","trigger_interaction_id":"toggle_smart_data","why_not_navigation":"切换开关状态，为同页toggle操作。"}],
+    "navigation_targets_summary": "返回按钮回到settings_root。无其他导航目标。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","所有toggle开关为同页操作，不应实现为导航"],
+    "navigation_notes": "从设置页'通用'进入的设置子页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

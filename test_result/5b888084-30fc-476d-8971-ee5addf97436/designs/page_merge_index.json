@@ -1,0 +1,862 @@
+{
+  "schema_version": "stage2_index.v1",
+  "page_index": [
+    {
+      "page_id": "home_feed",
+      "page_name": "首页信息流",
+      "page_file_path": "/designs/pages/home_feed.json",
+      "page_role": "main_tab_page",
+      "page_summary": "知乎首页Tab信息流,支持关注/推荐/热榜等多频道切换",
+      "source_images": [
+        "/user_input/微信图片_20260425151920_883_"
+      ],
+      "source_draft_indexes": [
+        6,
+        0,
+        25,
+        26
+      ],
+      "source_draft_count": 4,
+      "merge_summary": "",
+      "merge_variant_type": "",
+      "page_semantic_role": "home",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": true,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "my_features",
+      "page_name": "我的-功能列表",
+      "page_file_path": "/designs/pages/my_features.json",
+      "page_role": "sub_page",
+      "page_summary": "'我的'Tab下的功能入口聚合页,包含周报统计区(获赞/内容被赞同/总发布量+通知按钮)和'其他功能'列表(10项:关注/收藏/稍后再看/随便看看/赞赏/钱包/课程/刘看山彩蛋/知海/帮助与客服)。底部导航栏'我的'高亮。",
+      "source_images": [
+        "/user_input/微信图片_20260425151921_884_24.png"
+      ],
+      "source_draft_indexes": [
+        7
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 7 为 success 状态,页面结构完整清晰。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "hub",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "profile_home",
+      "page_name": "个人中心",
+      "page_file_path": "/designs/pages/profile_home.json",
+      "page_role": "main_tab_page",
+      "page_summary": "知乎 App '我的'Tab 主页 — 个人中心全景页。包含个人资料区(头像/昵称/会员促销/粉丝关注数据)、5×2功能网格(我的直播/好物推荐/我的抽奖等)、'我的提问'Tabs(提问/回答/文章/想法+草稿入口)、底部导航(我的高亮)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151919_882_24.png"
+      ],
+      "source_draft_indexes": [
+        5
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 5 为 success 状态,页面结构完整。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "profile",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "qa_landing",
+      "page_name": "直答/提问首页",
+      "page_file_path": "/designs/pages/qa_landing.json",
+      "page_role": "main_tab_page",
+      "page_summary": "知乎'直答'或提问入口页 — Hero区('用提问发现世界'),热门问题推荐列表,知识卡片区,分类按钮行(科技/生活/职场/情感/人文/娱乐),底部输入区+底部导航(首页高亮)。含汉堡菜单和书本图标。",
+      "source_images": [
+        "/user_input/微信图片_20260425151917_878_24.png"
+      ],
+      "source_draft_indexes": [
+        2
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 2 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "home",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "story_home",
+      "page_name": "故事频道",
+      "page_file_path": "/designs/pages/story_home.json",
+      "page_role": "sub_page",
+      "page_summary": "知乎故事频道页 — 搜索栏+横向频道标签栏(故事高亮)+会员促销横幅+故事排行榜列表+今日精选轮播+底部导航(首页高亮)。独立的故事内容频道,属于首页Tab下的子频道。",
+      "source_images": [
+        "/user_input/微信图片_20260425152128_904_24.png"
+      ],
+      "source_draft_indexes": [
+        27
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 27 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "content_channel",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "knowledge_home",
+      "page_name": "知识频道",
+      "page_file_path": "/designs/pages/knowledge_home.json",
+      "page_role": "sub_page",
+      "page_summary": "知乎知识频道页 — 搜索栏+横向频道标签栏(知识高亮)+快捷入口(继续阅读/书架/分类)+排行榜(口碑榜/畅销榜/新鲜榜)+书单网格+底部导航(首页高亮)。知识内容频道,属于首页Tab下的子频道。",
+      "source_images": [
+        "/user_input/微信图片_20260425152129_905_24.png"
+      ],
+      "source_draft_indexes": [
+        28
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 28 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "content_channel",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "answer_detail",
+      "page_name": "回答详情页",
+      "page_file_path": "/designs/pages/answer_detail.json",
+      "page_role": "content_detail",
+      "page_summary": "问答内容详情页 — 问题标题'无大算力时，作为学生，LLM 还有哪些值得做的研究？',作者'Cv大法代码酱',3424赞/5917收藏/95评论,完整回答正文。顶部返回箭头,无底部导航。",
+      "source_images": [
+        "/user_input/微信图片_20260425151915_879_24.png"
+      ],
+      "source_draft_indexes": [
+        1
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 1 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "detail",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "content_editor",
+      "page_name": "内容编辑器",
+      "page_file_path": "/designs/pages/content_editor.json",
+      "page_role": "editor",
+      "page_summary": "内容创建/编辑页 — 关闭按钮+草稿指示(5)+发布范围选择器+标题/正文输入区+媒体占位区+底部工具栏+内容类型Tab(提问题/写回答/发文章,回答高亮)。含紫色功能提示气泡overlay('试试文字转图新功能')。",
+      "source_images": [
+        "/user_input/微信图片_20260425151918_880_24.png"
+      ],
+      "source_draft_indexes": [
+        3
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 3 为 success 状态。含 overlay(紫色功能提示气泡)。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "editor",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": true,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "settings_root",
+      "page_name": "设置",
+      "page_file_path": "/designs/pages/settings_root.json",
+      "page_role": "settings",
+      "page_summary": "知乎设置主页面 — 返回箭头+'设置'标题+分组设置列表:消息设置(带副标题'私信接收设置、通知设置')/推送通知(带副标题'推荐通知...')/卡片贴纸/账号与安全/隐私(带副标题'屏蔽设置、互动设置...')/存储空间(带副标题'缓存、下载管理')等+退出登录按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260425151932_887_24.png"
+      ],
+      "source_draft_indexes": [
+        29
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 29 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "settings_general",
+      "page_name": "通用设置",
+      "page_file_path": "/designs/pages/settings_general.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎通用设置子页 — 返回箭头+'设置'标题+14项设置列表(查看通讯录好友/水印图片/内置音效/无图模式/双击赞同/夜间模式等),多数为开关型设置项,扁平列表无分组。",
+      "source_images": [
+        "/user_input/微信图片_20260425151927_885_24.png"
+      ],
+      "source_draft_indexes": [
+        8
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 8 为 success 状态。与 settings_root 是不同页面(settings_root为分组导航列表,settings_general为扁平开关列表)。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "message_settings",
+      "page_name": "消息设置",
+      "page_file_path": "/designs/pages/message_settings.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎消息设置子页 — 返回箭头+'消息设置'标题+分组设置:私信接收设置(带副标题)/提及与互动/内容收藏/关注动态,多数为开关型。",
+      "source_images": [
+        "/user_input/微信图片_20260425151930_886_24.png"
+      ],
+      "source_draft_indexes": [
+        11
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 11 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "privacy_settings",
+      "page_name": "隐私设置",
+      "page_file_path": "/designs/pages/privacy_settings.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎隐私设置子页 — 返回箭头+'隐私'标题+5个分组:屏蔽设置(带副标题'管理屏蔽用户和话题')/互动设置/隐私信息/隐私政策/隐私设置(含开关项)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151936_891_24.png"
+      ],
+      "source_draft_indexes": [
+        14
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 14 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "video_playback_settings",
+      "page_name": "视频播放设置",
+      "page_file_path": "/designs/pages/video_playback_settings.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎视频播放设置子页 — 返回箭头+'视频播放设置'标题+2个分组:视频播放设置(推荐视频页面自动播放,带副标题'开启自动播放',右箭头)/小窗播放设置(视频自动小窗设置+播放中断时自动小窗播放,均为开关,当前均开启)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151931_887_24.png"
+      ],
+      "source_draft_indexes": [
+        10
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 10 为 success 状态。第一项'推荐视频页面自动播放'为导航型(带右箭头),点击可进入 auto_play_detail 子页。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "interest_preference",
+      "page_name": "内容兴趣偏好",
+      "page_file_path": "/designs/pages/interest_preference.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎内容兴趣偏好设置页 — 返回箭头+'内容兴趣偏好'标题+'恢复默认'按钮+'为你推荐可能感兴趣的内容'副标题+8个兴趣类别(社会/时政/科技互联网/职场/娱乐/人文/情感/体育竞技/家居生活)的三态滑块(减少/默认/增加,当前均为默认)+底部'编辑兴趣标签>'入口。",
+      "source_images": [
+        "/user_input/微信图片_20260425151936_890_24.png"
+      ],
+      "source_draft_indexes": [
+        13
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 13 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "about_zhihu",
+      "page_name": "关于知乎",
+      "page_file_path": "/designs/pages/about_zhihu.json",
+      "page_role": "informational_settings",
+      "page_summary": "知乎'关于知乎'法律合规信息聚合页 — 返回箭头+'关于知乎'标题+三点菜单+5个列表项(知乎协议/个人信息保护指引/第三方信息数据共享/证照中心/APP 备案编号),均带右箭头导航。",
+      "source_images": [
+        "/user_input/微信图片_20260425151940_893_24.png"
+      ],
+      "source_draft_indexes": [
+        16
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 16 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "my_bookshelf",
+      "page_name": "我的书架",
+      "page_file_path": "/designs/pages/my_bookshelf.json",
+      "page_role": "sub_page",
+      "page_summary": "知乎'我的书架'个人阅读资源页(空状态) — 返回箭头+'我的书架'标题+'分类'按钮+5项Tab(书架/赞过/弹评/历史记录/书单,书架选中)+子操作栏(筛选/管理/已下载>)+空状态插图(宇航员机器人)+'还没有内容'提示。",
+      "source_images": [
+        "/user_input/微信图片_20260425151942_895_24.png"
+      ],
+      "source_draft_indexes": [
+        18
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 18 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": true,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "my_courses",
+      "page_name": "我的课程",
+      "page_file_path": "/designs/pages/my_courses.json",
+      "page_role": "sub_page",
+      "page_summary": "知乎课程模块中'我的课程'Tab内容页 — 当前为空状态(宇航员插图+'还没有内容'+'去看看'按钮),下方展示'大家还在学'推荐课程卡片列表(4门课程),底部为课程模块专用2-Tab导航栏(课程专区/我的课程,我的课程高亮)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151941_896_24.png",
+        "/user_input/微信图片_20260425151941_896_24.png"
+      ],
+      "source_draft_indexes": [
+        19,
+        20
+      ],
+      "source_draft_count": 2,
+      "merge_summary": "draft 19 与 draft 20 为同一截图的两次观察结果(相同图片文件名 _896_24)。页面结构、标题、空状态、课程卡片内容完全一致。仅 draft 20 中第4个课程卡片的状态标签略有差异('限时特惠 0元' vs 空)。合并为同一页面,差异记录为微小渲染状态变体。",
+      "merge_variant_type": "minor_rendering_difference",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": true,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "paid_consultation",
+      "page_name": "付费咨询",
+      "page_file_path": "/designs/pages/paid_consultation.json",
+      "page_role": "service_page",
+      "page_summary": "知乎付费咨询广场 — 搜索栏+'答主'/'问题'Tabs(答主选中)+5×2分类网格(情感/心理/法律/职场/教育/健康/星座/亲子)+咨询师卡片列表+底部2-Tab导航(咨询广场/我的咨询,咨询广场高亮)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151943_897_24.png"
+      ],
+      "source_draft_indexes": [
+        21
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 21 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "service",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "mall_home",
+      "page_name": "知乎商城",
+      "page_file_path": "/designs/pages/mall_home.json",
+      "page_role": "service_page",
+      "page_summary": "知乎商城主页 — 返回箭头+'知乎'标题+三点菜单+'商城'面包屑+3个快捷入口(已购/钱包/客服)+3项分类Tab(全部/知物咖啡/图书,全部选中)+2×2商品网格(玻璃杯¥19.90/咖啡液¥39.90/知乎日历/十万个为什么)。",
+      "source_images": [
+        "/user_input/微信图片_20260425152124_899_24.png"
+      ],
+      "source_draft_indexes": [
+        22
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 22 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "service",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "help_center",
+      "page_name": "帮助与客服",
+      "page_file_path": "/designs/pages/help_center.json",
+      "page_role": "service_page",
+      "page_summary": "知乎帮助与客服首页 — 返回箭头+'帮助与客服'标题(蓝色顶栏)+问候卡片(小管家头像+'Hi, 小雨滴')+搜索框('搜索相关问题')+2×4功能网格(账号注销/账号申诉/我的举报/违规诊断/绑定手机/账号关联/我的钱包/个人认证)+5项分类Tab(常见问题/盐选会员/知识会员/举报申诉/创作者服,常见问题选中)+FAQ列表(4条)+底部'联系小管家'按钮。",
+      "source_images": [
+        "/user_input/微信图片_20260425152125_900_24.png"
+      ],
+      "source_draft_indexes": [
+        23
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 23 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "service",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "message_list",
+      "page_name": "消息列表",
+      "page_file_path": "/designs/pages/message_list.json",
+      "page_role": "main_tab_page",
+      "page_summary": "知乎 App 消息 Tab 内容区 — 系统通知与互动消息聚合列表。包含通知开启横幅、互动筛选标签栏(评论转发@/赞同喜欢/收藏了我/关注订阅)、消息卡片流(邀请回答/订阅更新/活动通知/官方消息等)、底部全局导航栏(消息高亮)。",
+      "source_images": [
+        "/user_input/微信图片_20260425152127_902_24.png",
+        "/user_input/微信图片_20260425151919_881_24.png"
+      ],
+      "source_draft_indexes": [
+        24,
+        4
+      ],
+      "source_draft_count": 2,
+      "merge_summary": "主干 draft 24 (消息列表基础视图) + 增量吸收 draft 4 (更完整的消息列表视图含筛选标签栏和通知横幅)。draft 4 补充了通知开启横幅、互动筛选标签栏(4项)及更丰富的消息来源,两稿属同一页面的不同滚动/时间状态。",
+      "merge_variant_type": "scroll_complement",
+      "page_semantic_role": "messages",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": true,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "org_register",
+      "page_name": "组织机构号注册",
+      "page_file_path": "/designs/pages/org_register.json",
+      "page_role": "registration",
+      "page_summary": "知乎机构号注册页 — 返回箭头+'知乎机构号注册'标题+三点菜单+注册表单(邮箱/密码/验证码输入+协议勾选+注册按钮)+协议链接。",
+      "source_images": [
+        "/user_input/微信图片_20260429233220_960_24.png"
+      ],
+      "source_draft_indexes": [
+        33
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 33 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "registration",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "privacy_guide",
+      "page_name": "个人信息保护指引",
+      "page_file_path": "/designs/pages/privacy_guide.json",
+      "page_role": "legal_document",
+      "page_summary": "知乎'个人信息保护指引'v5.2 法律文档页 — 返回箭头+'个人信息保护指引'标题+三点菜单+长文本文档内容,含章节结构和法律条款。",
+      "source_images": [
+        "/user_input/微信图片_20260425151937_892_24.png"
+      ],
+      "source_draft_indexes": [
+        15
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 15 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "legal",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "zhihu_agreement",
+      "page_name": "知乎协议",
+      "page_file_path": "/designs/pages/zhihu_agreement.json",
+      "page_role": "legal_document",
+      "page_summary": "知乎用户协议页 — 返回箭头+'知乎协议'标题+三点菜单+'更新于2025-03-20'+'生效于2025-03-25'+长文本文档(用户使用协议条款)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151940_894_24.png"
+      ],
+      "source_draft_indexes": [
+        17
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 17 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "legal",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "minor_mode_onboarding",
+      "page_name": "未成年人模式",
+      "page_file_path": "/designs/pages/minor_mode_onboarding.json",
+      "page_role": "onboarding",
+      "page_summary": "知乎未成年人模式介绍页 — 返回箭头+插图+要点列表(3项规则说明)+'开启未成年人模式'CTA按钮+协议勾选('我已阅读并同意《未成年人模式使用协议》')。",
+      "source_images": [
+        "/user_input/微信图片_20260425151928_886_24.png"
+      ],
+      "source_draft_indexes": [
+        9
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 9 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "onboarding",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "trust_device",
+      "page_name": "信任设备",
+      "page_file_path": "/designs/pages/trust_device.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎信任设备设置页(空状态) — 返回箭头+'信任设备'标题+灰色状态条'暂无信任设备'+蓝色文字按钮'将本机设置为信任设备'+说明文字'设置成功后，在此设备上登录和使用知乎就会被视为安全使用，无需进行安全验证。'",
+      "source_images": [
+        "/user_input/微信图片_20260429233221_961_24.png"
+      ],
+      "source_draft_indexes": [
+        34
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 34 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "app_filing_detail",
+      "page_name": "APP备案编号",
+      "page_file_path": "/designs/pages/app_filing_detail.json",
+      "page_role": "information_display",
+      "page_summary": "知乎APP备案编号详情页 — 返回箭头+'APP 备案编号'标题+三点菜单+单行信息:备案号'京ICP备13052560号-7A'(蓝色可点击样式)。极简单屏信息页。",
+      "source_images": [
+        "/user_input/微信图片_20260429233218_958_24.png"
+      ],
+      "source_draft_indexes": [
+        31
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 31 为 success 状态。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "informational",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "auto_play_detail",
+      "page_name": "自动播放设置详情",
+      "page_file_path": "/designs/pages/auto_play_detail.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎'推荐视频页面自动播放'设置详情页 — 返回箭头+'推荐视频页面自动播放'标题+3选1单选列表(开启自动播放(已选)/仅 Wi-Fi 下自动播放/关闭自动播放)+底部说明文字'设置后，将在推荐页/关注页/个人动态页/搜索/问题中的视频/直播广场生效'。",
+      "source_images": [
+        "/user_input/微信图片_20260429233219_959_24.png"
+      ],
+      "source_draft_indexes": [
+        32
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 继承式定稿。draft 32 为 success 状态。此页面是 video_playback_settings 中'推荐视频页面自动播放'项的详情子页。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "push_notification_settings",
+      "page_name": "推送消息设置",
+      "page_file_path": "/designs/pages/push_notification_settings.json",
+      "page_role": "settings_sub",
+      "page_summary": "知乎推送消息设置子页(partial恢复) — 返回箭头+'推送消息设置'标题+4个分组:系统通知(含关闭态开关+红色警告提示)/知乎推荐(含开关)/互动行为通知(6个开关:私信/邀请/评论/转发/赞/形象关键词)/动态类导航项(3项带右箭头:有人关注了我/关注动态/参与动态)。",
+      "source_images": [
+        "/user_input/微信图片_20260425151934_889_24.png"
+      ],
+      "source_draft_indexes": [
+        12
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 保守定稿。draft 12 为 partial 状态但 raw_observation 中包含完整可恢复的页面结构。独立设置子页。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "sub_settings",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    },
+    {
+      "page_id": "third_party_data_sharing",
+      "page_name": "与第三方共享个人信息清单",
+      "page_file_path": "/designs/pages/third_party_data_sharing.json",
+      "page_role": "informational_detail",
+      "page_summary": "知乎隐私合规披露页(partial恢复) — 返回箭头+'与第三方共享个人信息清单'标题+三点菜单+含表头的数据表格(第三方公司名称/产品类型/共享信息名称/使用目的/使用场景/共享方式/第三方个人信息处理规则)+'内嵌 SDK 名单'子标题+至少1行数据(中国移动通信集团有限公司/中国移动认证精准触达SDK)。",
+      "source_images": [
+        "/user_input/微信图片_20260429233217_957_24.png"
+      ],
+      "source_draft_indexes": [
+        30
+      ],
+      "source_draft_count": 1,
+      "merge_summary": "单 draft 保守定稿。draft 30 为 partial 状态但 raw_observation 中包含完整可恢复的页面结构。独立信息展示页。",
+      "merge_variant_type": "standalone",
+      "page_semantic_role": "informational",
+      "interaction_summary": [],
+      "navigation_clue_summary": [],
+      "target_page_hints": [],
+      "possible_parent_page_hints": [],
+      "possible_child_page_hints": [],
+      "entry_candidate_hint": "unknown",
+      "has_state_variants": false,
+      "state_variant_summary": [],
+      "has_overlays": false,
+      "overlay_summary": []
+    }
+  ],
+  "draft_disposition_map": [],
+  "validation_summary": {
+    "schema_version": "stage2_validation.v1",
+    "page_count": 30,
+    "page_index_count": 30,
+    "drafts_with_disposition_count": 0,
+    "used_draft_indexes": [],
+    "unused_draft_indexes": [],
+    "warnings": [
+      "page_index item auto-added for page_id=my_features because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=profile_home because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=qa_landing because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=story_home because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=knowledge_home because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=answer_detail because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=content_editor because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=settings_root because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=settings_general because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=message_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=privacy_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=video_playback_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=interest_preference because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=about_zhihu because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=my_bookshelf because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=my_courses because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=paid_consultation because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=mall_home because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=help_center because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=message_list because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=org_register because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=privacy_guide because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=zhihu_agreement because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=minor_mode_onboarding because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=trust_device because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=app_filing_detail because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=auto_play_detail because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=push_notification_settings because it was missing in payload.page_index",
+      "page_index item auto-added for page_id=third_party_data_sharing because it was missing in payload.page_index"
+    ]
+  }
+}

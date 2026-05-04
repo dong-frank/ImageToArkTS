@@ -1,0 +1,136 @@
+{
+  "page_id": "dark_mode",
+  "page_name": "深色模式",
+  "page_role": "settings_subpage",
+  "page_summary": "微信'深色模式'单项设置页。仅含一个开关控件：跟随系统(开启状态，绿色toggle)。说明文字：'开启后，将跟随系统打开或关闭深色模式'。页面下方大面积留白。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151220_868_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_11.json"
+  ],
+  "source_draft_indexes": [
+    11
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为深色模式单项设置页完整结构，无可靠合并对象。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<"
+          },
+          {
+            "type": "Title",
+            "text": "深色模式"
+          },
+          {
+            "type": "EmptySpace"
+          }
+        ]
+      },
+      {
+        "type": "SettingItem",
+        "children": [
+          {
+            "type": "LabelGroup",
+            "children": [
+              {
+                "type": "PrimaryLabel",
+                "text": "跟随系统"
+              },
+              {
+                "type": "SecondaryLabel",
+                "text": "开启后，将跟随系统打开或关闭深色模式"
+              }
+            ]
+          },
+          {
+            "type": "ToggleSwitch",
+            "state": "on",
+            "color": "green"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "header_bar",
+      "block_role": "navigation_header",
+      "summary": "导航栏：返回按钮+标题'深色模式'"
+    },
+    {
+      "block_id": "single_setting",
+      "block_role": "setting_control",
+      "summary": "单项设置：跟随系统开关(绿色toggle，开启态)+说明文本"
+    },
+    {
+      "block_id": "footer_padding",
+      "block_role": "empty_area",
+      "summary": "页面下方约2/3区域空白"
+    }
+  ],
+  "key_texts": [
+    "深色模式",
+    "跟随系统",
+    "开启后，将跟随系统打开或关闭深色模式"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation_back",
+      "source": "BackButton",
+      "action": "pop"
+    },
+    {
+      "interaction_id": "toggle",
+      "type": "toggle_switch",
+      "source": "ToggleSwitch[跟随系统]",
+      "action": "toggle_system_dark_mode_sync"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SingleItemSettingScreen",
+    "visual_blocks": [
+      "Navigation Bar",
+      "Setting Item with Toggle"
+    ],
+    "styling_hints": {
+      "background": "light gray",
+      "text_color": "dark gray for secondary, black for primary",
+      "toggle_style": "iOS-style green toggle"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "轻量级系统偏好设置",
+    "emphasis": "绿色toggle为视觉焦点",
+    "background": "浅灰纯色"
+  },
+  "page_semantic_role": "settings_leaf",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "display_settings > 深色模式"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "仅一个开关项，典型的单项设置页",
+    "开关当前处于开启状态",
+    "说明文字为浅灰色小号字体",
+    "下方大面积空白，无其他可交互元素"
+  ],
+  "schema_version": "stage2_page.v1"
+}

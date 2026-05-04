@@ -1,0 +1,206 @@
+{
+  "page_id": "life_payment",
+  "page_name": "生活缴费",
+  "page_role": "service_page",
+  "page_summary": "微信生活缴费服务页。提供水费、电费、燃气费、固话、宽带等公共事业缴费服务。顶部标题栏含返回按钮，当前城市为北京(可切换)，右上角管理功能。主要操作区：新增缴费账户(水费/电费/燃气/固话/宽带)，输入户号快速查询缴费。底部含自动缴费管理入口。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151227_877_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_20.json"
+  ],
+  "source_draft_indexes": [
+    20
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为'生活缴费'服务页面完整结构，无可靠合并对象。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "返回"
+          },
+          {
+            "type": "LocationSelector",
+            "label": "北京",
+            "action": "change_city"
+          },
+          {
+            "type": "ActionIcon",
+            "position": "right",
+            "icon": "more_vert"
+          }
+        ]
+      },
+      {
+        "type": "HeroBanner",
+        "bg_color": "#07C160",
+        "children": [
+          {
+            "type": "Title",
+            "text": "生活缴费"
+          },
+          {
+            "type": "Subtitle",
+            "text": "足不出户，轻松缴费"
+          }
+        ]
+      },
+      {
+        "type": "QuickActions",
+        "children": [
+          {
+            "type": "ActionCard",
+            "label": "新增缴费",
+            "items": [
+              "水费",
+              "电费",
+              "燃气费",
+              "固话",
+              "宽带"
+            ],
+            "trailing_icon": "add_circle"
+          },
+          {
+            "type": "ActionCard",
+            "label": "查询缴费",
+            "description": "输入户号",
+            "trailing_icon": "search"
+          }
+        ]
+      },
+      {
+        "type": "SectionHeader",
+        "text": "自动缴费"
+      },
+      {
+        "type": "ListEntry",
+        "label": "自动缴费管理",
+        "trailing_icon": "chevron_right"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation_header",
+      "summary": "导航栏：返回+北京(城市切换)+更多菜单"
+    },
+    {
+      "block_id": "hero_banner",
+      "block_role": "branding_banner",
+      "summary": "绿色横幅：生活缴费 + 足不出户，轻松缴费"
+    },
+    {
+      "block_id": "quick_actions",
+      "block_role": "service_actions",
+      "summary": "快捷操作区：新增缴费(水/电/燃气/固话/宽带) + 查询缴费(输入户号)"
+    },
+    {
+      "block_id": "auto_pay",
+      "block_role": "manage_auto_payment",
+      "summary": "自动缴费管理入口"
+    }
+  ],
+  "key_texts": [
+    "生活缴费",
+    "北京",
+    "足不出户，轻松缴费",
+    "新增缴费",
+    "水费",
+    "电费",
+    "燃气费",
+    "固话",
+    "宽带",
+    "查询缴费",
+    "输入户号",
+    "自动缴费",
+    "自动缴费管理"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation_back",
+      "source": "BackButton",
+      "action": "pop"
+    },
+    {
+      "interaction_id": "change_city",
+      "type": "location_tap",
+      "source": "LocationSelector[北京]",
+      "action": "open_city_picker"
+    },
+    {
+      "interaction_id": "more_menu",
+      "type": "icon_tap",
+      "source": "ActionIcon[more_vert]",
+      "action": "open_menu_overlay"
+    },
+    {
+      "interaction_id": "add_account",
+      "type": "card_tap",
+      "source": "ActionCard[新增缴费]",
+      "action": "open_account_form_or_picker",
+      "count": 5
+    },
+    {
+      "interaction_id": "query_bill",
+      "type": "card_tap",
+      "source": "ActionCard[查询缴费]",
+      "action": "navigate_to_query"
+    },
+    {
+      "interaction_id": "manage_autopay",
+      "type": "list_entry_tap",
+      "source": "ListEntry[自动缴费管理]",
+      "action": "navigate_to_auto_pay_settings"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SingleColumnScrollView with hero banner + card grid + list",
+    "visual_blocks": [
+      "Nav bar with city picker",
+      "Green hero banner",
+      "2-column(or wide card) action area",
+      "Standard grouped list section"
+    ],
+    "styling_hints": {
+      "primary_color": "#07C160(微信绿)",
+      "card_style": "rounded with shadow",
+      "banner": "gradient green with white text"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "服务型功能页",
+    "emphasis": "绿色顶部横幅为品牌区",
+    "background": "浅灰纯色"
+  },
+  "page_semantic_role": "utility_service",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "services_home_a",
+    "services_home_b",
+    "services_home"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前城市显示为北京，定位可能为静态",
+    "无缴费记录或历史账单显示",
+    "底部无底部导航栏（非主Tab页）",
+    "'生活缴费'出现在服务首页入口中"
+  ],
+  "schema_version": "stage2_page.v1"
+}

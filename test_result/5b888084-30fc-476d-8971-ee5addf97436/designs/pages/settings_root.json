@@ -1,0 +1,215 @@
+{
+  "page_id": "settings_root",
+  "page_name": "设置",
+  "page_role": "settings",
+  "page_summary": "知乎设置主页面 — 返回箭头+'设置'标题+分组设置列表:消息设置(带副标题'私信接收设置、通知设置')/推送通知(带副标题'推荐通知...')/卡片贴纸/账号与安全/隐私(带副标题'屏蔽设置、互动设置...')/存储空间(带副标题'缓存、下载管理')等+退出登录按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151932_887_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_29.json"
+  ],
+  "source_draft_indexes": [
+    29
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 29 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "设置"
+          }
+        ]
+      },
+      {
+        "type": "SectionedList",
+        "children": [
+          {
+            "type": "Section",
+            "label": "消息设置",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "消息设置",
+                "subtitle": "私信接收设置、通知设置",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "推送通知",
+                "subtitle": "推荐通知、个性化内容推荐",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "卡片贴纸",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "账号与安全",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "隐私",
+                "subtitle": "屏蔽设置、互动设置、隐私设置",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "存储空间",
+                "subtitle": "缓存、下载管理",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "视频播放设置",
+                "accessory": "ChevronRight"
+              },
+              {
+                "type": "ListItem",
+                "label": "内容兴趣偏好",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "通用设置",
+                "accessory": "ChevronRight"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "关于知乎",
+                "accessory": "ChevronRight"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "LogoutButton",
+        "label": "退出登录"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "settings_list",
+      "role": "content",
+      "summary": "7个分组,每组含若干带副标题和右箭头的设置项"
+    },
+    {
+      "block_id": "logout_button",
+      "role": "action",
+      "summary": "红色退出登录按钮"
+    }
+  ],
+  "key_texts": [
+    "设置",
+    "消息设置",
+    "推送通知",
+    "卡片贴纸",
+    "账号与安全",
+    "隐私",
+    "存储空间",
+    "视频播放设置",
+    "内容兴趣偏好",
+    "通用设置",
+    "关于知乎",
+    "退出登录",
+    "私信接收设置、通知设置",
+    "推荐通知、个性化内容推荐",
+    "屏蔽设置、互动设置、隐私设置",
+    "缓存、下载管理"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回",
+      "target_page_hint": "个人中心/上一页面"
+    },
+    {
+      "interaction_id": "list_item_tap",
+      "type": "navigation",
+      "trigger": "点击各设置项",
+      "target_page_hint": "对应设置子页面"
+    },
+    {
+      "interaction_id": "logout",
+      "type": "action",
+      "trigger": "点击退出登录",
+      "target_page_hint": "登录页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + SectionedList + FooterButton",
+    "styling_hints": "iOS风格分组列表,灰色分组间距,右箭头导航指示",
+    "reusable_components": [
+      "SettingListItem",
+      "SectionHeader"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "iOS设置页风格",
+    "density": "low",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "7个分组均为导航型设置项,点击跳转子页面",
+    "退出登录按钮为红色,强调操作风险",
+    "设置项右侧均为ChevronRight,表示导航至子页"
+  ],
+  "schema_version": "stage2_page.v1"
+}

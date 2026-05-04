@@ -1,0 +1,189 @@
+{
+  "page_id": "notification_settings",
+  "page_name": "消息通知设置",
+  "page_role": "standalone_page",
+  "page_summary": "消息通知设置子页，分为'大众点评未打开时'（系统通知开关）和'大众点评打开时'（3个通知开关）两个分组，底部有'消息页设置'入口。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145656_825_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_10.json"
+  ],
+  "source_draft_indexes": [
+    10
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "消息通知设置"
+          }
+        ]
+      },
+      {
+        "type": "SettingsList",
+        "id": "settings_list",
+        "children": [
+          {
+            "type": "SectionHeader",
+            "text": "大众点评未打开时"
+          },
+          {
+            "type": "SettingsItem",
+            "label": "系统通知",
+            "value": "已关闭",
+            "has_toggle": false,
+            "has_chevron": true
+          },
+          {
+            "type": "SectionHeader",
+            "text": "大众点评打开时"
+          },
+          {
+            "type": "SettingsItem",
+            "label": "互动通知",
+            "has_toggle": true,
+            "toggle_state": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "活动通知",
+            "has_toggle": true,
+            "toggle_state": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "系统通知",
+            "has_toggle": true,
+            "toggle_state": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "消息页设置",
+            "has_chevron": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '消息通知设置'标题"
+    },
+    {
+      "block_id": "settings_list",
+      "block_role": "content",
+      "summary": "分组设置：大众点评未打开时(系统通知已关闭) + 大众点评打开时(互动通知/活动通知/系统通知 均ON) + 消息页设置入口"
+    }
+  ],
+  "key_texts": [
+    "消息通知设置",
+    "大众点评未打开时",
+    "系统通知",
+    "已关闭",
+    "大众点评打开时",
+    "互动通知",
+    "活动通知",
+    "系统通知",
+    "消息页设置"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回设置"
+    },
+    {
+      "interaction_id": "system_notification_off",
+      "trigger": "点击'系统通知'",
+      "action": "跳转系统设置开启通知",
+      "target_page_hint": "系统设置"
+    },
+    {
+      "interaction_id": "toggle_interaction",
+      "trigger": "切换'互动通知'",
+      "action": "开关互动通知"
+    },
+    {
+      "interaction_id": "toggle_activity",
+      "trigger": "切换'活动通知'",
+      "action": "开关活动通知"
+    },
+    {
+      "interaction_id": "toggle_system",
+      "trigger": "切换'系统通知'",
+      "action": "开关系统通知"
+    },
+    {
+      "interaction_id": "message_page_settings",
+      "trigger": "点击'消息页设置'",
+      "action": "进入消息页设置",
+      "target_page_hint": "消息页设置"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SettingsDetailLayout: NavBar + GroupedToggleList",
+    "important_visual_blocks": [
+      "SectionHeader（分组标题）",
+      "ToggleRow（左侧标签+右侧开关）"
+    ],
+    "styling_hints": "浅色背景，标准设置子页样式，toggle为系统默认样式"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景",
+    "density": "标准设置子页"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [
+    "消息页设置",
+    "系统设置"
+  ],
+  "possible_parent_page_hints": [
+    "settings_root"
+  ],
+  "possible_child_page_hints": [
+    "message_page_settings"
+  ],
+  "notes": [
+    "系统通知（未打开时）显示'已关闭'，需跳转系统设置开启",
+    "3个应用内通知开关均为ON状态"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "settings_page",
+    "is_entry": false,
+    "parent_page_id": "settings_root",
+    "child_page_ids": ["message_page_settings"],
+    "incoming_relations": [{"source_page_id":"settings_root","relation_type":"opens_child_page","trigger_label":"消息通知设置","trigger_interaction_id":"notification_settings","confidence":"high"}],
+    "outgoing_relations": [{"target_page_id":"settings_root","relation_type":"returns_to","trigger_label":"返回按钮←","trigger_interaction_id":"back","confidence":"high"},{"target_page_id":"message_page_settings","relation_type":"opens_child_page","trigger_label":"消息页设置","trigger_interaction_id":"message_page_settings","confidence":"high"}],
+    "navigation_surface": {"is_main_tab":false,"is_bottom_tab_member":false,"is_top_level_page":false,"is_stack_destination":true},
+    "confirmed_navigation_actions": [{"trigger_label":"返回按钮←","trigger_interaction_id":"back","relation_type":"returns_to","target_page_id":"settings_root","confidence":"high","reasoning":"消息通知设置页返回按钮明确指向设置。"},{"trigger_label":"消息页设置","trigger_interaction_id":"message_page_settings","relation_type":"opens_child_page","target_page_id":"message_page_settings","confidence":"high","reasoning":"消息通知设置页'消息页设置'列表项点击进入。"}],
+    "unresolved_navigation_actions": [{"trigger_label":"系统通知（未打开时）","trigger_interaction_id":"system_notification_off","target_page_hint":"系统设置","possible_relation_type":"opens_child_page","reasoning":"'系统通知'点击应跳转系统设置开启通知，为外部跳转。"}],
+    "non_navigation_interaction_hints": [{"trigger_label":"互动通知/活动通知/系统通知开关","trigger_interaction_id":"toggle_interaction","why_not_navigation":"切换通知开关状态，为同页toggle操作。"}],
+    "navigation_targets_summary": "返回按钮回到settings_root；消息页设置进入message_page_settings。系统通知跳转为外部系统设置。",
+    "implementation_navigation_warnings": ["返回按钮应实现为栈弹出（pop）","toggle开关为同页操作，不应实现为导航","系统通知跳转可能为外部系统设置页"],
+    "navigation_notes": "从设置页'消息通知设置'进入的设置子页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

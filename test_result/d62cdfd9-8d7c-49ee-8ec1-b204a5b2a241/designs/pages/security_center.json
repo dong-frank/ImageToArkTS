@@ -1,0 +1,193 @@
+{
+  "page_id": "security_center",
+  "page_name": "微信安全中心",
+  "page_role": "account_safety_hub",
+  "page_summary": "微信安全中心——账号安全管理页。提供6个账号生命周期管理操作入口：找回账号密码、解封账号、冻结账号、解冻账号、投诉维权、注销账号。每个卡片含图标、标题和风险提示副标题。底部有'进入帮助中心'链接。顶部含关闭按钮和更多菜单。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151219_866_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_9.json"
+  ],
+  "source_draft_indexes": [
+    9
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为微信安全中心完整页面，结构独立，无可靠合并对象。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "CloseButton",
+            "label": "×"
+          },
+          {
+            "type": "Title",
+            "text": "微信安全中心"
+          },
+          {
+            "type": "OverflowMenu",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "CardList",
+        "children": [
+          {
+            "type": "CardItem",
+            "icon": "key",
+            "title": "找回账号密码",
+            "subtitle": "申诉找回微信账号密码"
+          },
+          {
+            "type": "CardItem",
+            "icon": "prohibited_lock",
+            "title": "解封账号",
+            "subtitle": "账号因违规或其他原因被限制登录，申请解封"
+          },
+          {
+            "type": "CardItem",
+            "icon": "locked",
+            "title": "冻结账号",
+            "subtitle": "自己或朋友的账号被盗、手机丢失，可以冻结微信"
+          },
+          {
+            "type": "CardItem",
+            "icon": "unlocked",
+            "title": "解冻账号",
+            "subtitle": "解除安全风险后，你可以解冻微信账号"
+          },
+          {
+            "type": "CardItem",
+            "icon": "warning_triangle",
+            "title": "投诉维权",
+            "subtitle": "了解如何投诉违规或侵权行为"
+          },
+          {
+            "type": "CardItem",
+            "icon": "cross_circle",
+            "title": "注销账号",
+            "subtitle": "提交申请，删除所有数据，永久注销"
+          }
+        ]
+      },
+      {
+        "type": "FooterLink",
+        "text": "进入帮助中心",
+        "style": "link_underline"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "header",
+      "block_role": "navigation_bar",
+      "summary": "导航栏：×关闭按钮+标题'微信安全中心'+⋯更多菜单"
+    },
+    {
+      "block_id": "main_actions",
+      "block_role": "action_card_list",
+      "summary": "6个功能卡片：找回账号密码、解封账号、冻结账号、解冻账号、投诉维权、注销账号"
+    },
+    {
+      "block_id": "footer",
+      "block_role": "support_link",
+      "summary": "底部'进入帮助中心'蓝色文本链接"
+    }
+  ],
+  "key_texts": [
+    "微信安全中心",
+    "找回账号密码",
+    "申诉找回微信账号密码",
+    "解封账号",
+    "账号因违规或其他原因被限制登录，申请解封",
+    "冻结账号",
+    "自己或朋友的账号被盗、手机丢失，可以冻结微信",
+    "解冻账号",
+    "解除安全风险后，你可以解冻微信账号",
+    "投诉维权",
+    "了解如何投诉违规或侵权行为",
+    "注销账号",
+    "提交申请，删除所有数据，永久注销",
+    "进入帮助中心"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "close",
+      "type": "button_tap",
+      "source": "CloseButton",
+      "action": "dismiss"
+    },
+    {
+      "interaction_id": "card_recover",
+      "type": "card_tap",
+      "source": "CardItem[找回账号密码]",
+      "action": "navigate_to_password_recovery_flow"
+    },
+    {
+      "interaction_id": "card_unblock",
+      "type": "card_tap",
+      "source": "CardItem[解封账号]",
+      "action": "navigate_to_unblock_application"
+    },
+    {
+      "interaction_id": "card_delete",
+      "type": "card_tap",
+      "source": "CardItem[注销账号]",
+      "action": "navigate_to_account_deletion_flow"
+    },
+    {
+      "interaction_id": "help_center",
+      "type": "link_tap",
+      "source": "FooterLink[进入帮助中心]",
+      "target_page_hint": "help_center"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "VerticalCardListWithHeaderAndFooter",
+    "visual_blocks": [
+      "Icon-Title-Subtitle Card Pattern",
+      "Consistent spacing and rounded corners",
+      "Green icon palette with semantic meaning"
+    ],
+    "styling_hints": {
+      "card_background": "white",
+      "card_radius": "12dp",
+      "spacing_vertical": "16dp between cards",
+      "icon_size": "24×24",
+      "title_font": "bold, 16sp",
+      "subtitle_font": "regular, 14sp, gray"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "高警示性设计，强调操作正式性与安全性",
+    "emphasis": "每个卡片图标颜色统一为绿色系，与功能语义强关联",
+    "background": "浅灰纯色"
+  },
+  "page_semantic_role": "account_safety_hub",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "account_security > 微信安全中心"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "所有卡片均以动词短语命名",
+    "每个卡片含明确风险提示性副标题",
+    "无用户信息展示区，非个性化页面",
+    "⋯菜单项具体内容未知"
+  ],
+  "schema_version": "stage2_page.v1"
+}

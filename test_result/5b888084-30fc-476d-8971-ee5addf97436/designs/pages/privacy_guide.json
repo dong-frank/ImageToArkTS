@@ -1,0 +1,108 @@
+{
+  "page_id": "privacy_guide",
+  "page_name": "个人信息保护指引",
+  "page_role": "legal_document",
+  "page_summary": "知乎'个人信息保护指引'v5.2 法律文档页 — 返回箭头+'个人信息保护指引'标题+三点菜单+长文本文档内容,含章节结构和法律条款。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151937_892_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_15.json"
+  ],
+  "source_draft_indexes": [
+    15
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 15 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "个人信息保护指引"
+          },
+          {
+            "type": "OverflowMenu",
+            "icon": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "DocumentContent",
+        "children": [
+          {
+            "type": "VersionLabel",
+            "text": "v5.2"
+          },
+          {
+            "type": "LegalText",
+            "text": "个人信息保护指引正文...(长篇法律文档)"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "document_body",
+      "role": "content",
+      "summary": "法律文档正文,含版本号和章节"
+    }
+  ],
+  "key_texts": [
+    "个人信息保护指引",
+    "v5.2"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "隐私设置/关于知乎"
+    },
+    {
+      "interaction_id": "overflow_menu",
+      "type": "action",
+      "trigger": "三点菜单",
+      "description": "可能提供分享/复制等"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + ScrollableDocument",
+    "styling_hints": "白底黑字,标准法律文档排版"
+  },
+  "visual_style_hints": {
+    "overall_style": "法律文档",
+    "density": "high",
+    "background": "white"
+  },
+  "page_semantic_role": "legal",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "v5.2 版本号,2025年更新",
+    "长篇法律文档,纯文本展示"
+  ],
+  "schema_version": "stage2_page.v1"
+}

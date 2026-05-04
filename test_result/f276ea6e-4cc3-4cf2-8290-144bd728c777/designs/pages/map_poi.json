@@ -1,0 +1,451 @@
+{
+  "page_id": "map_poi",
+  "page_name": "地图",
+  "page_role": "standalone_page",
+  "page_summary": "美团地图POI探索页，以地图为底图叠加本地生活POI标注（餐饮/景点/购物等），支持分类标签筛选、POI卡片列表浏览，底部Tab栏选中'地图'。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145649_817_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_3.json"
+  ],
+  "source_draft_indexes": [
+    3
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "SearchBar",
+        "id": "search_bar",
+        "text": "搜索地点、美食、景点等",
+        "icon": "magnifier"
+      },
+      {
+        "type": "CategoryTabs",
+        "id": "category_tabs",
+        "items": [
+          {
+            "label": "推荐",
+            "badge": "🔥",
+            "selected": true
+          },
+          {
+            "label": "美食"
+          },
+          {
+            "label": "玩乐"
+          },
+          {
+            "label": "景点"
+          },
+          {
+            "label": "购物"
+          }
+        ]
+      },
+      {
+        "type": "MapArea",
+        "id": "map_area",
+        "map_source": "美团地图",
+        "overlay_elements": [
+          {
+            "type": "POIMarker",
+            "label": "九乡河生态公园",
+            "score": "4.2分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "杨天歌冒菜·麻辣香锅",
+            "score": "3.8分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "羊山湖公园",
+            "score": "4.3分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "江苏省中医药博物馆",
+            "score": "3.8分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "山林美糖广场",
+            "score": "4.8分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "江宴·仙林山房",
+            "score": "4.8分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "外婆人家融合淮扬菜",
+            "score": "3.9分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "必胜客",
+            "score": "4.0分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "美术馆",
+            "score": "3.7分"
+          },
+          {
+            "type": "POIMarker",
+            "label": "邓廷桢墓",
+            "score": "3.5分"
+          }
+        ]
+      },
+      {
+        "type": "VerticalActionButtons",
+        "id": "action_buttons",
+        "items": [
+          {
+            "label": "赏花"
+          },
+          {
+            "label": "必吃榜",
+            "badge": "🔥"
+          },
+          {
+            "label": "收藏"
+          },
+          {
+            "label": "定位"
+          }
+        ]
+      },
+      {
+        "type": "POICardList",
+        "id": "poi_card_list",
+        "items": [
+          {
+            "type": "POICard",
+            "title": "王和李·海鲜火锅大排档 (美糖广场店)",
+            "rating": "4.2",
+            "review_count": "3435条",
+            "price": "¥85/人",
+            "tags": [
+              "海鲜火锅",
+              "仙林大学城"
+            ],
+            "distance": "4.6km",
+            "badge": "会员6.8折",
+            "rank_info": "仙林大学城火锅打卡人气榜 · 第2名"
+          },
+          {
+            "type": "POICard",
+            "title": "开云 (仙林美糖庄)"
+          }
+        ]
+      },
+      {
+        "type": "BottomNav",
+        "id": "bottom_nav",
+        "items": [
+          {
+            "label": "首页",
+            "selected": false
+          },
+          {
+            "label": "地图",
+            "selected": true
+          },
+          {
+            "label": "+",
+            "action": "add"
+          },
+          {
+            "label": "消息",
+            "selected": false
+          },
+          {
+            "label": "我的",
+            "selected": false
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "search_bar",
+      "block_role": "search",
+      "summary": "搜索栏：搜索地点、美食、景点等"
+    },
+    {
+      "block_id": "category_tabs",
+      "block_role": "filter",
+      "summary": "分类标签：推荐(选中)/美食/玩乐/景点/购物"
+    },
+    {
+      "block_id": "map_area",
+      "block_role": "map",
+      "summary": "美团地图主视图，密集标注POI点（含评分图标）"
+    },
+    {
+      "block_id": "action_buttons",
+      "block_role": "quick_actions",
+      "summary": "右侧垂直功能按钮组：赏花/必吃榜/收藏/定位"
+    },
+    {
+      "block_id": "poi_card_list",
+      "block_role": "list",
+      "summary": "底部POI卡片列表（可滚动），含评分/价格/距离/标签"
+    },
+    {
+      "block_id": "bottom_nav",
+      "block_role": "global_navigation",
+      "summary": "底部Tab栏：首页/地图(选中)/+/消息/我的"
+    }
+  ],
+  "key_texts": [
+    "搜索地点、美食、景点等",
+    "推荐",
+    "美食",
+    "玩乐",
+    "景点",
+    "购物",
+    "九乡河生态公园",
+    "王和李·海鲜火锅大排档 (美糖广场店)",
+    "4.2",
+    "3435条",
+    "¥85/人",
+    "海鲜火锅",
+    "仙林大学城",
+    "仙林大学城火锅打卡人气榜 · 第2名",
+    "会员6.8折",
+    "4.6km",
+    "赏花",
+    "必吃榜",
+    "收藏",
+    "定位"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "search",
+      "trigger": "点击搜索栏",
+      "action": "搜索地点/美食/景点",
+      "target_page_hint": "搜索结果页"
+    },
+    {
+      "interaction_id": "category_filter",
+      "trigger": "点击分类标签",
+      "action": "切换POI类型筛选"
+    },
+    {
+      "interaction_id": "poi_marker_tap",
+      "trigger": "点击地图POI标记",
+      "action": "查看POI详情",
+      "target_page_hint": "POI详情页"
+    },
+    {
+      "interaction_id": "poi_card_tap",
+      "trigger": "点击POI卡片",
+      "action": "进入POI详情",
+      "target_page_hint": "POI详情页"
+    },
+    {
+      "interaction_id": "bibangbang_tap",
+      "trigger": "点击'必吃榜'按钮",
+      "action": "跳转榜单页",
+      "target_page_hint": "必吃榜专题页"
+    },
+    {
+      "interaction_id": "locate_tap",
+      "trigger": "点击定位按钮",
+      "action": "重置地图中心至当前位置"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "trigger": "点击底部Tab",
+      "action": "切换主页面"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "Hybrid Map-List Layout",
+    "important_visual_blocks": [
+      "CategoryStrip（圆角白底+图标+文字，选中项橙色边框）",
+      "POIMarker（图标+评分气泡）",
+      "POICard（左图右文+星级+价格+标签+距离）",
+      "RightActionGroup（白色圆角矩形堆叠）"
+    ],
+    "styling_hints": "美团品牌色（橙为主），地图底图轻量化"
+  },
+  "visual_style_hints": {
+    "color_scheme": "橙色主色调+浅绿/灰地图底图",
+    "density": "POI密集标注"
+  },
+  "page_semantic_role": "map",
+  "target_page_hints": [
+    "POI详情页",
+    "必吃榜专题页",
+    "搜索结果页"
+  ],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前定位在仙林大学城周边",
+    "'推荐'为当前激活分类",
+    "列表仅展示2项，第二项标题不完整"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "main_tab",
+    "is_entry": false,
+    "parent_page_id": null,
+    "child_page_ids": [],
+    "incoming_relations": [
+      {
+        "source_page_id": "home_discovery",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'地图'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "messages",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'地图'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "my_profile",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'地图'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "home_discovery",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'首页'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "messages",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'消息'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "my_profile",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'我的'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "action_hub_overlay",
+        "relation_type": "contains_subpage_entry",
+        "trigger_label": "底部'+'按钮",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": true,
+      "is_bottom_tab_member": true,
+      "is_top_level_page": true,
+      "is_stack_destination": false
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "home_discovery",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到首页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "messages",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到消息页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "my_profile",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到我的页。"
+      },
+      {
+        "trigger_label": "底部'+'按钮",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "contains_subpage_entry",
+        "target_page_id": "action_hub_overlay",
+        "confidence": "high",
+        "reasoning": "底部'+'按钮触发功能选择面板overlay。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "POI标记/卡片",
+        "trigger_interaction_id": "poi_marker_tap",
+        "target_page_hint": "POI详情页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "地图POI标记或卡片点击应进入POI详情页，未覆盖。"
+      },
+      {
+        "trigger_label": "必吃榜按钮",
+        "trigger_interaction_id": "bibangbang_tap",
+        "target_page_hint": "必吃榜专题页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "地图页'必吃榜'按钮应跳转必吃榜专题页，未覆盖。"
+      },
+      {
+        "trigger_label": "搜索栏",
+        "trigger_interaction_id": "search",
+        "target_page_hint": "搜索结果页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "地图搜索栏应跳转搜索结果页，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "分类标签",
+        "trigger_interaction_id": "category_filter",
+        "why_not_navigation": "切换POI类型筛选，为同页状态变化。"
+      },
+      {
+        "trigger_label": "定位按钮",
+        "trigger_interaction_id": "locate_tap",
+        "why_not_navigation": "重置地图中心至当前位置，为同页地图操作。"
+      }
+    ],
+    "navigation_targets_summary": "通过底部Tab切换到home_discovery、messages、my_profile；'+'按钮触发action_hub_overlay。POI详情、必吃榜、搜索结果等目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "底部Tab切换为switches_tab_to，不应实现为push导航",
+      "'+'按钮触发overlay而非页面路由",
+      "分类标签切换和定位按钮为同页操作，不应实现为导航",
+      "POI标记/卡片点击的目标页未覆盖，不应实现为确认路由"
+    ],
+    "navigation_notes": "底部Tab主导航体系中的地图Tab。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

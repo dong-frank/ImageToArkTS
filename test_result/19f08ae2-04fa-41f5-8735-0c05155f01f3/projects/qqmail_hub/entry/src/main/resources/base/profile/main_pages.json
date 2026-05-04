@@ -1,0 +1,16 @@
+{
+  "src": [
+    "pages/Index",
+    "pages/ServiceHub",
+    "pages/EmailInbox",
+    "pages/VipBenefits",
+    "pages/MailCompose",
+    "pages/ImportantContacts",
+    "pages/EmailDetail",
+    "pages/InvoiceSetup",
+    "pages/SettingsRoot",
+    "pages/SettingsGeneral",
+    "pages/NotificationNewMail",
+    "pages/AppSettingsList"
+  ]
+}

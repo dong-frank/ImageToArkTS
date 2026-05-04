@@ -1,0 +1,606 @@
+{
+  "page_id": "settings_root",
+  "page_name": "设置",
+  "page_role": "standalone_page",
+  "page_summary": "设置根页面，包含14+个设置项，分为多个分组：个人资料、账号与安全、消息通知设置、隐私管理、通用、长辈版、未成年人模式、多语言、存储空间、诊断网络、隐私政策、个人信息收集清单、第三方信息数据共享、意见反馈、关于我们、热线电话、退出登录。由draft 8（上部）和draft 18（下部）滚动互补合并。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145654_823_24.png",
+    "/user_input/微信图片_20260429232712_948_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_8.json",
+    "/designs/page_drafts/page_draft_18.json"
+  ],
+  "source_draft_indexes": [
+    8,
+    18
+  ],
+  "merge_decision": {
+    "decision_summary": "draft 8和draft 18为同一设置页面的不同滚动区域。draft 8展示上部（个人资料~意见反馈），draft 18展示下部（通用~退出登录）。两者标题均为'设置'，结构一致，为滚动互补关系。合并为单一设置根页面。",
+    "same_page_evidence": [
+      "两者标题均为'设置'",
+      "两者均为设置项列表结构",
+      "draft 8的底部项与draft 18的顶部项自然衔接",
+      "draft 18的'通用'作为section header出现，draft 8中'通用'为普通列表项"
+    ],
+    "variant_type": "scroll_complement",
+    "uncertainties": [
+      "draft 18中'通用'显示为section header而draft 8中为普通列表项，可能是不同版本或不同滚动位置导致的分组差异"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "设置"
+          }
+        ]
+      },
+      {
+        "type": "SettingsList",
+        "id": "settings_list",
+        "children": [
+          {
+            "type": "SettingsItem",
+            "label": "个人资料",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "账号与安全",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "消息通知设置",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "隐私管理",
+            "has_chevron": true
+          },
+          {
+            "type": "SectionHeader",
+            "text": "通用"
+          },
+          {
+            "type": "SettingsItem",
+            "label": "通用",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "长辈版",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "未成年人模式",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "多语言",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "存储空间",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "诊断网络",
+            "has_chevron": true
+          },
+          {
+            "type": "SectionHeader",
+            "text": "隐私与协议"
+          },
+          {
+            "type": "SettingsItem",
+            "label": "隐私政策",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "个人信息收集清单",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "第三方信息数据共享",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "意见反馈",
+            "has_chevron": true
+          },
+          {
+            "type": "SectionHeader",
+            "text": "其他"
+          },
+          {
+            "type": "SettingsItem",
+            "label": "关于我们",
+            "has_chevron": true
+          },
+          {
+            "type": "SettingsItem",
+            "label": "热线电话",
+            "has_chevron": true
+          },
+          {
+            "type": "LogoutButton",
+            "label": "退出登录",
+            "style": "danger"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '设置'标题"
+    },
+    {
+      "block_id": "settings_list",
+      "block_role": "content",
+      "summary": "设置项列表，分为多个分组：个人资料/账号与安全/消息通知设置/隐私管理 + 通用分组（通用/长辈版/未成年人模式/多语言/存储空间/诊断网络）+ 隐私与协议分组（隐私政策/个人信息收集清单/第三方信息数据共享/意见反馈）+ 其他分组（关于我们/热线电话/退出登录）"
+    }
+  ],
+  "key_texts": [
+    "设置",
+    "个人资料",
+    "账号与安全",
+    "消息通知设置",
+    "隐私管理",
+    "通用",
+    "长辈版",
+    "未成年人模式",
+    "多语言",
+    "存储空间",
+    "诊断网络",
+    "隐私政策",
+    "个人信息收集清单",
+    "第三方信息数据共享",
+    "意见反馈",
+    "关于我们",
+    "热线电话",
+    "退出登录"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页",
+      "target_page_hint": "我的"
+    },
+    {
+      "interaction_id": "personal_info",
+      "trigger": "点击'个人资料'",
+      "action": "进入个人资料",
+      "target_page_hint": "个人资料页"
+    },
+    {
+      "interaction_id": "account_security",
+      "trigger": "点击'账号与安全'",
+      "action": "进入账号与安全",
+      "target_page_hint": "账号与安全页"
+    },
+    {
+      "interaction_id": "notification_settings",
+      "trigger": "点击'消息通知设置'",
+      "action": "进入消息通知设置",
+      "target_page_hint": "消息通知设置页"
+    },
+    {
+      "interaction_id": "privacy_management",
+      "trigger": "点击'隐私管理'",
+      "action": "进入隐私管理",
+      "target_page_hint": "隐私管理页"
+    },
+    {
+      "interaction_id": "general",
+      "trigger": "点击'通用'",
+      "action": "进入通用设置",
+      "target_page_hint": "通用设置页"
+    },
+    {
+      "interaction_id": "elder_mode",
+      "trigger": "点击'长辈版'",
+      "action": "进入长辈版设置",
+      "target_page_hint": "长辈版页"
+    },
+    {
+      "interaction_id": "minor_mode",
+      "trigger": "点击'未成年人模式'",
+      "action": "进入未成年人模式",
+      "target_page_hint": "未成年人模式页"
+    },
+    {
+      "interaction_id": "language",
+      "trigger": "点击'多语言'",
+      "action": "进入语言设置",
+      "target_page_hint": "多语言页"
+    },
+    {
+      "interaction_id": "storage",
+      "trigger": "点击'存储空间'",
+      "action": "进入存储空间",
+      "target_page_hint": "存储空间页"
+    },
+    {
+      "interaction_id": "network_diag",
+      "trigger": "点击'诊断网络'",
+      "action": "进入网络诊断",
+      "target_page_hint": "网络诊断页"
+    },
+    {
+      "interaction_id": "privacy_policy",
+      "trigger": "点击'隐私政策'",
+      "action": "查看隐私政策",
+      "target_page_hint": "隐私政策详情页"
+    },
+    {
+      "interaction_id": "info_collection",
+      "trigger": "点击'个人信息收集清单'",
+      "action": "查看个人信息收集清单",
+      "target_page_hint": "个人信息收集清单页"
+    },
+    {
+      "interaction_id": "third_party_data",
+      "trigger": "点击'第三方信息数据共享'",
+      "action": "查看第三方数据共享",
+      "target_page_hint": "第三方SDK清单页"
+    },
+    {
+      "interaction_id": "feedback",
+      "trigger": "点击'意见反馈'",
+      "action": "进入意见反馈",
+      "target_page_hint": "意见反馈页"
+    },
+    {
+      "interaction_id": "about",
+      "trigger": "点击'关于我们'",
+      "action": "进入关于我们",
+      "target_page_hint": "关于我们页"
+    },
+    {
+      "interaction_id": "hotline",
+      "trigger": "点击'热线电话'",
+      "action": "拨打热线电话"
+    },
+    {
+      "interaction_id": "logout",
+      "trigger": "点击'退出登录'",
+      "action": "退出登录",
+      "target_page_hint": "登录页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "SettingsListLayout: NavBar + GroupedList + LogoutButton",
+    "important_visual_blocks": [
+      "SectionHeader（分组标题）",
+      "SettingsItem（左侧标签+右侧chevron）",
+      "LogoutButton（红色危险按钮）"
+    ],
+    "styling_hints": "浅色背景，列表项带分割线，chevron表示可进入子页，退出登录为红色"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+红色退出按钮",
+    "density": "标准设置列表"
+  },
+  "page_semantic_role": "settings",
+  "target_page_hints": [
+    "个人资料页",
+    "账号与安全页",
+    "消息通知设置页",
+    "隐私管理页",
+    "通用设置页",
+    "长辈版页",
+    "未成年人模式页",
+    "多语言页",
+    "存储空间页",
+    "网络诊断页",
+    "隐私政策详情页",
+    "个人信息收集清单页",
+    "第三方SDK清单页",
+    "意见反馈页",
+    "关于我们页",
+    "登录页"
+  ],
+  "possible_parent_page_hints": [
+    "my_profile"
+  ],
+  "possible_child_page_hints": [
+    "account_security",
+    "notification_settings",
+    "privacy_management",
+    "general_settings",
+    "language_settings",
+    "storage_space",
+    "privacy_policy_detail",
+    "third_party_sdk_list",
+    "feedback_form",
+    "about_us",
+    "personal_info_management",
+    "system_permission_management",
+    "device_info",
+    "app_info",
+    "message_page_settings"
+  ],
+  "notes": [
+    "draft 8和draft 18合并，draft 8展示上部，draft 18展示下部",
+    "draft 18中'通用'为section header，draft 8中为普通列表项，可能因滚动位置不同",
+    "'退出登录'仅在draft 18中出现"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "settings_page",
+    "is_entry": false,
+    "parent_page_id": "my_profile",
+    "child_page_ids": ["account_security", "notification_settings", "privacy_management", "general_settings", "language_settings", "storage_space", "privacy_policy_detail", "third_party_sdk_list", "feedback_form", "about_us"],
+    "incoming_relations": [
+      {
+        "source_page_id": "my_profile",
+        "relation_type": "opens_child_page",
+        "trigger_label": "设置图标",
+        "trigger_interaction_id": "settings_tap",
+        "confidence": "high"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "my_profile",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "account_security",
+        "relation_type": "opens_child_page",
+        "trigger_label": "账号与安全",
+        "trigger_interaction_id": "account_security",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "notification_settings",
+        "relation_type": "opens_child_page",
+        "trigger_label": "消息通知设置",
+        "trigger_interaction_id": "notification_settings",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "privacy_management",
+        "relation_type": "opens_child_page",
+        "trigger_label": "隐私管理",
+        "trigger_interaction_id": "privacy_management",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "general_settings",
+        "relation_type": "opens_child_page",
+        "trigger_label": "通用",
+        "trigger_interaction_id": "general",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "language_settings",
+        "relation_type": "opens_child_page",
+        "trigger_label": "多语言",
+        "trigger_interaction_id": "language",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "storage_space",
+        "relation_type": "opens_child_page",
+        "trigger_label": "存储空间",
+        "trigger_interaction_id": "storage",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "privacy_policy_detail",
+        "relation_type": "opens_child_page",
+        "trigger_label": "隐私政策",
+        "trigger_interaction_id": "privacy_policy",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "third_party_sdk_list",
+        "relation_type": "opens_child_page",
+        "trigger_label": "第三方信息数据共享",
+        "trigger_interaction_id": "third_party_data",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "feedback_form",
+        "relation_type": "opens_child_page",
+        "trigger_label": "意见反馈",
+        "trigger_interaction_id": "feedback",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "about_us",
+        "relation_type": "opens_child_page",
+        "trigger_label": "关于我们",
+        "trigger_interaction_id": "about",
+        "confidence": "high"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": false,
+      "is_bottom_tab_member": false,
+      "is_top_level_page": false,
+      "is_stack_destination": true
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "relation_type": "returns_to",
+        "target_page_id": "my_profile",
+        "confidence": "high",
+        "reasoning": "设置页返回按钮明确指向'我的'。"
+      },
+      {
+        "trigger_label": "账号与安全",
+        "trigger_interaction_id": "account_security",
+        "relation_type": "opens_child_page",
+        "target_page_id": "account_security",
+        "confidence": "high",
+        "reasoning": "设置页'账号与安全'列表项点击进入。"
+      },
+      {
+        "trigger_label": "消息通知设置",
+        "trigger_interaction_id": "notification_settings",
+        "relation_type": "opens_child_page",
+        "target_page_id": "notification_settings",
+        "confidence": "high",
+        "reasoning": "设置页'消息通知设置'列表项点击进入。"
+      },
+      {
+        "trigger_label": "隐私管理",
+        "trigger_interaction_id": "privacy_management",
+        "relation_type": "opens_child_page",
+        "target_page_id": "privacy_management",
+        "confidence": "high",
+        "reasoning": "设置页'隐私管理'列表项点击进入。"
+      },
+      {
+        "trigger_label": "通用",
+        "trigger_interaction_id": "general",
+        "relation_type": "opens_child_page",
+        "target_page_id": "general_settings",
+        "confidence": "high",
+        "reasoning": "设置页'通用'列表项点击进入。"
+      },
+      {
+        "trigger_label": "多语言",
+        "trigger_interaction_id": "language",
+        "relation_type": "opens_child_page",
+        "target_page_id": "language_settings",
+        "confidence": "high",
+        "reasoning": "设置页'多语言'列表项点击进入。"
+      },
+      {
+        "trigger_label": "存储空间",
+        "trigger_interaction_id": "storage",
+        "relation_type": "opens_child_page",
+        "target_page_id": "storage_space",
+        "confidence": "high",
+        "reasoning": "设置页'存储空间'列表项点击进入。"
+      },
+      {
+        "trigger_label": "隐私政策",
+        "trigger_interaction_id": "privacy_policy",
+        "relation_type": "opens_child_page",
+        "target_page_id": "privacy_policy_detail",
+        "confidence": "high",
+        "reasoning": "设置页'隐私政策'列表项点击进入隐私政策详情页。"
+      },
+      {
+        "trigger_label": "第三方信息数据共享",
+        "trigger_interaction_id": "third_party_data",
+        "relation_type": "opens_child_page",
+        "target_page_id": "third_party_sdk_list",
+        "confidence": "high",
+        "reasoning": "设置页'第三方信息数据共享'列表项点击进入。"
+      },
+      {
+        "trigger_label": "意见反馈",
+        "trigger_interaction_id": "feedback",
+        "relation_type": "opens_child_page",
+        "target_page_id": "feedback_form",
+        "confidence": "high",
+        "reasoning": "设置页'意见反馈'列表项点击进入。"
+      },
+      {
+        "trigger_label": "关于我们",
+        "trigger_interaction_id": "about",
+        "relation_type": "opens_child_page",
+        "target_page_id": "about_us",
+        "confidence": "high",
+        "reasoning": "设置页'关于我们'列表项点击进入。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "个人资料",
+        "trigger_interaction_id": "personal_info",
+        "target_page_hint": "个人资料页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'个人资料'列表项应进入个人资料页，未覆盖。"
+      },
+      {
+        "trigger_label": "长辈版",
+        "trigger_interaction_id": "elder_mode",
+        "target_page_hint": "长辈版页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'长辈版'列表项应进入长辈版设置，未覆盖。"
+      },
+      {
+        "trigger_label": "未成年人模式",
+        "trigger_interaction_id": "minor_mode",
+        "target_page_hint": "未成年人模式页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'未成年人模式'列表项应进入未成年人模式设置，未覆盖。"
+      },
+      {
+        "trigger_label": "个人信息收集清单",
+        "trigger_interaction_id": "info_collection",
+        "target_page_hint": "个人信息收集清单页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'个人信息收集清单'列表项应进入清单详情，未覆盖。"
+      },
+      {
+        "trigger_label": "诊断网络",
+        "trigger_interaction_id": "network_diag",
+        "target_page_hint": "网络诊断页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'诊断网络'列表项应进入网络诊断，未覆盖。"
+      },
+      {
+        "trigger_label": "退出登录",
+        "trigger_interaction_id": "logout",
+        "target_page_hint": "登录页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "设置页'退出登录'应跳转登录页，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "热线电话",
+        "trigger_interaction_id": "hotline",
+        "why_not_navigation": "拨打热线电话，为系统级操作而非页面导航。"
+      }
+    ],
+    "navigation_targets_summary": "返回按钮回到my_profile。10个确认子页面可直接进入。个人资料、长辈版、未成年人模式、个人信息收集清单、诊断网络、退出登录等目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "返回按钮应实现为栈弹出（pop）",
+      "热线电话为系统拨号操作，不应实现为页面路由",
+      "个人资料、长辈版、未成年人模式等目标页未覆盖，不应实现为确认路由",
+      "退出登录为全局状态变更，不应简单实现为页面导航"
+    ],
+    "navigation_notes": "从'我的'页面设置图标进入的设置根页面，为设置子树的根节点。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

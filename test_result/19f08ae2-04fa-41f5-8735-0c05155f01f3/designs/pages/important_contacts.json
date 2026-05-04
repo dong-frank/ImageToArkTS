@@ -1,0 +1,161 @@
+{
+  "page_id": "important_contacts",
+  "page_name": "重要联系人",
+  "page_role": "standalone_page",
+  "page_summary": "重要联系人列表页（当前为空状态）。顶部导航栏（返回+标题'重要联系人'），中央空状态插画（信封+书签图标）+引导文字'快速查看重要联系人的来信'+蓝色CTA按钮'添加重要联系人'。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425153209_926_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_8.json"
+  ],
+  "source_draft_indexes": [
+    8
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为空状态下的重要联系人列表页，有独立导航栏和页面身份。其merge_hints推荐与非空状态页归并，但本draft集中无非空状态对应draft，故保守作为独立页面定稿，标记空状态变体。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": [
+      "非空状态下此页面的结构未知（未在其他draft中出现）",
+      "'添加重要联系人'点击后的跳转目标页未知"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "text": "<",
+            "position": "left"
+          },
+          {
+            "type": "Title",
+            "text": "重要联系人",
+            "position": "center"
+          }
+        ]
+      },
+      {
+        "type": "ContentArea",
+        "children": [
+          {
+            "type": "Illustration",
+            "description": "线稿信封图标，右下角带书签标记"
+          },
+          {
+            "type": "CaptionText",
+            "text": "快速查看重要联系人的来信",
+            "style": "gray medium"
+          },
+          {
+            "type": "PrimaryActionButton",
+            "text": "添加重要联系人",
+            "style": "blue bold"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "返回箭头+标题'重要联系人'"
+    },
+    {
+      "block_id": "empty_state",
+      "block_role": "content_placeholder",
+      "summary": "居中空状态区：信封+书签线稿插画+引导文字+蓝色CTA按钮"
+    }
+  ],
+  "key_texts": [
+    "重要联系人",
+    "快速查看重要联系人的来信",
+    "添加重要联系人"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "左上角返回箭头",
+      "action": "navigate_back"
+    },
+    {
+      "interaction_id": "add_contact",
+      "trigger": "添加重要联系人按钮",
+      "action": "navigate",
+      "target_page_hint": "联系人选择页"
+    }
+  ],
+  "state_variants": [
+    {
+      "variant_id": "empty_state",
+      "description": "当前为空状态：无任何联系人条目，显示引导插画和添加CTA",
+      "source_draft_indexes": [
+        8
+      ]
+    }
+  ],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "CenteredEmptyStatePattern",
+    "visual_blocks": [
+      "TopBar",
+      "IconWithCaption",
+      "PrimaryCTA"
+    ],
+    "styling_hints": "浅灰背景+蓝色主行动色+中性灰文字，标题加粗，CTA文字加粗蓝色，垂直等距分布留白大"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅灰背景+蓝色CTA",
+    "density": "sparse"
+  },
+  "page_semantic_role": "list",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "服务导航中心(重要联系人入口)"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前仅记录空状态，非空状态结构未在本次draft集中体现",
+    "merge_hints原建议与populated状态页归并，但无对应draft，保守独立定稿",
+    "图标语义：信封代表邮件，书签代表'重要'"
+  ],
+  "schema_version": "stage2_page.v1",
+  "navigation_context": {
+    "page_role_in_app": "content_page",
+    "is_entry": false,
+    "parent_page_id": "service_hub",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {"source_page_id": "service_hub", "relation_type": "opens_child_page", "trigger_label": "重要联系人列表项", "trigger_interaction_id": "tap_important_contacts", "confidence": "high"}
+    ],
+    "outgoing_relations": [
+      {"target_page_id": "service_hub", "relation_type": "returns_to", "trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "confidence": "high"}
+    ],
+    "navigation_surface": {"is_main_tab": false, "is_bottom_tab_member": false, "is_top_level_page": false, "is_stack_destination": true},
+    "confirmed_navigation_actions": [
+      {"trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "relation_type": "returns_to", "target_page_id": "service_hub", "confidence": "high", "reasoning": "返回箭头pop回到service_hub。"}
+    ],
+    "unresolved_navigation_actions": [
+      {"trigger_label": "添加重要联系人按钮", "trigger_interaction_id": "add_contact", "target_page_hint": "联系人选择页", "possible_relation_type": "opens_child_page", "reasoning": "添加重要联系人可能打开联系人选择器或选择页，目标页未在集合中覆盖。"}
+    ],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "返回service_hub。添加重要联系人目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "当前为空状态视图，非空状态（联系人列表）页面结构未在阶段2覆盖，实现时需补充。",
+      "add_contact目标为联系人选择页，可能是系统联系人Picker或应用内选择页，实现时需进一步确认。"
+    ],
+    "navigation_notes": [
+      "从service_hub重要联系人入口push进入。",
+      "返回箭头返回到service_hub。",
+      "全局导航真相源：/designs/navigation_design.json。"
+    ]
+  }
+}

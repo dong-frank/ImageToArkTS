@@ -1,0 +1,347 @@
+{
+  "page_id": "email_detail",
+  "page_name": "邮件详情页",
+  "page_role": "standalone_page",
+  "page_summary": "单封邮件详情/阅读页。顶部邮件头（发件人/收件人/时间/隐藏按钮），正文区（OpenAI品牌logo+富文本内容+超链接+代码块），右下角悬浮翻译邮件按钮（已激活状态），底部固定操作栏（删除/分享/回复转发/更多）。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425153214_932_24.jpg"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_11.json"
+  ],
+  "source_draft_indexes": [
+    11
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为独立的邮件详情/阅读页，有独立页面结构（邮件头+正文+底部操作栏+翻译overlay触发），属于标准邮件详情页。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": [
+      "翻译邮件overlay的具体内容和交互未在截图中体现",
+      "底部'更多'菜单具体选项未知",
+      "邮件是否含图片/附件未确认"
+    ]
+  },
+  "ui_tree": {
+    "type": "EmailDetailView",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "EmailHeader",
+        "children": [
+          {
+            "type": "SubjectLine",
+            "text": "Introducing GPT-5.5"
+          },
+          {
+            "type": "SenderInfo",
+            "children": [
+              {
+                "type": "Label",
+                "text": "发件人："
+              },
+              {
+                "type": "Text",
+                "text": "OpenAI"
+              },
+              {
+                "type": "Text",
+                "text": "noreply@email.openai.com"
+              },
+              {
+                "type": "Text",
+                "text": "(由 bounces+54382...ail.openai.com 代发)"
+              }
+            ]
+          },
+          {
+            "type": "RecipientInfo",
+            "children": [
+              {
+                "type": "Label",
+                "text": "收件人："
+              },
+              {
+                "type": "Text",
+                "text": "蒋"
+              },
+              {
+                "type": "Text",
+                "text": "****434@qq.com"
+              }
+            ]
+          },
+          {
+            "type": "Timestamp",
+            "text": "时间：2026年4月25日 08:21"
+          },
+          {
+            "type": "ActionLink",
+            "text": "隐藏",
+            "style": "link_blue"
+          }
+        ]
+      },
+      {
+        "type": "EmailBody",
+        "children": [
+          {
+            "type": "LogoOrBrand",
+            "text": "OpenAI"
+          },
+          {
+            "type": "Paragraph",
+            "text": "We're excited to introduce GPT-5.5, our smartest and most intuitive to use model yet..."
+          },
+          {
+            "type": "Paragraph",
+            "text": "GPT-5.5 understands what you're trying to do faster..."
+          },
+          {
+            "type": "Paragraph",
+            "children": [
+              {
+                "type": "Text",
+                "text": "To get the most out of GPT-5.5 in the API, check out our API "
+              },
+              {
+                "type": "Hyperlink",
+                "text": "prompt guide"
+              },
+              {
+                "type": "Text",
+                "text": " and "
+              },
+              {
+                "type": "Hyperlink",
+                "text": "migration guide"
+              },
+              {
+                "type": "Text",
+                "text": ", or use the command: "
+              },
+              {
+                "type": "CodeBlock",
+                "text": "[$openai-docs migrate this project to gpt-5.5]"
+              }
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "text": "GPT-5.5 is now the default model in Codex"
+          }
+        ]
+      },
+      {
+        "type": "FloatingAction",
+        "children": [
+          {
+            "type": "TranslationOverlayTrigger",
+            "text": "翻译邮件",
+            "icon": "translate",
+            "status": "active"
+          }
+        ]
+      },
+      {
+        "type": "BottomActionBar",
+        "children": [
+          {
+            "type": "ActionButton",
+            "label": "删除",
+            "icon": "trash"
+          },
+          {
+            "type": "ActionButton",
+            "label": "分享",
+            "icon": "share"
+          },
+          {
+            "type": "ActionButton",
+            "label": "回复转发",
+            "icon": "reply_all"
+          },
+          {
+            "type": "MoreMenuButton",
+            "label": "更多",
+            "icon": "ellipsis"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "email_header",
+      "block_role": "metadata",
+      "summary": "邮件元信息：主题、发件人(OpenAI/noreply@email.openai.com)、收件人(蒋/****434@qq.com)、时间(2026-04-25 08:21)、隐藏链接"
+    },
+    {
+      "block_id": "email_body",
+      "block_role": "content",
+      "summary": "邮件正文：OpenAI品牌logo+4段落+2个超链接(prompt guide/migration guide)+1个代码块"
+    },
+    {
+      "block_id": "translation_trigger",
+      "block_role": "overlay_trigger",
+      "summary": "右下角悬浮'翻译邮件'按钮，绿色激活态"
+    },
+    {
+      "block_id": "bottom_action_bar",
+      "block_role": "actions",
+      "summary": "固定底栏：删除、分享、回复转发、更多"
+    }
+  ],
+  "key_texts": [
+    "Introducing GPT-5.5",
+    "OpenAI",
+    "noreply@email.openai.com",
+    "prompt guide",
+    "migration guide",
+    "[$openai-docs migrate this project to gpt-5.5]",
+    "Codex",
+    "ChatGPT",
+    "API",
+    "GPT-5.5",
+    "翻译邮件",
+    "删除",
+    "分享",
+    "回复转发",
+    "更多",
+    "隐藏"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "左上角返回箭头",
+      "action": "navigate_back",
+      "target_page_hint": "邮件列表页"
+    },
+    {
+      "interaction_id": "hide_header",
+      "trigger": "隐藏链接",
+      "action": "toggle_header_visibility"
+    },
+    {
+      "interaction_id": "open_prompt_guide",
+      "trigger": "prompt guide超链接",
+      "action": "open_url",
+      "target_page_hint": "外部文档页"
+    },
+    {
+      "interaction_id": "open_migration_guide",
+      "trigger": "migration guide超链接",
+      "action": "open_url",
+      "target_page_hint": "外部文档页"
+    },
+    {
+      "interaction_id": "toggle_translation",
+      "trigger": "翻译邮件按钮",
+      "action": "open_overlay",
+      "overlay_id": "translation_overlay"
+    },
+    {
+      "interaction_id": "delete_mail",
+      "trigger": "删除按钮",
+      "action": "delete_email"
+    },
+    {
+      "interaction_id": "share_mail",
+      "trigger": "分享按钮",
+      "action": "share_email"
+    },
+    {
+      "interaction_id": "reply_forward",
+      "trigger": "回复转发按钮",
+      "action": "open_reply_options"
+    },
+    {
+      "interaction_id": "more_actions",
+      "trigger": "更多按钮",
+      "action": "open_action_menu"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [
+    "translation_overlay"
+  ],
+  "overlay_summaries": [
+    {
+      "overlay_id": "translation_overlay",
+      "overlay_type": "translation_overlay",
+      "trigger_source": "右下角'翻译邮件'按钮(当前绿色激活态)",
+      "dismiss_method": "点击X或外部区域",
+      "content_summary": "整封邮件内容的机器翻译版本覆盖层"
+    }
+  ],
+  "implementation_hints": {
+    "layout_pattern": "VerticalScrollView + FixedBottomActionBar",
+    "visual_blocks": [
+      "邮件头信息区(紧凑排布，主题突出)",
+      "品牌Logo居中突出",
+      "正文段落间行距充足，关键术语加粗/链接化",
+      "代码块背景色+等宽字体",
+      "底部操作栏固定于viewport底部",
+      "右下角悬浮翻译按钮"
+    ],
+    "styling_hints": "浅灰背景，深灰正文，蓝色链接，绿色翻译按钮，符合iOS原生邮件风格"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅灰背景+深灰正文+蓝色链接+绿色悬浮按钮",
+    "density": "medium"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "邮件收件箱"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "邮件时间为2026年4月25日(未来时间，可能为测试邮件)",
+    "代发地址含bounces+54382...ail.openai.com",
+    "'隐藏'链接具体行为未知(折叠邮件头？)",
+    "代码块是否可复制未确认",
+    "翻译overlay是否支持语言选择未知"
+  ],
+  "schema_version": "stage2_page.v1",
+  "navigation_context": {
+    "page_role_in_app": "detail_page",
+    "is_entry": false,
+    "parent_page_id": "email_inbox",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {"source_page_id": "email_inbox", "relation_type": "opens_child_page", "trigger_label": "邮件项右侧 > 箭头", "trigger_interaction_id": "mail_detail", "confidence": "high"}
+    ],
+    "outgoing_relations": [
+      {"target_page_id": "email_inbox", "relation_type": "returns_to", "trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "confidence": "high"}
+    ],
+    "navigation_surface": {"is_main_tab": false, "is_bottom_tab_member": false, "is_top_level_page": false, "is_stack_destination": true},
+    "confirmed_navigation_actions": [
+      {"trigger_label": "左上角返回箭头", "trigger_interaction_id": "back", "relation_type": "returns_to", "target_page_id": "email_inbox", "confidence": "high", "reasoning": "返回箭头pop回到email_inbox邮件列表。"}
+    ],
+    "unresolved_navigation_actions": [
+      {"trigger_label": "回复转发按钮", "trigger_interaction_id": "reply_forward", "target_page_hint": "回复/转发选项页或mail_compose", "possible_relation_type": "opens_child_page", "reasoning": "回复转发可能进入mail_compose或打开action sheet，目标不明确。"}
+    ],
+    "non_navigation_interaction_hints": [
+      {"trigger_label": "隐藏链接", "trigger_interaction_id": "hide_header", "why_not_navigation": "折叠/展开邮件头信息，同页toggle操作。"},
+      {"trigger_label": "prompt guide超链接", "trigger_interaction_id": "open_prompt_guide", "why_not_navigation": "打开外部URL（浏览器），非应用内页面导航。"},
+      {"trigger_label": "migration guide超链接", "trigger_interaction_id": "open_migration_guide", "why_not_navigation": "打开外部URL（浏览器），非应用内页面导航。"},
+      {"trigger_label": "翻译邮件按钮", "trigger_interaction_id": "toggle_translation", "why_not_navigation": "打开translation_overlay覆盖层，不跳转页面。"},
+      {"trigger_label": "删除按钮", "trigger_interaction_id": "delete_mail", "why_not_navigation": "删除邮件后可能pop回列表或同页刷新，非显式导航。"},
+      {"trigger_label": "分享按钮", "trigger_interaction_id": "share_mail", "why_not_navigation": "打开系统分享sheet(share extension)，非页面级导航。"},
+      {"trigger_label": "更多按钮", "trigger_interaction_id": "more_actions", "why_not_navigation": "打开action sheet/menu overlay，不跳转页面。"}
+    ],
+    "navigation_targets_summary": "返回email_inbox。回复转发可能进入mail_compose但证据不足。",
+    "implementation_navigation_warnings": [
+      "reply_forward可能触发action sheet而非直接跳转到mail_compose，实现时需确认交互流程。",
+      "delete_mail执行后可能自动pop回email_inbox，这是导航副作用而非用户显式导航操作。",
+      "translation_overlay是同页覆盖层，不应创建独立翻译页面。"
+    ],
+    "navigation_notes": [
+      "从email_inbox点击邮件push进入。",
+      "返回箭头返回到email_inbox。",
+      "全局导航真相源：/designs/navigation_design.json。"
+    ]
+  }
+}

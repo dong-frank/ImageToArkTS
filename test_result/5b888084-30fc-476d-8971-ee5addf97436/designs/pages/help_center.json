@@ -1,0 +1,266 @@
+{
+  "page_id": "help_center",
+  "page_name": "帮助与客服",
+  "page_role": "service_page",
+  "page_summary": "知乎帮助与客服首页 — 返回箭头+'帮助与客服'标题(蓝色顶栏)+问候卡片(小管家头像+'Hi, 小雨滴')+搜索框('搜索相关问题')+2×4功能网格(账号注销/账号申诉/我的举报/违规诊断/绑定手机/账号关联/我的钱包/个人认证)+5项分类Tab(常见问题/盐选会员/知识会员/举报申诉/创作者服,常见问题选中)+FAQ列表(4条)+底部'联系小管家'按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425152125_900_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_23.json"
+  ],
+  "source_draft_indexes": [
+    23
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 23 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "帮助与客服"
+          }
+        ]
+      },
+      {
+        "type": "GreetingCard",
+        "children": [
+          {
+            "type": "Avatar",
+            "alt": "知乎小管家头像"
+          },
+          {
+            "type": "GreetingText",
+            "text": "Hi, 小雨滴"
+          },
+          {
+            "type": "Subtext",
+            "text": "我是知乎小管家，下面由我来为你提供服务"
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "placeholder": "搜索相关问题"
+      },
+      {
+        "type": "FunctionGrid",
+        "rows": 2,
+        "cols": 4,
+        "children": [
+          {
+            "type": "IconAction",
+            "label": "账号注销"
+          },
+          {
+            "type": "IconAction",
+            "label": "账号申诉"
+          },
+          {
+            "type": "IconAction",
+            "label": "我的举报"
+          },
+          {
+            "type": "IconAction",
+            "label": "违规诊断"
+          },
+          {
+            "type": "IconAction",
+            "label": "绑定手机"
+          },
+          {
+            "type": "IconAction",
+            "label": "账号关联"
+          },
+          {
+            "type": "IconAction",
+            "label": "我的钱包"
+          },
+          {
+            "type": "IconAction",
+            "label": "个人认证"
+          }
+        ]
+      },
+      {
+        "type": "TabSegment",
+        "labels": [
+          "常见问题",
+          "盐选会员",
+          "知识会员",
+          "举报申诉",
+          "创作者服"
+        ],
+        "active_index": 0
+      },
+      {
+        "type": "QuestionList",
+        "children": [
+          {
+            "type": "QuestionItem",
+            "text": "如何开通盐选会员？"
+          },
+          {
+            "type": "QuestionItem",
+            "text": "如何查看会员订阅状态并取消连续订阅？"
+          },
+          {
+            "type": "QuestionItem",
+            "text": "知乎使用指南"
+          },
+          {
+            "type": "QuestionItem",
+            "text": "如何更换绑定手机号？如何解绑手机号？"
+          }
+        ]
+      },
+      {
+        "type": "FooterAction",
+        "children": [
+          {
+            "type": "ContactButton",
+            "text": "联系小管家"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header",
+      "summary": "蓝色顶栏+返回+标题"
+    },
+    {
+      "block_id": "greeting_card",
+      "role": "intro",
+      "summary": "小管家头像+问候语"
+    },
+    {
+      "block_id": "search_bar",
+      "role": "search"
+    },
+    {
+      "block_id": "function_grid",
+      "role": "navigation",
+      "summary": "2×4功能入口网格"
+    },
+    {
+      "block_id": "faq_tabs",
+      "role": "filter",
+      "summary": "5项分类Tab"
+    },
+    {
+      "block_id": "faq_list",
+      "role": "content",
+      "summary": "常见问题列表"
+    },
+    {
+      "block_id": "contact_footer",
+      "role": "action",
+      "summary": "联系小管家按钮"
+    }
+  ],
+  "key_texts": [
+    "帮助与客服",
+    "Hi, 小雨滴",
+    "我是知乎小管家",
+    "搜索相关问题",
+    "账号注销",
+    "账号申诉",
+    "我的举报",
+    "违规诊断",
+    "绑定手机",
+    "账号关联",
+    "我的钱包",
+    "个人认证",
+    "常见问题",
+    "盐选会员",
+    "知识会员",
+    "举报申诉",
+    "创作者服",
+    "如何开通盐选会员？",
+    "知乎使用指南",
+    "联系小管家"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "个人中心/设置"
+    },
+    {
+      "interaction_id": "search",
+      "type": "search",
+      "trigger": "搜索问题"
+    },
+    {
+      "interaction_id": "grid_tap",
+      "type": "navigation",
+      "trigger": "点击功能图标",
+      "target_page_hint": "对应服务流程页"
+    },
+    {
+      "interaction_id": "faq_tab_switch",
+      "type": "state_change",
+      "trigger": "切换分类Tab",
+      "description": "切换FAQ子集"
+    },
+    {
+      "interaction_id": "faq_tap",
+      "type": "navigation",
+      "trigger": "点击FAQ项",
+      "target_page_hint": "FAQ详情/帮助页"
+    },
+    {
+      "interaction_id": "contact",
+      "type": "navigation",
+      "trigger": "联系小管家",
+      "target_page_hint": "客服聊天页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "BlueTopBar + HeroCard + Search + IconGrid + TabbedList + FooterCTA",
+    "styling_hints": "蓝色品牌顶栏,圆角卡片,浅灰分隔线,图标+文字组合",
+    "reusable_components": [
+      "IconAction",
+      "TabSegment",
+      "QuestionItem",
+      "ContactButton"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "客服帮助中心",
+    "density": "medium",
+    "background": "light",
+    "accent_color": "blue"
+  },
+  "page_semantic_role": "service",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "蓝色顶栏与知乎品牌色一致,增强品牌一致性",
+    "2×4功能网格为导航型入口聚合",
+    "5项分类Tab切换仅改变FAQ列表内容"
+  ],
+  "schema_version": "stage2_page.v1"
+}

@@ -1,0 +1,323 @@
+{
+  "page_id": "email_inbox",
+  "page_name": "邮件收件箱",
+  "page_role": "standalone_page",
+  "page_summary": "邮箱收件箱主列表页。顶部导航栏（返回+邮箱地址+编辑按钮），搜索框，三标签页切换（收件箱/未读邮件/管理），邮件列表以统一卡片模板展示（头像/图标+发件人+主题摘要+时间戳+右箭头）。支持通过下拉/点击'收件箱↑'触发文件夹抽屉overlay进行文件夹切换。未读邮件以蓝色实心圆点标识。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425153153_907_24.jpg",
+    "/user_input/微信图片_20260425153210_927_24.jpg",
+    "/user_input/微信图片_20260425153213_931_24.jpg"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_0.json",
+    "/designs/page_drafts/page_draft_9.json",
+    "/designs/page_drafts/page_draft_10.json"
+  ],
+  "source_draft_indexes": [
+    0,
+    9,
+    10
+  ],
+  "merge_decision": {
+    "decision_summary": "Drafts 0, 9, 10 归并为同一邮件收件箱页面。Draft 0 为主干（收件箱tab，7封邮件），Draft 10 为状态变体（未读邮件tab选中，不同邮件内容），Draft 9 为overlay变体（文件夹抽屉展开覆盖在邮件列表之上）。",
+    "same_page_evidence": [
+      "相同的顶部导航栏结构：返回箭头+邮箱地址(@qq.com)+编辑铅笔图标",
+      "相同的三标签页切换：收件箱/未读邮件/管理",
+      "Draft 9 的抽屉中'收件箱'被选中高亮，与Draft 0/10 的收件箱上下文一致",
+      "Draft 9 抽屉覆盖时底部邮件列表仍可见（OpenRouter邮件），与Draft 0/10邮件内容一致"
+    ],
+    "variant_type": "merged_with_state_and_overlay_variants",
+    "uncertainties": [
+      "Draft 0 邮箱地址为 xxx@134@qq.com，Draft 10 为 434@qq.com——可能为不同账户或脱敏差异",
+      "Draft 9 抽屉中'未读邮件'badge 821 与 Draft 10 筛选未读后的数量关系未确认",
+      "'管理'标签页行为未在任何draft中体现"
+    ]
+  },
+  "ui_tree": {
+    "type": "ScrollView",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "Title",
+            "text": "邮箱地址 (@qq.com)"
+          },
+          {
+            "type": "EditButton",
+            "icon": "pencil"
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "placeholder": "搜索",
+        "has_magnifier": true
+      },
+      {
+        "type": "TabBar",
+        "children": [
+          {
+            "type": "TabItem",
+            "label": "收件箱",
+            "selected_state": "variable",
+            "has_dropdown_arrow": true
+          },
+          {
+            "type": "TabItem",
+            "label": "未读邮件",
+            "selected_state": "variable"
+          },
+          {
+            "type": "TabItem",
+            "label": "管理",
+            "selected_state": "variable"
+          }
+        ]
+      },
+      {
+        "type": "StatusBanner",
+        "text": "1个文件夹有新邮件",
+        "style": "subtle",
+        "conditional": true
+      },
+      {
+        "type": "MailList",
+        "children": [
+          {
+            "type": "MailItem",
+            "sender_icon": "variable",
+            "sender_name": "variable",
+            "sender_badge": "variable",
+            "subject": "variable",
+            "preview": "variable",
+            "timestamp": "variable",
+            "unread_indicator": "blue_dot",
+            "has_attachment": "variable",
+            "has_chevron": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "顶部导航栏：返回箭头、邮箱账户地址标题、右上角编辑铅笔图标"
+    },
+    {
+      "block_id": "search_bar",
+      "block_role": "search",
+      "summary": "搜索框，placeholder'搜索'，含放大镜图标"
+    },
+    {
+      "block_id": "tab_bar",
+      "block_role": "filter_switching",
+      "summary": "三标签页切换：收件箱（含下拉箭头可展开文件夹抽屉）/未读邮件/管理"
+    },
+    {
+      "block_id": "status_banner",
+      "block_role": "status_info",
+      "summary": "轻量提示横幅，如'1个文件夹有新邮件'，非始终可见"
+    },
+    {
+      "block_id": "mail_list",
+      "block_role": "primary_content",
+      "summary": "垂直滚动邮件卡片列表，每项统一模板：左侧图标/头像→发件人名(粗体)+子标题(灰)→主题→预览摘要→时间右对齐→右箭头"
+    }
+  ],
+  "key_texts": [
+    "收件箱",
+    "未读邮件",
+    "管理",
+    "搜索",
+    "1个文件夹有新邮件",
+    "鲸匠装饰",
+    "广告邮件",
+    "Overleaf",
+    "OpenRouter, Inc",
+    "OpenAI",
+    "招商银行信用卡",
+    "每日信用管家",
+    "Introducing GPT-5.5",
+    "Your OpenRouter, Inc refund",
+    "Your OpenRouter, Inc receipt",
+    "截至昨日最后一笔交易，您的额度和积分信息如下",
+    "星标邮件",
+    "已发送",
+    "草稿箱",
+    "已删除",
+    "垃圾箱",
+    "群邮件",
+    "重要联系人",
+    "QQ邮件订阅",
+    "dear",
+    "邮件归档",
+    "357",
+    "821",
+    "1",
+    "69",
+    "156"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back_nav",
+      "trigger": "左上角返回箭头",
+      "action": "navigate_back",
+      "target_page_hint": "上级页面(可能是服务导航中心或账户选择页)"
+    },
+    {
+      "interaction_id": "edit_mode",
+      "trigger": "右上角编辑铅笔图标",
+      "action": "enter_edit_mode",
+      "target_page_hint": "邮件批量管理模式"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "trigger": "收件箱/未读邮件/管理标签",
+      "action": "switch_tab",
+      "target_page_hint": "同页面不同筛选视图"
+    },
+    {
+      "interaction_id": "inbox_dropdown",
+      "trigger": "收件箱标签下拉箭头",
+      "action": "open_overlay",
+      "overlay_id": "folder_drawer",
+      "target_page_hint": "文件夹抽屉overlay"
+    },
+    {
+      "interaction_id": "mail_detail",
+      "trigger": "任一邮件项右侧 > 箭头",
+      "action": "navigate",
+      "target_page_hint": "邮件详情页"
+    },
+    {
+      "interaction_id": "folder_switch",
+      "trigger": "文件夹抽屉中任一FolderItem",
+      "action": "switch_folder_and_close_drawer",
+      "target_page_hint": "切换邮件列表至对应文件夹视图"
+    },
+    {
+      "interaction_id": "search",
+      "trigger": "搜索框",
+      "action": "focus_search",
+      "target_page_hint": "搜索结果页"
+    },
+    {
+      "interaction_id": "drawer_dismiss",
+      "trigger": "点击抽屉外部区域",
+      "action": "close_overlay",
+      "overlay_id": "folder_drawer"
+    }
+  ],
+  "state_variants": [
+    {
+      "variant_id": "tab_inbox_all",
+      "description": "收件箱tab选中，显示所有邮件（含已读/未读）。当前可见7封：鲸匠装饰(广告)、广告邮件(156)、Overleaf、OpenRouter×4。",
+      "source_draft_indexes": [
+        0
+      ]
+    },
+    {
+      "variant_id": "tab_unread_only",
+      "description": "未读邮件tab选中，仅显示未读邮件。当前可见7封：招商银行信用卡×4(每日信用管家)、OpenAI(GPT-5.5)、OpenRouter×2。",
+      "source_draft_indexes": [
+        10
+      ]
+    }
+  ],
+  "overlay_ids": [
+    "folder_drawer"
+  ],
+  "overlay_summaries": [
+    {
+      "overlay_id": "folder_drawer",
+      "overlay_type": "drawer_menu",
+      "trigger_source": "收件箱标签下拉箭头或手势滑出",
+      "dismiss_method": "点击外部邮件列表区域/返回键/滑动关闭",
+      "content_summary": "邮件文件夹分类导航抽屉，半透明覆盖在邮件列表上。包含：收件箱(357,高亮)、星标邮件、已发送、草稿箱、已删除、垃圾箱(1)、未读邮件(821)、群邮件、重要联系人、QQ邮件订阅、dear、邮件归档(69)、管理(齿轮图标)。",
+      "source_draft_indexes": [
+        9
+      ]
+    }
+  ],
+  "implementation_hints": {
+    "layout_pattern": "Standard Mobile Inbox: StickyHeader + TabSegment + ScrollableList + DrawerOverlay",
+    "visual_blocks": [
+      "NavBar (fixed top)",
+      "SearchBar (below nav)",
+      "TabBar (horizontal, with dropdown indicator on first tab)",
+      "MailCardList (uniform template: avatar left, text stack center, timestamp+chevron right)",
+      "FolderDrawer (overlay, semi-transparent background, light-blue selected highlight)"
+    ],
+    "styling_hints": "浅灰背景；未读邮件左侧蓝色实心圆点；广告邮件使用橙色AD图标+灰色'广告'标签；企业邮件使用蓝圈首字母缩写(Op/Ov)；时间戳右对齐小号灰色字；主题加粗，预览灰色缩进省略号截断；文件夹抽屉选中项浅蓝背景"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅灰背景+白色卡片邮件列表",
+    "density": "medium",
+    "unread_indicator": "蓝色实心圆点",
+    "ad_indicator": "橙色AD图标+灰色广告标签"
+  },
+  "page_semantic_role": "list",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "服务导航中心(通过返回箭头或侧滑进入)"
+  ],
+  "possible_child_page_hints": [
+    "邮件详情页",
+    "批量管理模式"
+  ],
+  "notes": [
+    "Draft 0 邮箱地址 xxx@134@qq.com 与 Draft 10 434@qq.com 不同——可能是脱敏差异或不同账户",
+    "Draft 9 抽屉中'未读邮件'badge 821 与 Draft 10 筛选未读后仅见7封的关系未确认",
+    "'管理'标签页行为未在任何draft中体现",
+    "Draft 9 抽屉中的文件夹项与 Draft 2(服务导航中心)的文件夹列表高度重叠但组织形式不同——Draft 9 是邮件列表上的文件夹切换overlay，Draft 2 是侧边栏导航"
+  ],
+  "schema_version": "stage2_page.v1",
+  "navigation_context": {
+    "page_role_in_app": "content_page",
+    "is_entry": false,
+    "parent_page_id": "service_hub",
+    "child_page_ids": ["email_detail"],
+    "incoming_relations": [
+      {"source_page_id": "service_hub", "relation_type": "opens_child_page", "trigger_label": "收件箱列表项", "trigger_interaction_id": "tap_inbox", "confidence": "high"}
+    ],
+    "outgoing_relations": [
+      {"target_page_id": "email_detail", "relation_type": "opens_child_page", "trigger_label": "邮件项右侧 > 箭头", "trigger_interaction_id": "mail_detail", "confidence": "high"},
+      {"target_page_id": "service_hub", "relation_type": "returns_to", "trigger_label": "左上角返回箭头", "trigger_interaction_id": "back_nav", "confidence": "high"}
+    ],
+    "navigation_surface": {"is_main_tab": false, "is_bottom_tab_member": false, "is_top_level_page": false, "is_stack_destination": true},
+    "confirmed_navigation_actions": [
+      {"trigger_label": "邮件项右侧 > 箭头", "trigger_interaction_id": "mail_detail", "relation_type": "opens_child_page", "target_page_id": "email_detail", "confidence": "high", "reasoning": "点击邮件卡片push进入邮件详情页。"},
+      {"trigger_label": "左上角返回箭头", "trigger_interaction_id": "back_nav", "relation_type": "returns_to", "target_page_id": "service_hub", "confidence": "high", "reasoning": "返回箭头pop回到service_hub。"}
+    ],
+    "unresolved_navigation_actions": [
+      {"trigger_label": "右上角编辑铅笔图标", "trigger_interaction_id": "edit_mode", "target_page_hint": "批量管理模式", "possible_relation_type": "opens_child_page", "reasoning": "批量管理模式可能是独立页面，但未在页面集合中覆盖。"},
+      {"trigger_label": "搜索框", "trigger_interaction_id": "search", "target_page_hint": "搜索结果页", "possible_relation_type": "opens_child_page", "reasoning": "搜索结果页未在页面集合中覆盖。"}
+    ],
+    "non_navigation_interaction_hints": [
+      {"trigger_label": "收件箱/未读邮件/管理标签", "trigger_interaction_id": "tab_switch", "why_not_navigation": "三tab切换为同页筛选状态切换，不离开当前页。"},
+      {"trigger_label": "收件箱标签下拉箭头", "trigger_interaction_id": "inbox_dropdown", "why_not_navigation": "打开folder_drawer overlay，不跳转页面。"},
+      {"trigger_label": "文件夹抽屉中任一FolderItem", "trigger_interaction_id": "folder_switch", "why_not_navigation": "切换当前页邮件列表至对应文件夹视图，关闭抽屉，不跳转新页面。"},
+      {"trigger_label": "点击抽屉外部区域", "trigger_interaction_id": "drawer_dismiss", "why_not_navigation": "关闭overlay，同页操作。"}
+    ],
+    "navigation_targets_summary": "可直接到达email_detail（邮件详情页）和service_hub（返回）。搜索和批量管理目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "folder_drawer中的文件夹项切换不应实现为独立路由，这是同页内的文件夹筛选+overlay关闭逻辑。",
+      "三tab（收件箱/未读邮件/管理）为同页segment切换，使用本地状态管理，不应触发导航。",
+      "edit_mode（编辑铅笔）和search（搜索框）的目标准确行为未确认，实现时需后续补充目标页或确认为同页状态。"
+    ],
+    "navigation_notes": [
+      "email_inbox是从service_hub push进入的邮件列表主页面。",
+      "返回箭头返回到service_hub形成栈返回。",
+      "全局导航真相源：/designs/navigation_design.json。"
+    ]
+  }
+}

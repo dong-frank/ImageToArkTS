@@ -1,0 +1,502 @@
+{
+  "page_id": "home_discovery",
+  "page_name": "首页",
+  "page_role": "standalone_page",
+  "page_summary": "大众点评本地生活服务聚合首页，支持城市切换（南京）、分类导航（10类图标网格）、榜单推荐、免费试活动入口、双列UGC内容流，底部Tab栏选中'首页'。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145645_814_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_0.json"
+  ],
+  "source_draft_indexes": [
+    0
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "TopBar",
+        "id": "top_bar",
+        "children": [
+          {
+            "type": "TextButton",
+            "text": "关注"
+          },
+          {
+            "type": "DropdownButton",
+            "text": "南京",
+            "has_chevron": true
+          },
+          {
+            "type": "SegmentedControl",
+            "items": [
+              "附近",
+              "品质外卖",
+              "热点",
+              "美食",
+              "旅行"
+            ]
+          }
+        ]
+      },
+      {
+        "type": "SearchBar",
+        "id": "search_bar",
+        "children": [
+          {
+            "type": "Icon",
+            "name": "scan"
+          },
+          {
+            "type": "TextInput",
+            "placeholder": "克丽缇娜美容院"
+          },
+          {
+            "type": "Icon",
+            "name": "camera"
+          },
+          {
+            "type": "Button",
+            "text": "搜索"
+          }
+        ]
+      },
+      {
+        "type": "CategoryGrid",
+        "id": "category_grid",
+        "rows": 2,
+        "columns": 5,
+        "children": [
+          {
+            "type": "CategoryItem",
+            "label": "美食",
+            "icon": "chicken"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "休闲玩乐",
+            "icon": "footprint"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "酒店民宿",
+            "icon": "building"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "景点游玩",
+            "icon": "palm_tree"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "电影演出",
+            "icon": "cat_face"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "医疗口腔",
+            "icon": "plus_sign"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "特价团",
+            "icon": "fire"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "医学美容",
+            "icon": "face_mask"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "生活服务",
+            "icon": "spray_bottle"
+          },
+          {
+            "type": "CategoryItem",
+            "label": "丽人美发",
+            "icon": "woman_hair"
+          }
+        ]
+      },
+      {
+        "type": "PromoBannerRow",
+        "id": "promo_banners",
+        "children": [
+          {
+            "type": "PromoCard",
+            "title": "点评榜单 跟榜吃领半价神券 >",
+            "sub_items": [
+              {
+                "type": "ListEntry",
+                "title": "鮨鸟歡·烧鸟yakitori",
+                "badge": "热门榜第3名",
+                "distance": "4.7km"
+              }
+            ]
+          },
+          {
+            "type": "PromoCard",
+            "title": "免费试 6303个活动在线 >",
+            "sub_items": [
+              {
+                "type": "ListEntry",
+                "title": "野人先生免费抽",
+                "price": "¥0",
+                "original_price": "¥28",
+                "distance": "1.3km"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "ContentFeed",
+        "id": "content_feed",
+        "layout": "two_column_grid",
+        "children": [
+          {
+            "type": "PostCard",
+            "title": "栖霞山最难找的店，也是我最想私藏的店 ☕",
+            "author": "食尚田",
+            "like_count": 13
+          },
+          {
+            "type": "PostCard",
+            "title": "南京记住这个位置！！！真的会哇出声！！！",
+            "author": "晶",
+            "like_count": 372
+          }
+        ]
+      },
+      {
+        "type": "BottomTabBar",
+        "id": "bottom_tab_bar",
+        "items": [
+          {
+            "type": "TabItem",
+            "text": "首页",
+            "selected": true
+          },
+          {
+            "type": "TabItem",
+            "text": "地图"
+          },
+          {
+            "type": "TabItem",
+            "icon_only": true,
+            "symbol": "+"
+          },
+          {
+            "type": "TabItem",
+            "text": "消息"
+          },
+          {
+            "type": "TabItem",
+            "text": "我的"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "top_bar",
+      "block_role": "navigation",
+      "summary": "顶部导航栏：关注按钮 + 城市选择下拉（南京）+ 分段控件（附近/品质外卖/热点/美食/旅行）"
+    },
+    {
+      "block_id": "search_bar",
+      "block_role": "search",
+      "summary": "搜索栏：扫码图标 + 搜索输入框（预填'克丽缇娜美容院'）+ 相机图标 + 橙色搜索按钮"
+    },
+    {
+      "block_id": "category_grid",
+      "block_role": "navigation_hub",
+      "summary": "2×5分类图标网格：美食/休闲玩乐/酒店民宿/景点游玩/电影演出/医疗口腔/特价团/医学美容/生活服务/丽人美发"
+    },
+    {
+      "block_id": "promo_banners",
+      "block_role": "promotion",
+      "summary": "横向推广卡片：点评榜单（鮨鸟歡·烧鸟yakitori 热门榜第3名）+ 免费试（野人先生免费抽 ¥0）"
+    },
+    {
+      "block_id": "content_feed",
+      "block_role": "content",
+      "summary": "双列UGC内容流：探店笔记卡片（含图片/标题/作者/点赞数）"
+    },
+    {
+      "block_id": "bottom_tab_bar",
+      "block_role": "global_navigation",
+      "summary": "底部Tab栏：首页(选中)/地图/+/消息/我的"
+    }
+  ],
+  "key_texts": [
+    "关注",
+    "南京",
+    "附近",
+    "品质外卖",
+    "热点",
+    "美食",
+    "旅行",
+    "克丽缇娜美容院",
+    "搜索",
+    "美食",
+    "休闲玩乐",
+    "酒店民宿",
+    "景点游玩",
+    "电影演出",
+    "医疗口腔",
+    "特价团",
+    "医学美容",
+    "生活服务",
+    "丽人美发",
+    "点评榜单 跟榜吃领半价神券 >",
+    "鮨鸟歡·烧鸟yakitori",
+    "热门榜第3名 4.7km",
+    "免费试 6303个活动在线 >",
+    "野人先生免费抽",
+    "¥0 ¥28 1.3km",
+    "栖霞山最难找的店，也是我最想私藏的店 ☕",
+    "食尚田",
+    "南京记住这个位置！！！真的会哇出声！！！",
+    "晶",
+    "首页",
+    "地图",
+    "+",
+    "消息",
+    "我的"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "switch_city",
+      "trigger": "点击'南京'下拉",
+      "action": "切换城市",
+      "target_page_hint": "城市选择页"
+    },
+    {
+      "interaction_id": "search",
+      "trigger": "点击'搜索'按钮",
+      "action": "执行搜索",
+      "target_page_hint": "搜索结果页"
+    },
+    {
+      "interaction_id": "category_tap",
+      "trigger": "点击分类图标",
+      "action": "跳转分类页",
+      "target_page_hint": "对应分类列表页"
+    },
+    {
+      "interaction_id": "promo_tap",
+      "trigger": "点击榜单/免费试卡片",
+      "action": "跳转活动详情",
+      "target_page_hint": "榜单详情页/活动列表页"
+    },
+    {
+      "interaction_id": "post_tap",
+      "trigger": "点击UGC帖子卡片",
+      "action": "跳转内容详情",
+      "target_page_hint": "内容详情页"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "trigger": "点击底部Tab",
+      "action": "切换主页面",
+      "target_page_hint": "地图/消息/我的"
+    },
+    {
+      "interaction_id": "center_action",
+      "trigger": "点击'+'按钮",
+      "action": "打开发布入口",
+      "target_page_hint": "发布/快捷功能浮层"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "HybridDiscoveryLayout: TopBar + Search + IconGrid + PromoStrip + TwoColumnFeed + BottomTab",
+    "important_visual_blocks": [
+      "橙色高亮搜索按钮",
+      "双行分类图标网格",
+      "带标题的横向promo卡片",
+      "图文混排UGC卡片"
+    ],
+    "styling_hints": "圆角卡片、浅灰背景容器、图标扁平化+渐变色、文字层级清晰"
+  },
+  "visual_style_hints": {
+    "color_scheme": "橙红系主色调",
+    "card_style": "圆角卡片+浅灰背景",
+    "density": "信息密集型"
+  },
+  "page_semantic_role": "home",
+  "target_page_hints": [
+    "分类列表页",
+    "搜索结果页",
+    "商家详情页",
+    "活动详情页",
+    "UGC帖子详情页",
+    "城市选择页"
+  ],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [
+    "food_list",
+    "content_detail",
+    "map_poi",
+    "messages",
+    "my_profile"
+  ],
+  "notes": [
+    "左上角'签到'红点徽章存在但功能未明",
+    "第3、4张UGC卡片标题为空（可能截断）",
+    "'+'按钮具体功能未明示"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "entry",
+    "is_entry": true,
+    "parent_page_id": null,
+    "child_page_ids": ["food_list", "content_detail"],
+    "incoming_relations": [],
+    "outgoing_relations": [
+      {
+        "target_page_id": "food_list",
+        "relation_type": "opens_child_page",
+        "trigger_label": "美食分类图标",
+        "trigger_interaction_id": "category_tap",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "content_detail",
+        "relation_type": "opens_child_page",
+        "trigger_label": "UGC帖子卡片",
+        "trigger_interaction_id": "post_tap",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "map_poi",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'地图'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "messages",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'消息'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "my_profile",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'我的'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "action_hub_overlay",
+        "relation_type": "contains_subpage_entry",
+        "trigger_label": "底部'+'按钮",
+        "trigger_interaction_id": "center_action",
+        "confidence": "high"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": true,
+      "is_bottom_tab_member": true,
+      "is_top_level_page": true,
+      "is_stack_destination": false
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "美食分类图标",
+        "trigger_interaction_id": "category_tap",
+        "relation_type": "opens_child_page",
+        "target_page_id": "food_list",
+        "confidence": "high",
+        "reasoning": "首页'美食'分类图标点击进入美食列表页，food_list明确从首页进入。"
+      },
+      {
+        "trigger_label": "UGC帖子卡片",
+        "trigger_interaction_id": "post_tap",
+        "relation_type": "opens_child_page",
+        "target_page_id": "content_detail",
+        "confidence": "high",
+        "reasoning": "首页双列UGC内容流帖子卡片点击进入内容详情页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "map_poi",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到地图页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "messages",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到消息页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "my_profile",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到我的页。"
+      },
+      {
+        "trigger_label": "底部'+'按钮",
+        "trigger_interaction_id": "center_action",
+        "relation_type": "contains_subpage_entry",
+        "target_page_id": "action_hub_overlay",
+        "confidence": "high",
+        "reasoning": "底部'+'按钮触发功能选择面板overlay，非页面跳转。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "城市选择下拉",
+        "trigger_interaction_id": "switch_city",
+        "target_page_hint": "城市选择页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "首页顶部'南京'下拉应切换城市，但城市选择页未在阶段二页面集合中。"
+      },
+      {
+        "trigger_label": "搜索按钮",
+        "trigger_interaction_id": "search",
+        "target_page_hint": "搜索结果页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "首页搜索按钮应跳转搜索结果页，未覆盖。"
+      },
+      {
+        "trigger_label": "榜单/免费试卡片",
+        "trigger_interaction_id": "promo_tap",
+        "target_page_hint": "榜单详情页/活动列表页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "首页推广卡片点击应跳转对应详情，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "可直接进入food_list（美食列表）、content_detail（内容详情）；通过底部Tab切换到map_poi、messages、my_profile；'+'按钮触发action_hub_overlay。",
+    "implementation_navigation_warnings": [
+      "底部Tab切换为switches_tab_to，不应实现为push导航",
+      "'+'按钮触发overlay而非页面路由",
+      "城市选择、搜索、榜单/免费试卡片的目标页未覆盖，不应实现为确认路由"
+    ],
+    "navigation_notes": "应用入口页，属于底部Tab主导航体系（首页Tab）。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

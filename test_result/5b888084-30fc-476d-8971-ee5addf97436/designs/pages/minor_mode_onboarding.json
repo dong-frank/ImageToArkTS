@@ -1,0 +1,125 @@
+{
+  "page_id": "minor_mode_onboarding",
+  "page_name": "未成年人模式",
+  "page_role": "onboarding",
+  "page_summary": "知乎未成年人模式介绍页 — 返回箭头+插图+要点列表(3项规则说明)+'开启未成年人模式'CTA按钮+协议勾选('我已阅读并同意《未成年人模式使用协议》')。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151928_886_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_9.json"
+  ],
+  "source_draft_indexes": [
+    9
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 9 为 success 状态。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          }
+        ]
+      },
+      {
+        "type": "Illustration",
+        "description": "未成年人模式插图"
+      },
+      {
+        "type": "RuleList",
+        "children": [
+          {
+            "type": "RuleItem",
+            "text": "规则说明1"
+          },
+          {
+            "type": "RuleItem",
+            "text": "规则说明2"
+          },
+          {
+            "type": "RuleItem",
+            "text": "规则说明3"
+          }
+        ]
+      },
+      {
+        "type": "CTAButton",
+        "label": "开启未成年人模式"
+      },
+      {
+        "type": "AgreementCheckbox",
+        "text": "我已阅读并同意《未成年人模式使用协议》"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "illustration",
+      "role": "hero"
+    },
+    {
+      "block_id": "rules",
+      "role": "content",
+      "summary": "3项规则说明"
+    },
+    {
+      "block_id": "cta_and_agreement",
+      "role": "action",
+      "summary": "CTA按钮+协议勾选"
+    }
+  ],
+  "key_texts": [
+    "开启未成年人模式",
+    "我已阅读并同意《未成年人模式使用协议》"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "返回",
+      "target_page_hint": "设置/上一页面"
+    },
+    {
+      "interaction_id": "enable_minor_mode",
+      "type": "action",
+      "trigger": "点击CTA按钮",
+      "description": "开启未成年人模式"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + HeroIllustration + BulletList + CTAButton + Checkbox",
+    "styling_hints": "居中布局,插图+规则列表+CTA按钮"
+  },
+  "visual_style_hints": {
+    "overall_style": "引导介绍页",
+    "density": "low",
+    "background": "light"
+  },
+  "page_semantic_role": "onboarding",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "引导介绍页,需要用户勾选协议后才能开启",
+    "包含插图+规则说明+CTA+协议勾选的完整onboarding模式"
+  ],
+  "schema_version": "stage2_page.v1"
+}

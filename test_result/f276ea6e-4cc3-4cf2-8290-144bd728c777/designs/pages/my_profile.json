@@ -1,0 +1,574 @@
+{
+  "page_id": "my_profile",
+  "page_name": "我的",
+  "page_role": "standalone_page",
+  "page_summary": "用户个人中心首页，展示用户身份信息（猫馋喜之郎/Lv4/VIP/黑金会员）、行为统计卡片（打卡29次/足迹66/用餐41次）、评价摘要（37条/2.2万浏览/1244人帮助）、功能图标网格（8项）、活动推广卡片（4项），底部Tab栏选中'我的'。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145651_820_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_6.json"
+  ],
+  "source_draft_indexes": [
+    6
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "HeaderSection",
+        "id": "header",
+        "children": [
+          {
+            "type": "AvatarWithInfo",
+            "children": [
+              {
+                "type": "CircularAvatar",
+                "content": "蛋糕草莓图"
+              },
+              {
+                "type": "UserName",
+                "text": "猫馋喜之郎"
+              },
+              {
+                "type": "UserStats",
+                "text": "0 粉丝 1 关注 9 获赞"
+              }
+            ]
+          },
+          {
+            "type": "ActionIcons",
+            "children": [
+              {
+                "type": "IconLink",
+                "label": "个人主页",
+                "has_chevron": true
+              },
+              {
+                "type": "Icon",
+                "symbol": "headset"
+              },
+              {
+                "type": "Icon",
+                "symbol": "settings"
+              }
+            ]
+          },
+          {
+            "type": "BadgeRow",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "Lv4"
+              },
+              {
+                "type": "Badge",
+                "text": "VIP"
+              },
+              {
+                "type": "Badge",
+                "text": "16枚"
+              },
+              {
+                "type": "Badge",
+                "text": "黑金会员"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "StatCardGroup",
+        "id": "stat_cards",
+        "children": [
+          {
+            "type": "StatCard",
+            "title": "打卡",
+            "subtitle": "累计29次"
+          },
+          {
+            "type": "StatCard",
+            "title": "我的足迹",
+            "subtitle": "66个足迹"
+          },
+          {
+            "type": "StatCard",
+            "title": "口味档案",
+            "subtitle": "用餐41次"
+          }
+        ]
+      },
+      {
+        "type": "ReviewSummarySection",
+        "id": "review_section",
+        "children": [
+          {
+            "type": "SectionTitle",
+            "text": "评价 (37)"
+          },
+          {
+            "type": "MetricRow",
+            "children": [
+              {
+                "type": "Metric",
+                "label": "浏览",
+                "value": "2.2万次",
+                "delta": "+69"
+              },
+              {
+                "type": "Metric",
+                "label": "帮助",
+                "value": "1244人",
+                "delta": "+65"
+              }
+            ]
+          },
+          {
+            "type": "PreviewGrid",
+            "children": [
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期"
+              },
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期"
+              },
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "FunctionIconGrid",
+        "id": "function_grid",
+        "rows": 2,
+        "cols": 4,
+        "children": [
+          {
+            "type": "IconAction",
+            "label": "订单"
+          },
+          {
+            "type": "IconAction",
+            "label": "收藏"
+          },
+          {
+            "type": "IconAction",
+            "label": "待评价"
+          },
+          {
+            "type": "IconAction",
+            "label": "最近浏览"
+          },
+          {
+            "type": "IconAction",
+            "label": "卡券",
+            "badge": "1"
+          },
+          {
+            "type": "IconAction",
+            "label": "钱包"
+          },
+          {
+            "type": "IconAction",
+            "label": "草稿箱"
+          },
+          {
+            "type": "IconAction",
+            "label": "笔记达人中心"
+          }
+        ]
+      },
+      {
+        "type": "PromoCardGrid",
+        "id": "promo_grid",
+        "rows": 2,
+        "cols": 2,
+        "children": [
+          {
+            "type": "PromoCard",
+            "title": "免费试",
+            "subtitle": "0元吃大餐"
+          },
+          {
+            "type": "PromoCard",
+            "title": "大众评审",
+            "subtitle": "快来评理"
+          },
+          {
+            "type": "PromoCard",
+            "title": "每日签到",
+            "subtitle": "做任务领现金"
+          },
+          {
+            "type": "PromoCard",
+            "title": "活动中心",
+            "subtitle": "参与活动赢奖励"
+          }
+        ]
+      },
+      {
+        "type": "TabBar",
+        "id": "bottom_tab",
+        "active_tab": "我的",
+        "tabs": [
+          {
+            "label": "首页"
+          },
+          {
+            "label": "地图"
+          },
+          {
+            "label": "+",
+            "is_center_action": true
+          },
+          {
+            "label": "消息"
+          },
+          {
+            "label": "我的",
+            "selected": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "header",
+      "block_role": "identity",
+      "summary": "用户身份区：头像+用户名(猫馋喜之郎)+粉丝/关注/获赞+Lv4/VIP/16枚/黑金会员徽章+个人主页/客服/设置入口"
+    },
+    {
+      "block_id": "stat_cards",
+      "block_role": "stats",
+      "summary": "行为统计卡片：打卡(29次)/我的足迹(66个)/口味档案(41次)"
+    },
+    {
+      "block_id": "review_section",
+      "block_role": "content_summary",
+      "summary": "评价摘要：37条评价/2.2万浏览(+69)/1244人帮助(+65)+3张'超预期'评价缩略图"
+    },
+    {
+      "block_id": "function_grid",
+      "block_role": "navigation_hub",
+      "summary": "2×4功能图标网格：订单/收藏/待评价/最近浏览/卡券(badge=1)/钱包/草稿箱/笔记达人中心"
+    },
+    {
+      "block_id": "promo_grid",
+      "block_role": "promotion",
+      "summary": "2×2活动卡片：免费试/大众评审/每日签到/活动中心"
+    },
+    {
+      "block_id": "bottom_tab",
+      "block_role": "global_navigation",
+      "summary": "底部Tab栏：首页/地图/+/消息/我的(选中)"
+    }
+  ],
+  "key_texts": [
+    "猫馋喜之郎",
+    "0 粉丝 1 关注 9 获赞",
+    "Lv4",
+    "VIP",
+    "16枚",
+    "黑金会员",
+    "打卡 累计29次",
+    "我的足迹 66个足迹",
+    "口味档案 用餐41次",
+    "评价 (37)",
+    "浏览 2.2万次 +69",
+    "帮助 1244人 +65",
+    "超预期",
+    "订单",
+    "收藏",
+    "待评价",
+    "最近浏览",
+    "卡券",
+    "钱包",
+    "草稿箱",
+    "笔记达人中心",
+    "免费试 0元吃大餐",
+    "大众评审 快来评理",
+    "每日签到 做任务领现金",
+    "活动中心 参与活动赢奖励"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "personal_home_tap",
+      "trigger": "点击'个人主页 >'",
+      "action": "进入完整个人主页",
+      "target_page_hint": "个人主页详情页"
+    },
+    {
+      "interaction_id": "settings_tap",
+      "trigger": "点击设置图标",
+      "action": "进入设置",
+      "target_page_hint": "设置页"
+    },
+    {
+      "interaction_id": "review_tap",
+      "trigger": "点击'评价 (37)'",
+      "action": "进入评价列表",
+      "target_page_hint": "评价列表页"
+    },
+    {
+      "interaction_id": "function_tap",
+      "trigger": "点击功能图标",
+      "action": "跳转对应功能页",
+      "target_page_hint": "订单/收藏/卡券/钱包等"
+    },
+    {
+      "interaction_id": "promo_tap",
+      "trigger": "点击活动卡片",
+      "action": "跳转活动页",
+      "target_page_hint": "免费试/大众评审/签到/活动中心"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "trigger": "点击底部Tab",
+      "action": "切换主页面"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "ProfileLanding: Header + StatCards + ReviewSummary + IconGrid + PromoGrid + BottomTab",
+    "important_visual_blocks": [
+      "AvatarWithBadges（头像+等级+VIP+黑金会员）",
+      "StatCardGroup（3列统计卡片）",
+      "ReviewSummary（评价数+浏览/帮助指标+缩略图）",
+      "FunctionIconGrid（2×4图标网格）",
+      "PromoCardGrid（2×2活动卡片）"
+    ],
+    "styling_hints": "浅色背景，橙/金/黑金配色，圆角卡片，图标扁平化"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙/金/黑金",
+    "density": "信息密集型个人中心"
+  },
+  "page_semantic_role": "profile",
+  "target_page_hints": [
+    "设置页",
+    "订单列表",
+    "收藏列表",
+    "卡券页",
+    "钱包页",
+    "评价列表",
+    "免费试活动",
+    "大众评审活动",
+    "签到页",
+    "活动中心"
+  ],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [
+    "settings_root",
+    "order_list",
+    "my_checkin"
+  ],
+  "notes": [
+    "卡券有badge=1未读提示",
+    "评价标签均为'超预期'",
+    "黑金会员为高价值用户标识"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "main_tab",
+    "is_entry": false,
+    "parent_page_id": null,
+    "child_page_ids": ["settings_root", "order_list", "my_checkin"],
+    "incoming_relations": [
+      {
+        "source_page_id": "home_discovery",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'我的'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "map_poi",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'我的'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "messages",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'我的'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "settings_root",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "high"
+      },
+      {
+        "source_page_id": "order_list",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "medium"
+      },
+      {
+        "source_page_id": "my_checkin",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "medium"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "home_discovery",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'首页'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "map_poi",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'地图'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "messages",
+        "relation_type": "switches_tab_to",
+        "trigger_label": "底部Tab'消息'",
+        "trigger_interaction_id": "tab_switch",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "settings_root",
+        "relation_type": "opens_child_page",
+        "trigger_label": "设置图标",
+        "trigger_interaction_id": "settings_tap",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "order_list",
+        "relation_type": "opens_child_page",
+        "trigger_label": "订单功能图标",
+        "trigger_interaction_id": "function_tap",
+        "confidence": "high"
+      },
+      {
+        "target_page_id": "my_checkin",
+        "relation_type": "opens_child_page",
+        "trigger_label": "打卡统计卡片",
+        "trigger_interaction_id": "function_tap",
+        "confidence": "medium"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": true,
+      "is_bottom_tab_member": true,
+      "is_top_level_page": true,
+      "is_stack_destination": false
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "home_discovery",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到首页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "map_poi",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到地图页。"
+      },
+      {
+        "trigger_label": "底部Tab切换",
+        "trigger_interaction_id": "tab_switch",
+        "relation_type": "switches_tab_to",
+        "target_page_id": "messages",
+        "confidence": "high",
+        "reasoning": "底部Tab栏切换到消息页。"
+      },
+      {
+        "trigger_label": "设置图标",
+        "trigger_interaction_id": "settings_tap",
+        "relation_type": "opens_child_page",
+        "target_page_id": "settings_root",
+        "confidence": "high",
+        "reasoning": "'我的'页面设置图标点击进入设置根页面。"
+      },
+      {
+        "trigger_label": "订单功能图标",
+        "trigger_interaction_id": "function_tap",
+        "relation_type": "opens_child_page",
+        "target_page_id": "order_list",
+        "confidence": "high",
+        "reasoning": "'我的'页面订单图标点击进入订单列表。"
+      },
+      {
+        "trigger_label": "打卡统计卡片",
+        "trigger_interaction_id": "function_tap",
+        "relation_type": "opens_child_page",
+        "target_page_id": "my_checkin",
+        "confidence": "medium",
+        "reasoning": "'我的'页面打卡卡片点击进入打卡记录页。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "收藏/卡券/钱包等功能图标",
+        "trigger_interaction_id": "function_tap",
+        "target_page_hint": "收藏列表/卡券页/钱包页等",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "'我的'页面多个功能图标应跳转对应功能页，未覆盖。"
+      },
+      {
+        "trigger_label": "免费试/大众评审/每日签到/活动中心卡片",
+        "trigger_interaction_id": "promo_tap",
+        "target_page_hint": "免费试活动/大众评审活动/签到页/活动中心",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "'我的'页面活动卡片应跳转对应活动页，未覆盖。"
+      },
+      {
+        "trigger_label": "个人主页>",
+        "trigger_interaction_id": "personal_home_tap",
+        "target_page_hint": "个人主页详情页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "'个人主页>'应进入完整个人主页，未覆盖。"
+      },
+      {
+        "trigger_label": "评价(37)",
+        "trigger_interaction_id": "review_tap",
+        "target_page_hint": "评价列表页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "'评价(37)'应进入评价列表，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [],
+    "navigation_targets_summary": "通过底部Tab切换到home_discovery、map_poi、messages；设置图标进入settings_root；订单图标进入order_list；打卡卡片进入my_checkin。收藏、卡券、钱包、活动卡片等目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "底部Tab切换为switches_tab_to，不应实现为push导航",
+      "收藏/卡券/钱包等功能图标和活动卡片的目标页未覆盖，不应实现为确认路由"
+    ],
+    "navigation_notes": "底部Tab主导航体系中的我的Tab。设置、订单、打卡为确认子页面。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

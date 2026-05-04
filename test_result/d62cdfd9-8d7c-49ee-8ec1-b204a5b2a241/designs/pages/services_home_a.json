@@ -1,0 +1,263 @@
+{
+  "page_id": "services_home_a",
+  "page_name": "服务（金融版）",
+  "page_role": "service_aggregation",
+  "page_summary": "微信'服务'页面变体A——顶部绿色双功能卡片（收付款+钱包¥319.07），下方三个分类：金融理财（信用卡还款、微粒贷借钱、理财通、保险服务）、生活服务（手机充值、生活缴费、Q币充值、城市服务、腾讯公益、医疗健康）、交通出行（出行服务、火车票机票、滴滴出行、酒店民宿）。顶部含返回按钮和更多菜单。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151211_857_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_2.json"
+  ],
+  "source_draft_indexes": [
+    2
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft展示服务页的一个版本（含金融理财分类+绿色顶部卡片），与draft_3（购物消费版）分类不同且无顶部卡片，判断为不同状态/版本的同名页面。各自独立保留。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": [
+      "与draft_3（服务购物消费版）是否为同一用户的不同滚动区域或A/B版本无法确认，保守分立"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "TopBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "<"
+          },
+          {
+            "type": "Title",
+            "text": "服务"
+          },
+          {
+            "type": "MoreButton",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "QuickActionCard",
+        "background_color": "green",
+        "children": [
+          {
+            "type": "IconTextButton",
+            "icon": "scan_check",
+            "text": "收付款"
+          },
+          {
+            "type": "IconTextButton",
+            "icon": "wallet",
+            "text": "钱包",
+            "subtext": "¥319.07"
+          }
+        ]
+      },
+      {
+        "type": "CategorySection",
+        "header": "金融理财",
+        "children": [
+          {
+            "type": "ServiceItem",
+            "icon": "credit_card",
+            "text": "信用卡还款"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "micro_loan",
+            "text": "微粒贷借钱"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "wealth",
+            "text": "理财通"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "insurance",
+            "text": "保险服务"
+          }
+        ]
+      },
+      {
+        "type": "CategorySection",
+        "header": "生活服务",
+        "children": [
+          {
+            "type": "ServiceItem",
+            "icon": "phone_recharge",
+            "text": "手机充值"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "life_payment",
+            "text": "生活缴费"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "q_coin",
+            "text": "Q币充值"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "city_service",
+            "text": "城市服务"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "tencent_charity",
+            "text": "腾讯公益"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "medical",
+            "text": "医疗健康"
+          }
+        ]
+      },
+      {
+        "type": "CategorySection",
+        "header": "交通出行",
+        "children": [
+          {
+            "type": "ServiceItem",
+            "icon": "travel",
+            "text": "出行服务"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "train_ticket",
+            "text": "火车票机票"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "didid",
+            "text": "滴滴出行"
+          },
+          {
+            "type": "ServiceItem",
+            "icon": "hotel",
+            "text": "酒店民宿"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "top_bar",
+      "block_role": "navigation_header",
+      "summary": "导航栏：返回按钮+标题'服务'+更多菜单(⋯)"
+    },
+    {
+      "block_id": "quick_action_card",
+      "block_role": "primary_actions",
+      "summary": "绿色横条双功能卡片：收付款+钱包(余额¥319.07)"
+    },
+    {
+      "block_id": "category_finance",
+      "block_role": "service_category",
+      "summary": "金融理财：信用卡还款、微粒贷借钱、理财通、保险服务(4项)"
+    },
+    {
+      "block_id": "category_life",
+      "block_role": "service_category",
+      "summary": "生活服务：手机充值、生活缴费、Q币充值、城市服务、腾讯公益、医疗健康(6项)"
+    },
+    {
+      "block_id": "category_travel",
+      "block_role": "service_category",
+      "summary": "交通出行：出行服务、火车票机票、滴滴出行、酒店民宿(4项)"
+    }
+  ],
+  "key_texts": [
+    "服务",
+    "收付款",
+    "钱包",
+    "¥319.07",
+    "金融理财",
+    "信用卡还款",
+    "微粒贷借钱",
+    "理财通",
+    "保险服务",
+    "生活服务",
+    "手机充值",
+    "生活缴费",
+    "Q币充值",
+    "城市服务",
+    "腾讯公益",
+    "医疗健康",
+    "交通出行",
+    "出行服务",
+    "火车票机票",
+    "滴滴出行",
+    "酒店民宿"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation_back",
+      "source": "BackButton",
+      "action": "pop"
+    },
+    {
+      "interaction_id": "more_menu",
+      "type": "overflow_menu",
+      "source": "MoreButton",
+      "action": "open_options_menu"
+    },
+    {
+      "interaction_id": "wallet_tap",
+      "type": "card_tap",
+      "source": "QuickActionCard[钱包]",
+      "target_page_hint": "wallet"
+    },
+    {
+      "interaction_id": "service_tap",
+      "type": "grid_item_tap",
+      "source": "任何ServiceItem",
+      "action": "navigate_to_sub_service",
+      "count": 14
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "VerticalScrollView with SectionHeaders + GridItems",
+    "visual_blocks": [
+      "PrimaryActionBanner (green)",
+      "CategorySection (white card with header)",
+      "IconTextGridItem (4-column responsive)"
+    ],
+    "styling_hints": {
+      "color_palette": "主绿(#27AE60类似)，辅助色按功能分类(蓝/橙/红)",
+      "spacing": "区块间留白较大，项内图标与文字垂直居中对齐",
+      "typography": "标题加粗，正文常规字重，余额数字稍小且浅灰"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "功能导向型服务目录页，强调图标识别与快速跳转",
+    "emphasis": "绿色卡片为视觉焦点，分类标题为次级锚点",
+    "background": "浅灰纯色背景"
+  },
+  "page_semantic_role": "service_directory",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "me_profile > 服务入口"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "无底部导航栏",
+    "所有图标尺寸一致，颜色语义明确",
+    "'Q币充值'使用腾讯系企鹅图标",
+    "与draft_3(服务购物消费版)展示不同分类组合，可能为A/B版本或不同用户状态"
+  ],
+  "schema_version": "stage2_page.v1"
+}

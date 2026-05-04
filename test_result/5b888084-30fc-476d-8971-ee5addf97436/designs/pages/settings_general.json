@@ -1,0 +1,168 @@
+{
+  "page_id": "settings_general",
+  "page_name": "通用设置",
+  "page_role": "settings_sub",
+  "page_summary": "知乎通用设置子页 — 返回箭头+'设置'标题+14项设置列表(查看通讯录好友/水印图片/内置音效/无图模式/双击赞同/夜间模式等),多数为开关型设置项,扁平列表无分组。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151927_885_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_8.json"
+  ],
+  "source_draft_indexes": [
+    8
+  ],
+  "merge_decision": {
+    "decision_summary": "单 draft 继承式定稿。draft 8 为 success 状态。与 settings_root 是不同页面(settings_root为分组导航列表,settings_general为扁平开关列表)。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "设置"
+          }
+        ]
+      },
+      {
+        "type": "FlatToggleList",
+        "children": [
+          {
+            "type": "ToggleItem",
+            "label": "查看通讯录好友"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "水印图片"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "内置音效"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "无图模式"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "双击赞同"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "夜间模式"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "调节字体大小"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "全屏阅读"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "页面自动跳转"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "知乎热榜推送"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "消息免打扰"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "图片质量"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "视频自动播放"
+          },
+          {
+            "type": "ToggleItem",
+            "label": "清理缓存"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header"
+    },
+    {
+      "block_id": "toggle_list",
+      "role": "content",
+      "summary": "14项带开关的设置项,扁平布局"
+    }
+  ],
+  "key_texts": [
+    "设置",
+    "查看通讯录好友",
+    "水印图片",
+    "内置音效",
+    "无图模式",
+    "双击赞同",
+    "夜间模式",
+    "调节字体大小",
+    "全屏阅读",
+    "页面自动跳转",
+    "知乎热榜推送",
+    "消息免打扰",
+    "图片质量",
+    "视频自动播放",
+    "清理缓存"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回",
+      "target_page_hint": "设置根页面"
+    },
+    {
+      "interaction_id": "toggle",
+      "type": "state_change",
+      "trigger": "切换各设置项开关"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "TopNav + FlatToggleList",
+    "styling_hints": "标准iOS设置风格,蓝色开关",
+    "reusable_components": [
+      "ToggleItem"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "iOS设置子页",
+    "density": "medium",
+    "background": "light_gray"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "标题也是'设置',但与settings_root是不同页面(通过内容判断)",
+    "14项均带开关,扁平无分组",
+    "此页与settings_root的区别:settings_root是分组列表(导航型),settings_general是扁平开关列表(配置型)"
+  ],
+  "schema_version": "stage2_page.v1"
+}

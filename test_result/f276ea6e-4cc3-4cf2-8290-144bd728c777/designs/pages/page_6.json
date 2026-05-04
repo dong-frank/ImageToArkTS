@@ -1,0 +1,436 @@
+{
+  "page_id": "page_6",
+  "page_name": "个人主页",
+  "page_role": "user_profile_landing",
+  "source_images": [
+    "/user_input/微信图片_20260425145651_820_24.png"
+  ],
+  "draft_indices": [
+    6
+  ],
+  "layout_summary": "垂直分层布局：顶部头像+身份信息区 → 行为统计卡片组 → 评价缩略图区 → 功能图标网格（2×4）→ 活动推广卡片（2×2）→ 底部标签导航。整体采用轻色背景、圆角卡片、图标+文字组合，视觉重心在用户身份与核心行为数据。",
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "HeaderSection",
+        "children": [
+          {
+            "type": "AvatarWithInfo",
+            "children": [
+              {
+                "type": "CircularAvatar",
+                "content": "蛋糕草莓图"
+              },
+              {
+                "type": "UserName",
+                "text": "猫馋喜之郎"
+              },
+              {
+                "type": "UserStats",
+                "text": "0 粉丝 1 关注 9 获赞"
+              }
+            ]
+          },
+          {
+            "type": "ActionIcons",
+            "children": [
+              {
+                "type": "IconLink",
+                "label": "个人主页",
+                "has_chevron": true
+              },
+              {
+                "type": "Icon",
+                "symbol": "headset"
+              },
+              {
+                "type": "Icon",
+                "symbol": "settings"
+              }
+            ]
+          },
+          {
+            "type": "BadgeRow",
+            "children": [
+              {
+                "type": "Badge",
+                "text": "Lv4",
+                "icon": "Lv"
+              },
+              {
+                "type": "Badge",
+                "text": "VIP",
+                "icon": "V"
+              },
+              {
+                "type": "Badge",
+                "text": "16枚",
+                "icon": "medal"
+              },
+              {
+                "type": "Badge",
+                "text": "黑金会员",
+                "icon": "crown"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "StatCardGroup",
+        "children": [
+          {
+            "type": "StatCard",
+            "title": "打卡",
+            "subtitle": "累计29次",
+            "icon": "check-in"
+          },
+          {
+            "type": "StatCard",
+            "title": "我的足迹",
+            "subtitle": "66个足迹",
+            "icon": "footprint"
+          },
+          {
+            "type": "StatCard",
+            "title": "口味档案",
+            "subtitle": "用餐41次",
+            "icon": "dish"
+          }
+        ]
+      },
+      {
+        "type": "ReviewSummarySection",
+        "children": [
+          {
+            "type": "SectionTitle",
+            "text": "评价 (37)"
+          },
+          {
+            "type": "MetricRow",
+            "children": [
+              {
+                "type": "Metric",
+                "label": "浏览",
+                "value": "2.2万次",
+                "delta": "+69"
+              },
+              {
+                "type": "Metric",
+                "label": "帮助",
+                "value": "1244人",
+                "delta": "+65"
+              }
+            ]
+          },
+          {
+            "type": "PreviewGrid",
+            "children": [
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期",
+                "image_present": true
+              },
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期",
+                "image_present": true
+              },
+              {
+                "type": "ReviewPreview",
+                "tag": "超预期",
+                "image_present": true
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "FunctionIconGrid",
+        "rows": 2,
+        "cols": 4,
+        "children": [
+          {
+            "type": "IconAction",
+            "label": "订单",
+            "icon": "list"
+          },
+          {
+            "type": "IconAction",
+            "label": "收藏",
+            "icon": "star"
+          },
+          {
+            "type": "IconAction",
+            "label": "待评价",
+            "icon": "comment"
+          },
+          {
+            "type": "IconAction",
+            "label": "最近浏览",
+            "icon": "clock"
+          },
+          {
+            "type": "IconAction",
+            "label": "卡券",
+            "icon": "ticket",
+            "badge": "1"
+          },
+          {
+            "type": "IconAction",
+            "label": "钱包",
+            "icon": "wallet"
+          },
+          {
+            "type": "IconAction",
+            "label": "草稿箱",
+            "icon": "inbox"
+          },
+          {
+            "type": "IconAction",
+            "label": "笔记达人中心",
+            "icon": "lightbulb"
+          }
+        ]
+      },
+      {
+        "type": "PromoCardGrid",
+        "rows": 2,
+        "cols": 2,
+        "children": [
+          {
+            "type": "PromoCard",
+            "title": "免费试",
+            "subtitle": "0元吃大餐",
+            "image_present": true
+          },
+          {
+            "type": "PromoCard",
+            "title": "大众评审",
+            "subtitle": "快来评理",
+            "image_present": true
+          },
+          {
+            "type": "PromoCard",
+            "title": "每日签到",
+            "subtitle": "做任务领现金",
+            "image_present": true
+          },
+          {
+            "type": "PromoCard",
+            "title": "活动中心",
+            "subtitle": "参与活动赢奖励",
+            "image_present": true
+          }
+        ]
+      },
+      {
+        "type": "TabBar",
+        "active_tab": "我的",
+        "tabs": [
+          {
+            "label": "首页",
+            "selected": false
+          },
+          {
+            "label": "地图",
+            "selected": false
+          },
+          {
+            "label": "+",
+            "selected": false,
+            "is_center_action": true
+          },
+          {
+            "label": "消息",
+            "selected": false
+          },
+          {
+            "label": "我的",
+            "selected": true
+          }
+        ]
+      }
+    ]
+  },
+  "structural_blocks": [
+    "HeaderBlock",
+    "BehaviorStatsBlock",
+    "ReviewAndMetricsBlock",
+    "CoreFunctionGridBlock",
+    "PromotionBlock",
+    "BottomTabBar"
+  ],
+  "key_content": {
+    "visible_texts": [
+      "猫馋喜之郎",
+      "0 粉丝 1 关注 9 获赞",
+      "Lv4",
+      "VIP",
+      "16枚",
+      "黑金会员",
+      "打卡 累计29次",
+      "我的足迹 66个足迹",
+      "口味档案 用餐41次",
+      "评价 (37)",
+      "浏览 2.2万次 +69",
+      "帮助 1244人 +65",
+      "超预期",
+      "订单",
+      "收藏",
+      "待评价",
+      "最近浏览",
+      "卡券",
+      "钱包",
+      "草稿箱",
+      "笔记达人中心",
+      "免费试 0元吃大餐",
+      "大众评审 快来评理",
+      "每日签到 做任务领现金",
+      "活动中心 参与活动赢奖励"
+    ],
+    "key_controls": [
+      "个人主页 >",
+      "头像区域（可点击）",
+      "右上角耳机/设置图标",
+      "底部 '+' 中心按钮",
+      "TabBar 中 '我的' 选中态"
+    ]
+  },
+  "interaction_clues": [
+    "头像/用户名区域可能为进入完整个人主页的入口",
+    "'个人主页 >' 文本链接明确指向更详细个人页",
+    "'评价 (37)' 右侧有 '>' 箭头，暗示可进入评价列表页",
+    "'超预期' 标签叠加在评价缩略图上，为状态标记而非交互控件",
+    "底部 TabBar 中 '我的' 为当前页，其余为导航切换目标",
+    "中心 '+' 按钮为全局操作入口（如发布）",
+    "卡券图标带红点 badge，提示有未读/新内容"
+  ],
+  "navigation_hints": {
+    "back_path": null,
+    "exit_paths": [
+      "点击底部 '首页' / '地图' / '消息' 切换主功能页",
+      "点击右上角设置进入系统设置",
+      "点击耳机图标进入客服"
+    ],
+    "main_cta": "个人主页 >",
+    "entry_points": [
+      "从首页/消息页通过底部 Tab 进入",
+      "从他人主页点击关注者列表跳转至此"
+    ],
+    "exit_points": [
+      "点击任意功能图标进入子功能页（如订单、收藏）",
+      "点击评价箭头进入评价列表",
+      "点击 '+' 发布新内容"
+    ],
+    "has_back": false,
+    "has_close": false
+  },
+  "state_hints": {
+    "tab_state": {
+      "active": "我的",
+      "others": [
+        "首页",
+        "地图",
+        "消息"
+      ]
+    },
+    "status_labels": [
+      "Lv4",
+      "VIP",
+      "黑金会员",
+      "超预期（评价状态）",
+      "卡券 badge=1"
+    ]
+  },
+  "overlay_hints": {
+    "has_overlay": false
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [
+      "'我的收藏' 与 '最近浏览' 标题位于下方，但当前视图中无对应内容区，疑似滚动后可见，属同页内锚点"
+    ],
+    "distinguishing_state_signals": [
+      "'打卡'/'足迹'/'口味档案'三卡片并列，结构一致，应为同一层级状态聚合块，非独立页面"
+    ],
+    "independent_page_signals": [
+      "'个人主页 >' 明确指示外部页面；评价箭头也指向外部列表页"
+    ]
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      "个人主页详情页（由'个人主页 >'触发）",
+      "评价列表页（由'评价 (37) >'触发）",
+      "订单列表页（由'订单'图标触发）",
+      "收藏列表页（由'收藏'图标触发）",
+      "待评价列表页（由'待评价'图标触发）",
+      "最近浏览历史页（由'最近浏览'图标触发）"
+    ],
+    "drill_down_entries": [
+      "头像/用户名区域",
+      "'个人主页 >'",
+      "'评价 (37)' 右侧箭头",
+      "所有功能图标"
+    ]
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalScrollPage with StickyHeader and TabBar",
+    "important_visual_blocks": [
+      "IdentityBanner (avatar + name + stats + badges)",
+      "HorizontalStatCards (3-item flex row)",
+      "ReviewSummaryWithPreviewGrid",
+      "IconGrid (2x4, uniform size)",
+      "PromoCardGrid (2x2, image-left text-right)",
+      "BottomTabBar (5 items, center action)"
+    ],
+    "style_hints": "浅灰白背景，卡片圆角 12dp，图标统一 24x24，文字颜色 #222 / #666 / #999 分层，关键数字加粗，增长值用橙色 + 符号"
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "蛋糕草莓头像图",
+      "Lv4/VIP/16枚/黑金会员 四徽章横向排列",
+      "打卡/足迹/口味档案 三等宽卡片",
+      "评价区含 3 张带'超预期'标签的美食图",
+      "卡券图标右上角红点",
+      "底部 TabBar 中 '我的' 高亮橙色文字"
+    ],
+    "key_facts": [
+      "用户无粉丝，1关注，9获赞",
+      "累计打卡29次，足迹66，用餐41次",
+      "评价37条，总浏览2.2万次（+69），帮助1244人（+65）",
+      "功能图标共8个，分两行",
+      "活动卡片4个，图文并茂"
+    ],
+    "uncertainties": [
+      "'我的收藏'与'最近浏览'标题下方无内容，是否为可滚动区域？当前截图未显示内容区",
+      "'超预期'标签是否可点击？截图中无点击反馈或下划线，暂视为纯状态标签",
+      "中心'+'按钮具体功能未明示，仅知为全局操作入口",
+      "头像区域是否可点击进入编辑页？无明确指示，仅基于常规设计推测"
+    ]
+  },
+  "page_summary": "summary unavailable",
+  "schema_version": "stage2_page.v1",
+  "derived_from_images": [],
+  "source_draft_files": [],
+  "source_draft_indexes": [],
+  "merge_decision": {},
+  "frame_blocks": [],
+  "key_texts": [],
+  "key_controls": [],
+  "interactions": [],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {},
+  "visual_style_hints": {},
+  "notes": [],
+  "page_semantic_role": "",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": []
+}

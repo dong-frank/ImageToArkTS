@@ -1,0 +1,332 @@
+{
+  "page_id": "home_feed",
+  "page_name": "首页信息流",
+  "page_role": "main_tab_page",
+  "page_summary": "知乎 App 首页 Tab 内容区 — 支持'关注''推荐''热榜'等多个频道切换的信息流页面。包含搜索栏、横向频道标签栏、内容卡片流（问答/文章）、底部全局导航栏（首页高亮）。不同频道下内容流不同但共享相同页面框架。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151920_883_24.png",
+    "/user_input/微信图片_20260425151911_877_24.png",
+    "/user_input/微信图片_20260425152127_902_24.png",
+    "/user_input/微信图片_20260425152128_903_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_6.json",
+    "/designs/page_drafts/page_draft_0.json",
+    "/designs/page_drafts/page_draft_25.json",
+    "/designs/page_drafts/page_draft_26.json"
+  ],
+  "source_draft_indexes": [
+    6,
+    0,
+    25,
+    26
+  ],
+  "merge_decision": {
+    "decision_summary": "主干 draft 6 (首页推荐流) + 状态变体吸收 draft 0 (推荐tab完整视图)、draft 25 (关注tab)、draft 26 (热榜tab)。所有变体共享相同的页面外壳(搜索栏+频道标签栏+内容流+底部导航),差异仅体现在频道选择和内容流不同,属于典型同页多tab状态变体。",
+    "same_page_evidence": [
+      "所有 drafts 共享相同的搜索栏样式与底部导航栏(首页选中)",
+      "频道标签栏结构完全一致,仅激活的 tab 不同",
+      "内容卡片流结构一致(作者头像+昵称+时间+标题+摘要+互动区)",
+      "均为首页 Tab 下的子内容视图"
+    ],
+    "merge_type": "multi_source_with_state_variants",
+    "variant_type": "tab_state_variant",
+    "uncertainties": [
+      "draft 0 为 partial 恢复,某些细节可能不完全准确",
+      "draft 25/26 中的'听'、'三'(或'圈子')tab 具体功能未确认",
+      "不同 tab 下的内容流是否共享同一数据管理器无法确认"
+    ]
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "StatusBar",
+        "children": []
+      },
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "SearchBar",
+            "text": "南瑞继保硕士3年后待遇",
+            "has_search_action": true
+          },
+          {
+            "type": "ChannelTabBar",
+            "items": [
+              "关注",
+              "推荐",
+              "热榜",
+              "故事",
+              "知识",
+              "圈子",
+              "专栏",
+              "听"
+            ],
+            "selected_index": 1,
+            "selected_text": "推荐"
+          }
+        ]
+      },
+      {
+        "type": "ContentFeedList",
+        "children": [
+          {
+            "type": "FeedItemCard",
+            "title": "无大算力时，作为学生，LLM 还有哪些值得做的研究？",
+            "author": "Cv大法代码酱",
+            "meta": "2.4 万人关注",
+            "excerpt": "看到你说研0非LLM相关，手里没大算力，又觉得RAG和Agent偏工程没什么可研究的...",
+            "stats": {
+              "upvotes": 3424,
+              "stars": 5917,
+              "comments": 95
+            },
+            "has_close_button": true
+          },
+          {
+            "type": "FeedItemCard",
+            "title": "为什么有钱人皮肤都这么好？",
+            "author": "达布溜溜梅",
+            "excerpt": "我老妈是美容院的首席成分研发师...",
+            "stats": {
+              "upvotes": 13000,
+              "stars": 28000,
+              "comments": 962
+            },
+            "tags": [
+              "50+购买"
+            ],
+            "has_close_button": true
+          },
+          {
+            "type": "FeedItemCard",
+            "title": "DeepSeek-V4 技术报告一手解读来了",
+            "author": "欠阿贝尔两块钱",
+            "meta": "verified",
+            "excerpt": "coding和agent能力加强了不少，比GLM-5.1稍强一些...",
+            "stats": {
+              "upvotes": 75,
+              "stars": 170,
+              "comments": 6
+            },
+            "has_image": true,
+            "image_count": 2,
+            "has_close_button": true
+          }
+        ]
+      },
+      {
+        "type": "BottomNavigationBar",
+        "items": [
+          {
+            "label": "首页",
+            "icon": "home",
+            "selected": true
+          },
+          {
+            "label": "直答",
+            "icon": "question",
+            "selected": false
+          },
+          {
+            "label": "+",
+            "icon": "plus",
+            "selected": false
+          },
+          {
+            "label": "消息",
+            "icon": "bell",
+            "badge": "31",
+            "selected": false
+          },
+          {
+            "label": "我的",
+            "icon": "profile",
+            "selected": false
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "search_and_tabs",
+      "role": "header",
+      "summary": "顶部固定搜索栏+横向可滚动频道标签栏,支持8个频道切换"
+    },
+    {
+      "block_id": "content_feed",
+      "role": "primary_content",
+      "summary": "垂直滚动信息流,卡片式布局,每条含标题、作者、摘要、互动数据,支持关闭"
+    },
+    {
+      "block_id": "bottom_nav",
+      "role": "global_navigation",
+      "summary": "底部固定5项导航栏,首页高亮,支持全局页面切换"
+    }
+  ],
+  "key_texts": [
+    "南瑞继保硕士3年后待遇",
+    "关注",
+    "推荐",
+    "热榜",
+    "故事",
+    "知识",
+    "圈子",
+    "专栏",
+    "听",
+    "无大算力时，作为学生，LLM 还有哪些值得做的研究？",
+    "Cv大法代码酱",
+    "为什么有钱人皮肤都这么好？",
+    "DeepSeek-V4 技术报告一手解读来了",
+    "首页",
+    "直答",
+    "消息",
+    "我的",
+    "精选",
+    "最新",
+    "想法"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "search",
+      "type": "navigation",
+      "trigger": "点击搜索框或搜索按钮",
+      "target_page_hint": "搜索结果页"
+    },
+    {
+      "interaction_id": "tab_switch",
+      "type": "state_change",
+      "trigger": "点击频道标签",
+      "description": "切换信息流频道(关注/推荐/热榜/故事/知识/圈子/专栏/听),内容流随之变化",
+      "target_page_hint": null
+    },
+    {
+      "interaction_id": "feed_item_tap",
+      "type": "navigation",
+      "trigger": "点击内容卡片标题",
+      "target_page_hint": "问题/文章详情页"
+    },
+    {
+      "interaction_id": "author_tap",
+      "type": "navigation",
+      "trigger": "点击作者头像或昵称",
+      "target_page_hint": "作者个人主页"
+    },
+    {
+      "interaction_id": "close_card",
+      "type": "local_action",
+      "trigger": "点击卡片右上角×",
+      "description": "关闭/移除当前内容卡片"
+    },
+    {
+      "interaction_id": "bottom_nav_home",
+      "type": "navigation",
+      "trigger": "点击底部首页",
+      "target_page_hint": null
+    },
+    {
+      "interaction_id": "bottom_nav_messages",
+      "type": "navigation",
+      "trigger": "点击底部消息",
+      "target_page_hint": "消息列表页"
+    },
+    {
+      "interaction_id": "bottom_nav_profile",
+      "type": "navigation",
+      "trigger": "点击底部我的",
+      "target_page_hint": "个人中心页"
+    },
+    {
+      "interaction_id": "bottom_nav_question",
+      "type": "navigation",
+      "trigger": "点击底部直答",
+      "target_page_hint": "直答/提问页"
+    },
+    {
+      "interaction_id": "bottom_nav_plus",
+      "type": "navigation",
+      "trigger": "点击底部+",
+      "target_page_hint": "内容发布页"
+    }
+  ],
+  "state_variants": [
+    {
+      "variant_id": "tab_recommended",
+      "variant_name": "推荐Tab视图",
+      "description": "频道标签栏选中'推荐',内容流为算法推荐的问题/文章混合流",
+      "source_drafts": [
+        0,
+        6
+      ],
+      "active_tab": "推荐",
+      "content_type": "mixed_recommendation_feed"
+    },
+    {
+      "variant_id": "tab_following",
+      "variant_name": "关注Tab视图",
+      "description": "频道标签栏选中'关注',显示关注创作者的快捷入口横向滚动行+精选/最新/想法筛选+关注者内容流",
+      "source_drafts": [
+        25
+      ],
+      "active_tab": "关注",
+      "content_type": "following_feed",
+      "extra_elements": [
+        "creator_quick_access_row",
+        "filter_bar(精选/最新/想法)"
+      ]
+    },
+    {
+      "variant_id": "tab_hot",
+      "variant_name": "热榜Tab视图",
+      "description": "频道标签栏选中'热榜',显示快捷入口卡片行(每周必看/知乎日报/错过热议/辟谣专区)+带序号热度排行的热门话题列表",
+      "source_drafts": [
+        26
+      ],
+      "active_tab": "热榜",
+      "content_type": "hot_ranking_list",
+      "extra_elements": [
+        "quick_action_row(每周必看/知乎日报/错过热议/辟谣专区)"
+      ]
+    }
+  ],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "FixedHeaderTabs + VerticalScrollFeed + FixedBottomNav",
+    "visual_blocks": [
+      "固定顶部搜索+tab区",
+      "横向滚动频道标签栏",
+      "内容卡片流(统一模板,变量:type/image/tags/badge)",
+      "固定底部导航栏"
+    ],
+    "styling_hints": "浅色背景,卡片轻微阴影,蓝色tab下划线高亮,深灰标题文字,图标线性风格",
+    "reusable_components": [
+      "FeedItemCard",
+      "ChannelTabBar",
+      "BottomNavigationBar"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "信息流平台风格",
+    "density": "high",
+    "background": "light",
+    "card_style": "rounded_rectangles_with_shadow",
+    "accent_color": "blue"
+  },
+  "page_semantic_role": "home",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "这是一个多状态聚合页,不同频道tab下呈现完全不同的内容形态但共享同一页面框架",
+    "draft 0、25、26 均为 partial 恢复稿,部分细节可能不完整",
+    "底部导航'首页'始终高亮,确认此为首页Tab内容区",
+    "'听'tab 功能未确认,可能为音频内容入口"
+  ],
+  "schema_version": "stage2_page.v1"
+}

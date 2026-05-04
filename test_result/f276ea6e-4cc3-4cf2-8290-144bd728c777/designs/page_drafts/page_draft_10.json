@@ -1,0 +1,650 @@
+{
+  "observation_meta": {
+    "source_image_path": "/user_input/微信图片_20260425145655_824_24.png",
+    "file_name": "微信图片_20260425145655_824_24.png",
+    "draft_index": 10,
+    "capture_time": "14:55",
+    "device_status": {
+      "signal": "full",
+      "wifi": true,
+      "battery": 64
+    },
+    "observation_status": "success",
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "image_path": "/user_input/微信图片_20260425145655_824_24.png",
+    "image_name": "微信图片_20260425145655_824_24.png"
+  },
+  "page_identity": {
+    "page_name_candidates": [
+      "消息通知设置",
+      "通知管理"
+    ],
+    "page_id_candidate": "notification_settings",
+    "page_role": "settings_detail",
+    "title_text": "消息通知设置",
+    "distinguishing_texts": [
+      "系统通知",
+      "App顶部横幅提醒",
+      "App首页营销弹窗",
+      "App开屏广告",
+      "消息页设置"
+    ],
+    "purpose_summary": "配置与消息相关的各类通知开关及子页面入口",
+    "candidate_page_name": "微信图片_20260425145655_824_24.png",
+    "candidate_page_id": "page_10",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "垂直线性列表布局，分段式卡片结构；顶部为标题与返回按钮，主体分为'大众点评未打开时'、'大众点评打开时'两个状态分组，底部为独立设置项。",
+    "high_level_semantics": "功能型设置页，聚焦通知行为控制，按应用运行状态（前台/后台）组织选项，含可跳转子页入口",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "Page",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "消息通知设置"
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "大众点评未打开时",
+        "children": [
+          {
+            "type": "ListItem",
+            "label": "系统通知",
+            "subtitle": "排队/订单动态、推荐内容等通知",
+            "trailing": {
+              "type": "StatusBadge",
+              "text": "已关闭",
+              "icon": ">"
+            }
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "label": "大众点评打开时",
+        "children": [
+          {
+            "type": "ToggleItem",
+            "label": "App顶部横幅提醒",
+            "is_on": true
+          },
+          {
+            "type": "ToggleItem",
+            "label": "App首页营销弹窗",
+            "is_on": true
+          },
+          {
+            "type": "ToggleItem",
+            "label": "App开屏广告",
+            "is_on": true
+          }
+        ]
+      },
+      {
+        "type": "ListItem",
+        "label": "消息页设置",
+        "trailing": {
+          "type": "NavigationArrow",
+          "icon": ">"
+        }
+      }
+    ],
+    "id": "page_root"
+  },
+  "structural_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "navigation",
+      "elements": [
+        "back_button",
+        "title"
+      ]
+    },
+    {
+      "block_id": "section_header_1",
+      "role": "context_label",
+      "text": "大众点评未打开时"
+    },
+    {
+      "block_id": "system_notification_card",
+      "role": "config_item",
+      "type": "read_only_with_action"
+    },
+    {
+      "block_id": "section_header_2",
+      "role": "context_label",
+      "text": "大众点评打开时"
+    },
+    {
+      "block_id": "toggle_group",
+      "role": "config_group",
+      "items_count": 3
+    },
+    {
+      "block_id": "subpage_entry",
+      "role": "navigation_item",
+      "label": "消息页设置"
+    }
+  ],
+  "key_content": {
+    "texts": [
+      "消息通知设置",
+      "大众点评未打开时",
+      "系统通知",
+      "排队/订单动态、推荐内容等通知",
+      "已关闭",
+      "大众点评打开时",
+      "App顶部横幅提醒",
+      "App首页营销弹窗",
+      "App开屏广告",
+      "消息页设置"
+    ],
+    "controls": [
+      {
+        "type": "BackButton",
+        "position": "top-left"
+      },
+      {
+        "type": "ToggleSwitch",
+        "count": 3,
+        "all_on": true
+      },
+      {
+        "type": "ChevronRightIcon",
+        "count": 2,
+        "associated_with": [
+          "系统通知",
+          "消息页设置"
+        ]
+      }
+    ],
+    "visible_texts": [],
+    "key_controls": []
+  },
+  "interaction_clues": [
+    {
+      "clue_type": "back_navigation",
+      "target": "unknown_previous_page",
+      "element": "top-left ←"
+    },
+    {
+      "clue_type": "detail_entry",
+      "label": "系统通知",
+      "action": "tap_chevron",
+      "implies_subpage": true
+    },
+    {
+      "clue_type": "toggle_control",
+      "labels": [
+        "App顶部横幅提醒",
+        "App首页营销弹窗",
+        "App开屏广告"
+      ],
+      "current_state": "enabled"
+    },
+    {
+      "clue_type": "subpage_navigation",
+      "label": "消息页设置",
+      "action": "tap_chevron"
+    }
+  ],
+  "navigation_hints": {
+    "return_path": "likely_previous_screen_in_settings_or_profile",
+    "exit_paths": [
+      "back_button"
+    ],
+    "primary_cta": null,
+    "entry_points": [
+      "settings_menu",
+      "profile_notifications_section"
+    ],
+    "exit_points": [
+      "back_button",
+      "subpage_entry"
+    ],
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "contextual_states": [
+      {
+        "label": "大众点评未打开时",
+        "type": "conditional_section_header"
+      },
+      {
+        "label": "大众点评打开时",
+        "type": "conditional_section_header"
+      }
+    ],
+    "selection_indicators": [
+      {
+        "item": "系统通知",
+        "status": "已关闭"
+      },
+      {
+        "items": [
+          "App顶部横幅提醒",
+          "App首页营销弹窗",
+          "App开屏广告"
+        ],
+        "status": "开启"
+      }
+    ],
+    "page_state_tags": [],
+    "tab_labels": [],
+    "segment_labels": [],
+    "filter_hints": [],
+    "active_tab_hint": null,
+    "active_segment_hint": null,
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_type": null,
+    "trigger_source": null,
+    "dismiss_method": null,
+    "content_summary": null,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "same_page_anchor": true,
+    "state_variation_evidence": "明确分'未打开时'与'打开时'两组，属同一页面内状态条件渲染",
+    "independent_page_signals": [],
+    "recommendation": "应视为单页多状态视图，非多个独立页面",
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "potential_parent": "个人中心 > 设置 > 通知设置",
+    "potential_children": [
+      {
+        "name": "系统通知详情页",
+        "trigger": "点击'系统通知'行右侧箭头"
+      },
+      {
+        "name": "消息页设置页",
+        "trigger": "点击'消息页设置'行右侧箭头"
+      }
+    ],
+    "drilldown_entries": [
+      {
+        "label": "系统通知",
+        "type": "detail",
+        "has_subtitle": true
+      },
+      {
+        "label": "消息页设置",
+        "type": "subpage",
+        "no_toggle": true
+      }
+    ],
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern": "SectionedListView with conditional grouping",
+    "visual_blocks": [
+      "header_with_back",
+      "gray_context_label",
+      "card-style_list_item_with_trailing_action",
+      "toggle_row_with_consistent_spacing"
+    ],
+    "style_hints": {
+      "toggle_color": "orange (active)",
+      "divider_style": "subtle horizontal line between items",
+      "font_scale": "standard system font, medium weight for labels",
+      "padding": "consistent vertical padding per item (~16dp)"
+    },
+    "important_visual_blocks": [],
+    "style_notes": [],
+    "layout_pattern_hint": null
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "'大众点评'品牌词重复出现，表明该页为特定 App（大众点评）的定制设置页",
+      "'已关闭'为灰色文字+右箭头，非开关控件，暗示只读状态",
+      "三个 toggle 均为开启态，视觉统一",
+      "无搜索、无编辑图标、无批量操作"
+    ],
+    "key_facts": [
+      "当前仅展示通知相关设置，无账户、隐私、通用等其他设置项",
+      "所有交互均为单向：返回、进入子页、切换开关",
+      "无 loading、error、empty 状态提示"
+    ],
+    "uncertainties": [
+      "'系统通知'是否可配置？当前仅显示状态，无开关，但有导航箭头 → 可能跳转至可配置页",
+      "'大众点评未打开时'与'打开时'是否为动态切换？截图中为静态分组，无法确认是否支持实时切换",
+      "'消息页设置'具体内容未知，仅知为独立入口"
+    ],
+    "raw_observation": {
+      "observation_meta": {
+        "source_image_path": "/user_input/微信图片_20260425145655_824_24.png",
+        "file_name": "微信图片_20260425145655_824_24.png",
+        "draft_index": 10,
+        "capture_time": "14:55",
+        "device_status": {
+          "signal": "full",
+          "wifi": true,
+          "battery": 64
+        }
+      },
+      "page_identity": {
+        "page_name_candidates": [
+          "消息通知设置",
+          "通知管理"
+        ],
+        "page_id_candidate": "notification_settings",
+        "page_role": "settings_detail",
+        "title_text": "消息通知设置",
+        "distinguishing_texts": [
+          "系统通知",
+          "App顶部横幅提醒",
+          "App首页营销弹窗",
+          "App开屏广告",
+          "消息页设置"
+        ],
+        "purpose_summary": "配置与消息相关的各类通知开关及子页面入口"
+      },
+      "page_overview": {
+        "layout_summary": "垂直线性列表布局，分段式卡片结构；顶部为标题与返回按钮，主体分为‘大众点评未打开时’、‘大众点评打开时’两个状态分组，底部为独立设置项。",
+        "high_level_semantics": "功能型设置页，聚焦通知行为控制，按应用运行状态（前台/后台）组织选项，含可跳转子页入口"
+      },
+      "ui_tree": {
+        "type": "Page",
+        "children": [
+          {
+            "type": "NavigationBar",
+            "children": [
+              {
+                "type": "BackButton",
+                "label": "←"
+              },
+              {
+                "type": "Title",
+                "text": "消息通知设置"
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "大众点评未打开时",
+            "children": [
+              {
+                "type": "ListItem",
+                "label": "系统通知",
+                "subtitle": "排队/订单动态、推荐内容等通知",
+                "trailing": {
+                  "type": "StatusBadge",
+                  "text": "已关闭",
+                  "icon": ">"
+                }
+              }
+            ]
+          },
+          {
+            "type": "Section",
+            "label": "大众点评打开时",
+            "children": [
+              {
+                "type": "ToggleItem",
+                "label": "App顶部横幅提醒",
+                "is_on": true
+              },
+              {
+                "type": "ToggleItem",
+                "label": "App首页营销弹窗",
+                "is_on": true
+              },
+              {
+                "type": "ToggleItem",
+                "label": "App开屏广告",
+                "is_on": true
+              }
+            ]
+          },
+          {
+            "type": "ListItem",
+            "label": "消息页设置",
+            "trailing": {
+              "type": "NavigationArrow",
+              "icon": ">"
+            }
+          }
+        ]
+      },
+      "structural_blocks": [
+        {
+          "block_id": "nav_bar",
+          "role": "navigation",
+          "elements": [
+            "back_button",
+            "title"
+          ]
+        },
+        {
+          "block_id": "section_header_1",
+          "role": "context_label",
+          "text": "大众点评未打开时"
+        },
+        {
+          "block_id": "system_notification_card",
+          "role": "config_item",
+          "type": "read_only_with_action"
+        },
+        {
+          "block_id": "section_header_2",
+          "role": "context_label",
+          "text": "大众点评打开时"
+        },
+        {
+          "block_id": "toggle_group",
+          "role": "config_group",
+          "items_count": 3
+        },
+        {
+          "block_id": "subpage_entry",
+          "role": "navigation_item",
+          "label": "消息页设置"
+        }
+      ],
+      "key_content": {
+        "texts": [
+          "消息通知设置",
+          "大众点评未打开时",
+          "系统通知",
+          "排队/订单动态、推荐内容等通知",
+          "已关闭",
+          "大众点评打开时",
+          "App顶部横幅提醒",
+          "App首页营销弹窗",
+          "App开屏广告",
+          "消息页设置"
+        ],
+        "controls": [
+          {
+            "type": "BackButton",
+            "position": "top-left"
+          },
+          {
+            "type": "ToggleSwitch",
+            "count": 3,
+            "all_on": true
+          },
+          {
+            "type": "ChevronRightIcon",
+            "count": 2,
+            "associated_with": [
+              "系统通知",
+              "消息页设置"
+            ]
+          }
+        ]
+      },
+      "interaction_clues": [
+        {
+          "clue_type": "back_navigation",
+          "target": "unknown_previous_page",
+          "element": "top-left ←"
+        },
+        {
+          "clue_type": "detail_entry",
+          "label": "系统通知",
+          "action": "tap_chevron",
+          "implies_subpage": true
+        },
+        {
+          "clue_type": "toggle_control",
+          "labels": [
+            "App顶部横幅提醒",
+            "App首页营销弹窗",
+            "App开屏广告"
+          ],
+          "current_state": "enabled"
+        },
+        {
+          "clue_type": "subpage_navigation",
+          "label": "消息页设置",
+          "action": "tap_chevron"
+        }
+      ],
+      "navigation_hints": {
+        "return_path": "likely_previous_screen_in_settings_or_profile",
+        "exit_paths": [
+          "back_button"
+        ],
+        "primary_cta": null,
+        "entry_points": [
+          "settings_menu",
+          "profile_notifications_section"
+        ],
+        "exit_points": [
+          "back_button",
+          "subpage_entry"
+        ]
+      },
+      "state_hints": {
+        "contextual_states": [
+          {
+            "label": "大众点评未打开时",
+            "type": "conditional_section_header"
+          },
+          {
+            "label": "大众点评打开时",
+            "type": "conditional_section_header"
+          }
+        ],
+        "selection_indicators": [
+          {
+            "item": "系统通知",
+            "status": "已关闭"
+          },
+          {
+            "items": [
+              "App顶部横幅提醒",
+              "App首页营销弹窗",
+              "App开屏广告"
+            ],
+            "status": "开启"
+          }
+        ],
+        "page_state_tags": []
+      },
+      "overlay_hints": {
+        "has_overlay": false,
+        "overlay_type": null,
+        "trigger_source": null,
+        "dismiss_method": null,
+        "content_summary": null
+      },
+      "merge_hints": {
+        "same_page_anchor": true,
+        "state_variation_evidence": "明确分‘未打开时’与‘打开时’两组，属同一页面内状态条件渲染",
+        "independent_page_signals": [],
+        "recommendation": "应视为单页多状态视图，非多个独立页面"
+      },
+      "subpage_hints": {
+        "potential_parent": "个人中心 > 设置 > 通知设置",
+        "potential_children": [
+          {
+            "name": "系统通知详情页",
+            "trigger": "点击‘系统通知’行右侧箭头"
+          },
+          {
+            "name": "消息页设置页",
+            "trigger": "点击‘消息页设置’行右侧箭头"
+          }
+        ],
+        "drilldown_entries": [
+          {
+            "label": "系统通知",
+            "type": "detail",
+            "has_subtitle": true
+          },
+          {
+            "label": "消息页设置",
+            "type": "subpage",
+            "no_toggle": true
+          }
+        ]
+      },
+      "implementation_semantics": {
+        "layout_pattern": "SectionedListView with conditional grouping",
+        "visual_blocks": [
+          "header_with_back",
+          "gray_context_label",
+          "card-style_list_item_with_trailing_action",
+          "toggle_row_with_consistent_spacing"
+        ],
+        "style_hints": {
+          "toggle_color": "orange (active)",
+          "divider_style": "subtle horizontal line between items",
+          "font_scale": "standard system font, medium weight for labels",
+          "padding": "consistent vertical padding per item (~16dp)"
+        }
+      },
+      "raw_preservation": {
+        "significant_elements": [
+          "‘大众点评’品牌词重复出现，表明该页为特定 App（大众点评）的定制设置页",
+          "‘已关闭’为灰色文字+右箭头，非开关控件，暗示只读状态",
+          "三个 toggle 均为开启态，视觉统一",
+          "无搜索、无编辑图标、无批量操作"
+        ],
+        "key_facts": [
+          "当前仅展示通知相关设置，无账户、隐私、通用等其他设置项",
+          "所有交互均为单向：返回、进入子页、切换开关",
+          "无 loading、error、empty 状态提示"
+        ],
+        "uncertainties": [
+          "‘系统通知’是否可配置？当前仅显示状态，无开关，但有导航箭头 → 可能跳转至可配置页",
+          "‘大众点评未打开时’与‘打开时’是否为动态切换？截图中为静态分组，无法确认是否支持实时切换",
+          "‘消息页设置’具体内容未知，仅知为独立入口"
+        ]
+      }
+    },
+    "notable_elements": []
+  }
+}

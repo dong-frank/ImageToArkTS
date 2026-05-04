@@ -1,0 +1,656 @@
+{
+  "schema_version": "coder_task_bundle.v1",
+  "task_bundle_source": "worker_payload",
+  "project_name": "wechat_clone",
+  "app_display_name": "微信",
+  "shared_navigation": {
+    "enabled": true,
+    "type": "bottom_navigation"
+  },
+  "tasks": [
+    {
+      "page_id": "chat_list",
+      "page_name": "聊天列表",
+      "route": "pages/ChatListPage",
+      "role": "main_tab",
+      "summary": "微信主聊天列表页（'微信' Tab），展示用户所有会话（个人、群聊、服务号、公众号）的时间倒序列表，支持搜索、新建会话，底部含四Tab导航栏。右上角加号按钮可触发快捷操作菜单overlay。",
+      "responsibilities": "实现微信主聊天列表页（'微信' Tab），展示用户所有会话的时间倒序列表，支持搜索入口、新建会话，底部四Tab导航栏。右上角加号按钮触发快捷操作菜单overlay（发起群聊、添加朋友、扫一扫、收付款）。",
+      "design_file": "/designs/pages/chat_list.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ChatListPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/ChatListPage.ets"
+      ],
+      "shared_dependencies": [
+        "BottomNavBar"
+      ],
+      "primary_actions": [
+        "搜索入口",
+        "+号触发QuickActionMenu",
+        "会话点击进入聊天",
+        "底部4Tab切换"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "contacts",
+      "page_name": "通讯录",
+      "route": "pages/ContactsPage",
+      "role": "main_tab",
+      "summary": "微信通讯录Tab主页，提供分类联系人列表入口，下方有'我的企业'和'星标朋友'分组，右侧有字母索引栏。",
+      "responsibilities": "实现微信通讯录Tab主页，提供分类联系人列表入口（新的朋友、仅聊天的朋友、群聊、标签、公众号、服务号、企业微信联系人），下方有'我的企业'和'星标朋友'分组，右侧有字母索引栏。",
+      "design_file": "/designs/pages/contacts.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ContactsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/ContactsPage.ets"
+      ],
+      "shared_dependencies": [
+        "BottomNavBar"
+      ],
+      "primary_actions": [
+        "搜索/字母索引",
+        "联系人点击",
+        "底部Tab切换"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "discover",
+      "page_name": "发现",
+      "route": "pages/DiscoverPage",
+      "role": "main_tab",
+      "summary": "微信'发现'Tab主页，提供核心内容与服务入口的聚合导航页。包含10个功能入口。",
+      "responsibilities": "实现微信'发现'Tab主页，提供10个功能入口：朋友圈（含红点badge 8）、视频号、直播、扫一扫、听一听、看一看、搜一搜、附近的人、游戏、小程序。",
+      "design_file": "/designs/pages/discover.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DiscoverPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/DiscoverPage.ets"
+      ],
+      "shared_dependencies": [
+        "BottomNavBar"
+      ],
+      "primary_actions": [
+        "11个功能入口",
+        "朋友圈badge(8)",
+        "底部Tab切换"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "me_profile",
+      "page_name": "我",
+      "route": "pages/MeProfilePage",
+      "role": "main_tab",
+      "summary": "微信'我'Tab个人主页，展示用户头像、昵称、微信号、状态入口，下方为功能菜单列表。",
+      "responsibilities": "实现微信'我'Tab个人主页，展示用户头像、昵称、微信号、状态入口，下方功能菜单列表（服务、收藏、朋友圈、公众号、小店与卡包、表情、设置）。",
+      "design_file": "/designs/pages/me_profile.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/MeProfilePage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/MeProfilePage.ets"
+      ],
+      "shared_dependencies": [
+        "BottomNavBar"
+      ],
+      "primary_actions": [
+        "二维码/状态",
+        "菜单项[服务]",
+        "菜单项[收藏]",
+        "菜单项[设置]",
+        "底部Tab切换"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "services_home_a",
+      "page_name": "服务（金融版）",
+      "route": "pages/ServicesHomeAPage",
+      "role": "service_aggregation",
+      "summary": "微信'服务'页面变体A——顶部绿色双功能卡片（收付款+钱包），下方三个分类：金融理财、生活服务、交通出行。",
+      "responsibilities": "实现微信'服务'页面变体A——顶部绿色双功能卡片（收付款+钱包），下方三个分类：金融理财、生活服务、交通出行。顶部含返回按钮。",
+      "design_file": "/designs/pages/services_home_a.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeAPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeAPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "搜索",
+        "收付款钱包双卡片",
+        "金融理财4项",
+        "生活服务5项",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "services_home_b",
+      "page_name": "服务（消费版）",
+      "route": "pages/ServicesHomeBPage",
+      "role": "service_aggregation",
+      "summary": "微信'服务'页面变体B——三个分类卡片：生活服务、交通出行、购物消费。无金融理财分类和绿色卡片。",
+      "responsibilities": "实现微信'服务'页面变体B——三个分类卡片：生活服务、交通出行、购物消费。顶部含返回按钮。无金融理财。",
+      "design_file": "/designs/pages/services_home_b.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeBPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeBPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "搜索",
+        "购物消费6项",
+        "生活服务4项",
+        "出行服务2项",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "wallet",
+      "page_name": "钱包",
+      "route": "pages/WalletPage",
+      "role": "financial_account_summary",
+      "summary": "微信钱包主页，展示用户资金账户概览。顶部含返回按钮和钱包/账单双Tab切换。",
+      "responsibilities": "实现微信钱包主页，展示用户资金账户概览：零钱、零钱通、银行卡、亲属卡，下方还有分付、数字人民币、支付分等服务入口。顶部含返回按钮和钱包/账单双Tab切换。",
+      "design_file": "/designs/pages/wallet.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/WalletPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/WalletPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "钱包/账单Tab",
+        "余额",
+        "银行卡等入口",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "phone_recharge",
+      "page_name": "手机充值",
+      "route": "pages/PhoneRechargePage",
+      "role": "input_and_selection",
+      "summary": "话费/流量充值选择页。顶部绿色导航栏含标题，中央手机号输入框，下方充话费和充流量选项区。",
+      "responsibilities": "实现话费/流量充值选择页。顶部绿色导航栏含标题，中央手机号输入框，下方充话费和充流量选项区。顶部含返回按钮。",
+      "design_file": "/designs/pages/phone_recharge.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/PhoneRechargePage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/PhoneRechargePage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "号码编辑",
+        "金额选择",
+        "流量包",
+        "立即充值",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "life_payment",
+      "page_name": "生活缴费",
+      "route": "pages/LifePaymentPage",
+      "role": "service_page",
+      "summary": "微信生活缴费服务页。提供水费、电费、燃气费、固话、宽带等公共事业缴费服务。",
+      "responsibilities": "实现微信生活缴费服务页。提供水费、电费、燃气费等公共事业缴费服务。顶部标题栏含返回按钮，城市可切换。",
+      "design_file": "/designs/pages/life_payment.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/LifePaymentPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/LifePaymentPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "城市切换",
+        "新增缴费",
+        "查询缴费",
+        "自动缴费管理",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "settings",
+      "page_name": "设置",
+      "route": "pages/SettingsPage",
+      "role": "settings_hub",
+      "summary": "微信设置主页面，提供账号、通用、功能等模块的入口列表。底部含切换账号、退出登录及法律声明链接。",
+      "responsibilities": "实现微信设置主页面，提供账号、通用、功能等模块的入口列表。分组包括：账号、通用、功能、插件、帮助与关于。底部含切换账号、退出登录链接。顶部含返回按钮。",
+      "design_file": "/designs/pages/settings.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SettingsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/SettingsPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "搜索",
+        "账号安全",
+        "通用",
+        "插件",
+        "帮助与反馈",
+        "关于微信",
+        "切换账号",
+        "退出登录",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "account_security",
+      "page_name": "账号安全",
+      "route": "pages/AccountSecurityPage",
+      "role": "settings_subpage",
+      "summary": "微信账号安全设置页。提供账号层级的安全功能配置。底部说明文本引导用户前往微信安全中心。",
+      "responsibilities": "实现微信账号安全设置页。提供账号层级的安全功能配置：微信密码、声音锁、应急联系人、登录设备管理、更多安全设置、帮朋友冻结账号、微信安全中心。",
+      "design_file": "/designs/pages/account_security.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AccountSecurityPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/AccountSecurityPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "8项安全设置入口",
+        "微信安全中心",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "security_center",
+      "page_name": "微信安全中心",
+      "route": "pages/SecurityCenterPage",
+      "role": "account_safety_hub",
+      "summary": "微信安全中心——账号安全管理页。提供6个账号生命周期管理操作入口。底部有'进入帮助中心'链接。",
+      "responsibilities": "实现微信安全中心——账号安全管理页。提供6个账号生命周期管理操作入口：找回账号密码、解封账号、冻结账号、解冻账号、投诉维权、注销账号。底部有'进入帮助中心'链接。顶部含关闭按钮。",
+      "design_file": "/designs/pages/security_center.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SecurityCenterPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/SecurityCenterPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "6个安全操作卡片",
+        "进入帮助中心",
+        "关闭页面"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "display_settings",
+      "page_name": "界面与显示",
+      "route": "pages/DisplaySettingsPage",
+      "role": "settings_subpage",
+      "summary": "微信'界面与显示'设置子页。提供视觉与语言相关的显示配置。每项右侧含右箭头指示下钻。",
+      "responsibilities": "实现微信'界面与显示'设置子页。提供视觉与语言相关的显示配置：深色模式、字体大小、多语言、翻译。",
+      "design_file": "/designs/pages/display_settings.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DisplaySettingsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/DisplaySettingsPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "深色模式",
+        "多语言",
+        "自动下载Toggle",
+        "聊天背景",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "dark_mode",
+      "page_name": "深色模式",
+      "route": "pages/DarkModePage",
+      "role": "settings_subpage",
+      "summary": "微信'深色模式'单项设置页。仅含一个开关控件：跟随系统。",
+      "responsibilities": "实现微信'深色模式'单项设置页。仅含一个开关控件：跟随系统(绿色toggle)。说明文字：'开启后，将跟随系统打开或关闭深色模式'。",
+      "design_file": "/designs/pages/dark_mode.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DarkModePage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/DarkModePage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "跟随系统Toggle",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "friend_permission",
+      "page_name": "朋友权限",
+      "route": "pages/FriendPermissionPage",
+      "role": "settings_subpage",
+      "summary": "微信'朋友权限'设置页。配置他人添加好友及查看社交内容的权限。",
+      "responsibilities": "实现微信'朋友权限'设置页。配置他人添加好友及查看社交内容的权限。上方为加好友设置，下方'朋友权限'分组。",
+      "design_file": "/designs/pages/friend_permission.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/FriendPermissionPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/FriendPermissionPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "加好友设置(3项含2Toggle)",
+        "6个朋友权限入口",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "more_settings",
+      "page_name": "更多设置",
+      "route": "pages/MoreSettingsPage",
+      "role": "settings_subpage",
+      "summary": "微信'更多'设置页。提供非核心功能开关与入口。",
+      "responsibilities": "实现微信'更多'设置页。提供非核心功能开关与入口：未成年人模式、关怀模式、自动保存图片Toggle、自动保存视频Toggle、系统权限、表情。",
+      "design_file": "/designs/pages/more_settings.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/MoreSettingsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/MoreSettingsPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "6项设置(2Toggle+4导航)",
+        "系统权限",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "system_permissions",
+      "page_name": "系统权限管理",
+      "route": "pages/SystemPermissionsPage",
+      "role": "settings_subpage",
+      "summary": "微信系统权限管理页。展示应用请求的7个系统级权限及其用途说明。",
+      "responsibilities": "实现微信系统权限管理页。展示应用请求的7个系统级权限及其用途说明：位置、照片、相机、麦克风、运动与健身、蓝牙、本地网络。",
+      "design_file": "/designs/pages/system_permissions.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SystemPermissionsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/SystemPermissionsPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "7个系统权限入口",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "other_functions",
+      "page_name": "其他功能",
+      "route": "pages/OtherFunctionsPage",
+      "role": "settings_subpage",
+      "summary": "微信'其他功能'页面。聚合4个二级功能入口：朋友圈、听一听、发现页、辅助功能。",
+      "responsibilities": "实现微信'其他功能'页面。聚合4个二级功能入口：朋友圈、听一听、发现页、辅助功能。纯文字列表。",
+      "design_file": "/designs/pages/other_functions.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/OtherFunctionsPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/OtherFunctionsPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "朋友圈",
+        "听一听",
+        "发现页",
+        "辅助功能",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "auxiliary_features",
+      "page_name": "辅助功能",
+      "route": "pages/AuxiliaryFeaturesPage",
+      "role": "settings_subpage",
+      "summary": "微信'辅助功能'列表页。按启用状态分组显示第三方集成或系统级辅助功能。",
+      "responsibilities": "实现微信'辅助功能'列表页。按启用状态分组显示第三方集成或系统级辅助功能：已启用(QQ邮箱提醒、群发助手、微信支付)和未启用(腾讯新闻、微信运动、微信游戏)。",
+      "design_file": "/designs/pages/auxiliary_features.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AuxiliaryFeaturesPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/AuxiliaryFeaturesPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "已启用3项",
+        "未启用3项",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "help_center",
+      "page_name": "帮助与反馈",
+      "route": "pages/HelpCenterPage",
+      "role": "support_category_landing",
+      "summary": "微信帮助中心分类页。提供8个按功能模块划分的帮助入口。底部含AI搜索框和悬浮'意见反馈'按钮。",
+      "responsibilities": "实现微信帮助中心分类页。提供8个按功能模块划分的帮助入口：账号与登录、通讯录、朋友圈、未成年人模式、关怀模式、聊天、视频号、支付。底部含AI搜索框和悬浮'意见反馈'按钮。顶部含关闭按钮。",
+      "design_file": "/designs/pages/help_center.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/HelpCenterPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/HelpCenterPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "8个帮助分类",
+        "AI搜索框",
+        "意见反馈按钮",
+        "关闭页面"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "about_wechat",
+      "page_name": "关于微信",
+      "route": "pages/AboutWechatPage",
+      "role": "settings_subpage",
+      "summary": "微信'关于'页面。提供微信版本信息与应用相关入口。",
+      "responsibilities": "实现微信'关于'页面。提供微信版本信息与应用相关入口：微信版本号、功能介绍、检查新版本、服务协议与隐私政策等法律文件入口。",
+      "design_file": "/designs/pages/about_wechat.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AboutWechatPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/AboutWechatPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "功能介绍",
+        "检查新版本",
+        "协议与政策",
+        "腾讯客服",
+        "返回上级"
+      ],
+      "state_notes": null
+    },
+    {
+      "page_id": "feature_intro",
+      "page_name": "功能介绍",
+      "route": "pages/FeatureIntroPage",
+      "role": "settings_subpage",
+      "summary": "微信功能介绍宣传页。以图文卡片形式介绍微信各功能亮点。",
+      "responsibilities": "实现微信功能介绍宣传页。以图文卡片形式介绍微信各功能亮点：微信电话、语音文字消息、朋友圈分享、隐私安全保障。底部含'了解更多'和'意见反馈'按钮。",
+      "design_file": "/designs/pages/feature_intro.json",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/FeatureIntroPage.ets",
+      "allowed_write_paths": [
+        "/projects/wechat_clone/entry/src/main/ets/pages/FeatureIntroPage.ets"
+      ],
+      "shared_dependencies": [],
+      "primary_actions": [
+        "4个功能卡片",
+        "了解更多",
+        "意见反馈",
+        "返回上级"
+      ],
+      "state_notes": null
+    }
+  ],
+  "generated_route_table": [
+    {
+      "page_id": "index",
+      "page_name": "Index",
+      "route": "pages/Index",
+      "page_file": ""
+    },
+    {
+      "page_id": "chat_list",
+      "page_name": "聊天列表",
+      "route": "pages/ChatListPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ChatListPage.ets"
+    },
+    {
+      "page_id": "contacts",
+      "page_name": "通讯录",
+      "route": "pages/ContactsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ContactsPage.ets"
+    },
+    {
+      "page_id": "discover",
+      "page_name": "发现",
+      "route": "pages/DiscoverPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DiscoverPage.ets"
+    },
+    {
+      "page_id": "me_profile",
+      "page_name": "我",
+      "route": "pages/MeProfilePage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/MeProfilePage.ets"
+    },
+    {
+      "page_id": "services_home_a",
+      "page_name": "服务（金融版）",
+      "route": "pages/ServicesHomeAPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeAPage.ets"
+    },
+    {
+      "page_id": "services_home_b",
+      "page_name": "服务（消费版）",
+      "route": "pages/ServicesHomeBPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeBPage.ets"
+    },
+    {
+      "page_id": "wallet",
+      "page_name": "钱包",
+      "route": "pages/WalletPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/WalletPage.ets"
+    },
+    {
+      "page_id": "phone_recharge",
+      "page_name": "手机充值",
+      "route": "pages/PhoneRechargePage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/PhoneRechargePage.ets"
+    },
+    {
+      "page_id": "life_payment",
+      "page_name": "生活缴费",
+      "route": "pages/LifePaymentPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/LifePaymentPage.ets"
+    },
+    {
+      "page_id": "settings",
+      "page_name": "设置",
+      "route": "pages/SettingsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SettingsPage.ets"
+    },
+    {
+      "page_id": "account_security",
+      "page_name": "账号安全",
+      "route": "pages/AccountSecurityPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AccountSecurityPage.ets"
+    },
+    {
+      "page_id": "security_center",
+      "page_name": "微信安全中心",
+      "route": "pages/SecurityCenterPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SecurityCenterPage.ets"
+    },
+    {
+      "page_id": "display_settings",
+      "page_name": "界面与显示",
+      "route": "pages/DisplaySettingsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DisplaySettingsPage.ets"
+    },
+    {
+      "page_id": "dark_mode",
+      "page_name": "深色模式",
+      "route": "pages/DarkModePage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/DarkModePage.ets"
+    },
+    {
+      "page_id": "friend_permission",
+      "page_name": "朋友权限",
+      "route": "pages/FriendPermissionPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/FriendPermissionPage.ets"
+    },
+    {
+      "page_id": "more_settings",
+      "page_name": "更多设置",
+      "route": "pages/MoreSettingsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/MoreSettingsPage.ets"
+    },
+    {
+      "page_id": "system_permissions",
+      "page_name": "系统权限管理",
+      "route": "pages/SystemPermissionsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/SystemPermissionsPage.ets"
+    },
+    {
+      "page_id": "other_functions",
+      "page_name": "其他功能",
+      "route": "pages/OtherFunctionsPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/OtherFunctionsPage.ets"
+    },
+    {
+      "page_id": "auxiliary_features",
+      "page_name": "辅助功能",
+      "route": "pages/AuxiliaryFeaturesPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AuxiliaryFeaturesPage.ets"
+    },
+    {
+      "page_id": "help_center",
+      "page_name": "帮助与反馈",
+      "route": "pages/HelpCenterPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/HelpCenterPage.ets"
+    },
+    {
+      "page_id": "about_wechat",
+      "page_name": "关于微信",
+      "route": "pages/AboutWechatPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/AboutWechatPage.ets"
+    },
+    {
+      "page_id": "feature_intro",
+      "page_name": "功能介绍",
+      "route": "pages/FeatureIntroPage",
+      "page_file": "/projects/wechat_clone/entry/src/main/ets/pages/FeatureIntroPage.ets"
+    }
+  ],
+  "generated_files": {
+    "shared": [
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/common/components/BottomNavBar.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/common/services/NavigationService.ets"
+    ],
+    "pages": [
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/ChatListPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/ContactsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/DiscoverPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/MeProfilePage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeAPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/ServicesHomeBPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/WalletPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/PhoneRechargePage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/LifePaymentPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/SettingsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/AccountSecurityPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/SecurityCenterPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/DisplaySettingsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/DarkModePage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/FriendPermissionPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/MoreSettingsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/SystemPermissionsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/OtherFunctionsPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/AuxiliaryFeaturesPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/HelpCenterPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/AboutWechatPage.ets",
+      "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/FeatureIntroPage.ets"
+    ],
+    "index_page": "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/ets/pages/Index.ets",
+    "main_pages_json": "/app/mycode/agent_workspace/sessions/d62cdfd9-8d7c-49ee-8ec1-b204a5b2a241/projects/wechat_clone/entry/src/main/resources/base/profile/main_pages.json"
+  }
+}

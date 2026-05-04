@@ -1,0 +1,309 @@
+{
+  "page_id": "content_detail",
+  "page_name": "内容详情",
+  "page_role": "standalone_page",
+  "page_summary": "UGC探店笔记详情页，展示作者信息（万君）、图片轮播（1/18）、标题、正文、位置标签（东部山庄·农家乐·4.5星）、互动栏（点赞/评论/收藏/分享）、'进店 >'CTA按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425145647_816_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_2.json"
+  ],
+  "source_draft_indexes": [
+    2
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为success状态，结构完整，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "MoreButton",
+            "label": "⋯"
+          }
+        ]
+      },
+      {
+        "type": "AuthorHeader",
+        "id": "author_header",
+        "children": [
+          {
+            "type": "CircularAvatar",
+            "content": "万君头像"
+          },
+          {
+            "type": "UserName",
+            "text": "万君"
+          },
+          {
+            "type": "FollowButton",
+            "text": "关注"
+          }
+        ]
+      },
+      {
+        "type": "ImageCarousel",
+        "id": "image_carousel",
+        "current": "1/18",
+        "images": [
+          "探店图片轮播"
+        ]
+      },
+      {
+        "type": "ContentBody",
+        "id": "content_body",
+        "children": [
+          {
+            "type": "Title",
+            "text": "仙林!!! 居然有这种好地方!!!!"
+          },
+          {
+            "type": "BodyText",
+            "text": "东部山庄·农家乐·4.5星",
+            "is_location_tag": true
+          },
+          {
+            "type": "BodyText",
+            "text": "正文内容区域..."
+          }
+        ]
+      },
+      {
+        "type": "InteractionBar",
+        "id": "interaction_bar",
+        "children": [
+          {
+            "type": "InteractionItem",
+            "icon": "thumb_up",
+            "label": "点赞"
+          },
+          {
+            "type": "InteractionItem",
+            "icon": "chat",
+            "label": "评论"
+          },
+          {
+            "type": "InteractionItem",
+            "icon": "star",
+            "label": "收藏"
+          },
+          {
+            "type": "InteractionItem",
+            "icon": "share",
+            "label": "分享"
+          }
+        ]
+      },
+      {
+        "type": "CTASection",
+        "id": "cta_section",
+        "children": [
+          {
+            "type": "CTAButton",
+            "text": "进店 >",
+            "style": "primary"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + 更多按钮"
+    },
+    {
+      "block_id": "author_header",
+      "block_role": "identity",
+      "summary": "作者信息：头像 + 用户名'万君' + 关注按钮"
+    },
+    {
+      "block_id": "image_carousel",
+      "block_role": "media",
+      "summary": "图片轮播：1/18张探店图片"
+    },
+    {
+      "block_id": "content_body",
+      "block_role": "content",
+      "summary": "标题 + 位置标签（东部山庄·农家乐·4.5星）+ 正文"
+    },
+    {
+      "block_id": "interaction_bar",
+      "block_role": "engagement",
+      "summary": "互动栏：点赞/评论/收藏/分享"
+    },
+    {
+      "block_id": "cta_section",
+      "block_role": "conversion",
+      "summary": "'进店 >' CTA按钮"
+    }
+  ],
+  "key_texts": [
+    "万君",
+    "关注",
+    "1/18",
+    "仙林!!! 居然有这种好地方!!!!",
+    "东部山庄·农家乐·4.5星",
+    "点赞",
+    "评论",
+    "收藏",
+    "分享",
+    "进店 >"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    },
+    {
+      "interaction_id": "more",
+      "trigger": "点击⋯",
+      "action": "打开更多菜单",
+      "target_page_hint": "分享/举报等"
+    },
+    {
+      "interaction_id": "follow",
+      "trigger": "点击'关注'",
+      "action": "关注作者"
+    },
+    {
+      "interaction_id": "carousel_swipe",
+      "trigger": "滑动图片",
+      "action": "切换图片"
+    },
+    {
+      "interaction_id": "interact",
+      "trigger": "点击互动按钮",
+      "action": "点赞/评论/收藏/分享"
+    },
+    {
+      "interaction_id": "enter_shop",
+      "trigger": "点击'进店 >'",
+      "action": "进入商家详情",
+      "target_page_hint": "商家详情页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "ContentDetailLayout: NavBar + AuthorHeader + ImageCarousel + ContentBody + InteractionBar + CTA",
+    "important_visual_blocks": [
+      "ImageCarousel（全宽图片轮播）",
+      "InteractionBar（底部固定互动栏）",
+      "CTAButton（橙色主按钮）"
+    ],
+    "styling_hints": "白色背景，图片全宽，互动栏底部固定，CTA橙色高亮"
+  },
+  "visual_style_hints": {
+    "color_scheme": "白色背景+橙色CTA",
+    "density": "内容详情型"
+  },
+  "page_semantic_role": "detail",
+  "target_page_hints": [
+    "商家详情页"
+  ],
+  "possible_parent_page_hints": [
+    "home_discovery"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "图片轮播共18张，当前第1张",
+    "位置标签含评分4.5星"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "detail_page",
+    "is_entry": false,
+    "parent_page_id": "home_discovery",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {
+        "source_page_id": "home_discovery",
+        "relation_type": "opens_child_page",
+        "trigger_label": "UGC帖子卡片",
+        "trigger_interaction_id": "post_tap",
+        "confidence": "high"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "home_discovery",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "medium"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": false,
+      "is_bottom_tab_member": false,
+      "is_top_level_page": false,
+      "is_stack_destination": true
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "relation_type": "returns_to",
+        "target_page_id": "home_discovery",
+        "confidence": "medium",
+        "reasoning": "内容详情页返回按钮最可能指向首页。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "进店>按钮",
+        "trigger_interaction_id": "enter_shop",
+        "target_page_hint": "商家详情页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "内容详情页'进店>'CTA应进入商家详情页，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "关注按钮",
+        "trigger_interaction_id": "follow",
+        "why_not_navigation": "关注作者，为同页状态变化。"
+      },
+      {
+        "trigger_label": "图片滑动",
+        "trigger_interaction_id": "carousel_swipe",
+        "why_not_navigation": "切换轮播图片，为组件内部操作。"
+      },
+      {
+        "trigger_label": "互动按钮（点赞/评论/收藏/分享）",
+        "trigger_interaction_id": "interact",
+        "why_not_navigation": "内容互动操作，为同页状态变化或overlay。"
+      },
+      {
+        "trigger_label": "更多按钮⋯",
+        "trigger_interaction_id": "more",
+        "why_not_navigation": "打开更多菜单（分享/举报等），为overlay操作。"
+      }
+    ],
+    "navigation_targets_summary": "返回按钮回到home_discovery。进店CTA目标商家详情页未覆盖。",
+    "implementation_navigation_warnings": [
+      "返回按钮应实现为栈弹出（pop）",
+      "进店CTA的目标页未覆盖，不应实现为确认路由",
+      "关注、图片滑动、互动按钮、更多菜单均为同页或overlay操作，不应实现为导航"
+    ],
+    "navigation_notes": "从首页UGC帖子卡片进入的内容详情页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

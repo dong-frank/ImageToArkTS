@@ -1,0 +1,286 @@
+{
+  "page_id": "page_8",
+  "page_name": "设置",
+  "page_role": "settings_root",
+  "source_images": [
+    "/user_input/微信图片_20260425145653_822_24.png"
+  ],
+  "draft_indices": [
+    8
+  ],
+  "layout_summary": "垂直滚动列表页，单列可点击项，每项含主标题、副标题（部分）、状态标签（部分）、右向箭头指示跳转",
+  "ui_tree": {
+    "type": "ScrollView",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "ListItem",
+        "label": "个人资料",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "账号与安全",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "消息通知设置",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "隐私管理",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "通用",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "长辈版",
+        "subtitle": "字大看得清，使用更简单",
+        "status_tag": "未开启",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "未成年人模式",
+        "badge": "新功能",
+        "status_tag": "未开启",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "多语言",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "存储空间",
+        "badge": "新功能",
+        "value": "1.2 GB",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "诊断网络",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "隐私政策",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "个人信息收集清单",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "第三方信息数据共享",
+        "trailing_icon": "chevron_right",
+        "has_separator": true
+      },
+      {
+        "type": "ListItem",
+        "label": "意见反馈",
+        "trailing_icon": "chevron_right",
+        "has_separator": false
+      }
+    ]
+  },
+  "structural_blocks": [
+    {
+      "block_id": "core_account_section",
+      "description": "核心账户与安全相关项",
+      "items": [
+        "个人资料",
+        "账号与安全",
+        "消息通知设置",
+        "隐私管理"
+      ]
+    },
+    {
+      "block_id": "general_features_section",
+      "description": "通用功能与辅助模式",
+      "items": [
+        "通用",
+        "长辈版",
+        "未成年人模式",
+        "多语言"
+      ]
+    },
+    {
+      "block_id": "system_info_section",
+      "description": "系统状态与工具类",
+      "items": [
+        "存储空间",
+        "诊断网络"
+      ]
+    },
+    {
+      "block_id": "compliance_section",
+      "description": "合规与法律文档",
+      "items": [
+        "隐私政策",
+        "个人信息收集清单",
+        "第三方信息数据共享"
+      ]
+    },
+    {
+      "block_id": "support_section",
+      "description": "用户支持入口",
+      "items": [
+        "意见反馈"
+      ]
+    }
+  ],
+  "key_content": {
+    "visible_texts": [
+      "个人资料",
+      "账号与安全",
+      "消息通知设置",
+      "隐私管理",
+      "通用",
+      "长辈版",
+      "字大看得清，使用更简单",
+      "未开启",
+      "未成年人模式",
+      "新功能",
+      "多语言",
+      "存储空间",
+      "1.2 GB",
+      "诊断网络",
+      "隐私政策",
+      "个人信息收集清单",
+      "第三方信息数据共享",
+      "意见反馈"
+    ],
+    "key_controls": [
+      "所有带 chevron_right 的列表项均为下钻入口",
+      "'未开启'状态标签（长辈版、未成年人模式）",
+      "'新功能'红色 badge（未成年人模式、存储空间）"
+    ]
+  },
+  "interaction_clues": [
+    "点击左上角返回箭头返回上一级",
+    "所有列表项均可点击进入对应子页面",
+    "'未开启'表示对应功能处于禁用状态",
+    "'新功能'红色 badge 突出新增项"
+  ],
+  "navigation_hints": {
+    "back_path": "likely_previous_screen (e.g., profile or main tab)",
+    "exit_paths": [
+      "back_button"
+    ],
+    "entry_points": [
+      "profile_menu",
+      "app_drawer_settings_icon"
+    ],
+    "exit_points": [
+      "back_button",
+      "system_back_gesture"
+    ],
+    "has_back": true,
+    "has_close": false
+  },
+  "state_hints": {
+    "page_state_tags": [
+      "未开启"
+    ],
+    "feature_status": {
+      "长辈版": "disabled",
+      "未成年人模式": "disabled"
+    }
+  },
+  "overlay_hints": {
+    "has_overlay": false
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "medium",
+    "same_page_anchor_signals": [
+      "'未开启'状态标签重复出现，表明为同一页面内功能开关状态"
+    ],
+    "independent_page_signals": []
+  },
+  "subpage_hints": {
+    "potential_parent": null,
+    "potential_children": [
+      "个人资料详情页",
+      "账号与安全设置页",
+      "长辈版启用流程页",
+      "未成年人模式配置页",
+      "存储空间详情页"
+    ],
+    "drill_down_entries": [
+      "所有带 chevron_right 的列表项均为下钻入口"
+    ]
+  },
+  "implementation_semantics": {
+    "layout_pattern": "VerticalListWithDividers",
+    "important_visual_blocks": [
+      "BadgeOverlay",
+      "StatusLabel",
+      "TrailingChevron"
+    ],
+    "style_hints": "dark_gray for primary text, light_gray for subtitle, thin_light_gray_line separator, red_rounded_background badge with white text, medium_gray_icon chevron"
+  },
+  "raw_preservation": {
+    "significant_elements": [
+      "顶部标题'设置'居中",
+      "左上角返回箭头",
+      "'新功能'红色 badge 出现在三项",
+      "'未开启'灰色文本出现在两项",
+      "'1.2 GB'数值右对齐显示于'存储空间'行"
+    ],
+    "key_facts": [
+      "共14个可点击列表项",
+      "无搜索栏、无顶部操作按钮",
+      "无分组标题（如'账户''隐私'等），仅靠语义聚类",
+      "所有列表项高度一致，无展开/折叠结构"
+    ],
+    "uncertainties": [
+      "'通用'项具体包含哪些子功能不可知",
+      "'诊断网络'点击后是否弹窗或跳转页不确定",
+      "'意见反馈'是否打开外部链接或内置表单未知",
+      "是否存在隐藏项（如滑动到底部后加载）无法从单图确认"
+    ]
+  },
+  "page_summary": "summary unavailable",
+  "schema_version": "stage2_page.v1",
+  "derived_from_images": [],
+  "source_draft_files": [],
+  "source_draft_indexes": [],
+  "merge_decision": {},
+  "frame_blocks": [],
+  "key_texts": [],
+  "key_controls": [],
+  "interactions": [],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {},
+  "visual_style_hints": {},
+  "notes": [],
+  "page_semantic_role": "",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": []
+}

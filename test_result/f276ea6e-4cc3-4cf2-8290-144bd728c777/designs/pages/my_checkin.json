@@ -1,0 +1,319 @@
+{
+  "page_id": "my_checkin",
+  "page_name": "我的打卡",
+  "page_role": "standalone_page",
+  "page_summary": "用户打卡记录页，展示用户打卡摘要（猫馋 Lv4/累计打卡29次/3城市24地点）、日历视图（4月）、高光时刻、打卡初体验、全部打卡记录列表（含筛选栏）、底部FAB'打卡'按钮。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260429232722_955_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_28.json"
+  ],
+  "source_draft_indexes": [
+    28
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft定稿。该draft为partial状态但raw_observation可恢复完整页面语义，结构清晰，无需合并。",
+    "same_page_evidence": [],
+    "variant_type": "standalone",
+    "uncertainties": [
+      "draft为partial状态，部分字段从raw_observation恢复"
+    ]
+  },
+  "ui_tree": {
+    "type": "PageRoot",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "id": "nav_bar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "TitleText",
+            "text": "我的打卡"
+          }
+        ]
+      },
+      {
+        "type": "UserSummaryCard",
+        "id": "user_summary",
+        "children": [
+          {
+            "type": "AvatarWithLevel",
+            "name": "猫馋",
+            "level": "Lv4"
+          },
+          {
+            "type": "StatRow",
+            "children": [
+              {
+                "type": "Stat",
+                "label": "累计打卡",
+                "value": "29次"
+              },
+              {
+                "type": "Stat",
+                "label": "遍布",
+                "value": "3个城市"
+              },
+              {
+                "type": "Stat",
+                "label": "地点",
+                "value": "24个"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "CalendarView",
+        "id": "calendar",
+        "month": "4月",
+        "days": [
+          "日",
+          "一",
+          "二",
+          "三",
+          "四",
+          "五",
+          "六"
+        ]
+      },
+      {
+        "type": "HighlightSection",
+        "id": "highlights",
+        "children": [
+          {
+            "type": "HighlightCard",
+            "title": "高光时刻",
+            "description": "打卡里程碑展示"
+          },
+          {
+            "type": "HighlightCard",
+            "title": "打卡初体验",
+            "description": "首次打卡记录"
+          }
+        ]
+      },
+      {
+        "type": "CheckinList",
+        "id": "checkin_list",
+        "children": [
+          {
+            "type": "FilterBar",
+            "id": "filter_bar",
+            "items": [
+              "全部",
+              "时间",
+              "地点"
+            ]
+          },
+          {
+            "type": "CheckinCard",
+            "title": "打卡记录1"
+          },
+          {
+            "type": "CheckinCard",
+            "title": "打卡记录2"
+          }
+        ]
+      },
+      {
+        "type": "FAB",
+        "id": "fab",
+        "label": "打卡",
+        "position": "bottom_right"
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation",
+      "summary": "导航栏：返回按钮 + '我的打卡'标题"
+    },
+    {
+      "block_id": "user_summary",
+      "block_role": "identity",
+      "summary": "用户打卡摘要：猫馋 Lv4/累计打卡29次/3城市24地点"
+    },
+    {
+      "block_id": "calendar",
+      "block_role": "navigation",
+      "summary": "4月日历视图"
+    },
+    {
+      "block_id": "highlights",
+      "block_role": "content",
+      "summary": "高光时刻 + 打卡初体验"
+    },
+    {
+      "block_id": "checkin_list",
+      "block_role": "content",
+      "summary": "全部打卡记录列表（含筛选栏：全部/时间/地点）"
+    },
+    {
+      "block_id": "fab",
+      "block_role": "action",
+      "summary": "右下角FAB'打卡'按钮"
+    }
+  ],
+  "key_texts": [
+    "我的打卡",
+    "猫馋",
+    "Lv4",
+    "累计打卡",
+    "29次",
+    "遍布",
+    "3个城市",
+    "地点",
+    "24个",
+    "4月",
+    "高光时刻",
+    "打卡初体验",
+    "全部",
+    "时间",
+    "地点",
+    "打卡"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "trigger": "点击←",
+      "action": "返回上一页"
+    },
+    {
+      "interaction_id": "calendar_nav",
+      "trigger": "点击日历日期",
+      "action": "查看当日打卡记录"
+    },
+    {
+      "interaction_id": "filter",
+      "trigger": "点击筛选标签",
+      "action": "筛选打卡记录"
+    },
+    {
+      "interaction_id": "checkin_tap",
+      "trigger": "点击打卡记录",
+      "action": "查看打卡详情",
+      "target_page_hint": "打卡详情页"
+    },
+    {
+      "interaction_id": "fab_tap",
+      "trigger": "点击'打卡'FAB",
+      "action": "发起打卡",
+      "target_page_hint": "打卡发布页"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "CheckinLayout: NavBar + UserSummary + Calendar + Highlights + FilteredList + FAB",
+    "important_visual_blocks": [
+      "UserSummaryCard（头像+等级+统计）",
+      "CalendarView（月历网格）",
+      "FAB（右下角浮动按钮）"
+    ],
+    "styling_hints": "浅色背景，日历网格，FAB橙色"
+  },
+  "visual_style_hints": {
+    "color_scheme": "浅色背景+橙色FAB",
+    "density": "信息密集型打卡页"
+  },
+  "page_semantic_role": "list",
+  "target_page_hints": [
+    "打卡详情页",
+    "打卡发布页"
+  ],
+  "possible_parent_page_hints": [
+    "my_profile"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "draft为partial状态，从raw_observation恢复",
+    "日历为4月视图",
+    "FAB为'打卡'按钮"
+  ],
+  "navigation_context": {
+    "page_role_in_app": "content_page",
+    "is_entry": false,
+    "parent_page_id": "my_profile",
+    "child_page_ids": [],
+    "incoming_relations": [
+      {
+        "source_page_id": "my_profile",
+        "relation_type": "opens_child_page",
+        "trigger_label": "打卡统计卡片",
+        "trigger_interaction_id": "function_tap",
+        "confidence": "medium"
+      }
+    ],
+    "outgoing_relations": [
+      {
+        "target_page_id": "my_profile",
+        "relation_type": "returns_to",
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "confidence": "medium"
+      }
+    ],
+    "navigation_surface": {
+      "is_main_tab": false,
+      "is_bottom_tab_member": false,
+      "is_top_level_page": false,
+      "is_stack_destination": true
+    },
+    "confirmed_navigation_actions": [
+      {
+        "trigger_label": "返回按钮←",
+        "trigger_interaction_id": "back",
+        "relation_type": "returns_to",
+        "target_page_id": "my_profile",
+        "confidence": "medium",
+        "reasoning": "打卡页返回按钮最可能指向'我的'。"
+      }
+    ],
+    "unresolved_navigation_actions": [
+      {
+        "trigger_label": "打卡记录",
+        "trigger_interaction_id": "checkin_tap",
+        "target_page_hint": "打卡详情页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "打卡记录点击应进入打卡详情，未覆盖。"
+      },
+      {
+        "trigger_label": "FAB打卡按钮",
+        "trigger_interaction_id": "fab_tap",
+        "target_page_hint": "打卡发布页",
+        "possible_relation_type": "opens_child_page",
+        "reasoning": "FAB'打卡'按钮应进入打卡发布流程，未覆盖。"
+      }
+    ],
+    "non_navigation_interaction_hints": [
+      {
+        "trigger_label": "日历日期点击",
+        "trigger_interaction_id": "calendar_nav",
+        "why_not_navigation": "查看当日打卡记录，为同页内容筛选。"
+      },
+      {
+        "trigger_label": "筛选标签",
+        "trigger_interaction_id": "filter",
+        "why_not_navigation": "筛选打卡记录（全部/时间/地点），为同页状态变化。"
+      }
+    ],
+    "navigation_targets_summary": "返回按钮回到my_profile。打卡详情和打卡发布目标页未覆盖。",
+    "implementation_navigation_warnings": [
+      "返回按钮应实现为栈弹出（pop）",
+      "日历日期和筛选标签为同页操作，不应实现为导航",
+      "打卡详情和打卡发布目标页未覆盖，不应实现为确认路由"
+    ],
+    "navigation_notes": "从'我的'页面打卡统计卡片进入的打卡记录页。全局真相源为/designs/navigation_design.json。"
+  },
+  "schema_version": "stage2_page.v1"
+}

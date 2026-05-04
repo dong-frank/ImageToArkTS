@@ -1,0 +1,603 @@
+{
+  "schema_version": "stage3_navigation.v1",
+  "entry_page_id": "chat_list",
+  "page_ids": [
+    "chat_list",
+    "contacts",
+    "discover",
+    "me_profile",
+    "services_home_a",
+    "services_home_b",
+    "wallet",
+    "phone_recharge",
+    "settings",
+    "account_security",
+    "security_center",
+    "display_settings",
+    "dark_mode",
+    "friend_permission",
+    "more_settings",
+    "system_permissions",
+    "other_functions",
+    "auxiliary_features",
+    "help_center",
+    "about_wechat",
+    "feature_intro",
+    "life_payment"
+  ],
+  "page_hierarchy": [
+    {
+      "page_id": "chat_list",
+      "page_role_in_app": "entry",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "微信应用入口页，底部4Tab主导航之一。其他3个Tab为同级switches_tab_to关系非父子关系。会话点击目标chat_detail页不在当前22页范围内。"
+    },
+    {
+      "page_id": "contacts",
+      "page_role_in_app": "main_tab",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "底部导航栏4个主Tab之一。分类联系人入口的子页面（新的朋友详情/群聊列表等）不在当前22页范围内。"
+    },
+    {
+      "page_id": "discover",
+      "page_role_in_app": "main_tab",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "底部导航栏4个主Tab之一。10个功能入口（朋友圈/视频号/直播等）的子页面不在当前22页范围内。"
+    },
+    {
+      "page_id": "me_profile",
+      "page_role_in_app": "main_tab",
+      "parent_page_id": null,
+      "child_page_ids": [
+        "services_home_a",
+        "services_home_b",
+        "settings"
+      ],
+      "reasoning": "底部导航栏4个主Tab之一。菜单列表中服务入口可进入服务聚合页（A/B变体），设置入口进入设置主页。其余菜单项的子页面不在当前22页范围内。"
+    },
+    {
+      "page_id": "services_home_a",
+      "page_role_in_app": "content_page",
+      "parent_page_id": "me_profile",
+      "child_page_ids": [
+        "life_payment",
+        "phone_recharge",
+        "wallet"
+      ],
+      "reasoning": "服务页变体A（金融版），含绿色顶部双功能卡片。钱包入口直达钱包页。手机充值和生活缴费为服务目录中的直接入口。"
+    },
+    {
+      "page_id": "services_home_b",
+      "page_role_in_app": "content_page",
+      "parent_page_id": "me_profile",
+      "child_page_ids": [
+        "life_payment",
+        "phone_recharge"
+      ],
+      "reasoning": "服务页变体B（消费版），无金融理财和绿色卡片。手机充值和生活缴费为直接入口。无钱包入口。"
+    },
+    {
+      "page_id": "wallet",
+      "page_role_in_app": "content_page",
+      "parent_page_id": "services_home_a",
+      "child_page_ids": [],
+      "reasoning": "从服务金融版绿色卡片钱包入口进入。零钱/零钱通等列表项的子页面不在当前22页范围内。钱包/账单Tab为同页状态切换。"
+    },
+    {
+      "page_id": "phone_recharge",
+      "page_role_in_app": "form_page",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "可从services_home_a或services_home_b进入的手机充值表单页。多父入口，parent_page_id设为null保守。返回按钮返回来源服务页。"
+    },
+    {
+      "page_id": "life_payment",
+      "page_role_in_app": "content_page",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "可从services_home_a或services_home_b进入的生活缴费页。多父入口，parent_page_id设为null保守。返回按钮返回来源服务页。"
+    },
+    {
+      "page_id": "settings",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "me_profile",
+      "child_page_ids": [
+        "about_wechat",
+        "account_security",
+        "display_settings",
+        "friend_permission",
+        "help_center",
+        "more_settings",
+        "other_functions"
+      ],
+      "reasoning": "从'我'Tab设置入口进入的设置主页。7个直接子页面均为设置列表中明确可下钻的子页面。"
+    },
+    {
+      "page_id": "account_security",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [
+        "security_center"
+      ],
+      "reasoning": "设置>账号安全子页。微信安全中心为明确的下钻目标。"
+    },
+    {
+      "page_id": "security_center",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "account_security",
+      "child_page_ids": [
+        "help_center"
+      ],
+      "reasoning": "账号安全>微信安全中心子页。底部'进入帮助中心'链接指向help_center。"
+    },
+    {
+      "page_id": "display_settings",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [
+        "dark_mode"
+      ],
+      "reasoning": "设置>界面与显示子页。深色模式项下钻到dark_mode。"
+    },
+    {
+      "page_id": "dark_mode",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "display_settings",
+      "child_page_ids": [],
+      "reasoning": "界面与显示>深色模式叶子页。单项Toggle开关，无子页面。"
+    },
+    {
+      "page_id": "friend_permission",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [],
+      "reasoning": "设置>朋友权限子页。含Toggle开关和导航入口，目标子页不在当前22页范围内。"
+    },
+    {
+      "page_id": "more_settings",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [
+        "system_permissions"
+      ],
+      "reasoning": "设置>更多子页。系统权限项下钻到system_permissions。"
+    },
+    {
+      "page_id": "system_permissions",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "more_settings",
+      "child_page_ids": [],
+      "reasoning": "更多>系统权限管理子页。7个权限条目可下钻但目标页不在当前22页范围内。"
+    },
+    {
+      "page_id": "other_functions",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [
+        "auxiliary_features"
+      ],
+      "reasoning": "设置>功能>其他功能子页。辅助功能项下钻到auxiliary_features。"
+    },
+    {
+      "page_id": "auxiliary_features",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "other_functions",
+      "child_page_ids": [],
+      "reasoning": "其他功能>辅助功能子页。6个功能项可下钻但目标页不在当前22页范围内。"
+    },
+    {
+      "page_id": "help_center",
+      "page_role_in_app": "standalone_page",
+      "parent_page_id": null,
+      "child_page_ids": [],
+      "reasoning": "可从settings或security_center进入的帮助中心独立H5页。多父入口。使用×关闭按钮而非←返回。内部8个分类子页不在当前22页范围内。"
+    },
+    {
+      "page_id": "about_wechat",
+      "page_role_in_app": "settings_page",
+      "parent_page_id": "settings",
+      "child_page_ids": [
+        "feature_intro"
+      ],
+      "reasoning": "设置>关于微信子页。功能介绍项下钻到feature_intro。"
+    },
+    {
+      "page_id": "feature_intro",
+      "page_role_in_app": "informational",
+      "parent_page_id": "about_wechat",
+      "child_page_ids": [],
+      "reasoning": "关于微信>功能介绍宣传叶子页。绿底卡片展示页，无子页面。"
+    }
+  ],
+  "relations": [
+    {
+      "relation_id": "rel_tab_chat_to_contacts",
+      "source_page_id": "chat_list",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[通讯录]",
+      "trigger_interaction_id": "tab_switch_contacts",
+      "target_page_id": "contacts",
+      "confidence": "high",
+      "reasoning": "底部导航栏明确标注'通讯录'Tab，点击切换至通讯录主Tab页。"
+    },
+    {
+      "relation_id": "rel_tab_chat_to_discover",
+      "source_page_id": "chat_list",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[发现]",
+      "trigger_interaction_id": "tab_switch_discover",
+      "target_page_id": "discover",
+      "confidence": "high",
+      "reasoning": "底部导航栏明确标注'发现'Tab，点击切换至发现主Tab页。"
+    },
+    {
+      "relation_id": "rel_tab_chat_to_me",
+      "source_page_id": "chat_list",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[我]",
+      "trigger_interaction_id": "tab_switch_me",
+      "target_page_id": "me_profile",
+      "confidence": "high",
+      "reasoning": "底部导航栏明确标注'我'Tab，点击切换至个人主页Tab。"
+    },
+    {
+      "relation_id": "rel_tab_contacts_to_chat",
+      "source_page_id": "contacts",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[微信]",
+      "trigger_interaction_id": "tab_wechat",
+      "target_page_id": "chat_list",
+      "confidence": "high",
+      "reasoning": "通讯录页底部导航栏'微信'Tab，点击返回聊天列表。"
+    },
+    {
+      "relation_id": "rel_tab_contacts_to_discover",
+      "source_page_id": "contacts",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[发现]",
+      "trigger_interaction_id": "tab_discover",
+      "target_page_id": "discover",
+      "confidence": "high",
+      "reasoning": "通讯录页底部导航栏'发现'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_contacts_to_me",
+      "source_page_id": "contacts",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[我]",
+      "trigger_interaction_id": "tab_me",
+      "target_page_id": "me_profile",
+      "confidence": "high",
+      "reasoning": "通讯录页底部导航栏'我'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_discover_to_chat",
+      "source_page_id": "discover",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[微信]",
+      "trigger_interaction_id": "tab_wechat",
+      "target_page_id": "chat_list",
+      "confidence": "high",
+      "reasoning": "发现页底部导航栏'微信'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_discover_to_contacts",
+      "source_page_id": "discover",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[通讯录]",
+      "trigger_interaction_id": "tab_contacts",
+      "target_page_id": "contacts",
+      "confidence": "high",
+      "reasoning": "发现页底部导航栏'通讯录'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_discover_to_me",
+      "source_page_id": "discover",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[我]",
+      "trigger_interaction_id": "tab_me",
+      "target_page_id": "me_profile",
+      "confidence": "high",
+      "reasoning": "发现页底部导航栏'我'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_me_to_chat",
+      "source_page_id": "me_profile",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[微信]",
+      "trigger_interaction_id": "tab_wechat",
+      "target_page_id": "chat_list",
+      "confidence": "high",
+      "reasoning": "我页底部导航栏'微信'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_me_to_contacts",
+      "source_page_id": "me_profile",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[通讯录]",
+      "trigger_interaction_id": "tab_contacts",
+      "target_page_id": "contacts",
+      "confidence": "high",
+      "reasoning": "我页底部导航栏'通讯录'Tab切换。"
+    },
+    {
+      "relation_id": "rel_tab_me_to_discover",
+      "source_page_id": "me_profile",
+      "relation_type": "switches_tab_to",
+      "trigger_label": "底部Tab[发现]",
+      "trigger_interaction_id": "tab_discover",
+      "target_page_id": "discover",
+      "confidence": "high",
+      "reasoning": "我页底部导航栏'发现'Tab切换。"
+    },
+    {
+      "relation_id": "rel_me_to_settings",
+      "source_page_id": "me_profile",
+      "relation_type": "opens_child_page",
+      "trigger_label": "菜单项[设置]",
+      "trigger_interaction_id": "menu_settings",
+      "target_page_id": "settings",
+      "confidence": "high",
+      "reasoning": "我页菜单列表中'设置'项明确下钻到设置主页。"
+    },
+    {
+      "relation_id": "rel_me_to_services_a",
+      "source_page_id": "me_profile",
+      "relation_type": "opens_child_page",
+      "trigger_label": "菜单项[服务]",
+      "trigger_interaction_id": "menu_service",
+      "target_page_id": "services_home_a",
+      "confidence": "medium",
+      "reasoning": "我页菜单列表中'服务'项进入服务聚合页。services_home_a为截图集合中首个服务draft（金融版），作为默认指向。实际运行时可能根据用户状态进入变体B。"
+    },
+    {
+      "relation_id": "rel_services_a_to_wallet",
+      "source_page_id": "services_home_a",
+      "relation_type": "opens_child_page",
+      "trigger_label": "绿色卡片[钱包]",
+      "trigger_interaction_id": "wallet_tap",
+      "target_page_id": "wallet",
+      "confidence": "high",
+      "reasoning": "服务金融版顶部绿色双功能卡片中的'钱包'按钮明确进入钱包页。"
+    },
+    {
+      "relation_id": "rel_services_a_to_recharge",
+      "source_page_id": "services_home_a",
+      "relation_type": "opens_child_page",
+      "trigger_label": "服务项[手机充值]",
+      "trigger_interaction_id": "service_tap",
+      "target_page_id": "phone_recharge",
+      "confidence": "medium",
+      "reasoning": "生活服务分类中'手机充值'项进入手机充值页。所有ServiceItem共用一个service_tap交互ID，精确映射靠trigger_label区分。"
+    },
+    {
+      "relation_id": "rel_services_a_to_payment",
+      "source_page_id": "services_home_a",
+      "relation_type": "opens_child_page",
+      "trigger_label": "服务项[生活缴费]",
+      "trigger_interaction_id": "service_tap",
+      "target_page_id": "life_payment",
+      "confidence": "medium",
+      "reasoning": "生活服务分类中'生活缴费'项进入生活缴费页。"
+    },
+    {
+      "relation_id": "rel_services_b_to_recharge",
+      "source_page_id": "services_home_b",
+      "relation_type": "opens_child_page",
+      "trigger_label": "服务项[手机充值]",
+      "trigger_interaction_id": "service_tap",
+      "target_page_id": "phone_recharge",
+      "confidence": "medium",
+      "reasoning": "消费版服务页生活服务分类中'手机充值'项进入手机充值页。"
+    },
+    {
+      "relation_id": "rel_services_b_to_payment",
+      "source_page_id": "services_home_b",
+      "relation_type": "opens_child_page",
+      "trigger_label": "服务项[生活缴费]",
+      "trigger_interaction_id": "service_tap",
+      "target_page_id": "life_payment",
+      "confidence": "medium",
+      "reasoning": "消费版服务页生活服务分类中'生活缴费'项进入生活缴费页。"
+    },
+    {
+      "relation_id": "rel_settings_to_account_security",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[账号安全]",
+      "trigger_interaction_id": "nav_account_security",
+      "target_page_id": "account_security",
+      "confidence": "high",
+      "reasoning": "设置页账号分组中'账号安全'项明确下钻到账号安全子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_display",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[界面与显示]",
+      "trigger_interaction_id": "nav_display",
+      "target_page_id": "display_settings",
+      "confidence": "high",
+      "reasoning": "设置页通用分组中'界面与显示'项明确下钻到界面与显示子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_friend_permission",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[朋友权限]",
+      "trigger_interaction_id": "nav_friend_permission",
+      "target_page_id": "friend_permission",
+      "confidence": "high",
+      "reasoning": "设置页通用分组中'朋友权限'项明确下钻到朋友权限子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_more",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[更多]",
+      "trigger_interaction_id": "nav_more",
+      "target_page_id": "more_settings",
+      "confidence": "high",
+      "reasoning": "设置页通用分组中'更多'项明确下钻到更多设置子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_other_functions",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[其他功能]",
+      "trigger_interaction_id": "nav_other_functions",
+      "target_page_id": "other_functions",
+      "confidence": "high",
+      "reasoning": "设置页功能分组中'其他功能'项明确下钻到其他功能子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_about",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[关于微信]",
+      "trigger_interaction_id": "nav_about",
+      "target_page_id": "about_wechat",
+      "confidence": "high",
+      "reasoning": "设置页帮助与关于分组中'关于微信'项明确下钻到关于微信子页。"
+    },
+    {
+      "relation_id": "rel_settings_to_help",
+      "source_page_id": "settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[帮助与反馈]",
+      "trigger_interaction_id": null,
+      "target_page_id": "help_center",
+      "confidence": "medium",
+      "reasoning": "设置页帮助与关于分组中'帮助与反馈'项进入帮助中心。settings页interactions未单独列出帮助与反馈的交互ID，但UI结构和语义明确匹配。"
+    },
+    {
+      "relation_id": "rel_account_security_to_center",
+      "source_page_id": "account_security",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[微信安全中心]",
+      "trigger_interaction_id": "nav_security_center",
+      "target_page_id": "security_center",
+      "confidence": "high",
+      "reasoning": "账号安全页中'微信安全中心'项明确下钻到安全中心。"
+    },
+    {
+      "relation_id": "rel_security_center_to_help",
+      "source_page_id": "security_center",
+      "relation_type": "opens_child_page",
+      "trigger_label": "底部链接[进入帮助中心]",
+      "trigger_interaction_id": "help_center",
+      "target_page_id": "help_center",
+      "confidence": "high",
+      "reasoning": "安全中心底部'进入帮助中心'链接明确跳转到帮助中心。"
+    },
+    {
+      "relation_id": "rel_display_to_dark_mode",
+      "source_page_id": "display_settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[深色模式]",
+      "trigger_interaction_id": "nav_dark_mode",
+      "target_page_id": "dark_mode",
+      "confidence": "high",
+      "reasoning": "界面与显示页中'深色模式'项明确下钻到深色模式单项设置页。"
+    },
+    {
+      "relation_id": "rel_more_to_permissions",
+      "source_page_id": "more_settings",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[系统权限]",
+      "trigger_interaction_id": "nav_permissions",
+      "target_page_id": "system_permissions",
+      "confidence": "high",
+      "reasoning": "更多设置页中'系统权限'项明确下钻到系统权限管理页。"
+    },
+    {
+      "relation_id": "rel_other_to_aux",
+      "source_page_id": "other_functions",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[辅助功能]",
+      "trigger_interaction_id": "nav_aux",
+      "target_page_id": "auxiliary_features",
+      "confidence": "high",
+      "reasoning": "其他功能页中'辅助功能'项明确下钻到辅助功能列表页。"
+    },
+    {
+      "relation_id": "rel_about_to_feature_intro",
+      "source_page_id": "about_wechat",
+      "relation_type": "opens_child_page",
+      "trigger_label": "列表项[功能介绍]",
+      "trigger_interaction_id": "nav_feature_intro",
+      "target_page_id": "feature_intro",
+      "confidence": "high",
+      "reasoning": "关于微信页中'功能介绍'项明确下钻到功能介绍宣传页。"
+    }
+  ],
+  "unresolved_relation_hints": [
+    {
+      "source_page_id": "me_profile",
+      "trigger_label": "菜单项[服务]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "services_home_b",
+      "reasoning": "从'我'Tab服务入口存在两种服务页变体（金融版A和消费版B），哪个是用户实际看到的不确定。当前已建立me→A的关系，B作为未确认备选。"
+    },
+    {
+      "source_page_id": "settings",
+      "trigger_label": "列表项[个人资料]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "personal_profile_edit",
+      "reasoning": "设置页账号分组含'个人资料'项，截图中未见目标页。"
+    },
+    {
+      "source_page_id": "settings",
+      "trigger_label": "列表项[个人信息与权限]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "personal_info_permissions",
+      "reasoning": "设置页账号分组含'个人信息与权限'项，截图中未见目标页。"
+    },
+    {
+      "source_page_id": "settings",
+      "trigger_label": "列表项[通知]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "notification_settings",
+      "reasoning": "设置页通用分组含'通知'项，截图中未见目标页。"
+    },
+    {
+      "source_page_id": "chat_list",
+      "trigger_label": "会话项点击",
+      "trigger_interaction_id": null,
+      "target_page_hint": "chat_detail",
+      "reasoning": "聊天列表页每个会话项可点击进入聊天详情，但截图集合中不含聊天详情页。"
+    },
+    {
+      "source_page_id": "chat_list",
+      "trigger_label": "加号菜单[发起群聊]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "create_group",
+      "reasoning": "QuickActionMenu overlay中'发起群聊'项触发新建群聊流程，截图未覆盖。"
+    },
+    {
+      "source_page_id": "chat_list",
+      "trigger_label": "加号菜单[添加朋友]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "add_friend",
+      "reasoning": "QuickActionMenu overlay中'添加朋友'项触发添加好友流程，截图未覆盖。"
+    },
+    {
+      "source_page_id": "wallet",
+      "trigger_label": "Tab[账单]",
+      "trigger_interaction_id": null,
+      "target_page_hint": "wallet_bills",
+      "reasoning": "钱包页顶部钱包/账单双Tab切换，账单Tab内容截图未覆盖。可能是同页状态切换而非独立页面。"
+    }
+  ],
+  "global_notes": [
+    "services_home_a 和 services_home_b 为阶段2保守分立的两个服务页变体。两者共享相同的页面标题'服务'和返回按钮，均从 me_profile 服务入口可达。A版含金融理财分类+绿色顶部卡片，B版含购物消费分类无金融理财。当前导航设计中两者均为 me_profile 的直接子页面，但实际运行时同一时刻只有一个变体可见。建议后续实现时统一为单一 services 页面并根据用户状态动态展示不同分类组合。",
+    "help_center 页面有两个入口来源：settings > 帮助与反馈 和 security_center > 进入帮助中心。该页面使用×关闭按钮（非←返回），域名为 kf.qq.com（独立H5），更像独立覆盖页或外部H5容器。",
+    "phone_recharge 和 life_payment 均可从 services_home_a 或 services_home_b 进入，属于多父页面入口。两者均使用返回按钮而非关闭按钮，更像标准子页面弹出的导航栈行为。",
+    "wallet页存在钱包/账单双Tab切换。账单Tab未在截图集中覆盖，无法确认是否为独立页面或同页状态切换。当前保守判定为同页状态切换（non-navigation），不建立独立页面关系。",
+    "chat_list 的 overlay_quick_action_menu 是页面内浮层（popup），非独立页面。其中4个快捷操作（发起群聊、添加朋友、扫一扫、收付款）可触发页面跳转或流程，但目标页未在截图集中覆盖。",
+    "4个主Tab页（chat_list、contacts、discover、me_profile）间为同层级的 switches_tab_to 关系，非父子 opens_child_page 关系。底部导航栏切换不应实现为 push/pop 导航栈行为。"
+  ]
+}

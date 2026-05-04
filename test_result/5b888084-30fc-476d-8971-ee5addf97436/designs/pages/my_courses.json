@@ -1,0 +1,231 @@
+{
+  "page_id": "my_courses",
+  "page_name": "我的课程",
+  "page_role": "sub_page",
+  "page_summary": "知乎课程模块中'我的课程'Tab内容页 — 当前为空状态(宇航员插图+'还没有内容'+'去看看'按钮),下方展示'大家还在学'推荐课程卡片列表(4门课程),底部为课程模块专用2-Tab导航栏(课程专区/我的课程,我的课程高亮)。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151941_896_24.png",
+    "/user_input/微信图片_20260425151941_896_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_19.json",
+    "/designs/page_drafts/page_draft_20.json"
+  ],
+  "source_draft_indexes": [
+    19,
+    20
+  ],
+  "merge_decision": {
+    "decision_summary": "draft 19 与 draft 20 为同一截图的两次观察结果(相同图片文件名 _896_24)。页面结构、标题、空状态、课程卡片内容完全一致。仅 draft 20 中第4个课程卡片的状态标签略有差异('限时特惠 0元' vs 空)。合并为同一页面,差异记录为微小渲染状态变体。",
+    "same_page_evidence": [
+      "相同来源图片路径",
+      "页面标题、空状态插图、课程卡片列表完全一致",
+      "4门推荐课程(短篇故事变现速成班/一节课搞懂大模型应用开发/零基础AI视频应用变现实战/推广达人变现方案)完全相同"
+    ],
+    "merge_type": "multi_source_duplicate",
+    "variant_type": "minor_rendering_difference",
+    "uncertainties": [
+      "第4个课程卡片的状态标签差异原因不明,可能为图片渲染差异或不同截图时刻"
+    ]
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "←"
+          },
+          {
+            "type": "Title",
+            "text": "我的课程"
+          }
+        ]
+      },
+      {
+        "type": "EmptyStateArea",
+        "children": [
+          {
+            "type": "Illustration",
+            "description": "宇航员机器人插图,手持设备"
+          },
+          {
+            "type": "EmptyHintText",
+            "text": "还没有内容"
+          },
+          {
+            "type": "CTAButton",
+            "text": "去看看"
+          }
+        ]
+      },
+      {
+        "type": "SectionHeader",
+        "text": "大家还在学"
+      },
+      {
+        "type": "CourseCardList",
+        "children": [
+          {
+            "type": "CourseCard",
+            "title": "短篇故事变现速成班",
+            "author": "知乎知学堂",
+            "price": "¥1.00",
+            "status": "已订阅"
+          },
+          {
+            "type": "CourseCard",
+            "title": "一节课搞懂大模型应用开发",
+            "author": "知乎知学堂",
+            "price": "¥1.00",
+            "status": "已订阅"
+          },
+          {
+            "type": "CourseCard",
+            "title": "零基础 AI 视频应用变现实战",
+            "author": "知乎知学堂",
+            "price": "¥1.00",
+            "status": "已订阅"
+          },
+          {
+            "type": "CourseCard",
+            "title": "推广达人变现方案",
+            "author": "知乎知学堂",
+            "price": "¥1.00",
+            "status": "已订阅"
+          }
+        ]
+      },
+      {
+        "type": "BottomTabBar",
+        "items": [
+          {
+            "label": "课程专区",
+            "selected": false
+          },
+          {
+            "label": "我的课程",
+            "selected": true
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "role": "header",
+      "summary": "顶部导航栏:返回箭头+标题'我的课程'"
+    },
+    {
+      "block_id": "empty_state",
+      "role": "content_placeholder",
+      "summary": "空状态区:宇航员插图+'还没有内容'提示+'去看看'CTA按钮"
+    },
+    {
+      "block_id": "recommendation_section",
+      "role": "content",
+      "summary": "'大家还在学'推荐课程区:4门课程卡片(封面+标题+作者+价格+状态)"
+    },
+    {
+      "block_id": "bottom_tab_bar",
+      "role": "local_navigation",
+      "summary": "课程模块2-Tab导航:课程专区/我的课程,我的课程高亮"
+    }
+  ],
+  "key_texts": [
+    "我的课程",
+    "还没有内容",
+    "去看看",
+    "大家还在学",
+    "短篇故事变现速成班",
+    "一节课搞懂大模型应用开发",
+    "零基础 AI 视频应用变现实战",
+    "推广达人变现方案",
+    "知乎知学堂",
+    "¥1.00",
+    "已订阅",
+    "课程专区",
+    "我的课程"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation",
+      "trigger": "点击返回箭头",
+      "target_page_hint": "上一页面"
+    },
+    {
+      "interaction_id": "go_explore",
+      "type": "navigation",
+      "trigger": "点击'去看看'",
+      "target_page_hint": "课程发现/推荐页"
+    },
+    {
+      "interaction_id": "course_card_tap",
+      "type": "navigation",
+      "trigger": "点击课程卡片",
+      "target_page_hint": "课程详情页"
+    },
+    {
+      "interaction_id": "tab_courses",
+      "type": "state_change",
+      "trigger": "点击'课程专区'",
+      "description": "切换到课程专区Tab内容"
+    },
+    {
+      "interaction_id": "tab_my_courses",
+      "type": "state_change",
+      "trigger": "点击'我的课程'",
+      "description": "已在当前Tab,无变化"
+    }
+  ],
+  "state_variants": [
+    {
+      "variant_id": "rendering_variant",
+      "variant_name": "微小渲染差异",
+      "description": "draft 20 中'推广达人变现方案'卡片状态显示'限时特惠 0元',draft 19 中该卡片无此状态标签。差异极小,不改变页面结构。",
+      "source_drafts": [
+        19,
+        20
+      ]
+    }
+  ],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "HeaderNav + EmptyState + RecommendationList + BottomTabs",
+    "visual_blocks": [
+      "固定顶部导航栏",
+      "居中空状态插图+提示+CTA",
+      "水平课程卡片列表(带封面/标题/作者/价格/状态)",
+      "底部课程模块专用2-Tab导航"
+    ],
+    "styling_hints": "浅灰背景,圆角课程卡片,品牌蓝色CTA按钮,宇航员线性插图风格",
+    "reusable_components": [
+      "CourseCard",
+      "EmptyStateView",
+      "BottomTabBar"
+    ]
+  },
+  "visual_style_hints": {
+    "overall_style": "教育/课程模块风格",
+    "density": "low",
+    "background": "light_gray",
+    "accent_color": "blue"
+  },
+  "page_semantic_role": "sub_settings",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [],
+  "possible_child_page_hints": [],
+  "notes": [
+    "当前页面为空状态,正常状态应展示用户已订阅/购买的课程列表",
+    "底部Tab为课程模块专用导航,非全局底部导航",
+    "'大家还在学'为推荐区,与用户个人课程无关"
+  ],
+  "schema_version": "stage2_page.v1"
+}

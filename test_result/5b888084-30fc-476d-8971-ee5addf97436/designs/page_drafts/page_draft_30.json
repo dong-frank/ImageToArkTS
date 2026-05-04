@@ -1,0 +1,98 @@
+{
+  "observation_meta": {
+    "stage": "architect_stage1_single_image_observation",
+    "schema_version": "stage1.v1",
+    "draft_index": 30,
+    "image_path": "/user_input/微信图片_20260429233217_957_24.png",
+    "image_name": "微信图片_20260429233217_957_24.png",
+    "observation_status": "partial"
+  },
+  "page_identity": {
+    "candidate_page_name": "微信图片_20260429233217_957_24.png",
+    "candidate_page_id": "page_30",
+    "page_role_hint": "unknown",
+    "title_texts": [],
+    "distinguishing_texts": [
+      "]",
+      "],",
+      "]"
+    ],
+    "page_goal_summary": null,
+    "primary_content_summary": null
+  },
+  "page_overview": {
+    "layout_summary": "partial observation recovered from non-parseable model output",
+    "visual_semantics": {}
+  },
+  "ui_tree": {
+    "type": "UnknownContainer",
+    "id": "page_root",
+    "children": []
+  },
+  "structural_blocks": [],
+  "key_content": {
+    "visible_texts": [
+      "]",
+      "],",
+      "]",
+      "]",
+      "]",
+      "],",
+      "],",
+      "]",
+      "],",
+      "]",
+      "],",
+      "],"
+    ],
+    "key_controls": []
+  },
+  "interaction_clues": [],
+  "navigation_hints": {
+    "has_back": false,
+    "has_close": false,
+    "primary_ctas": [],
+    "likely_entry_points": [],
+    "likely_exit_points": [],
+    "navigation_summary": null
+  },
+  "state_hints": {
+    "tab_labels": [],
+    "active_tab_hint": null,
+    "segment_labels": [],
+    "active_segment_hint": null,
+    "filter_hints": [],
+    "page_state_tags": [],
+    "state_summary": null
+  },
+  "overlay_hints": {
+    "has_overlay": false,
+    "overlay_candidates": []
+  },
+  "merge_hints": {
+    "variant_kind": "unknown",
+    "merge_confidence": "low",
+    "same_page_anchor_signals": [],
+    "distinguishing_state_signals": [],
+    "independent_page_signals": [],
+    "merge_summary": null
+  },
+  "subpage_hints": {
+    "possible_parent_page_hints": [],
+    "possible_child_page_hints": [],
+    "hierarchy_summary": null
+  },
+  "implementation_semantics": {
+    "layout_pattern_hint": null,
+    "important_visual_blocks": [],
+    "style_notes": []
+  },
+  "raw_preservation": {
+    "notable_elements": [],
+    "raw_observation": "{\n  \"observation_meta\": {\n    \"source_image_path\": \"/user_input/微信图片_20260429233217_957_24.png\",\n    \"filename\": \"微信图片_20260429233217_957_24.png\",\n    \"timestamp\": \"23:31\",\n    \"battery_level\": 7,\n    \"network_status\": \"cellular+wifi\",\n    \"draft_index\": 30\n  },\n  \"page_identity\": {\n    \"page_name_candidates\": [\"与第三方共享个人信息清单\"],\n    \"page_id_candidate\": \"privacy_third_party_data_sharing_list\",\n    \"page_role\": \"informational_detail\",\n    \"title_text\": \"与第三方共享个人信息清单\",\n    \"distinguishing_text\": [\"内嵌 SDK 名单\", \"中国移动通信集团有限公司\", \"认证服务\", \"精准触达\"],\n    \"purpose_summary\": \"展示当前应用向第三方（含SDK）共享的个人信息类型、用途、方式及处理规则，属隐私政策合规披露页面\"\n  },\n  \"page_overview\": {\n    \"layout_summary\": \"竖向滚动长页，顶部为标题栏（含返回箭头与更多菜单），主体为带表头的多列数据表格，内容以‘内嵌 SDK 名单’为子标题分组呈现；整体为信息密集型静态列表页，无明显交互控件除顶部导航。\",\n    \"high_level_semantics\": \"合规披露类页面，强调透明性与可读性；采用表格结构组织多维数据（第三方、产品、信息项、目的、场景、方式、规则），视觉重心在数据行内容而非操作\"\n  },\n  \"ui_tree\": {\n    \"type\": \"PageRoot\",\n    \"children\": [\n      {\n        \"type\": \"NavigationBar\",\n        \"children\": [\n          { \"type\": \"BackButton\", \"text\": \"<\" },\n          { \"type\": \"Title\", \"text\": \"与第三方共享个人信息清单\" },\n          { \"type\": \"OverflowMenu\", \"icon\": \"⋯\" }\n        ]\n      },\n      {\n        \"type\": \"SectionHeader\",\n        \"text\": \"与第三方共享个人信息清单\"\n      },\n      {\n        \"type\": \"Table\",\n        \"header\": [\n          \"第三方公司名称\",\n          \"产品/类型\",\n          \"共享信息名称\",\n          \"使用目的\",\n          \"使用场景\",\n          \"共享方式\",\n          \"第三方个人信息处理规则\"\n        ],\n        \"rows\": [\n          {\n            \"type\": \"TableRow\",\n            \"cells\": [\n              { \"type\": \"Cell\", \"text\": \"中国移动通信集团有限公司\" },\n              { \"type\": \"Cell\", \"text\": \"中国移动认证精准触达SDK\" },\n              { \"type\": \"Cell\", \"text\": \"网络类型、网络地址（ip地址）、运营商类型、本机号码信息；设备类型（型号）、操作系统、硬件\" },\n              { \"type\": \"Cell\", \"text\": \"移动手机号码一键登录、移动用户活跃\" },\n              { \"type\": \"Cell\", \"text\": \"在用户使用移动手机号码登录时使用\" },\n              { \"type\": \"Cell\", \"text\": \"SDK本机采集\" },\n              { \"type\": \"Cell\", \"text\": \"认证服务：https://wap.cmpassport.com/resources/html/contract.html\\n精准触达：https://wap.cmpassport.com/resources\" }\n            ]\n          }\n        ]\n      },\n      {\n        \"type\": \"SubsectionHeader\",\n        \"text\": \"内嵌 SDK 名单\"\n      }\n    ]\n  },\n  \"structural_blocks\": [\n    {\n      \"block_id\": \"nav_bar\",\n      \"role\": \"navigation\",\n      \"elements\": [\"back_button\", \"page_title\", \"overflow_menu\"]\n    },\n    {\n      \"block_id\": \"main_title\",\n      \"role\": \"heading\",\n      \"text\": \"与第三方共享个人信息清单\"\n    },\n    {\n      \"block_id\": \"data_table\",\n      \"role\": \"content_primary\",\n      \"structure\": \"headered_table\",\n      \"subsections\": [\"sdk_list_header\"]\n    },\n    {\n      \"block_id\": \"sdk_list_header\",\n      \"role\": \"subsection_heading\",\n      \"text\": \"内嵌 SDK 名单\"\n    }\n  ],\n  \"key_content\": {\n    \"text_elements\": [\n      \"与第三方共享个人信息清单\",\n      \"第三方公司名称\",\n      \"产品/类型\",\n      \"共享信息名称\",\n      \"使用目的\",\n      \"使用场景\",\n      \"共享方式\",\n      \"第三方个人信息处理规则\",\n      \"内嵌 SDK 名单\",\n      \"中国移动通信集团有限公司\",\n      \"中国移动认证精准触达SDK\",\n      \"网络类型、网络地址（ip地址）、运营商类型、本机号码信息；设备类型（型号）、操作系统、硬件\",\n      \"移动手机号码一键登录、移动用户活跃\",\n      \"在用户使用移动手机号码登录时使用\",\n      \"SDK本机采集\",\n      \"认证服务：https://wap.cmpassport.com/resources/html/contract.html\",\n      \"精准触达：https://wap.cmpassport.com/resources\"\n    ],\n    \"key_controls\": [\n      { \"type\": \"BackButton\", \"position\": \"top-left\" },\n      { \"type\": \"OverflowMenu\", \"position\": \"top-right\", \"icon\": \"⋯\" }\n    ]\n  },\n  \"interaction_clues\": [\n    {\n      \"clue_type\": \"navigation\",\n      \"element\": \"BackButton\",\n      \"implied_action\": \"pop_to_previous_page\",\n      \"target_uncertain\": true\n    },\n    {\n      \"clue_type\": \"more_options\",\n      \"element\": \"OverflowMenu\",\n      \"implied_action\": \"open_context_menu\",\n      \"possible_actions\": [\"分享\", \"复制\", \"反馈\"]\n    },\n    {\n      \"clue_type\": \"external_link\",\n      \"element\": \"URL_in_rule_cell\",\n      \"text_snippet\": \"https://wap.cmpassport.com/resources/html/contract.html\",\n      \"implied_action\": \"open_browser_or_webview\",\n      \"target_uncertain\": true\n    }\n  ],\n  \"navigation_hints\": {\n    \"return_path\": \"likely_from_privacy_policy_or_settings_menu\",\n    \"exit_paths\": [\"back_button\", \"system_back\"],\n    \"primary_cta\": null,\n    \"entry_points\": [\"privacy_policy_section\", \"app_settings > permissions\", \"login_flow_redirect\"],\n    \"departure_points\": [\"none_visible\"]\n  },\n  \"state_hints\": {\n    \"tab_state\": null,\n    \"segment_state\": null,\n    \"filter_state\": null,\n    \"page_state_labels\": [],\n    \"selected_row\": null\n  },\n  \"overlay_hints\": {\n    \"has_overlay\": false,\n    \"overlay_type\": null,\n    \"trigger_source\": null,\n    \"dismiss_method\": null,\n    \"content_summary\": null\n  },\n  \"merge_hints\": {\n    \"same_page_anchors\": [\"内嵌 SDK 名单\" 可能是同一页面内的子标题，非独立页],\n    \"state_difference_evidence\": [],\n    \"independent_page_signals\": [\"无分页指示器\", \"无底部导航\", \"无 tab bar\", \"内容连续滚动\"] → 倾向于单页长列表\n  },\n  \"subpage_hints\": {\n    \"potential_parent\": \"隐私政策详情页 / 设置 > 隐私权限\",\n    \"potential_children\": [\"第三方处理规则详情页（通过URL跳转）\"],\n    \"drilldown_entries\": [\n      {\n        \"target\": \"URL in rule column\",\n        \"type\": \"external_link\",\n        \"confidence\": \"medium\"\n      }\n    ]\n  },\n  \"implementation_semantics\": {\n    \"layout_pattern\": \"scrollable_information_table_page\",\n    \"visual_blocks\": [\"fixed_navbar\", \"centered_main_title\", \"structured_table_with_wrapped_cells\"],\n    \"styling_hints\": {\n      \"table_borders\": \"light_gray_divider_lines\",\n      \"cell_alignment\": \"left-aligned text, multi-line wrapping\",\n      \"font_size\": \"small_for_detail_rows, medium_for_headers\",\n      \"color_scheme\": \"dark_text_on_light_background\"\n    }\n  },\n  \"raw_preservation\": {\n    \"significant_elements\": [\n      \"表格中‘第三方个人信息处理规则’列包含两个完整URL，格式为‘服务名：URL’\",\n      \"‘共享信息名称’列文本换行明显，含括号注释如‘(ip地址)’、‘(型号)’\",\n      \"‘使用目的’列为两行文本：‘移动手机号码一键登录、移动用户活跃’\",\n      \"‘共享方式’列为‘SDK本机采集’，垂直居中对齐\"\n    ],\n    \"key_facts\": [\n      \"仅显示一家第三方：中国移动通信集团有限公司\",\n      \"产品类型明确为‘中国移动认证精准触达SDK’\",\n      \"无其他SDK条目可见（可能需滚动）\",\n      \"页面无搜索、筛选、排序控件\"\n    ],\n    \"uncertainties\": [\n      \"是否还有其他SDK行被截断？当前仅见1行数据\",\n      \"‘内嵌 SDK 名单’是表格内子标题还是独立区块？视觉上紧接表格下方，但无分隔线\",\n      \"URL是否可点击？截图中无下划线或高亮，无法确认交互性\",\n      \"overflow menu 具体选项未知\"\n    ]\n  }\n}",
+    "uncertainties": [
+      "non-parseable model output preserved for stage2 fallback: failed to parse JSON object from model response"
+    ],
+    "error": "non-parseable model output preserved for stage2 fallback: failed to parse JSON object from model response"
+  }
+}

@@ -1,0 +1,191 @@
+{
+  "page_id": "about_wechat",
+  "page_name": "关于微信",
+  "page_role": "settings_subpage",
+  "page_summary": "微信'关于'页面。提供微信版本信息与应用相关入口：微信版本号(Version 8.0.1)、功能介绍、检查新版本以及服务协议与隐私政策等法律文件入口。",
+  "derived_from_images": [
+    "/user_input/微信图片_20260425151226_875_24.png"
+  ],
+  "source_draft_files": [
+    "/designs/page_drafts/page_draft_18.json"
+  ],
+  "source_draft_indexes": [
+    18
+  ],
+  "merge_decision": {
+    "decision_summary": "单draft保守定稿。该draft为'关于'页面完整结构，无可靠合并对象。",
+    "merge_type": "single_draft_finalized",
+    "variant_type": "standalone",
+    "uncertainties": []
+  },
+  "ui_tree": {
+    "type": "Page",
+    "id": "page_root",
+    "children": [
+      {
+        "type": "NavigationBar",
+        "children": [
+          {
+            "type": "BackButton",
+            "label": "返回"
+          },
+          {
+            "type": "Title",
+            "text": "关于"
+          }
+        ]
+      },
+      {
+        "type": "SectionGrouped",
+        "header": "应用信息",
+        "children": [
+          {
+            "type": "ListItem",
+            "label": "微信",
+            "accessory": {
+              "type": "Description",
+              "text": "Version 8.0.1"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "功能介绍",
+            "accessory": {
+              "type": "Chevron"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "检查新版本",
+            "accessory": {
+              "type": "ChevronAndBadge",
+              "badge_text": "已是最新版",
+              "badge_style": "gray"
+            }
+          }
+        ]
+      },
+      {
+        "type": "SectionGrouped",
+        "header": "更多法律信息",
+        "children": [
+          {
+            "type": "ListItem",
+            "label": "服务协议与隐私政策",
+            "accessory": {
+              "type": "Chevron"
+            }
+          },
+          {
+            "type": "ListItem",
+            "label": "腾讯客服",
+            "accessory": {
+              "type": "ChevronLink"
+            }
+          },
+          {
+            "type": "LinkText",
+            "text": "© 2025 Tencent All Rights Reserved.",
+            "style": "small_centered_gray"
+          },
+          {
+            "type": "LinkText",
+            "text": "粤公网安备44030002000001号",
+            "style": "small_centered_gray"
+          }
+        ]
+      }
+    ]
+  },
+  "frame_blocks": [
+    {
+      "block_id": "nav_bar",
+      "block_role": "navigation_header",
+      "summary": "导航栏：返回按钮+标题'关于'"
+    },
+    {
+      "block_id": "app_info_section",
+      "block_role": "version_info",
+      "summary": "应用信息区：微信 Version 8.0.1、功能介绍、检查新版本(已是最新版)"
+    },
+    {
+      "block_id": "legal_section",
+      "block_role": "legal_links",
+      "summary": "法律信息区：服务协议与隐私政策、腾讯客服、版权声明、网安备案"
+    }
+  ],
+  "key_texts": [
+    "关于",
+    "微信",
+    "Version 8.0.1",
+    "功能介绍",
+    "检查新版本",
+    "已是最新版",
+    "服务协议与隐私政策",
+    "腾讯客服",
+    "© 2025 Tencent All Rights Reserved.",
+    "粤公网安备44030002000001号"
+  ],
+  "key_controls": [],
+  "interactions": [
+    {
+      "interaction_id": "back",
+      "type": "navigation_back",
+      "source": "BackButton",
+      "action": "pop"
+    },
+    {
+      "interaction_id": "nav_feature_intro",
+      "type": "list_item_tap",
+      "source": "ListItem[功能介绍]",
+      "target_page_hint": "feature_intro"
+    },
+    {
+      "interaction_id": "check_update",
+      "type": "list_item_tap",
+      "source": "ListItem[检查新版本]",
+      "action": "check_update_or_toast"
+    },
+    {
+      "interaction_id": "nav_agreement",
+      "type": "list_item_tap",
+      "source": "ListItem[服务协议与隐私政策]",
+      "action": "navigate_to_agreement"
+    }
+  ],
+  "state_variants": [],
+  "overlay_ids": [],
+  "overlay_summaries": [],
+  "implementation_hints": {
+    "layout_pattern": "ScrollView with two grouped sections",
+    "visual_blocks": [
+      "Navigation bar",
+      "Grouped list items",
+      "Section footers with centered gray text"
+    ],
+    "styling_hints": {
+      "list_item_height": "standard(≈88px)",
+      "section_spacing": "standard grouped style",
+      "footer_text_size": "12sp-ish",
+      "divider": "between items"
+    }
+  },
+  "visual_style_hints": {
+    "page_tone": "简洁应用信息页",
+    "emphasis": "Version徽标突出版本号",
+    "background": "浅灰纯色"
+  },
+  "page_semantic_role": "app_info",
+  "target_page_hints": [],
+  "possible_parent_page_hints": [
+    "settings > 关于"
+  ],
+  "possible_child_page_hints": [],
+  "notes": [
+    "列表项间有浅灰分割线",
+    "'腾讯客服'标题后额外带'🔗'或链接图标",
+    "域名非weixin.qq.com",
+    "底部版权文字居中灰色小号"
+  ],
+  "schema_version": "stage2_page.v1"
+}
