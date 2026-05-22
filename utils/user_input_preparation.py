@@ -115,6 +115,9 @@ def build_user_input_prompt_text(user_text: str) -> str:
         f"{USER_INPUT_INSTRUCTION_PREFIX}\n\n"
         "请先读取以下稳定输入工件，再理解当前用户请求：\n"
         "- /user_input/user_input_metadata.json\n\n"
+        "注意：`user_input_metadata.json` 可能很长。调用 `read_file` 时请明确分页或设置较大 `limit`，\n"
+        "例如 `read_file(path=\"/user_input/user_input_metadata.json\", offset=0, limit=1000)`，\n"
+        "或循环分页直到读取完毕。不要只读取默认的前 100 行。\n\n"
         "以下是用户在主聊天框中的本次输入：\n"
         f"{user_text or '(empty)'}"
     )

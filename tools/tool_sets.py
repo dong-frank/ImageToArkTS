@@ -5,6 +5,7 @@ from tools.architect_tools import (
     read_page_file,
     read_page_merge_index,
     save_navigation_design,
+    save_page_navigation_contexts,
     save_page_merge_result,
 )
 from tools.human_guidance import request_human_guidance
@@ -21,6 +22,7 @@ ARCHITECT_SUBAGENT_TOOLS = [
     read_page_file,
     read_navigation_design,
     save_navigation_design,
+    save_page_navigation_contexts,
     validate_json_syntax,
     request_human_guidance,
 ]

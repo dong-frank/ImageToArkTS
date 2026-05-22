@@ -14,6 +14,7 @@ from tools.architect_tools import (
     read_page_merge_index,
     save_merged_page,
     save_navigation_design,
+    save_page_navigation_contexts,
     save_page_draft,
     save_page_drafts_index,
     save_page_merge_result,
@@ -52,6 +53,7 @@ ARCHITECT_NAVIGATION_PLANNER_TOOLS = [
     read_page_merge_index,
     read_page_file,
     save_navigation_design,
+    save_page_navigation_contexts,
     validate_json_syntax,
 ]
 

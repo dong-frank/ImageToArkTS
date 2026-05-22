@@ -2113,6 +2113,85 @@ def save_navigation_design(
     except Exception as exc:  # noqa: BLE001
         return f"保存失败：workspace_root={root} error={exc}"
 
+def save_page_navigation_contexts(
+    contexts: dict[str, dict[str, Any]],
+    project_root: Path | None = None,
+) -> str:
+    """
+    Stage 3: Project navigation context into each page file.
+
+    Args:
+        contexts: Mapping from page_id to navigation_context dict.
+        project_root: Optional project root (auto-resolved if not provided).
+
+    Returns:
+        Status message summarizing success/failure.
+    """
+    root = _get_workspace_root(project_root)
+    pages_dir = _resolve_path(root, "/designs/pages")
+
+    if not pages_dir.exists() or not pages_dir.is_dir():
+        return f"保存失败：页面目录不存在：{pages_dir}"
+
+    # Validate that all page_ids exist and gather file paths
+    page_files: dict[str, Path] = {}
+    missing_page_ids: list[str] = []
+    invalid_page_ids: list[str] = []
+
+    for page_id in contexts.keys():
+        page_path = pages_dir / f"{page_id}.json"
+        if not page_path.exists() or not page_path.is_file():
+            missing_page_ids.append(page_id)
+            continue
+
+        # Quick validation: ensure it's a valid JSON and contains at least page_id
+        try:
+            with page_path.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            if data.get("page_id") != page_id:
+                invalid_page_ids.append(page_id)
+        except Exception:
+            invalid_page_ids.append(page_id)
+            continue
+
+        page_files[page_id] = page_path
+
+    if missing_page_ids:
+        return f"保存失败：以下 page_id 对应的页面文件不存在：{', '.join(missing_page_ids)}"
+    if invalid_page_ids:
+        return f"保存失败：以下页面文件内容无效：{', '.join(invalid_page_ids)}"
+
+    saved_count = 0
+    errors: list[str] = []
+
+    for page_id, nav_ctx in contexts.items():
+        page_path = page_files[page_id]
+        try:
+            with page_path.open("r", encoding="utf-8") as f:
+                page_data = json.load(f)
+
+            # Write navigation_context (overwrite if exists, create if not)
+            page_data["navigation_context"] = nav_ctx
+
+            with page_path.open("w", encoding="utf-8") as f:
+                json.dump(page_data, f, ensure_ascii=False, indent=2)
+
+            saved_count += 1
+        except Exception as exc:
+            errors.append(f"{page_id}: {exc}")
+
+    if errors:
+        return f"保存部分成功：成功 {saved_count}/{len(contexts)}，失败：{'; '.join(errors)}"
+
+    return "\n".join(
+        [
+            "status: SUCCESS",
+            f"workspace_root: {root}",
+            f"saved_pages: {saved_count}",
+            "page_files_updated:",
+            *[f"/designs/pages/{pid}.json" for pid in contexts.keys()],
+        ]
+    )
 
 # ---------------------------------------------------------------------------
 # Artifact inspection helpers for resume / recovery
