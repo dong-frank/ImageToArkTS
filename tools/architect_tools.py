@@ -2114,84 +2114,86 @@ def save_navigation_design(
         return f"保存失败：workspace_root={root} error={exc}"
 
 def save_page_navigation_contexts(
-    contexts: dict[str, dict[str, Any]],
+    contexts: Any,
     project_root: Path | None = None,
 ) -> str:
     """
-    Stage 3: Project navigation context into each page file.
+    Add or replace only the navigation_context field in persisted stage2 pages.
 
-    Args:
-        contexts: Mapping from page_id to navigation_context dict.
-        project_root: Optional project root (auto-resolved if not provided).
-
-    Returns:
-        Status message summarizing success/failure.
+    Accepted item shape:
+    - {"page_id": "...", "navigation_context": {...}}
+    - {"page_file": "/designs/pages/<page_id>.json", "navigation_context": {...}}
     """
     root = _get_workspace_root(project_root)
-    pages_dir = _resolve_path(root, "/designs/pages")
+    try:
+        payload = _deep_load_json(contexts)
+        if isinstance(payload, dict) and isinstance(payload.get("contexts"), list):
+            items = payload["contexts"]
+        elif isinstance(payload, dict):
+            items = [payload]
+        elif isinstance(payload, list):
+            items = payload
+        else:
+            return f"保存失败：contexts 类型不受支持：{type(payload).__name__}"
 
-    if not pages_dir.exists() or not pages_dir.is_dir():
-        return f"保存失败：页面目录不存在：{pages_dir}"
+        updated: list[str] = []
+        skipped: list[str] = []
 
-    # Validate that all page_ids exist and gather file paths
-    page_files: dict[str, Path] = {}
-    missing_page_ids: list[str] = []
-    invalid_page_ids: list[str] = []
+        for idx, item in enumerate(items):
+            if not isinstance(item, dict):
+                skipped.append(f"item[{idx}]: not an object")
+                continue
 
-    for page_id in contexts.keys():
-        page_path = pages_dir / f"{page_id}.json"
-        if not page_path.exists() or not page_path.is_file():
-            missing_page_ids.append(page_id)
-            continue
+            nav_context = item.get("navigation_context")
+            if not isinstance(nav_context, dict):
+                skipped.append(f"item[{idx}]: missing navigation_context object")
+                continue
 
-        # Quick validation: ensure it's a valid JSON and contains at least page_id
-        try:
-            with page_path.open("r", encoding="utf-8") as f:
-                data = json.load(f)
-            if data.get("page_id") != page_id:
-                invalid_page_ids.append(page_id)
-        except Exception:
-            invalid_page_ids.append(page_id)
-            continue
+            page_id = _safe_str(item.get("page_id"))
+            raw_page_file = _safe_str(
+                item.get("page_file")
+                or item.get("page_file_path")
+                or item.get("path")
+            )
+            canonical_path, path_error = _canonical_page_file_from_input(
+                raw_page_file,
+                page_id=page_id,
+            )
+            if path_error:
+                skipped.append(f"item[{idx}]: {path_error}")
+                continue
 
-        page_files[page_id] = page_path
+            page_path = _resolve_path(root, canonical_path)
+            if not page_path.exists() or not page_path.is_file():
+                skipped.append(f"item[{idx}]: page file not found: {canonical_path}")
+                continue
 
-    if missing_page_ids:
-        return f"保存失败：以下 page_id 对应的页面文件不存在：{', '.join(missing_page_ids)}"
-    if invalid_page_ids:
-        return f"保存失败：以下页面文件内容无效：{', '.join(invalid_page_ids)}"
+            page_data, page_error = _safe_json_load_file(page_path)
+            if page_error or not isinstance(page_data, dict):
+                skipped.append(f"item[{idx}]: invalid page json: {page_error}")
+                continue
 
-    saved_count = 0
-    errors: list[str] = []
+            page_data["navigation_context"] = nav_context
+            page_path.write_text(
+                json.dumps(page_data, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+            updated.append(canonical_path)
 
-    for page_id, nav_ctx in contexts.items():
-        page_path = page_files[page_id]
-        try:
-            with page_path.open("r", encoding="utf-8") as f:
-                page_data = json.load(f)
-
-            # Write navigation_context (overwrite if exists, create if not)
-            page_data["navigation_context"] = nav_ctx
-
-            with page_path.open("w", encoding="utf-8") as f:
-                json.dump(page_data, f, ensure_ascii=False, indent=2)
-
-            saved_count += 1
-        except Exception as exc:
-            errors.append(f"{page_id}: {exc}")
-
-    if errors:
-        return f"保存部分成功：成功 {saved_count}/{len(contexts)}，失败：{'; '.join(errors)}"
-
-    return "\n".join(
-        [
-            "status: SUCCESS",
-            f"workspace_root: {root}",
-            f"saved_pages: {saved_count}",
-            "page_files_updated:",
-            *[f"/designs/pages/{pid}.json" for pid in contexts.keys()],
-        ]
-    )
+        return "\n".join(
+            [
+                "status: SUCCESS" if updated else "status: FAILED",
+                f"workspace_root: {root}",
+                f"updated_count: {len(updated)}",
+                f"skipped_count: {len(skipped)}",
+                "updated_files:",
+                *[f"- {path}" for path in updated],
+                "skipped:",
+                *[f"- {reason}" for reason in skipped],
+            ]
+        )
+    except Exception as exc:  # noqa: BLE001
+        return f"保存失败：workspace_root={root} error={exc}"
 
 # ---------------------------------------------------------------------------
 # Artifact inspection helpers for resume / recovery
